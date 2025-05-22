@@ -1,0 +1,469 @@
+export const translations = {
+  en: {
+    // Header
+    header: {
+      brand: "SMS Platform",
+      subtitle: "SMS Marketing Platform",
+      dashboard: "Dashboard",
+      campaigns: "Campaigns",
+      analytics: "Analytics",
+      support: "Support"
+    },
+    
+    // Footer
+    footer: {
+      description: "Empower your business with targeted SMS marketing campaigns. Reach your customers with precision and drive results.",
+      quickLinks: "Quick Links",
+      support: "Support",
+      helpCenter: "Help Center",
+      contactUs: "Contact Us",
+      privacyPolicy: "Privacy Policy",
+      termsOfService: "Terms of Service",
+      copyright: "© 2024 SMS Platform. All rights reserved."
+    },
+    
+    // Login Page
+    login: {
+      title: "Welcome to SMS Platform",
+      subtitle: "Sign in to access your SMS marketing dashboard",
+      emailOrMobile: "Email or Mobile Number",
+      emailOrMobilePlaceholder: "user@example.com or +989123456789",
+      password: "Password",
+      passwordPlaceholder: "Enter your password",
+      signIn: "Sign In",
+      forgotPassword: "Forgot Password?",
+      noAccount: "Don't have an account?",
+      signUpHere: "Sign up here",
+      success: "Login successful!",
+      validation: {
+        allFieldsRequired: "Please fill in all fields",
+      },
+      error: {
+        invalidCredentials: "Invalid email/mobile or password",
+        networkError: "Network error. Please try again.",
+      },
+      features: {
+        title: "Why Choose SMS Platform?",
+        targeted: "Targeted SMS campaigns",
+        segmentation: "Advanced customer segmentation",
+        analytics: "Real-time analytics and reporting",
+        compliance: "Compliance with regulations"
+      }
+    },
+    
+    // Forgot Password Page
+    forgotPassword: {
+      title: "Forgot Password",
+      subtitle: "Enter your email or mobile number to reset your password",
+      emailOrMobile: "Email or Mobile Number",
+      emailOrMobilePlaceholder: "Enter your email or mobile number",
+      sendResetLink: "Send Reset Link",
+      backToLogin: "Back to Login",
+      helpText: "We will send a password reset OTP to your mobile number",
+      validation: {
+        identifierRequired: "Please enter your email or mobile number",
+      },
+      error: {
+        requestFailed: "Failed to send reset link. Please try again.",
+        networkError: "Network error. Please try again.",
+      },
+      success: {
+        title: "Reset Link Sent",
+        subtitle: "Check your mobile for the OTP",
+        message: "Password reset OTP has been sent to {phone}",
+        expiresIn: "OTP expires in {minutes} minutes",
+        tryAgain: "Try Another Email/Mobile",
+        resetPassword: "Reset Password",
+        backToLogin: "Back to Login",
+      },
+    },
+    
+    // Reset Password Page
+    resetPassword: {
+      title: "Reset Password",
+      subtitle: "Enter your new password and OTP code",
+      forPhone: "For phone number: {phone}",
+      otpCode: "OTP Code",
+      otpHelp: "Enter the 6-digit code sent to your mobile",
+      newPassword: "New Password",
+      newPasswordPlaceholder: "Enter your new password",
+      confirmPassword: "Confirm Password",
+      confirmPasswordPlaceholder: "Confirm your new password",
+      resetPassword: "Reset Password",
+      backToLogin: "Back to Login",
+      requirements: {
+        title: "Password Requirements",
+        minLength: "At least 8 characters",
+        letterAndDigit: "At least 1 letter and 1 digit",
+      },
+      validation: {
+        newPasswordRequired: "Please enter a new password",
+        passwordMin: "Password must be at least 8 characters",
+        passwordStrength: "Password must contain at least 1 letter and 1 digit",
+        passwordMismatch: "Passwords do not match",
+        otpRequired: "Please enter the 6-digit OTP code",
+      },
+      error: {
+        resetFailed: "Failed to reset password. Please try again.",
+        networkError: "Network error. Please try again.",
+        noCustomerId: "Invalid reset link. Please try again.",
+      },
+      success: {
+        title: "Password Reset Successful",
+        subtitle: "Your password has been updated",
+        message: "You can now log in with your new password",
+        backToLogin: "Back to Login",
+      },
+    },
+    
+    // Signup Page
+    signup: {
+      title: "Create Your Account",
+      subtitle: "Join SMS Platform and start your SMS marketing journey",
+      accountType: "Account Type",
+      selectAccountType: "Select account type",
+      individual: "Individual",
+      independentCompany: "Independent Company",
+      marketingAgency: "Marketing Agency",
+      
+      companyInfo: "Company Information",
+      companyName: "Company Name",
+      companyNamePlaceholder: "Enter company name",
+      nationalId: "National ID",
+      nationalIdPlaceholder: "11-digit national ID",
+      companyPhone: "Company Phone",
+      companyPhonePlaceholder: "Company phone number",
+      postalCode: "Postal Code",
+      postalCodePlaceholder: "10-digit postal code",
+      companyAddress: "Company Address",
+      companyAddressPlaceholder: "Enter complete company address",
+      
+      personalInfo: "Personal Information",
+      representativeInfo: "Representative Information",
+      firstName: "First Name",
+      firstNamePlaceholder: "Enter first name",
+      lastName: "Last Name",
+      lastNamePlaceholder: "Enter last name",
+      mobileNumber: "Mobile Number",
+      mobilePlaceholder: "09xxxxxxxxx",
+      
+      credentials: "Account Credentials",
+      email: "Email Address",
+      emailPlaceholder: "Enter your email address",
+      password: "Password",
+      passwordPlaceholder: "Enter password",
+      confirmPassword: "Confirm Password",
+      confirmPasswordPlaceholder: "Confirm password",
+      
+      agencyCode: "Agency Referral Code (Optional)",
+      agencyCodePlaceholder: "Enter agency code if you have one",
+      agencyCodeHelp: "If you were referred by an agency, enter their code here",
+      
+      createAccount: "Create Account",
+      haveAccount: "Already have an account?",
+      signInHere: "Sign in here",
+      
+      // OTP Modal
+      verifyMobile: "Verify Your Mobile Number",
+      otpSent: "We've sent a 6-digit verification code to",
+      enterVerificationCode: "Enter Verification Code",
+      verifyCode: "Verify Code",
+      attemptsRemaining: "Attempts remaining:",
+      maxAttemptsReached: "Maximum attempts reached",
+      resendIn: "Resend in",
+      
+      // Validation Messages
+      validation: {
+        required: "This field is required",
+        accountTypeRequired: "Please select an account type",
+        companyNameRequired: "Company name is required",
+        companyNameMax: "Company name must be 60 characters or less",
+        nationalIdRequired: "National ID is required",
+        nationalIdFormat: "National ID must be exactly 11 digits",
+        companyPhoneRequired: "Company phone is required",
+        companyPhoneMin: "Phone number must be at least 10 digits",
+        companyAddressRequired: "Company address is required",
+        companyAddressMax: "Address must be 255 characters or less",
+        postalCodeRequired: "Postal code is required",
+        postalCodeFormat: "Postal code must be exactly 10 digits",
+        firstNameRequired: "First name is required",
+        firstNameFormat: "First name can only contain letters and spaces",
+        lastNameRequired: "Last name is required",
+        lastNameFormat: "Last name can only contain letters and spaces",
+        mobileRequired: "Mobile number is required",
+        mobileFormat: "Mobile number must be in format 09xxxxxxxxx",
+        emailRequired: "Email is required",
+        emailFormat: "Please enter a valid email address",
+        passwordRequired: "Password is required",
+        passwordMin: "Password must be at least 8 characters",
+        passwordStrength: "Password must contain at least 1 letter and 1 digit",
+        confirmPasswordRequired: "Please confirm your password",
+        passwordMismatch: "Passwords do not match",
+        agencyCodeFormat: "Agency code must be a valid number",
+        invalidOtp: "Please enter a valid 6-digit OTP",
+        maxOtpAttempts: "Maximum attempts reached. Please try again later."
+      },
+      success: "Account created successfully! Welcome to SMS Platform!",
+      otpResent: "New OTP sent to your mobile number",
+      error: {
+        signupFailed: "Failed to create account. Please try again.",
+        invalidOtp: "Invalid OTP. Please try again.",
+        resendFailed: "Failed to resend OTP. Please try again.",
+        networkError: "Network error. Please try again.",
+        noCustomerId: "No customer ID found. Please try again."
+      }
+    },
+    
+    // Common
+    common: {
+      loading: "Loading...",
+      required: "*",
+      cancel: "Cancel",
+      close: "Close",
+      save: "Save",
+      edit: "Edit",
+      delete: "Delete",
+      confirm: "Confirm",
+      back: "Back",
+      next: "Next",
+      submit: "Submit",
+      resend: "Resend",
+      seconds: "s"
+    }
+  },
+  
+  fa: {
+    // Header
+    header: {
+      brand: "پلتفرم پیامکی",
+      subtitle: "پلتفرم بازاریابی پیامکی",
+      dashboard: "داشبورد",
+      campaigns: "کمپین‌ها",
+      analytics: "تحلیلات",
+      support: "پشتیبانی"
+    },
+    
+    // Footer
+    footer: {
+      description: "کسب و کار خود را با کمپین‌های هدفمند پیامکی قدرتمند کنید. با دقت به مشتریان خود برسید و نتایج مطلوب کسب کنید.",
+      quickLinks: "لینک‌های سریع",
+      support: "پشتیبانی",
+      helpCenter: "مرکز راهنمایی",
+      contactUs: "تماس با ما",
+      privacyPolicy: "حریم خصوصی",
+      termsOfService: "شرایط خدمات",
+      copyright: "© ۱۴۰۳ پلتفرم پیامکی. تمامی حقوق محفوظ است."
+    },
+    
+    // Login Page
+    login: {
+      title: "به پلتفرم پیامکی خوش آمدید",
+      subtitle: "برای دسترسی به داشبورد بازاریابی پیامکی وارد شوید",
+      emailOrMobile: "ایمیل یا شماره موبایل",
+      emailOrMobilePlaceholder: "user@example.com یا +989123456789",
+      password: "رمز عبور",
+      passwordPlaceholder: "رمز عبور خود را وارد کنید",
+      signIn: "ورود",
+      forgotPassword: "رمز عبور را فراموش کرده‌اید؟",
+      noAccount: "حساب کاربری ندارید؟",
+      signUpHere: "اینجا ثبت نام کنید",
+      success: "ورود موفقیت‌آمیز بود!",
+      validation: {
+        allFieldsRequired: "لطفاً تمام فیلدها را پر کنید",
+      },
+      error: {
+        invalidCredentials: "ایمیل/موبایل یا رمز عبور نامعتبر",
+        networkError: "خطای شبکه. لطفاً دوباره تلاش کنید.",
+      },
+      features: {
+        title: "چرا پلتفرم پیامکی را انتخاب کنیم؟",
+        targeted: "کمپین‌های پیامکی هدفمند",
+        segmentation: "بخش‌بندی پیشرفته مشتریان",
+        analytics: "تحلیلات و گزارش‌گیری بلادرنگ",
+        compliance: "سازگاری با قوانین"
+      }
+    },
+    
+    // Forgot Password Page
+    forgotPassword: {
+      title: "فراموشی رمز عبور",
+      subtitle: "ایمیل یا شماره موبایل خود را برای بازنشانی رمز عبور وارد کنید",
+      emailOrMobile: "ایمیل یا شماره موبایل",
+      emailOrMobilePlaceholder: "ایمیل یا شماره موبایل خود را وارد کنید",
+      sendResetLink: "ارسال لینک بازنشانی",
+      backToLogin: "بازگشت به ورود",
+      helpText: "کد تأیید بازنشانی رمز عبور را به شماره موبایل شما ارسال خواهیم کرد",
+      validation: {
+        identifierRequired: "لطفاً ایمیل یا شماره موبایل خود را وارد کنید",
+      },
+      error: {
+        requestFailed: "ارسال لینک بازنشانی ناموفق بود. لطفاً دوباره تلاش کنید.",
+        networkError: "خطای شبکه. لطفاً دوباره تلاش کنید.",
+      },
+      success: {
+        title: "لینک بازنشانی ارسال شد",
+        subtitle: "موبایل خود را برای کد تأیید بررسی کنید",
+        message: "کد تأیید بازنشانی رمز عبور به شماره {phone} ارسال شده است",
+        expiresIn: "کد تأیید تا {minutes} دقیقه معتبر است",
+        tryAgain: "ایمیل/موبایل دیگری امتحان کنید",
+        resetPassword: "بازنشانی رمز عبور",
+        backToLogin: "بازگشت به ورود",
+      },
+    },
+    
+    // Reset Password Page
+    resetPassword: {
+      title: "بازنشانی رمز عبور",
+      subtitle: "رمز عبور جدید و کد تأیید را وارد کنید",
+      forPhone: "برای شماره موبایل: {phone}",
+      otpCode: "کد تأیید",
+      otpHelp: "کد ۶ رقمی ارسال شده به موبایل خود را وارد کنید",
+      newPassword: "رمز عبور جدید",
+      newPasswordPlaceholder: "رمز عبور جدید خود را وارد کنید",
+      confirmPassword: "تکرار رمز عبور",
+      confirmPasswordPlaceholder: "رمز عبور جدید را تکرار کنید",
+      resetPassword: "بازنشانی رمز عبور",
+      backToLogin: "بازگشت به ورود",
+      requirements: {
+        title: "نیازمندی‌های رمز عبور",
+        minLength: "حداقل ۸ کاراکتر",
+        letterAndDigit: "حداقل ۱ حرف و ۱ رقم",
+      },
+      validation: {
+        newPasswordRequired: "لطفاً رمز عبور جدید را وارد کنید",
+        passwordMin: "رمز عبور باید حداقل ۸ کاراکتر باشد",
+        passwordStrength: "رمز عبور باید حداقل ۱ حرف و ۱ رقم داشته باشد",
+        passwordMismatch: "رمزهای عبور مطابقت ندارند",
+        otpRequired: "لطفاً کد تأیید ۶ رقمی را وارد کنید",
+      },
+      error: {
+        resetFailed: "بازنشانی رمز عبور ناموفق بود. لطفاً دوباره تلاش کنید.",
+        networkError: "خطای شبکه. لطفاً دوباره تلاش کنید.",
+        noCustomerId: "لینک بازنشانی نامعتبر است. لطفاً دوباره تلاش کنید.",
+      },
+      success: {
+        title: "بازنشانی رمز عبور موفقیت‌آمیز",
+        subtitle: "رمز عبور شما به‌روزرسانی شده است",
+        message: "اکنون می‌توانید با رمز عبور جدید وارد شوید",
+        backToLogin: "بازگشت به ورود",
+      },
+    },
+    
+    // Signup Page
+    signup: {
+      title: "حساب کاربری خود را بسازید",
+      subtitle: "به پلتفرم پیامکی بپیوندید و سفر بازاریابی پیامکی خود را شروع کنید",
+      accountType: "نوع حساب کاربری",
+      selectAccountType: "نوع حساب را انتخاب کنید",
+      individual: "شخصی",
+      independentCompany: "شرکت مستقل",
+      marketingAgency: "آژانس بازاریابی",
+      
+      companyInfo: "اطلاعات شرکت",
+      companyName: "نام شرکت",
+      companyNamePlaceholder: "نام شرکت را وارد کنید",
+      nationalId: "شناسه ملی",
+      nationalIdPlaceholder: "شناسه ملی ۱۱ رقمی",
+      companyPhone: "تلفن شرکت",
+      companyPhonePlaceholder: "شماره تلفن شرکت",
+      postalCode: "کد پستی",
+      postalCodePlaceholder: "کد پستی ۱۰ رقمی",
+      companyAddress: "آدرس شرکت",
+      companyAddressPlaceholder: "آدرس کامل شرکت را وارد کنید",
+      
+      personalInfo: "اطلاعات شخصی",
+      representativeInfo: "اطلاعات نماینده",
+      firstName: "نام",
+      firstNamePlaceholder: "نام خود را وارد کنید",
+      lastName: "نام خانوادگی",
+      lastNamePlaceholder: "نام خانوادگی خود را وارد کنید",
+      mobileNumber: "شماره موبایل",
+      mobilePlaceholder: "۰۹xxxxxxxxx",
+      
+      credentials: "اطلاعات حساب کاربری",
+      email: "آدرس ایمیل",
+      emailPlaceholder: "آدرس ایمیل خود را وارد کنید",
+      password: "رمز عبور",
+      passwordPlaceholder: "رمز عبور را وارد کنید",
+      confirmPassword: "تکرار رمز عبور",
+      confirmPasswordPlaceholder: "رمز عبور را تکرار کنید",
+      
+      agencyCode: "کد معرف آژانس (اختیاری)",
+      agencyCodePlaceholder: "در صورت داشتن کد آژانس وارد کنید",
+      agencyCodeHelp: "اگر توسط آژانسی معرفی شده‌اید، کد آن را اینجا وارد کنید",
+      
+      createAccount: "ایجاد حساب کاربری",
+      haveAccount: "قبلاً حساب کاربری دارید؟",
+      signInHere: "اینجا وارد شوید",
+      
+      // OTP Modal
+      verifyMobile: "تأیید شماره موبایل شما",
+      otpSent: "کد تأیید ۶ رقمی به شماره زیر ارسال شده است",
+      enterVerificationCode: "کد تأیید را وارد کنید",
+      verifyCode: "تأیید کد",
+      attemptsRemaining: "تلاش باقی‌مانده:",
+      maxAttemptsReached: "حداکثر تلاش انجام شده است",
+      resendIn: "ارسال مجدد در",
+      
+      // Validation Messages
+      validation: {
+        required: "این فیلد الزامی است",
+        accountTypeRequired: "لطفاً نوع حساب را انتخاب کنید",
+        companyNameRequired: "نام شرکت الزامی است",
+        companyNameMax: "نام شرکت باید حداکثر ۶۰ کاراکتر باشد",
+        nationalIdRequired: "شناسه ملی الزامی است",
+        nationalIdFormat: "شناسه ملی باید دقیقاً ۱۱ رقم باشد",
+        companyPhoneRequired: "تلفن شرکت الزامی است",
+        companyPhoneMin: "شماره تلفن باید حداقل ۱۰ رقم باشد",
+        companyAddressRequired: "آدرس شرکت الزامی است",
+        companyAddressMax: "آدرس باید حداکثر ۲۵۵ کاراکتر باشد",
+        postalCodeRequired: "کد پستی الزامی است",
+        postalCodeFormat: "کد پستی باید دقیقاً ۱۰ رقم باشد",
+        firstNameRequired: "نام الزامی است",
+        firstNameFormat: "نام فقط می‌تواند شامل حروف و فاصله باشد",
+        lastNameRequired: "نام خانوادگی الزامی است",
+        lastNameFormat: "نام خانوادگی فقط می‌تواند شامل حروف و فاصله باشد",
+        mobileRequired: "شماره موبایل الزامی است",
+        mobileFormat: "شماره موبایل باید به فرمت ۰۹xxxxxxxxx باشد",
+        emailRequired: "ایمیل الزامی است",
+        emailFormat: "لطفاً یک آدرس ایمیل معتبر وارد کنید",
+        passwordRequired: "رمز عبور الزامی است",
+        passwordMin: "رمز عبور باید حداقل ۸ کاراکتر باشد",
+        passwordStrength: "رمز عبور باید حداقل ۱ حرف و ۱ رقم داشته باشد",
+        confirmPasswordRequired: "لطفاً رمز عبور را تأیید کنید",
+        passwordMismatch: "رمزهای عبور مطابقت ندارند",
+        agencyCodeFormat: "کد آژانس باید یک عدد معتبر باشد",
+        invalidOtp: "لطفاً یک کد تأیید ۶ رقمی معتبر وارد کنید",
+        maxOtpAttempts: "حداکثر تلاش انجام شده. لطفاً بعداً دوباره تلاش کنید."
+      },
+      success: "حساب کاربری با موفقیت ایجاد شد! به پلتفرم پیامکی خوش آمدید!",
+      otpResent: "کد تأیید جدید به شماره موبایل شما ارسال شد",
+      error: {
+        signupFailed: "ایجاد حساب کاربری ناموفق بود. لطفاً دوباره تلاش کنید.",
+        invalidOtp: "کد تأیید نامعتبر. لطفاً دوباره تلاش کنید.",
+        resendFailed: "ارسال مجدد کد تأیید ناموفق بود. لطفاً دوباره تلاش کنید.",
+        networkError: "خطای شبکه. لطفاً دوباره تلاش کنید.",
+        noCustomerId: "شناسه مشتری یافت نشد. لطفاً دوباره تلاش کنید."
+      }
+    },
+    
+    // Common
+    common: {
+      loading: "در حال بارگذاری...",
+      required: "*",
+      cancel: "انصراف",
+      close: "بستن",
+      save: "ذخیره",
+      edit: "ویرایش",
+      delete: "حذف",
+      confirm: "تأیید",
+      back: "بازگشت",
+      next: "بعدی",
+      submit: "ارسال",
+      resend: "ارسال مجدد",
+      seconds: "ث"
+    }
+  }
+};
+
+export type TranslationKey = keyof typeof translations.en; 
