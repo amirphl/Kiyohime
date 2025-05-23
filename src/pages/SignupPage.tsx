@@ -1,0 +1,767 @@
+import React, { useState } from 'react';
+import { Building2, User, Lock, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../hooks/useLanguage';
+import apiService from '../services/api';
+
+interface SignupFormData {
+  accountType: 'individual' | 'independent_company' | 'marketing_agency' | '';
+  // Company fields
+  companyName: string;
+  nationalId: string;
+  companyPhone: string;
+  companyAddress: string;
+  postalCode: string;
+  // Representative/Individual fields
+  representativeFirstName: string;
+  representativeLastName: string;
+  representativeMobile: string;
+  // Common fields
+  email: string;
+  password: string;
+  confirmPassword: string;
+  // Optional agency referral
+  referrerAgencyCode: string;
+}
+
+interface FormErrors {
+  [key: string]: string;
+}
+
+interface SignupPageProps {
+  onNavigateToLogin?: () => void;
+}
+
+const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
+  const { t } = useTranslation();
+  const { isRTL } = useLanguage();
+  
+  const [formData, setFormData] = useState<SignupFormData>({
+    accountType: '',
+    companyName: '',
+    nationalId: '',
+    companyPhone: '',
+    companyAddress: '',
+    postalCode: '',
+    representativeFirstName: '',
+    representativeLastName: '',
+    representativeMobile: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    referrerAgencyCode: ''
+  });
+
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // OTP Modal state
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpAttempts, setOtpAttempts] = useState(0);
+  const [customerId, setCustomerId] = useState<number | null>(null);
+  const [canResendOtp, setCanResendOtp] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(60);
+
+  const validateField = (name: string, value: string): string => {
+    switch (name) {
+      case 'companyName':
+        if (formData.accountType !== 'individual' && !value.trim()) {
+          return t('signup.validation.companyNameRequired');
+        }
+        if (value.length > 60) {
+          return t('signup.validation.companyNameMax');
+        }
+        return '';
+      
+      case 'nationalId':
+        if (formData.accountType !== 'individual' && !value.trim()) {
+          return t('signup.validation.nationalIdRequired');
+        }
+        if (value && (value.length !== 11 || !/^\d+$/.test(value))) {
+          return t('signup.validation.nationalIdFormat');
+        }
+        return '';
+      
+      case 'companyPhone':
+        if (formData.accountType !== 'individual' && !value.trim()) {
+          return t('signup.validation.companyPhoneRequired');
+        }
+        if (value && value.length < 10) {
+          return t('signup.validation.companyPhoneMin');
+        }
+        return '';
+      
+      case 'companyAddress':
+        if (formData.accountType !== 'individual' && !value.trim()) {
+          return t('signup.validation.companyAddressRequired');
+        }
+        if (value.length > 255) {
+          return t('signup.validation.companyAddressMax');
+        }
+        return '';
+      
+      case 'postalCode':
+        if (formData.accountType !== 'individual' && !value.trim()) {
+          return t('signup.validation.postalCodeRequired');
+        }
+        if (value && (value.length !== 10 || !/^\d+$/.test(value))) {
+          return t('signup.validation.postalCodeFormat');
+        }
+        return '';
+      
+      case 'representativeFirstName':
+        if (!value.trim()) {
+          return t('signup.validation.firstNameRequired');
+        }
+        if (!/^[a-zA-Z\s]+$/.test(value)) {
+          return t('signup.validation.firstNameFormat');
+        }
+        return '';
+      
+      case 'representativeLastName':
+        if (!value.trim()) {
+          return t('signup.validation.lastNameRequired');
+        }
+        if (!/^[a-zA-Z\s]+$/.test(value)) {
+          return t('signup.validation.lastNameFormat');
+        }
+        return '';
+      
+      case 'representativeMobile':
+        if (!value.trim()) {
+          return t('signup.validation.mobileRequired');
+        }
+        if (!/^09\d{9}$/.test(value)) {
+          return t('signup.validation.mobileFormat');
+        }
+        return '';
+      
+      case 'email':
+        if (!value.trim()) {
+          return t('signup.validation.emailRequired');
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          return t('signup.validation.emailFormat');
+        }
+        return '';
+      
+      case 'password':
+        if (!value) {
+          return t('signup.validation.passwordRequired');
+        }
+        if (value.length < 8) {
+          return t('signup.validation.passwordMin');
+        }
+        if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(value)) {
+          return t('signup.validation.passwordStrength');
+        }
+        return '';
+      
+      case 'confirmPassword':
+        if (!value) {
+          return t('signup.validation.confirmPasswordRequired');
+        }
+        if (value !== formData.password) {
+          return t('signup.validation.passwordMismatch');
+        }
+        return '';
+      
+      case 'referrerAgencyCode':
+        if (value && !/^\d+$/.test(value)) {
+          return t('signup.validation.agencyCodeFormat');
+        }
+        return '';
+      
+      default:
+        return '';
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+    
+    // Validate account type
+    if (!formData.accountType) {
+      newErrors.accountType = t('signup.validation.accountTypeRequired');
+    }
+    
+    // Validate all fields
+    Object.keys(formData).forEach(key => {
+      if (key !== 'accountType') {
+        const error = validateField(key, formData[key as keyof SignupFormData] as string);
+        if (error) {
+          newErrors[key] = error;
+        }
+      }
+    });
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      // Prepare signup data according to backend DTO
+      const signupData = {
+        account_type: formData.accountType,
+        company_name: formData.accountType !== 'individual' ? formData.companyName : undefined,
+        national_id: formData.accountType !== 'individual' ? formData.nationalId : undefined,
+        company_phone: formData.accountType !== 'individual' ? formData.companyPhone : undefined,
+        company_address: formData.accountType !== 'individual' ? formData.companyAddress : undefined,
+        postal_code: formData.accountType !== 'individual' ? formData.postalCode : undefined,
+        representative_first_name: formData.representativeFirstName,
+        representative_last_name: formData.representativeLastName,
+        representative_mobile: formData.representativeMobile,
+        email: formData.email,
+        password: formData.password,
+        confirm_password: formData.confirmPassword,
+        referrer_agency_code: formData.referrerAgencyCode ? parseInt(formData.referrerAgencyCode) : undefined,
+      };
+
+      const response = await apiService.signup(signupData);
+      
+      if (response.success && response.data) {
+        setCustomerId(response.data.customer_id);
+        setShowOtpModal(true);
+        startResendCountdown();
+      } else {
+        alert(response.error || t('signup.error.signupFailed'));
+      }
+      
+    } catch (error) {
+      console.error('Signup error:', error);
+      alert(t('signup.error.networkError'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const startResendCountdown = () => {
+    setCanResendOtp(false);
+    setResendCountdown(60);
+    
+    const interval = setInterval(() => {
+      setResendCountdown(prev => {
+        if (prev <= 1) {
+          setCanResendOtp(true);
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const handleOtpVerification = async () => {
+    if (otpCode.length !== 6) {
+      alert(t('signup.validation.invalidOtp'));
+      return;
+    }
+    
+    if (otpAttempts >= 3) {
+      alert(t('signup.validation.maxOtpAttempts'));
+      return;
+    }
+    
+    if (!customerId) {
+      alert(t('signup.error.noCustomerId'));
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const response = await apiService.verifyOtp(customerId, otpCode, 'mobile');
+      
+      if (response.success && response.data) {
+        // Store tokens
+        localStorage.setItem('access_token', response.data.token);
+        localStorage.setItem('refresh_token', response.data.refresh_token);
+        
+        // Store customer data if available
+        if (response.data.customer) {
+          localStorage.setItem('customer_data', JSON.stringify(response.data.customer));
+        }
+        
+        alert(t('signup.success'));
+        setShowOtpModal(false);
+        // TODO: Redirect to dashboard
+      } else {
+        setOtpAttempts(prev => prev + 1);
+        alert(response.error || t('signup.error.invalidOtp'));
+      }
+    } catch (error) {
+      setOtpAttempts(prev => prev + 1);
+      alert(t('signup.error.networkError'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (!canResendOtp || !customerId) return;
+    
+    setIsLoading(true);
+    try {
+      const response = await apiService.resendOtp(customerId);
+      
+      if (response.success) {
+        alert(t('signup.otpResent'));
+        startResendCountdown();
+      } else {
+        alert(response.error || t('signup.error.resendFailed'));
+      }
+    } catch (error) {
+      alert(t('signup.error.networkError'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const isCompanyAccount = formData.accountType === 'independent_company' || formData.accountType === 'marketing_agency';
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center">
+            <User className="h-6 w-6 text-white" />
+          </div>
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            {t('signup.title')}
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            {t('signup.subtitle')}
+          </p>
+        </div>
+
+        {/* Signup Form */}
+        <div className="bg-white py-8 px-6 shadow-lg rounded-lg border border-gray-200">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Account Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('signup.accountType')} <span className="text-red-500">{t('common.required')}</span>
+              </label>
+              <select
+                name="accountType"
+                value={formData.accountType}
+                onChange={handleInputChange}
+                className="input-field"
+              >
+                <option value="">{t('signup.selectAccountType')}</option>
+                <option value="individual">{t('signup.individual')}</option>
+                <option value="independent_company">{t('signup.independentCompany')}</option>
+                <option value="marketing_agency">{t('signup.marketingAgency')}</option>
+              </select>
+              {errors.accountType && (
+                <p className="mt-1 text-sm text-red-600">{errors.accountType}</p>
+              )}
+            </div>
+
+            {/* Company Fields - Only show for company accounts */}
+            {isCompanyAccount && (
+              <div className="space-y-6 border-t pt-6">
+                <h3 className={`text-lg font-medium text-gray-900 flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
+                  <Building2 className="h-5 w-5" />
+                  <span>{t('signup.companyInfo')}</span>
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('signup.companyName')} <span className="text-red-500">{t('common.required')}</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="companyName"
+                      value={formData.companyName}
+                      onChange={handleInputChange}
+                      className="input-field"
+                      placeholder={t('signup.companyNamePlaceholder')}
+                      maxLength={60}
+                    />
+                    {errors.companyName && (
+                      <p className="mt-1 text-sm text-red-600">{errors.companyName}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('signup.nationalId')} <span className="text-red-500">{t('common.required')}</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="nationalId"
+                      value={formData.nationalId}
+                      onChange={handleInputChange}
+                      className="input-field"
+                      placeholder={t('signup.nationalIdPlaceholder')}
+                      maxLength={11}
+                    />
+                    {errors.nationalId && (
+                      <p className="mt-1 text-sm text-red-600">{errors.nationalId}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('signup.companyPhone')} <span className="text-red-500">{t('common.required')}</span>
+                    </label>
+                    <input
+                      type="tel"
+                      name="companyPhone"
+                      value={formData.companyPhone}
+                      onChange={handleInputChange}
+                      className="input-field"
+                      placeholder={t('signup.companyPhonePlaceholder')}
+                    />
+                    {errors.companyPhone && (
+                      <p className="mt-1 text-sm text-red-600">{errors.companyPhone}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('signup.postalCode')} <span className="text-red-500">{t('common.required')}</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="postalCode"
+                      value={formData.postalCode}
+                      onChange={handleInputChange}
+                      className="input-field"
+                      placeholder={t('signup.postalCodePlaceholder')}
+                      maxLength={10}
+                    />
+                    {errors.postalCode && (
+                      <p className="mt-1 text-sm text-red-600">{errors.postalCode}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('signup.companyAddress')} <span className="text-red-500">{t('common.required')}</span>
+                  </label>
+                  <textarea
+                    name="companyAddress"
+                    value={formData.companyAddress}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="input-field"
+                    placeholder={t('signup.companyAddressPlaceholder')}
+                    maxLength={255}
+                  />
+                  {errors.companyAddress && (
+                    <p className="mt-1 text-sm text-red-600">{errors.companyAddress}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Representative/Individual Information */}
+            <div className="space-y-6 border-t pt-6">
+              <h3 className={`text-lg font-medium text-gray-900 flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
+                <User className="h-5 w-5" />
+                <span>{isCompanyAccount ? t('signup.representativeInfo') : t('signup.personalInfo')}</span>
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('signup.firstName')} <span className="text-red-500">{t('common.required')}</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="representativeFirstName"
+                    value={formData.representativeFirstName}
+                    onChange={handleInputChange}
+                    className="input-field"
+                    placeholder={t('signup.firstNamePlaceholder')}
+                  />
+                  {errors.representativeFirstName && (
+                    <p className="mt-1 text-sm text-red-600">{errors.representativeFirstName}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('signup.lastName')} <span className="text-red-500">{t('common.required')}</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="representativeLastName"
+                    value={formData.representativeLastName}
+                    onChange={handleInputChange}
+                    className="input-field"
+                    placeholder={t('signup.lastNamePlaceholder')}
+                  />
+                  {errors.representativeLastName && (
+                    <p className="mt-1 text-sm text-red-600">{errors.representativeLastName}</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('signup.mobileNumber')} <span className="text-red-500">{t('common.required')}</span>
+                </label>
+                <input
+                  type="tel"
+                  name="representativeMobile"
+                  value={formData.representativeMobile}
+                  onChange={handleInputChange}
+                  className="input-field"
+                  placeholder={t('signup.mobilePlaceholder')}
+                  maxLength={11}
+                />
+                {errors.representativeMobile && (
+                  <p className="mt-1 text-sm text-red-600">{errors.representativeMobile}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Account Credentials */}
+            <div className="space-y-6 border-t pt-6">
+              <h3 className={`text-lg font-medium text-gray-900 flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
+                <Lock className="h-5 w-5" />
+                <span>{t('signup.credentials')}</span>
+              </h3>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('signup.email')} <span className="text-red-500">{t('common.required')}</span>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="input-field"
+                  placeholder={t('signup.emailPlaceholder')}
+                />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('signup.password')} <span className="text-red-500">{t('common.required')}</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      className={`input-field ${isRTL ? 'pl-10' : 'pr-10'}`}
+                      placeholder={t('signup.passwordPlaceholder')}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className={`absolute inset-y-0 ${isRTL ? 'left-0 pl-3' : 'right-0 pr-3'} flex items-center`}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('signup.confirmPassword')} <span className="text-red-500">{t('common.required')}</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      className={`input-field ${isRTL ? 'pl-10' : 'pr-10'}`}
+                      placeholder={t('signup.confirmPasswordPlaceholder')}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className={`absolute inset-y-0 ${isRTL ? 'left-0 pl-3' : 'right-0 pr-3'} flex items-center`}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Optional Agency Code */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('signup.agencyCode')}
+              </label>
+              <input
+                type="number"
+                name="referrerAgencyCode"
+                value={formData.referrerAgencyCode}
+                onChange={handleInputChange}
+                className="input-field"
+                placeholder={t('signup.agencyCodePlaceholder')}
+              />
+              {errors.referrerAgencyCode && (
+                <p className="mt-1 text-sm text-red-600">{errors.referrerAgencyCode}</p>
+              )}
+              <p className="mt-1 text-xs text-gray-500">
+                {t('signup.agencyCodeHelp')}
+              </p>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
+            >
+              {isLoading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              ) : (
+                <>
+                  <span>{t('signup.createAccount')}</span>
+                  <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
+                </>
+              )}
+            </button>
+
+            {/* Login Link */}
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                {t('signup.haveAccount')}{' '}
+                <button
+                  type="button"
+                  onClick={onNavigateToLogin}
+                  className="text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  {t('signup.signInHere')}
+                </button>
+              </p>
+            </div>
+          </form>
+        </div>
+
+        {/* OTP Verification Modal */}
+        {showOtpModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full p-6">
+              <div className={`flex justify-between items-center mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <h3 className="text-lg font-medium text-gray-900">{t('signup.verifyMobile')}</h3>
+                <button
+                  onClick={() => setShowOtpModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="text-center mb-6">
+                <CheckCircle className="mx-auto h-12 w-12 text-green-500 mb-4" />
+                <p className="text-sm text-gray-600">
+                  {t('signup.otpSent')}
+                </p>
+                <p className="font-medium text-gray-900">{formData.representativeMobile}</p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('signup.enterVerificationCode')}
+                  </label>
+                  <input
+                    type="text"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className="input-field text-center text-2xl tracking-widest"
+                    placeholder="000000"
+                    maxLength={6}
+                  />
+                </div>
+
+                <button
+                  onClick={handleOtpVerification}
+                  disabled={isLoading || otpCode.length !== 6 || otpAttempts >= 3}
+                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mx-auto"></div>
+                  ) : (
+                    t('signup.verifyCode')
+                  )}
+                </button>
+
+                <div className="text-center space-y-2">
+                  {otpAttempts < 3 && (
+                    <p className="text-sm text-gray-600">
+                      {t('signup.attemptsRemaining')} {3 - otpAttempts}
+                    </p>
+                  )}
+                  
+                  {otpAttempts >= 3 ? (
+                    <p className={`text-sm text-red-600 flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'}`}>
+                      <AlertCircle className="h-4 w-4" />
+                      <span>{t('signup.maxAttemptsReached')}</span>
+                    </p>
+                  ) : (
+                    <button
+                      onClick={handleResendOtp}
+                      disabled={!canResendOtp || isLoading}
+                      className="text-sm text-primary-600 hover:text-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {canResendOtp ? t('common.resend') : `${t('signup.resendIn')} ${resendCountdown}${t('common.seconds')}`}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default SignupPage; 
