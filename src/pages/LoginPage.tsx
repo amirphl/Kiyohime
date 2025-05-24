@@ -36,27 +36,34 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToSignup, onNavigateToF
     
     try {
       const response = await apiService.login(identifier, password);
-      
       if (response.success && response.data) {
+        // The API service wraps the server response, so we need to access response.data.data
+        const responseData = response.data.data || response.data;
+        
         // Store tokens and user data using auth context
-        if (response.data.customer) {
+        if (responseData.customer && responseData.token && responseData.refresh_token) {
+          
           login(
             { 
-              token: response.data.token, 
-              refresh_token: response.data.refresh_token 
+              token: responseData.token, 
+              refresh_token: responseData.refresh_token 
             }, 
-            response.data.customer
+            responseData.customer
           );
+          
+          // Redirect to dashboard or show success
+          showSuccess(t('login.success'));
+          // Redirect to dashboard
+          window.location.href = '/dashboard';
+        } else {
+          console.error('Missing required data in login response:', responseData);
+          setError(t('login.error.invalidCredentials'));
         }
-        
-        // Redirect to dashboard or show success
-        showSuccess(t('login.success'));
-        // Redirect to dashboard
-        window.location.href = '/dashboard';
       } else {
         setError(response.error || t('login.error.invalidCredentials'));
       }
     } catch (error) {
+      console.error('Login error:', error);
       setError(t('login.error.networkError'));
     } finally {
       setIsLoading(false);

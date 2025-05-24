@@ -7,7 +7,13 @@ export const translations = {
       dashboard: "Dashboard",
       campaigns: "Campaigns",
       analytics: "Analytics",
-      support: "Support"
+      support: "Support",
+      features: "Features",
+      howItWorks: "How It Works",
+      pricing: "Pricing",
+      signin: "Sign In",
+      signup: "Sign Up",
+      logout: "Logout"
     },
     
     // Footer
@@ -249,6 +255,64 @@ export const translations = {
       noActivity: "No recent activity",
     },
     
+    // Home Page
+    home: {
+      hero: {
+        badge: "Leading SMS Marketing Platform",
+        title: "Transform Your Business with Targeted SMS Marketing",
+        subtitle: "Reach your customers with precision, drive engagement, and boost conversions with our advanced SMS marketing platform designed for modern businesses.",
+        cta: "Get Started Free",
+        signin: "Sign In"
+      },
+      stats: {
+        customers: "Happy Customers",
+        messages: "Messages Sent",
+        delivery: "Delivery Rate",
+        support: "Customer Support"
+      },
+      features: {
+        title: "Why Choose Our Platform?",
+        subtitle: "Powerful features designed to help you succeed in SMS marketing",
+        targeted: {
+          title: "Targeted Campaigns",
+          description: "Create highly targeted SMS campaigns based on customer behavior, demographics, and preferences."
+        },
+        segmentation: {
+          title: "Smart Segmentation",
+          description: "Segment your audience intelligently and send personalized messages that resonate."
+        },
+        analytics: {
+          title: "Real-time Analytics",
+          description: "Track campaign performance with detailed analytics and actionable insights."
+        },
+        compliance: {
+          title: "Regulatory Compliance",
+          description: "Built-in compliance features ensure your campaigns meet all regulatory requirements."
+        }
+      },
+      howItWorks: {
+        title: "How It Works",
+        subtitle: "Get started with SMS marketing in three simple steps",
+        step1: {
+          title: "Create Your Account",
+          description: "Sign up and set up your business profile in minutes with our streamlined onboarding process."
+        },
+        step2: {
+          title: "Design Your Campaign",
+          description: "Use our intuitive tools to create compelling SMS campaigns with advanced targeting options."
+        },
+        step3: {
+          title: "Send & Track Results",
+          description: "Launch your campaigns and monitor real-time performance with comprehensive analytics."
+        }
+      },
+      cta: {
+        title: "Ready to Get Started?",
+        subtitle: "Join thousands of businesses already using our platform to grow their customer base.",
+        button: "Start Your Free Trial"
+      }
+    },
+    
     // Error Boundary
     error: {
       title: "Something went wrong",
@@ -282,7 +346,13 @@ export const translations = {
       dashboard: "داشبورد",
       campaigns: "کمپین‌ها",
       analytics: "تحلیلات",
-      support: "پشتیبانی"
+      support: "پشتیبانی",
+      features: "ویژگی‌ها",
+      howItWorks: "چگونه کار می‌کند",
+      pricing: "قیمت‌گذاری",
+      signin: "ورود",
+      signup: "ثبت نام",
+      logout: "خروج"
     },
     
     // Footer
@@ -522,6 +592,64 @@ export const translations = {
       // Content
       recentActivity: "فعالیت‌های اخیر",
       noActivity: "فعالیتی در حال حاضر وجود ندارد",
+    },
+    
+    // Home Page
+    home: {
+      hero: {
+        badge: "پلتفرم پیشرو بازاریابی پیامکی",
+        title: "کسب و کار خود را با بازاریابی هدفمند پیامکی متحول کنید",
+        subtitle: "با دقت به مشتریان خود برسید، تعامل را افزایش دهید و تبدیل را با پلتفرم پیشرفته بازاریابی پیامکی ما که برای کسب و کارهای مدرن طراحی شده است، تقویت کنید.",
+        cta: "شروع رایگان",
+        signin: "ورود"
+      },
+      stats: {
+        customers: "مشتریان راضی",
+        messages: "پیام ارسال شده",
+        delivery: "نرخ تحویل",
+        support: "پشتیبانی مشتریان"
+      },
+      features: {
+        title: "چرا پلتفرم ما را انتخاب کنیم؟",
+        subtitle: "ویژگی‌های قدرتمند طراحی شده برای کمک به موفقیت شما در بازاریابی پیامکی",
+        targeted: {
+          title: "کمپین‌های هدفمند",
+          description: "کمپین‌های پیامکی بسیار هدفمند بر اساس رفتار، جمعیت‌شناسی و ترجیحات مشتری ایجاد کنید."
+        },
+        segmentation: {
+          title: "بخش‌بندی هوشمند",
+          description: "مخاطبان خود را هوشمندانه بخش‌بندی کنید و پیام‌های شخصی‌سازی شده که تأثیرگذار هستند ارسال کنید."
+        },
+        analytics: {
+          title: "تحلیلات بلادرنگ",
+          description: "عملکرد کمپین را با تحلیلات دقیق و بینش‌های قابل اجرا پیگیری کنید."
+        },
+        compliance: {
+          title: "سازگاری مقرراتی",
+          description: "ویژگی‌های سازگاری داخلی اطمینان حاصل می‌کنند که کمپین‌های شما تمام الزامات مقرراتی را برآورده می‌کنند."
+        }
+      },
+      howItWorks: {
+        title: "چگونه کار می‌کند",
+        subtitle: "در سه مرحله ساده با بازاریابی پیامکی شروع کنید",
+        step1: {
+          title: "حساب کاربری خود را ایجاد کنید",
+          description: "ثبت نام کنید و پروفایل کسب و کار خود را در چند دقیقه با فرآیند ساده‌سازی شده ما تنظیم کنید."
+        },
+        step2: {
+          title: "کمپین خود را طراحی کنید",
+          description: "از ابزارهای شهودی ما برای ایجاد کمپین‌های پیامکی جذاب با گزینه‌های هدف‌گذاری پیشرفته استفاده کنید."
+        },
+        step3: {
+          title: "ارسال و پیگیری نتایج",
+          description: "کمپین‌های خود را راه‌اندازی کنید و عملکرد بلادرنگ را با تحلیلات جامع نظارت کنید."
+        }
+      },
+      cta: {
+        title: "آماده شروع هستید؟",
+        subtitle: "به هزاران کسب و کاری که قبلاً از پلتفرم ما برای رشد پایگاه مشتریان خود استفاده می‌کنند بپیوندید.",
+        button: "شروع آزمایشی رایگان"
+      }
     },
     
     // Error Boundary

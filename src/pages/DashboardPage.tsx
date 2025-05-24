@@ -157,6 +157,25 @@ const DashboardPage: React.FC = () => {
               <p className="text-gray-600 mt-2">
                 {t('dashboard.subtitle')}
               </p>
+              {user && (
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    <strong>Account Type:</strong> {
+                      user.account_type_id === 1 ? 'Individual' :
+                      user.account_type_id === 2 ? 'Independent Company' :
+                      user.account_type_id === 3 ? 'Marketing Agency' : 'Unknown'
+                    }
+                  </p>
+                  {user.company_name && (
+                    <p className="text-sm text-blue-800 mt-1">
+                      <strong>Company:</strong> {user.company_name}
+                    </p>
+                  )}
+                  <p className="text-sm text-blue-800 mt-1">
+                    <strong>Email:</strong> {user.email}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Dashboard Content */}

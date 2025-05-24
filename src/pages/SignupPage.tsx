@@ -248,9 +248,9 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
       const response = await apiService.signup(signupData);
       
       if (response.success && response.data) {
-        // Debug the response structure
         // Extract customer_id from the response data
-        let customerId = response.data.data.customer_id;
+        // The API service wraps the server response, so we need to access response.data.data.customer_id
+        let customerId = response.data.data?.customer_id || response.data.customer_id;
 
         if (customerId) {
           setCustomerId(customerId);
@@ -304,27 +304,34 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
       const response = await apiService.verifyOtp(customerId, otpCode, 'mobile');
       
       if (response.success && response.data) {
+        // The API service wraps the server response, so we need to access response.data.data
+        const responseData = response.data.data || response.data;
+        
         // Store tokens and user data using auth context
-        if (response.data.customer) {
+        if (responseData.customer && responseData.token && responseData.refresh_token) {
+          
           login(
             { 
-              token: response.data.token, 
-              refresh_token: response.data.refresh_token 
+              token: responseData.token, 
+              refresh_token: responseData.refresh_token 
             }, 
-            response.data.customer
+            responseData.customer
           );
+          
+          showSuccess(t('signup.success'));
+          setShowOtpModal(false);
+          
+          // Redirect to dashboard
+          window.location.href = '/dashboard';
+        } else {
+          console.error('Missing required data in OTP response:', responseData);
+          showError(t('signup.error.invalidOtp'));
         }
-        
-        showSuccess(t('signup.success'));
-        setShowOtpModal(false);
-        
-        // Redirect to dashboard
-        window.location.href = '/dashboard';
-        
       } else {
         showError(response.error || t('signup.error.invalidOtp'));
       }
     } catch (error) {
+      console.error('OTP verification error:', error);
       showError(t('signup.error.networkError'));
     } finally {
       setIsLoading(false);
@@ -776,6 +783,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
           </div>
         )}
       </div>
+      
     </div>
   );
 };

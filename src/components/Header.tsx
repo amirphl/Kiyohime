@@ -1,46 +1,96 @@
 import React from 'react';
-import { BarChart3 } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
-import LanguageSwitcher from './LanguageSwitcher';
+import { useAuth } from '../hooks/useAuth';
 import DynamicBrand from './DynamicBrand';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const Header: React.FC = () => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
+  const { isAuthenticated, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/';
+  };
+
+  const handleSignIn = () => {
+    window.location.href = '/signin';
+  };
+
+  const handleDashboard = () => {
+    window.location.href = '/dashboard';
+  };
+
+  const handleHome = () => {
+    window.location.href = '/';
+  };
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Brand */}
-          <DynamicBrand />
+          <div className="flex items-center">
+            <button
+              onClick={handleHome}
+              className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+            >
+              <DynamicBrand />
+            </button>
+          </div>
 
-          {/* Navigation */}
-          <nav className={`hidden md:flex items-center ${isRTL ? 'space-x-reverse space-x-8' : 'space-x-8'}`}>
-            <button className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-              {t('header.dashboard')}
-            </button>
-            <button className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-              {t('header.campaigns')}
-            </button>
-            <button className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-              {t('header.analytics')}
-            </button>
-            <button className="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-              {t('header.support')}
-            </button>
-          </nav>
+          {/* Navigation Links - Only show on homepage */}
+          {window.location.pathname === '/' && (
+            <nav className="hidden md:flex items-center space-x-8">
+              <a href="#features" className="text-gray-700 hover:text-primary-600 transition-colors">
+                {t('header.features')}
+              </a>
+              <a href="#how-it-works" className="text-gray-700 hover:text-primary-600 transition-colors">
+                {t('header.howItWorks')}
+              </a>
+              <a href="#pricing" className="text-gray-700 hover:text-primary-600 transition-colors">
+                {t('header.pricing')}
+              </a>
+            </nav>
+          )}
 
-          {/* User Menu */}
+          {/* Right side - Language switcher and auth buttons */}
           <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'}`}>
             <LanguageSwitcher />
-            <button className="p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200">
-              <BarChart3 className="w-5 h-5" />
-            </button>
-            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">A</span>
-            </div>
+            
+            {isAuthenticated ? (
+              <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}>
+                <button
+                  onClick={handleDashboard}
+                  className="text-gray-700 hover:text-primary-600 transition-colors font-medium"
+                >
+                  {t('header.dashboard')}
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="btn-secondary"
+                >
+                  {t('header.logout')}
+                </button>
+              </div>
+            ) : (
+              <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}>
+                <button
+                  onClick={handleSignIn}
+                  className="text-gray-700 hover:text-primary-600 transition-colors font-medium"
+                >
+                  {t('header.signin')}
+                </button>
+                <button
+                  onClick={() => window.location.href = '/signup'}
+                  className="btn-primary"
+                >
+                  {t('header.signup')}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

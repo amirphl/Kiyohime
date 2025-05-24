@@ -61,12 +61,6 @@ class ApiService {
       
       const data = await response.json();
 
-      // Debug the raw response
-      console.log('Raw API response:', {
-        status: response.status,
-        statusText: response.statusText,
-        data: data
-      });
 
       if (!response.ok) {
         throw new Error(data.message || `HTTP ${response.status}`);
@@ -212,10 +206,6 @@ class ApiService {
       body: JSON.stringify(formattedData),
     });
 
-    // Debug the response structure
-    if (response.success && response.data) {
-      console.log('API Signup response structure:', response.data);
-    }
 
     return response;
   }

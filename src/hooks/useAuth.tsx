@@ -59,6 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = (tokens: { token: string; refresh_token: string }, userData: Customer) => {
+    
     localStorage.setItem('access_token', tokens.token);
     localStorage.setItem('refresh_token', tokens.refresh_token);
     localStorage.setItem('customer_data', JSON.stringify(userData));
@@ -71,6 +72,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setRefreshToken(tokens.refresh_token);
     setUser(userData);
     setIsAuthenticated(true);
+    
+    console.log('User data stored successfully. Authentication state updated.');
+    console.log('Account type:', userData.account_type_id, '-', 
+      userData.account_type_id === 1 ? 'Individual' : 
+      userData.account_type_id === 2 ? 'Independent Company' : 
+      userData.account_type_id === 3 ? 'Marketing Agency' : 'Unknown');
   };
 
   const logout = () => {
