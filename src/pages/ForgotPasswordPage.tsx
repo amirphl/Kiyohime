@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
+import { useToast } from '../hooks/useToast';
 import apiService from '../services/api';
 
 interface ForgotPasswordPageProps {
@@ -12,6 +13,7 @@ interface ForgotPasswordPageProps {
 const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNavigateToLogin, onNavigateToResetPassword }) => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
+  const { showError } = useToast();
   
   const [identifier, setIdentifier] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);

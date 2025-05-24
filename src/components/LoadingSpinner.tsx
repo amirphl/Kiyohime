@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';
@@ -11,6 +12,8 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   color = 'primary',
   className = ''
 }) => {
+  const { t } = useTranslation();
+  
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-5 w-5',
@@ -27,9 +30,9 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     <div 
       className={`animate-spin rounded-full border-2 border-t-transparent ${sizeClasses[size]} ${colorClasses[color]} ${className}`}
       role="status"
-      aria-label="Loading"
+      aria-label={t('common.loading')}
     >
-      <span className="sr-only">Loading...</span>
+      <span className="sr-only">{t('common.loading')}</span>
     </div>
   );
 };

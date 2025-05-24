@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
+import { useToast } from '../hooks/useToast';
+import { useAuth } from '../hooks/useAuth';
 import apiService from '../services/api';
 
 interface LoginPageProps {
@@ -12,6 +14,8 @@ interface LoginPageProps {
 const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToSignup, onNavigateToForgotPassword }) => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
+  const { showSuccess } = useToast();
+  const { login } = useAuth();
   
   const [identifier, setIdentifier] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -34,18 +38,21 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToSignup, onNavigateToF
       const response = await apiService.login(identifier, password);
       
       if (response.success && response.data) {
-        // Store tokens
-        localStorage.setItem('access_token', response.data.access_token);
-        localStorage.setItem('refresh_token', response.data.refresh_token);
-        
-        // Store customer data if available
+        // Store tokens and user data using auth context
         if (response.data.customer) {
-          localStorage.setItem('customer_data', JSON.stringify(response.data.customer));
+          login(
+            { 
+              token: response.data.token, 
+              refresh_token: response.data.refresh_token 
+            }, 
+            response.data.customer
+          );
         }
         
         // Redirect to dashboard or show success
-        alert(t('login.success'));
-        // TODO: Redirect to dashboard
+        showSuccess(t('login.success'));
+        // Redirect to dashboard
+        window.location.href = '/dashboard';
       } else {
         setError(response.error || t('login.error.invalidCredentials'));
       }

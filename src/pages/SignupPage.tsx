@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Building2, User, Lock, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { Building2, User, Lock, Eye, EyeOff, ArrowRight, CheckCircle, X } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
+import { useToast } from '../hooks/useToast';
+import { useAuth } from '../hooks/useAuth';
 import apiService from '../services/api';
 
 interface SignupFormData {
@@ -35,6 +37,8 @@ interface SignupPageProps {
 const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
+  const { showError, showSuccess, showInfo } = useToast();
+  const { login } = useAuth();
   
   const [formData, setFormData] = useState<SignupFormData>({
     accountType: '',
@@ -60,7 +64,6 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
   // OTP Modal state
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otpCode, setOtpCode] = useState('');
-  const [otpAttempts, setOtpAttempts] = useState(0);
   const [customerId, setCustomerId] = useState<number | null>(null);
   const [canResendOtp, setCanResendOtp] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(60);
@@ -80,7 +83,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
         if (formData.accountType !== 'individual' && !value.trim()) {
           return t('signup.validation.nationalIdRequired');
         }
-        if (value && (value.length !== 11 || !/^\d+$/.test(value))) {
+        if (value && (value.length < 10 || value.length > 20 || !/^\d+$/.test(value))) {
           return t('signup.validation.nationalIdFormat');
         }
         return '';
@@ -107,7 +110,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
         if (formData.accountType !== 'individual' && !value.trim()) {
           return t('signup.validation.postalCodeRequired');
         }
-        if (value && (value.length !== 10 || !/^\d+$/.test(value))) {
+        if (value && (value.length < 10 || !/^\d+$/.test(value))) {
           return t('signup.validation.postalCodeFormat');
         }
         return '';
@@ -155,8 +158,11 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
         if (value.length < 8) {
           return t('signup.validation.passwordMin');
         }
-        if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(value)) {
-          return t('signup.validation.passwordStrength');
+        if (!/[A-Z]/.test(value)) {
+          return t('signup.validation.passwordUppercase');
+        }
+        if (!/\d/.test(value)) {
+          return t('signup.validation.passwordNumber');
         }
         return '';
       
@@ -242,16 +248,24 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
       const response = await apiService.signup(signupData);
       
       if (response.success && response.data) {
-        setCustomerId(response.data.customer_id);
-        setShowOtpModal(true);
-        startResendCountdown();
+        // Debug the response structure
+        // Extract customer_id from the response data
+        let customerId = response.data.data.customer_id;
+
+        if (customerId) {
+          setCustomerId(customerId);
+          setShowOtpModal(true);
+          startResendCountdown();
+        } else {
+          showError(t('signup.error.noCustomerId'));
+        }
       } else {
-        alert(response.error || t('signup.error.signupFailed'));
+        showError(response.error || t('signup.error.signupFailed'));
       }
       
     } catch (error) {
       console.error('Signup error:', error);
-      alert(t('signup.error.networkError'));
+      showError(t('signup.error.networkError'));
     } finally {
       setIsLoading(false);
     }
@@ -275,17 +289,12 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
   const handleOtpVerification = async () => {
     if (otpCode.length !== 6) {
-      alert(t('signup.validation.invalidOtp'));
-      return;
-    }
-    
-    if (otpAttempts >= 3) {
-      alert(t('signup.validation.maxOtpAttempts'));
+      showError(t('signup.validation.invalidOtp'));
       return;
     }
     
     if (!customerId) {
-      alert(t('signup.error.noCustomerId'));
+      showError(t('signup.error.noCustomerId'));
       return;
     }
     
@@ -295,25 +304,28 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
       const response = await apiService.verifyOtp(customerId, otpCode, 'mobile');
       
       if (response.success && response.data) {
-        // Store tokens
-        localStorage.setItem('access_token', response.data.token);
-        localStorage.setItem('refresh_token', response.data.refresh_token);
-        
-        // Store customer data if available
+        // Store tokens and user data using auth context
         if (response.data.customer) {
-          localStorage.setItem('customer_data', JSON.stringify(response.data.customer));
+          login(
+            { 
+              token: response.data.token, 
+              refresh_token: response.data.refresh_token 
+            }, 
+            response.data.customer
+          );
         }
         
-        alert(t('signup.success'));
+        showSuccess(t('signup.success'));
         setShowOtpModal(false);
-        // TODO: Redirect to dashboard
+        
+        // Redirect to dashboard
+        window.location.href = '/dashboard';
+        
       } else {
-        setOtpAttempts(prev => prev + 1);
-        alert(response.error || t('signup.error.invalidOtp'));
+        showError(response.error || t('signup.error.invalidOtp'));
       }
     } catch (error) {
-      setOtpAttempts(prev => prev + 1);
-      alert(t('signup.error.networkError'));
+      showError(t('signup.error.networkError'));
     } finally {
       setIsLoading(false);
     }
@@ -327,13 +339,13 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
       const response = await apiService.resendOtp(customerId);
       
       if (response.success) {
-        alert(t('signup.otpResent'));
+        showInfo(t('signup.otpResent'));
         startResendCountdown();
       } else {
-        alert(response.error || t('signup.error.resendFailed'));
+        showError(response.error || t('signup.error.resendFailed'));
       }
     } catch (error) {
-      alert(t('signup.error.networkError'));
+      showError(t('signup.error.networkError'));
     } finally {
       setIsLoading(false);
     }
@@ -419,7 +431,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                       onChange={handleInputChange}
                       className="input-field"
                       placeholder={t('signup.nationalIdPlaceholder')}
-                      maxLength={11}
+                      maxLength={20}
                     />
                     {errors.nationalId && (
                       <p className="mt-1 text-sm text-red-600">{errors.nationalId}</p>
@@ -454,7 +466,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                       onChange={handleInputChange}
                       className="input-field"
                       placeholder={t('signup.postalCodePlaceholder')}
-                      maxLength={10}
+                      maxLength={20}
                     />
                     {errors.postalCode && (
                       <p className="mt-1 text-sm text-red-600">{errors.postalCode}</p>
@@ -597,6 +609,16 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   {errors.password && (
                     <p className="mt-1 text-sm text-red-600">{errors.password}</p>
                   )}
+                  
+                  {/* Password Requirements */}
+                  <div className="mt-2 text-xs text-gray-500">
+                    <p className="font-medium mb-1">{t('signup.passwordRequirements')}:</p>
+                    <ul className="space-y-1">
+                      <li>• {t('signup.validation.passwordMin')}</li>
+                      <li>• {t('signup.validation.passwordUppercase')}</li>
+                      <li>• {t('signup.validation.passwordNumber')}</li>
+                    </ul>
+                  </div>
                 </div>
 
                 <div>
@@ -637,12 +659,13 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 {t('signup.agencyCode')}
               </label>
               <input
-                type="number"
+                type="text"
                 name="referrerAgencyCode"
                 value={formData.referrerAgencyCode}
                 onChange={handleInputChange}
                 className="input-field"
                 placeholder={t('signup.agencyCodePlaceholder')}
+                maxLength={10}
               />
               {errors.referrerAgencyCode && (
                 <p className="mt-1 text-sm text-red-600">{errors.referrerAgencyCode}</p>
@@ -723,7 +746,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
                 <button
                   onClick={handleOtpVerification}
-                  disabled={isLoading || otpCode.length !== 6 || otpAttempts >= 3}
+                  disabled={isLoading || otpCode.length !== 6}
                   className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
@@ -734,25 +757,18 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 </button>
 
                 <div className="text-center space-y-2">
-                  {otpAttempts < 3 && (
-                    <p className="text-sm text-gray-600">
-                      {t('signup.attemptsRemaining')} {3 - otpAttempts}
-                    </p>
-                  )}
-                  
-                  {otpAttempts >= 3 ? (
-                    <p className={`text-sm text-red-600 flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'}`}>
-                      <AlertCircle className="h-4 w-4" />
-                      <span>{t('signup.maxAttemptsReached')}</span>
-                    </p>
-                  ) : (
+                  {canResendOtp ? (
                     <button
                       onClick={handleResendOtp}
                       disabled={!canResendOtp || isLoading}
                       className="text-sm text-primary-600 hover:text-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {canResendOtp ? t('common.resend') : `${t('signup.resendIn')} ${resendCountdown}${t('common.seconds')}`}
+                      {t('common.resend')}
                     </button>
+                  ) : (
+                    <p className="text-sm text-gray-600">
+                      {t('signup.resendIn')} {resendCountdown}{t('common.seconds')}
+                    </p>
                   )}
                 </div>
               </div>

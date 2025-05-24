@@ -99,6 +99,8 @@ export const translations = {
       validation: {
         newPasswordRequired: "Please enter a new password",
         passwordMin: "Password must be at least 8 characters",
+        passwordUppercase: "Password must contain at least 1 uppercase letter",
+        passwordNumber: "Password must contain at least 1 number",
         passwordStrength: "Password must contain at least 1 letter and 1 digit",
         passwordMismatch: "Passwords do not match",
         otpRequired: "Please enter the 6-digit OTP code",
@@ -130,7 +132,7 @@ export const translations = {
       companyName: "Company Name",
       companyNamePlaceholder: "Enter company name",
       nationalId: "National ID",
-      nationalIdPlaceholder: "11-digit national ID",
+      nationalIdPlaceholder: "10-digit national ID",
       companyPhone: "Company Phone",
       companyPhonePlaceholder: "Company phone number",
       postalCode: "Postal Code",
@@ -162,6 +164,7 @@ export const translations = {
       createAccount: "Create Account",
       haveAccount: "Already have an account?",
       signInHere: "Sign in here",
+      passwordRequirements: "Password Requirements",
       
       // OTP Modal
       verifyMobile: "Verify Your Mobile Number",
@@ -179,13 +182,13 @@ export const translations = {
         companyNameRequired: "Company name is required",
         companyNameMax: "Company name must be 60 characters or less",
         nationalIdRequired: "National ID is required",
-        nationalIdFormat: "National ID must be exactly 11 digits",
+        nationalIdFormat: "National ID must be 10 to 20 digits",
         companyPhoneRequired: "Company phone is required",
         companyPhoneMin: "Phone number must be at least 10 digits",
         companyAddressRequired: "Company address is required",
         companyAddressMax: "Address must be 255 characters or less",
         postalCodeRequired: "Postal code is required",
-        postalCodeFormat: "Postal code must be exactly 10 digits",
+        postalCodeFormat: "Postal code must be at least 10 digits",
         firstNameRequired: "First name is required",
         firstNameFormat: "First name can only contain letters and spaces",
         lastNameRequired: "Last name is required",
@@ -196,6 +199,8 @@ export const translations = {
         emailFormat: "Please enter a valid email address",
         passwordRequired: "Password is required",
         passwordMin: "Password must be at least 8 characters",
+        passwordUppercase: "Password must contain at least 1 uppercase letter",
+        passwordNumber: "Password must contain at least 1 number",
         passwordStrength: "Password must contain at least 1 letter and 1 digit",
         confirmPasswordRequired: "Please confirm your password",
         passwordMismatch: "Passwords do not match",
@@ -212,6 +217,43 @@ export const translations = {
         networkError: "Network error. Please try again.",
         noCustomerId: "No customer ID found. Please try again."
       }
+    },
+    
+    // Dashboard
+    dashboard: {
+      title: "Dashboard",
+      welcome: "Welcome",
+      subtitle: "Manage your SMS marketing campaigns and track your performance",
+      logout: "Logout",
+      
+      // Sidebar Navigation
+      dashboard: "Dashboard",
+      targetedSend: "targeted send",
+      reports: "reports",
+      campaigns: "Campaign and Customer",
+      wallet: "Wallet and Charge",
+      support: "Ticket and Support",
+      customerManagement: "Customer Management",
+      discountManagement: "Discount Management",
+      
+      // Stats
+      stats: {
+        totalCampaigns: "Total Campaigns",
+        totalCustomers: "Total Customers",
+        walletBalance: "Wallet Balance",
+        activeTickets: "Active Tickets",
+      },
+      
+      // Content
+      recentActivity: "Recent Activity",
+      noActivity: "No recent activity",
+    },
+    
+    // Error Boundary
+    error: {
+      title: "Something went wrong",
+      message: "We're sorry, but something unexpected happened. Please try refreshing the page.",
+      refresh: "Refresh Page"
     },
     
     // Common
@@ -332,6 +374,8 @@ export const translations = {
       validation: {
         newPasswordRequired: "لطفاً رمز عبور جدید را وارد کنید",
         passwordMin: "رمز عبور باید حداقل ۸ کاراکتر باشد",
+        passwordUppercase: "رمز عبور باید حداقل ۱ حرف بزرگ داشته باشد",
+        passwordNumber: "رمز عبور باید حداقل ۱ رقم داشته باشد",
         passwordStrength: "رمز عبور باید حداقل ۱ حرف و ۱ رقم داشته باشد",
         passwordMismatch: "رمزهای عبور مطابقت ندارند",
         otpRequired: "لطفاً کد تأیید ۶ رقمی را وارد کنید",
@@ -395,6 +439,7 @@ export const translations = {
       createAccount: "ایجاد حساب کاربری",
       haveAccount: "قبلاً حساب کاربری دارید؟",
       signInHere: "اینجا وارد شوید",
+      passwordRequirements: "نیازمندی‌های رمز عبور",
       
       // OTP Modal
       verifyMobile: "تأیید شماره موبایل شما",
@@ -412,13 +457,13 @@ export const translations = {
         companyNameRequired: "نام شرکت الزامی است",
         companyNameMax: "نام شرکت باید حداکثر ۶۰ کاراکتر باشد",
         nationalIdRequired: "شناسه ملی الزامی است",
-        nationalIdFormat: "شناسه ملی باید دقیقاً ۱۱ رقم باشد",
+        nationalIdFormat: "شناسه ملی باید ۱۰ تا ۲۰ رقم باشد",
         companyPhoneRequired: "تلفن شرکت الزامی است",
         companyPhoneMin: "شماره تلفن باید حداقل ۱۰ رقم باشد",
         companyAddressRequired: "آدرس شرکت الزامی است",
         companyAddressMax: "آدرس باید حداکثر ۲۵۵ کاراکتر باشد",
         postalCodeRequired: "کد پستی الزامی است",
-        postalCodeFormat: "کد پستی باید دقیقاً ۱۰ رقم باشد",
+        postalCodeFormat: "کد پستی باید حداقل ۱۰ رقم باشد",
         firstNameRequired: "نام الزامی است",
         firstNameFormat: "نام فقط می‌تواند شامل حروف و فاصله باشد",
         lastNameRequired: "نام خانوادگی الزامی است",
@@ -429,6 +474,8 @@ export const translations = {
         emailFormat: "لطفاً یک آدرس ایمیل معتبر وارد کنید",
         passwordRequired: "رمز عبور الزامی است",
         passwordMin: "رمز عبور باید حداقل ۸ کاراکتر باشد",
+        passwordUppercase: "رمز عبور باید حداقل ۱ حرف بزرگ داشته باشد",
+        passwordNumber: "رمز عبور باید حداقل ۱ رقم داشته باشد",
         passwordStrength: "رمز عبور باید حداقل ۱ حرف و ۱ رقم داشته باشد",
         confirmPasswordRequired: "لطفاً رمز عبور را تأیید کنید",
         passwordMismatch: "رمزهای عبور مطابقت ندارند",
@@ -445,6 +492,43 @@ export const translations = {
         networkError: "خطای شبکه. لطفاً دوباره تلاش کنید.",
         noCustomerId: "شناسه مشتری یافت نشد. لطفاً دوباره تلاش کنید."
       }
+    },
+    
+    // Dashboard
+    dashboard: {
+      title: "داشبورد",
+      welcome: "خوش آمدید",
+      subtitle: "مدیریت کمپین‌های پیامکی خود را و پیگیری عملکرد خود را شروع کنید",
+      logout: "خروج",
+      
+      // Sidebar Navigation
+      dashboard: "داشبورد",
+      targetedSend: "ارسال هدفمند",
+      reports: "گزارشگیری",
+      campaigns: "کمپین و مشتریان",
+      wallet: "کیف پول و شارژ",
+      support: "تیکت و پشتیبانی",
+      customerManagement: "مدیریت مشتریان",
+      discountManagement: "مدیریت تخفیف",
+      
+      // Stats
+      stats: {
+        totalCampaigns: "تعداد کل کمپین‌ها",
+        totalCustomers: "تعداد کل مشتریان",
+        walletBalance: "موجودی کیف پول",
+        activeTickets: "تیکت‌های فعال",
+      },
+      
+      // Content
+      recentActivity: "فعالیت‌های اخیر",
+      noActivity: "فعالیتی در حال حاضر وجود ندارد",
+    },
+    
+    // Error Boundary
+    error: {
+      title: "چیزی به‌روزرسانی نشد",
+      message: "متاسفانه، چیزی به‌روزرسانی نشد. لطفاً صفحه را دوباره بارگذاری کنید.",
+      refresh: "بارگذاری مجدد صفحه"
     },
     
     // Common
