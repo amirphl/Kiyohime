@@ -48,6 +48,15 @@ build_app() {
     print_success "Application built successfully"
 }
 
+# Function to start development server
+start_dev_server() {
+    print_status "Starting development server..."
+    print_warning "This will start the React development server on port 8081"
+    print_warning "Make sure to run this in a separate terminal and keep it running"
+    print_status "Run: npm start"
+    print_success "Development server instructions displayed"
+}
+
 # Function to start the Nginx container
 start_nginx() {
     print_status "Starting Nginx container..."
@@ -96,7 +105,8 @@ show_help() {
     echo "Usage: $0 [COMMAND]"
     echo ""
     echo "Commands:"
-    echo "  start     - Start Nginx container"
+    echo "  start     - Build app and start Nginx container (production)"
+    echo "  dev       - Start development server instructions (development)"
     echo "  stop      - Stop Nginx container"
     echo "  restart   - Restart Nginx container"
     echo "  logs      - View Nginx logs"
@@ -106,8 +116,12 @@ show_help() {
     echo ""
     echo "Prerequisites:"
     echo "  - SSL certificates in ./cert/ directory"
-    echo "  - Application built (npm run build)"
     echo "  - Docker and Docker Compose installed"
+    echo ""
+    echo "Development Workflow:"
+    echo "  1. Run: ./scripts/nginx-docker.sh dev"
+    echo "  2. Run: npm start (in separate terminal)"
+    echo "  3. Access: https://yamata-no-orochi.com:8443"
 }
 
 # Main script logic
@@ -116,6 +130,10 @@ case "${1:-help}" in
         check_certificates
         build_app
         start_nginx
+        ;;
+    "dev")
+        check_certificates
+        start_dev_server
         ;;
     "stop")
         stop_nginx
@@ -137,3 +155,4 @@ case "${1:-help}" in
         show_help
         ;;
 esac 
+ 

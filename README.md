@@ -81,6 +81,7 @@ docker run -p 80:8081 sms-platform-prod
 
 For SSL-enabled deployment with Nginx:
 
+#### Production Mode
 ```bash
 # Prepare SSL certificates
 mkdir -p cert
@@ -94,6 +95,22 @@ cp /path/to/your/private.key ./cert/yamata-no-orochi.com.key
 ./scripts/nginx-docker.sh start
 
 # Access: https://yamata-no-orochi.com:8443
+```
+
+#### Development Mode (Faster)
+```bash
+# Prepare SSL certificates
+mkdir -p cert
+cp /path/to/your/certificate.crt ./cert/yamata-no-orochi.com.crt
+cp /path/to/your/private.key ./cert/yamata-no-orochi.com.key
+
+# Start Nginx (proxies to development server)
+./scripts/nginx-docker.sh dev
+
+# In another terminal, start development server
+npm start
+
+# Access: https://yamata-no-orochi.com:8443 (with hot reload)
 ```
 
 ## 🚀 Production Deployment
