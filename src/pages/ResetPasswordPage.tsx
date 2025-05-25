@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Lock, Eye, EyeOff, ArrowRight, CheckCircle, ArrowLeft } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
-import { useToast } from '../hooks/useToast';
 import apiService from '../services/api';
 
 interface ResetPasswordPageProps {
@@ -18,7 +17,6 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
 }) => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
-  const { showError, showSuccess } = useToast();
   
   const [newPassword, setNewPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');

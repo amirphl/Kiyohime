@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react';
-import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';

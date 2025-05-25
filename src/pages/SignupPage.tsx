@@ -382,7 +382,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
             {/* Account Type */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('signup.accountType')} <span className="text-red-500">{t('common.required')}</span>
+                {t('signup.accountType')} <span className="text-lightGreen-500">{t('common.required')}</span>
               </label>
               <select
                 name="accountType"
@@ -411,7 +411,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('signup.companyName')} <span className="text-red-500">{t('common.required')}</span>
+                      {t('signup.companyName')} <span className="text-lightGreen-500">{t('common.required')}</span>
                     </label>
                     <input
                       type="text"
@@ -429,7 +429,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('signup.nationalId')} <span className="text-red-500">{t('common.required')}</span>
+                      {t('signup.nationalId')} <span className="text-lightGreen-500">{t('common.required')}</span>
                     </label>
                     <input
                       type="text"
@@ -447,7 +447,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('signup.companyPhone')} <span className="text-red-500">{t('common.required')}</span>
+                      {t('signup.companyPhone')} <span className="text-lightGreen-500">{t('common.required')}</span>
                     </label>
                     <input
                       type="tel"
@@ -464,7 +464,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('signup.postalCode')} <span className="text-red-500">{t('common.required')}</span>
+                      {t('signup.postalCode')} <span className="text-lightGreen-500">{t('common.required')}</span>
                     </label>
                     <input
                       type="text"
@@ -483,7 +483,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('signup.companyAddress')} <span className="text-red-500">{t('common.required')}</span>
+                    {t('signup.companyAddress')} <span className="text-lightGreen-500">{t('common.required')}</span>
                   </label>
                   <textarea
                     name="companyAddress"
@@ -511,7 +511,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('signup.firstName')} <span className="text-red-500">{t('common.required')}</span>
+                    {t('signup.firstName')} <span className="text-lightGreen-500">{t('common.required')}</span>
                   </label>
                   <input
                     type="text"
@@ -528,7 +528,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('signup.lastName')} <span className="text-red-500">{t('common.required')}</span>
+                    {t('signup.lastName')} <span className="text-lightGreen-500">{t('common.required')}</span>
                   </label>
                   <input
                     type="text"
@@ -546,7 +546,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('signup.mobileNumber')} <span className="text-red-500">{t('common.required')}</span>
+                  {t('signup.mobileNumber')} <span className="text-lightGreen-500">{t('common.required')}</span>
                 </label>
                 <input
                   type="tel"
@@ -572,7 +572,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('signup.email')} <span className="text-red-500">{t('common.required')}</span>
+                  {t('signup.email')} <span className="text-lightGreen-500">{t('common.required')}</span>
                 </label>
                 <input
                   type="email"
@@ -590,7 +590,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('signup.password')} <span className="text-red-500">{t('common.required')}</span>
+                    {t('signup.password')} <span className="text-lightGreen-500">{t('common.required')}</span>
                   </label>
                   <div className="relative">
                     <input
@@ -630,7 +630,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('signup.confirmPassword')} <span className="text-red-500">{t('common.required')}</span>
+                    {t('signup.confirmPassword')} <span className="text-lightGreen-500">{t('common.required')}</span>
                   </label>
                   <div className="relative">
                     <input

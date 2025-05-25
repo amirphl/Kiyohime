@@ -5,7 +5,6 @@ import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage';
 import DashboardPage from '../pages/DashboardPage';
 import HomePage from '../pages/HomePage';
-import SignInPage from '../pages/SignInPage';
 import { useAuth } from '../hooks/useAuth';
 
 const AuthRouter: React.FC = () => {
