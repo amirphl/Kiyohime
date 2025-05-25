@@ -143,9 +143,6 @@ logs
 tmp/
 temp/
 
-# Docker
-.dockerignore
-
 # Backup files
 *.bak
 *.backup
