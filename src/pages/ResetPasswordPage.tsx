@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Lock, Eye, EyeOff, ArrowRight, CheckCircle, ArrowLeft } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
+import { useAuth } from '../hooks/useAuth';
 import apiService from '../services/api';
 
 interface ResetPasswordPageProps {
@@ -17,6 +18,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
 }) => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
+  const { login } = useAuth();
   
   const [newPassword, setNewPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
@@ -48,6 +50,9 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
   const validatePassword = (password: string): string => {
     if (password.length < 8) {
       return t('resetPassword.validation.passwordMin');
+    }
+    if (!/[A-Z]/.test(password)) {
+      return t('resetPassword.validation.passwordUppercase');
     }
     if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
       return t('resetPassword.validation.passwordStrength');
@@ -99,9 +104,43 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
       const response = await apiService.resetPassword(customerId!, newPassword, confirmPassword, otpCode);
       
       if (response.success && response.data) {
-        setSuccess(true);
+        // The API service wraps the server response, so we need to access response.data.data
+        const responseData = response.data.data || response.data;
+        
+        // Check if we have the required data for login
+        if (responseData.customer && responseData.access_token && responseData.refresh_token) {
+          // Automatically log the user in with the returned tokens and user data
+          login(
+            { 
+              token: responseData.access_token, 
+              refresh_token: responseData.refresh_token 
+            }, 
+            responseData.customer
+          );
+          
+          setSuccess(true);
+        } else {
+          console.error('Missing required data in reset password response:', responseData);
+          setError(t('resetPassword.error.resetFailed'));
+        }
       } else {
-        setError(response.error || t('resetPassword.error.resetFailed'));
+        // Handle error response with new format
+        const errorMessage = response.data?.error?.code === 'CUSTOMER_NOT_FOUND' 
+          ? t('resetPassword.error.customerNotFound')
+          : response.data?.error?.code === 'ACCOUNT_INACTIVE'
+          ? t('resetPassword.error.accountInactive')
+          : response.data?.error?.code === 'ACCOUNT_TYPE_NOT_FOUND'
+          ? t('resetPassword.error.accountTypeNotFound')
+          : response.data?.error?.code === 'NO_VALID_OTP'
+          ? t('resetPassword.error.noValidOtp')
+          : response.data?.error?.code === 'INVALID_OTP_CODE'
+          ? t('resetPassword.error.invalidOtpCode')
+          : response.data?.error?.code === 'INVALID_OTP_TYPE'
+          ? t('resetPassword.error.invalidOtpType')
+          : response.data?.error?.code === 'OTP_EXPIRED'
+          ? t('resetPassword.error.otpExpired')
+          : response.error || t('resetPassword.error.resetFailed');
+        setError(errorMessage);
       }
     } catch (error) {
       setError(t('resetPassword.error.networkError'));
@@ -139,10 +178,10 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
           {/* Action Button */}
           <button
             type="button"
-            onClick={onNavigateToLogin}
+            onClick={() => window.location.href = '/dashboard'}
             className={`w-full btn-primary flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
           >
-            <ArrowLeft className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
+            <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
             <span>{t('resetPassword.success.backToLogin')}</span>
           </button>
         </div>

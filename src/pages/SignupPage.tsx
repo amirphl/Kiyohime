@@ -92,8 +92,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
         if (formData.accountType !== 'individual' && !value.trim()) {
           return t('signup.validation.companyPhoneRequired');
         }
-        if (value && value.length < 10) {
-          return t('signup.validation.companyPhoneMin');
+        if (value && !/^09\d{9}$/.test(value)) {
+          return t('signup.validation.mobileFormat');
         }
         return '';
       
@@ -260,7 +260,25 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
           showError(t('signup.error.noCustomerId'));
         }
       } else {
-        showError(response.error || t('signup.error.signupFailed'));
+        // Handle error response with new format
+        const errorMessage = response.data?.error?.code === 'EMAIL_EXISTS' 
+          ? t('signup.error.emailExists')
+          : response.data?.error?.code === 'MOBILE_EXISTS'
+          ? t('signup.error.mobileExists')
+          : response.data?.error?.code === 'NATIONAL_ID_EXISTS'
+          ? t('signup.error.nationalIdExists')
+          : response.data?.error?.code === 'ACCOUNT_TYPE_NOT_FOUND'
+          ? t('signup.error.accountTypeNotFound')
+          : response.data?.error?.code === 'COMPANY_FIELDS_REQUIRED'
+          ? t('signup.error.companyFieldsRequired')
+          : response.data?.error?.code === 'REFERRER_AGENCY_NOT_FOUND'
+          ? t('signup.error.referrerAgencyNotFound')
+          : response.data?.error?.code === 'REFERRER_MUST_BE_AGENCY'
+          ? t('signup.error.referrerMustBeAgency')
+          : response.data?.error?.code === 'REFERRER_AGENCY_INACTIVE'
+          ? t('signup.error.referrerAgencyInactive')
+          : response.error || t('signup.error.signupFailed');
+        showError(errorMessage);
       }
       
     } catch (error) {
@@ -308,11 +326,11 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
         const responseData = response.data.data || response.data;
         
         // Store tokens and user data using auth context
-        if (responseData.customer && responseData.token && responseData.refresh_token) {
+        if (responseData.customer && responseData.access_token && responseData.refresh_token) {
           
           login(
             { 
-              token: responseData.token, 
+              token: responseData.access_token, 
               refresh_token: responseData.refresh_token 
             }, 
             responseData.customer
@@ -328,7 +346,23 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
           showError(t('signup.error.invalidOtp'));
         }
       } else {
-        showError(response.error || t('signup.error.invalidOtp'));
+        // Handle error response with new format
+        const errorMessage = response.data?.error?.code === 'CUSTOMER_NOT_FOUND' 
+          ? t('signup.error.customerNotFound')
+          : response.data?.error?.code === 'ACCOUNT_INACTIVE'
+          ? t('signup.error.accountInactive')
+          : response.data?.error?.code === 'ACCOUNT_TYPE_NOT_FOUND'
+          ? t('signup.error.accountTypeNotFound')
+          : response.data?.error?.code === 'NO_VALID_OTP'
+          ? t('signup.error.noValidOtp')
+          : response.data?.error?.code === 'INVALID_OTP_CODE'
+          ? t('signup.error.invalidOtp')
+          : response.data?.error?.code === 'INVALID_OTP_TYPE'
+          ? t('signup.error.invalidOtpType')
+          : response.data?.error?.code === 'OTP_EXPIRED'
+          ? t('signup.error.otpExpired')
+          : response.error || t('signup.error.invalidOtp');
+        showError(errorMessage);
       }
     } catch (error) {
       console.error('OTP verification error:', error);
@@ -343,13 +377,29 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
     
     setIsLoading(true);
     try {
-      const response = await apiService.resendOtp(customerId);
+      const response = await apiService.resendOtp(customerId, 'mobile');
       
-      if (response.success) {
-        showInfo(t('signup.otpResent'));
-        startResendCountdown();
+      if (response.success && response.data) {
+        // The API service wraps the server response, so we need to access response.data.data
+        const responseData = response.data.data || response.data;
+        
+        // Check if OTP was sent successfully
+        if (responseData.otp_sent) {
+          showInfo(t('signup.otpResent'));
+          startResendCountdown();
+        } else {
+          showError(t('signup.error.resendFailed'));
+        }
       } else {
-        showError(response.error || t('signup.error.resendFailed'));
+        // Handle error response with new format
+        const errorMessage = response.data?.error?.code === 'CUSTOMER_NOT_FOUND' 
+          ? t('signup.error.customerNotFound')
+          : response.data?.error?.code === 'ACCOUNT_INACTIVE'
+          ? t('signup.error.accountInactive')
+          : response.data?.error?.code === 'ACCOUNT_ALREADY_VERIFIED'
+          ? t('signup.error.accountAlreadyVerified')
+          : response.error || t('signup.error.resendFailed');
+        showError(errorMessage);
       }
     } catch (error) {
       showError(t('signup.error.networkError'));
@@ -456,6 +506,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                       onChange={handleInputChange}
                       className="input-field"
                       placeholder={t('signup.companyPhonePlaceholder')}
+                      maxLength={11}
                     />
                     {errors.companyPhone && (
                       <p className="mt-1 text-sm text-red-600">{errors.companyPhone}</p>

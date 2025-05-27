@@ -3,20 +3,17 @@ import { useState, useEffect, useContext, createContext } from 'react';
 interface Customer {
   id: number;
   uuid: string;
-  account_type_id: number;
-  company_name?: string;
-  national_id?: string;
-  company_phone?: string;
-  company_address?: string;
-  postal_code?: string;
+  email: string;
   representative_first_name: string;
   representative_last_name: string;
   representative_mobile: string;
-  email: string;
-  is_email_verified: boolean;
-  is_mobile_verified: boolean;
-  is_active: boolean;
+  account_type: string;
+  company_name?: string;
+  is_active?: boolean;
+  is_email_verified?: boolean;
+  is_mobile_verified?: boolean;
   created_at: string;
+  referrer_agency_id?: number;
 }
 
 interface AuthContextType {
@@ -65,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('customer_data', JSON.stringify(userData));
     localStorage.setItem('user_id', userData.id.toString());
     localStorage.setItem('user_uuid', userData.uuid);
-    localStorage.setItem('account_type_id', userData.account_type_id.toString());
+    localStorage.setItem('account_type', userData.account_type);
     localStorage.setItem('is_authenticated', 'true');
 
     setAccessToken(tokens.token);
@@ -74,10 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthenticated(true);
     
     console.log('User data stored successfully. Authentication state updated.');
-    console.log('Account type:', userData.account_type_id, '-', 
-      userData.account_type_id === 1 ? 'Individual' : 
-      userData.account_type_id === 2 ? 'Independent Company' : 
-      userData.account_type_id === 3 ? 'Marketing Agency' : 'Unknown');
+    console.log('Account type:', userData.account_type);
   };
 
   const logout = () => {
@@ -86,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('customer_data');
     localStorage.removeItem('user_id');
     localStorage.removeItem('user_uuid');
-    localStorage.removeItem('account_type_id');
+    localStorage.removeItem('account_type');
     localStorage.removeItem('is_authenticated');
 
     setAccessToken(null);

@@ -36,10 +36,18 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNavigateToLog
       
       if (response.success && response.data) {
         setSuccess(true);
-        setCustomerId(response.data.customer_id);
-        setMaskedPhone(response.data.masked_phone);
+        setCustomerId(response.data.data.customer_id);
+        setMaskedPhone(response.data.data.masked_phone);
       } else {
-        setError(response.error || t('forgotPassword.error.requestFailed'));
+        // Handle error response with new format
+        const errorMessage = response.data?.error?.code === 'CUSTOMER_NOT_FOUND' 
+          ? t('forgotPassword.error.customerNotFound')
+          : response.data?.error?.code === 'ACCOUNT_INACTIVE'
+          ? t('forgotPassword.error.accountInactive')
+          : response.data?.error?.code === 'ACCOUNT_TYPE_NOT_FOUND'
+          ? t('forgotPassword.error.accountTypeNotFound')
+          : response.error || t('forgotPassword.error.requestFailed');
+        setError(errorMessage);
       }
     } catch (error) {
       setError(t('forgotPassword.error.networkError'));

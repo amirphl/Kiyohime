@@ -41,11 +41,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToSignup, onNavigateToF
         const responseData = response.data.data || response.data;
         
         // Store tokens and user data using auth context
-        if (responseData.customer && responseData.token && responseData.refresh_token) {
+        if (responseData.customer && responseData.access_token && responseData.refresh_token) {
           
           login(
             { 
-              token: responseData.token, 
+              token: responseData.access_token, 
               refresh_token: responseData.refresh_token 
             }, 
             responseData.customer
@@ -60,7 +60,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToSignup, onNavigateToF
           setError(t('login.error.invalidCredentials'));
         }
       } else {
-        setError(response.error || t('login.error.invalidCredentials'));
+        // Handle error response with new format
+        const errorMessage = response.data?.error?.code === 'CUSTOMER_NOT_FOUND' 
+          ? t('login.error.customerNotFound')
+          : response.data?.error?.code === 'ACCOUNT_INACTIVE'
+          ? t('login.error.accountInactive')
+          : response.data?.error?.code === 'ACCOUNT_TYPE_NOT_FOUND'
+          ? t('login.error.accountTypeNotFound')
+          : response.data?.error?.code === 'INCORRECT_PASSWORD'
+          ? t('login.error.incorrectPassword')
+          : response.error || t('login.error.invalidCredentials');
+        setError(errorMessage);
       }
     } catch (error) {
       console.error('Login error:', error);

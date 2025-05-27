@@ -112,7 +112,7 @@ const domainConfigs: Record<string, Partial<EnvironmentConfig>> = {
       analytics: true,
     },
     ui: {
-      primaryColor: '#dc2626',
+      primaryColor: '#22c55e',
       logoUrl: '/logo-yamata.png',
       faviconUrl: '/favicon-yamata.ico',
       theme: 'light',

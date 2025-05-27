@@ -134,10 +134,19 @@ class ApiService {
       };
     }
 
+    // Check if identifier looks like a phone number (contains only digits and +)
+    const phoneRegex = /^[\d+]+$/;
+    let formattedIdentifier = identifier.trim();
+    
+    if (phoneRegex.test(formattedIdentifier)) {
+      // Format phone number to include +98 prefix
+      formattedIdentifier = this.formatPhoneNumber(formattedIdentifier);
+    }
+
     return this.request('/auth/login', {
       method: 'POST',
       body: JSON.stringify({
-        identifier: identifier.trim(),
+        identifier: formattedIdentifier,
         password,
       }),
     });
@@ -195,10 +204,11 @@ class ApiService {
       };
     }
 
-    // Format phone number to include +98 prefix
+    // Format phone numbers to include +98 prefix
     const formattedData = {
       ...signupData,
       representative_mobile: this.formatPhoneNumber(signupData.representative_mobile),
+      company_phone: signupData.company_phone ? this.formatPhoneNumber(signupData.company_phone) : undefined,
     };
 
     const response = await this.request('/auth/signup', {
@@ -221,9 +231,13 @@ class ApiService {
     });
   }
 
-  async resendOtp(customerId: number): Promise<ApiResponse> {
-    return this.request(`/auth/resend-otp/${customerId}`, {
+  async resendOtp(customerId: number, otpType: string = 'mobile'): Promise<ApiResponse> {
+    return this.request('/auth/resend-otp', {
       method: 'POST',
+      body: JSON.stringify({
+        customer_id: customerId,
+        otp_type: otpType,
+      }),
     });
   }
 

@@ -14,7 +14,7 @@ const EnvironmentBanner: React.FC = () => {
     if (config.domain === 'yamata-no-orochi.com') {
       return {
         text: 'Yamata Development',
-        bgColor: '#dc2626', // Red
+        bgColor: '#22c55e', // Light Green
         textColor: 'white',
       };
     }

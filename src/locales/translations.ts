@@ -46,6 +46,10 @@ export const translations = {
       },
       error: {
         invalidCredentials: "Invalid email/mobile or password",
+        customerNotFound: "Customer not found. Please check your information.",
+        accountInactive: "Account is inactive. Please contact support.",
+        accountTypeNotFound: "Account type not found. Please contact support.",
+        incorrectPassword: "Incorrect password. Please try again.",
         networkError: "Network error. Please try again.",
       },
       features: {
@@ -71,6 +75,9 @@ export const translations = {
       },
       error: {
         requestFailed: "Failed to send reset link. Please try again.",
+        customerNotFound: "Customer not found. Please check your information.",
+        accountInactive: "Account is inactive. Please contact support.",
+        accountTypeNotFound: "Account type not found. Please contact support.",
         networkError: "Network error. Please try again.",
       },
       success: {
@@ -113,14 +120,21 @@ export const translations = {
       },
       error: {
         resetFailed: "Failed to reset password. Please try again.",
+        customerNotFound: "Customer not found. Please check your information.",
+        accountInactive: "Account is inactive. Please contact support.",
+        accountTypeNotFound: "Account type not found. Please contact support.",
+        noValidOtp: "No valid OTP found. Please request a new OTP.",
+        invalidOtpCode: "Invalid OTP code. Please try again.",
+        invalidOtpType: "Invalid OTP type. Please try again.",
+        otpExpired: "OTP has expired. Please request a new OTP.",
         networkError: "Network error. Please try again.",
         noCustomerId: "Invalid reset link. Please try again.",
       },
       success: {
         title: "Password Reset Successful",
-        subtitle: "Your password has been updated",
-        message: "You can now log in with your new password",
-        backToLogin: "Back to Login",
+        subtitle: "Your password has been updated and you are now logged in",
+        message: "You have been automatically logged in with your new password",
+        backToLogin: "Go to Dashboard",
       },
     },
     
@@ -220,6 +234,20 @@ export const translations = {
         signupFailed: "Failed to create account. Please try again.",
         invalidOtp: "Invalid OTP. Please try again.",
         resendFailed: "Failed to resend OTP. Please try again.",
+        customerNotFound: "Customer not found. Please check your information.",
+        accountInactive: "Account is inactive. Please contact support.",
+        accountAlreadyVerified: "Account is already verified. Please sign in.",
+        emailExists: "Email address already exists. Please use a different email.",
+        mobileExists: "Mobile number already exists. Please use a different number.",
+        nationalIdExists: "National ID already exists. Please check your information.",
+        accountTypeNotFound: "Account type not found. Please select a valid account type.",
+        companyFieldsRequired: "Company fields are required for business accounts.",
+        referrerAgencyNotFound: "Referrer agency not found. Please check the agency code.",
+        referrerMustBeAgency: "Referrer must be a marketing agency.",
+        referrerAgencyInactive: "Referrer agency is inactive. Please contact support.",
+        noValidOtp: "No valid OTP found. Please request a new OTP.",
+        invalidOtpType: "Invalid OTP type. Please try again.",
+        otpExpired: "OTP has expired. Please request a new OTP.",
         networkError: "Network error. Please try again.",
         noCustomerId: "No customer ID found. Please try again."
       }
@@ -385,6 +413,10 @@ export const translations = {
       },
       error: {
         invalidCredentials: "ایمیل/موبایل یا رمز عبور نامعتبر",
+        customerNotFound: "مشتری یافت نشد. لطفاً اطلاعات خود را بررسی کنید.",
+        accountInactive: "حساب کاربری غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.",
+        accountTypeNotFound: "نوع حساب کاربری یافت نشد. لطفاً با پشتیبانی تماس بگیرید.",
+        incorrectPassword: "رمز عبور نادرست است. لطفاً دوباره تلاش کنید.",
         networkError: "خطای شبکه. لطفاً دوباره تلاش کنید.",
       },
       features: {
@@ -410,6 +442,9 @@ export const translations = {
       },
       error: {
         requestFailed: "ارسال لینک بازنشانی ناموفق بود. لطفاً دوباره تلاش کنید.",
+        customerNotFound: "مشتری یافت نشد. لطفاً اطلاعات خود را بررسی کنید.",
+        accountInactive: "حساب کاربری غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.",
+        accountTypeNotFound: "نوع حساب کاربری یافت نشد. لطفاً با پشتیبانی تماس بگیرید.",
         networkError: "خطای شبکه. لطفاً دوباره تلاش کنید.",
       },
       success: {
@@ -452,14 +487,21 @@ export const translations = {
       },
       error: {
         resetFailed: "بازنشانی رمز عبور ناموفق بود. لطفاً دوباره تلاش کنید.",
+        customerNotFound: "مشتری یافت نشد. لطفاً اطلاعات خود را بررسی کنید.",
+        accountInactive: "حساب کاربری غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.",
+        accountTypeNotFound: "نوع حساب کاربری یافت نشد. لطفاً با پشتیبانی تماس بگیرید.",
+        noValidOtp: "کد تأیید معتبری یافت نشد. لطفاً کد جدیدی درخواست کنید.",
+        invalidOtpCode: "کد تأیید نامعتبر است. لطفاً دوباره تلاش کنید.",
+        invalidOtpType: "نوع کد تأیید نامعتبر است. لطفاً دوباره تلاش کنید.",
+        otpExpired: "کد تأیید منقضی شده است. لطفاً کد جدیدی درخواست کنید.",
         networkError: "خطای شبکه. لطفاً دوباره تلاش کنید.",
         noCustomerId: "لینک بازنشانی نامعتبر است. لطفاً دوباره تلاش کنید.",
       },
       success: {
         title: "بازنشانی رمز عبور موفقیت‌آمیز",
-        subtitle: "رمز عبور شما به‌روزرسانی شده است",
-        message: "اکنون می‌توانید با رمز عبور جدید وارد شوید",
-        backToLogin: "بازگشت به ورود",
+        subtitle: "رمز عبور شما به‌روزرسانی شده و اکنون وارد شده‌اید",
+        message: "شما با رمز عبور جدید به طور خودکار وارد شده‌اید",
+        backToLogin: "رفتن به داشبورد",
       },
     },
     
@@ -559,6 +601,20 @@ export const translations = {
         signupFailed: "ایجاد حساب کاربری ناموفق بود. لطفاً دوباره تلاش کنید.",
         invalidOtp: "کد تأیید نامعتبر. لطفاً دوباره تلاش کنید.",
         resendFailed: "ارسال مجدد کد تأیید ناموفق بود. لطفاً دوباره تلاش کنید.",
+        customerNotFound: "مشتری یافت نشد. لطفاً اطلاعات خود را بررسی کنید.",
+        accountInactive: "حساب کاربری غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.",
+        accountAlreadyVerified: "حساب کاربری قبلاً تأیید شده است. لطفاً وارد شوید.",
+        emailExists: "آدرس ایمیل قبلاً وجود دارد. لطفاً از ایمیل دیگری استفاده کنید.",
+        mobileExists: "شماره موبایل قبلاً وجود دارد. لطفاً از شماره دیگری استفاده کنید.",
+        nationalIdExists: "کد ملی قبلاً وجود دارد. لطفاً اطلاعات خود را بررسی کنید.",
+        accountTypeNotFound: "نوع حساب کاربری یافت نشد. لطفاً نوع حساب معتبری انتخاب کنید.",
+        companyFieldsRequired: "فیلدهای شرکت برای حساب‌های تجاری الزامی است.",
+        referrerAgencyNotFound: "آژانس معرف یافت نشد. لطفاً کد آژانس را بررسی کنید.",
+        referrerMustBeAgency: "معرف باید یک آژانس بازاریابی باشد.",
+        referrerAgencyInactive: "آژانس معرف غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.",
+        noValidOtp: "کد تأیید معتبری یافت نشد. لطفاً کد جدیدی درخواست کنید.",
+        invalidOtpType: "نوع کد تأیید نامعتبر است. لطفاً دوباره تلاش کنید.",
+        otpExpired: "کد تأیید منقضی شده است. لطفاً کد جدیدی درخواست کنید.",
         networkError: "خطای شبکه. لطفاً دوباره تلاش کنید.",
         noCustomerId: "شناسه مشتری یافت نشد. لطفاً دوباره تلاش کنید."
       }
