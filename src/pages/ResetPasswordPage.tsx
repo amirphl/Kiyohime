@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Eye, EyeOff, ArrowRight, CheckCircle, ArrowLeft } from 'lucide-react';
+import {
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  CheckCircle,
+  ArrowLeft,
+} from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
@@ -11,24 +18,27 @@ interface ResetPasswordPageProps {
   maskedPhone?: string;
 }
 
-const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ 
-  onNavigateToLogin, 
-  customerId: propCustomerId, 
-  maskedPhone: propMaskedPhone 
+const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
+  onNavigateToLogin,
+  customerId: propCustomerId,
+  maskedPhone: propMaskedPhone,
 }) => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
   const { login } = useAuth();
-  
+
   const [newPassword, setNewPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [otpCode, setOtpCode] = useState<string>('');
   const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<boolean>(false);
-  const [customerId, setCustomerId] = useState<number | null>(propCustomerId || null);
+  const [customerId, setCustomerId] = useState<number | null>(
+    propCustomerId || null
+  );
   const [maskedPhone, setMaskedPhone] = useState<string>(propMaskedPhone || '');
 
   // Get customer ID from URL params if not provided as prop
@@ -37,7 +47,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
       const urlParams = new URLSearchParams(window.location.search);
       const id = urlParams.get('customer_id');
       const phone = urlParams.get('masked_phone');
-      
+
       if (id) {
         setCustomerId(parseInt(id));
       }
@@ -65,81 +75,95 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
       setError(t('resetPassword.validation.newPasswordRequired'));
       return false;
     }
-    
+
     const passwordError = validatePassword(newPassword);
     if (passwordError) {
       setError(passwordError);
       return false;
     }
-    
+
     if (newPassword !== confirmPassword) {
       setError(t('resetPassword.validation.passwordMismatch'));
       return false;
     }
-    
+
     if (otpCode.length !== 6) {
       setError(t('resetPassword.validation.otpRequired'));
       return false;
     }
-    
+
     if (!customerId) {
       setError(t('resetPassword.error.noCustomerId'));
       return false;
     }
-    
+
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
     setError('');
-    
+
     try {
-      const response = await apiService.resetPassword(customerId!, newPassword, confirmPassword, otpCode);
-      
+      const response = await apiService.resetPassword(
+        customerId!,
+        newPassword,
+        confirmPassword,
+        otpCode
+      );
+
       if (response.success && response.data) {
         // The API service wraps the server response, so we need to access response.data.data
         const responseData = response.data.data || response.data;
-        
+
         // Check if we have the required data for login
-        if (responseData.customer && responseData.access_token && responseData.refresh_token) {
+        if (
+          responseData.customer &&
+          responseData.access_token &&
+          responseData.refresh_token
+        ) {
           // Automatically log the user in with the returned tokens and user data
           login(
-            { 
-              token: responseData.access_token, 
-              refresh_token: responseData.refresh_token 
-            }, 
+            {
+              token: responseData.access_token,
+              refresh_token: responseData.refresh_token,
+            },
             responseData.customer
           );
-          
+
           setSuccess(true);
         } else {
-          console.error('Missing required data in reset password response:', responseData);
+          console.error(
+            'Missing required data in reset password response:',
+            responseData
+          );
           setError(t('resetPassword.error.resetFailed'));
         }
       } else {
         // Handle error response with new format
-        const errorMessage = response.data?.error?.code === 'CUSTOMER_NOT_FOUND' 
-          ? t('resetPassword.error.customerNotFound')
-          : response.data?.error?.code === 'ACCOUNT_INACTIVE'
-          ? t('resetPassword.error.accountInactive')
-          : response.data?.error?.code === 'ACCOUNT_TYPE_NOT_FOUND'
-          ? t('resetPassword.error.accountTypeNotFound')
-          : response.data?.error?.code === 'NO_VALID_OTP'
-          ? t('resetPassword.error.noValidOtp')
-          : response.data?.error?.code === 'INVALID_OTP_CODE'
-          ? t('resetPassword.error.invalidOtpCode')
-          : response.data?.error?.code === 'INVALID_OTP_TYPE'
-          ? t('resetPassword.error.invalidOtpType')
-          : response.data?.error?.code === 'OTP_EXPIRED'
-          ? t('resetPassword.error.otpExpired')
-          : response.error || t('resetPassword.error.resetFailed');
+        const errorMessage =
+          response.data?.error?.code === 'CUSTOMER_NOT_FOUND'
+            ? t('resetPassword.error.customerNotFound')
+            : response.data?.error?.code === 'ACCOUNT_INACTIVE'
+              ? t('resetPassword.error.accountInactive')
+              : response.data?.error?.code === 'ACCOUNT_TYPE_NOT_FOUND'
+                ? t('resetPassword.error.accountTypeNotFound')
+                : response.data?.error?.code === 'NO_VALID_OTP'
+                  ? t('resetPassword.error.noValidOtp')
+                  : response.data?.error?.code === 'INVALID_OTP_CODE'
+                    ? t('resetPassword.error.invalidOtpCode')
+                    : response.data?.error?.code === 'INVALID_OTP_TYPE'
+                      ? t('resetPassword.error.invalidOtpType')
+                      : response.data?.error?.code === 'OTP_EXPIRED'
+                        ? t('resetPassword.error.otpExpired')
+                        : response.error ||
+                          t('resetPassword.error.resetFailed');
         setError(errorMessage);
       }
     } catch (error) {
@@ -151,25 +175,25 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
+      <div className='min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
+        <div className='max-w-md w-full space-y-8'>
           {/* Header */}
-          <div className="text-center">
-            <div className="mx-auto h-12 w-12 bg-green-600 rounded-lg flex items-center justify-center">
-              <CheckCircle className="h-6 w-6 text-white" />
+          <div className='text-center'>
+            <div className='mx-auto h-12 w-12 bg-green-600 rounded-lg flex items-center justify-center'>
+              <CheckCircle className='h-6 w-6 text-white' />
             </div>
-            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
               {t('resetPassword.success.title')}
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className='mt-2 text-sm text-gray-600'>
               {t('resetPassword.success.subtitle')}
             </p>
           </div>
 
           {/* Success Message */}
-          <div className="bg-green-50 border border-green-200 rounded-md p-6">
-            <div className="text-center">
-              <p className="text-sm text-green-800">
+          <div className='bg-green-50 border border-green-200 rounded-md p-6'>
+            <div className='text-center'>
+              <p className='text-sm text-green-800'>
                 {t('resetPassword.success.message')}
               </p>
             </div>
@@ -177,8 +201,8 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
 
           {/* Action Button */}
           <button
-            type="button"
-            onClick={() => window.location.href = '/dashboard'}
+            type='button'
+            onClick={() => (window.location.href = '/dashboard')}
             className={`w-full btn-primary flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
           >
             <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
@@ -190,79 +214,87 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className='min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
+      <div className='max-w-md w-full space-y-8'>
         {/* Header */}
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center">
-            <Lock className="h-6 w-6 text-white" />
+        <div className='text-center'>
+          <div className='mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center'>
+            <Lock className='h-6 w-6 text-white' />
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+          <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
             {t('resetPassword.title')}
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className='mt-2 text-sm text-gray-600'>
             {t('resetPassword.subtitle')}
           </p>
           {maskedPhone && (
-            <p className="mt-1 text-xs text-gray-500">
+            <p className='mt-1 text-xs text-gray-500'>
               {t('resetPassword.forPhone', { phone: maskedPhone })}
             </p>
           )}
         </div>
 
         {/* Reset Password Form */}
-        <div className="bg-white py-8 px-6 shadow-lg rounded-lg border border-gray-200">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className='bg-white py-8 px-6 shadow-lg rounded-lg border border-gray-200'>
+          <form onSubmit={handleSubmit} className='space-y-6'>
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                <p className="text-sm text-red-600">{error}</p>
+              <div className='bg-red-50 border border-red-200 rounded-md p-4'>
+                <p className='text-sm text-red-600'>{error}</p>
               </div>
             )}
 
             {/* OTP Code */}
             <div>
-              <label htmlFor="otpCode" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor='otpCode'
+                className='block text-sm font-medium text-gray-700 mb-2'
+              >
                 {t('resetPassword.otpCode')}
               </label>
               <input
-                type="text"
-                id="otpCode"
+                type='text'
+                id='otpCode'
                 value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="input-field text-center text-2xl tracking-widest"
-                placeholder="000000"
+                onChange={e =>
+                  setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))
+                }
+                className='input-field text-center text-2xl tracking-widest'
+                placeholder='000000'
                 maxLength={6}
                 required
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className='mt-1 text-xs text-gray-500'>
                 {t('resetPassword.otpHelp')}
               </p>
             </div>
 
             {/* New Password */}
             <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor='newPassword'
+                className='block text-sm font-medium text-gray-700 mb-2'
+              >
                 {t('resetPassword.newPassword')}
               </label>
-              <div className="relative">
+              <div className='relative'>
                 <input
                   type={showNewPassword ? 'text' : 'password'}
-                  id="newPassword"
+                  id='newPassword'
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  onChange={e => setNewPassword(e.target.value)}
                   className={`input-field ${isRTL ? 'pl-10' : 'pr-10'}`}
                   placeholder={t('resetPassword.newPasswordPlaceholder')}
                   required
                 />
                 <button
-                  type="button"
+                  type='button'
                   onClick={() => setShowNewPassword(!showNewPassword)}
                   className={`absolute inset-y-0 ${isRTL ? 'left-0 pl-3' : 'right-0 pr-3'} flex items-center`}
                 >
                   {showNewPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
+                    <EyeOff className='h-5 w-5 text-gray-400' />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
+                    <Eye className='h-5 w-5 text-gray-400' />
                   )}
                 </button>
               </div>
@@ -270,55 +302,60 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor='confirmPassword'
+                className='block text-sm font-medium text-gray-700 mb-2'
+              >
                 {t('resetPassword.confirmPassword')}
               </label>
-              <div className="relative">
+              <div className='relative'>
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
-                  id="confirmPassword"
+                  id='confirmPassword'
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={e => setConfirmPassword(e.target.value)}
                   className={`input-field ${isRTL ? 'pl-10' : 'pr-10'}`}
                   placeholder={t('resetPassword.confirmPasswordPlaceholder')}
                   required
                 />
                 <button
-                  type="button"
+                  type='button'
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className={`absolute inset-y-0 ${isRTL ? 'left-0 pl-3' : 'right-0 pr-3'} flex items-center`}
                 >
                   {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
+                    <EyeOff className='h-5 w-5 text-gray-400' />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
+                    <Eye className='h-5 w-5 text-gray-400' />
                   )}
                 </button>
               </div>
             </div>
 
             {/* Password Requirements */}
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-              <h4 className="text-sm font-medium text-blue-900 mb-2">
+            <div className='bg-blue-50 border border-blue-200 rounded-md p-4'>
+              <h4 className='text-sm font-medium text-blue-900 mb-2'>
                 {t('resetPassword.requirements.title')}
               </h4>
-              <ul className="text-xs text-blue-800 space-y-1">
+              <ul className='text-xs text-blue-800 space-y-1'>
                 <li>• {t('resetPassword.requirements.minLength')}</li>
                 <li>• {t('resetPassword.requirements.letterAndDigit')}</li>
               </ul>
             </div>
 
             <button
-              type="submit"
+              type='submit'
               disabled={isLoading}
               className={`w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
             >
               {isLoading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-white'></div>
               ) : (
                 <>
                   <span>{t('resetPassword.resetPassword')}</span>
-                  <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
+                  <ArrowRight
+                    className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`}
+                  />
                 </>
               )}
             </button>
@@ -326,9 +363,9 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
         </div>
 
         {/* Back to Login */}
-        <div className="text-center">
+        <div className='text-center'>
           <button
-            type="button"
+            type='button'
             onClick={onNavigateToLogin}
             className={`text-sm text-primary-600 hover:text-primary-700 flex items-center justify-center mx-auto ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
           >
@@ -341,4 +378,4 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
   );
 };
 
-export default ResetPasswordPage; 
+export default ResetPasswordPage;

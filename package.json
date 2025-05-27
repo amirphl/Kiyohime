@@ -25,8 +25,12 @@
     "eject": "react-scripts eject",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "type-check": "tsc --noEmit",
     "analyze": "npm run build && npx webpack-bundle-analyzer build/static/js/*.js",
+    "check": "npm run lint && npm run format:check && npm run type-check",
+    "fix": "npm run lint:fix && npm run format",
     "deploy:yamata": "./scripts/deploy.sh yamata",
     "deploy:production": "./scripts/deploy.sh production"
   },
@@ -65,5 +69,10 @@
     "tailwind"
   ],
   "author": "SMS Marketing Team",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.3",
+    "prettier": "^3.6.2"
+  }
 }

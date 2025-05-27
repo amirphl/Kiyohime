@@ -29,7 +29,7 @@ const EnvironmentBanner: React.FC = () => {
 
   return (
     <div
-      className="w-full py-2 text-center text-sm font-medium"
+      className='w-full py-2 text-center text-sm font-medium'
       style={{
         backgroundColor: bannerConfig.bgColor,
         color: bannerConfig.textColor,
@@ -40,4 +40,4 @@ const EnvironmentBanner: React.FC = () => {
   );
 };
 
-export default EnvironmentBanner; 
+export default EnvironmentBanner;

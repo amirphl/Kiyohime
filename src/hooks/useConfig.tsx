@@ -1,5 +1,9 @@
 import { useMemo } from 'react';
-import { config, getEnvironmentConfig, EnvironmentConfig } from '../config/environment';
+import {
+  config,
+  getEnvironmentConfig,
+  EnvironmentConfig,
+} from '../config/environment';
 
 export const useConfig = (): EnvironmentConfig => {
   return useMemo(() => {
@@ -9,4 +13,4 @@ export const useConfig = (): EnvironmentConfig => {
 };
 
 // Export the static config for non-React contexts
-export { config }; 
+export { config };

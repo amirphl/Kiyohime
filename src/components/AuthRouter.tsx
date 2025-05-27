@@ -8,13 +8,20 @@ import HomePage from '../pages/HomePage';
 import { useAuth } from '../hooks/useAuth';
 
 const AuthRouter: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<'home' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard'>('home');
+  const [currentPage, setCurrentPage] = useState<
+    | 'home'
+    | 'login'
+    | 'signup'
+    | 'forgotPassword'
+    | 'resetPassword'
+    | 'dashboard'
+  >('home');
   const { isAuthenticated } = useAuth();
 
   // Get current path from URL
   useEffect(() => {
     const path = window.location.pathname;
-    
+
     if (path === '/') {
       setCurrentPage('home');
     } else if (path === '/signin') {
@@ -37,7 +44,12 @@ const AuthRouter: React.FC = () => {
 
   // Redirect to dashboard if user is authenticated and trying to access auth pages
   useEffect(() => {
-    if (isAuthenticated && ['login', 'signup', 'forgotPassword', 'resetPassword'].includes(currentPage)) {
+    if (
+      isAuthenticated &&
+      ['login', 'signup', 'forgotPassword', 'resetPassword'].includes(
+        currentPage
+      )
+    ) {
       window.location.href = '/dashboard';
     }
   }, [isAuthenticated, currentPage]);
@@ -57,7 +69,7 @@ const AuthRouter: React.FC = () => {
   switch (currentPage) {
     case 'home':
       return <HomePage />;
-      
+
     case 'login':
       return (
         <LoginPage
@@ -71,7 +83,7 @@ const AuthRouter: React.FC = () => {
           }}
         />
       );
-      
+
     case 'signup':
       return (
         <SignupPage
@@ -81,7 +93,7 @@ const AuthRouter: React.FC = () => {
           }}
         />
       );
-      
+
     case 'forgotPassword':
       return (
         <ForgotPasswordPage
@@ -97,7 +109,7 @@ const AuthRouter: React.FC = () => {
           }}
         />
       );
-      
+
     case 'resetPassword':
       const customerId = localStorage.getItem('reset_customer_id');
       const maskedPhone = localStorage.getItem('reset_masked_phone');
@@ -114,10 +126,10 @@ const AuthRouter: React.FC = () => {
           maskedPhone={maskedPhone || undefined}
         />
       );
-      
+
     case 'dashboard':
       return <DashboardPage />;
-      
+
     default:
       return <HomePage />;
   }

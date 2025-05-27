@@ -4,17 +4,17 @@ export interface EnvironmentConfig {
   domain: string;
   baseUrl: string;
   apiUrl: string;
-  
+
   // Brand settings
   brandName: string;
   brandSubtitle: string;
-  
+
   // Feature flags
   features: {
     smsMarketing: boolean;
     analytics: boolean;
   };
-  
+
   // API endpoints (same for all configurations)
   endpoints: {
     auth: {
@@ -34,7 +34,7 @@ export interface EnvironmentConfig {
       reports: string;
     };
   };
-  
+
   // UI/UX settings
   ui: {
     primaryColor: string;
@@ -42,7 +42,7 @@ export interface EnvironmentConfig {
     faviconUrl: string;
     theme: 'light' | 'dark' | 'auto';
   };
-  
+
   // Localization settings (always enabled)
   localization: {
     defaultLanguage: 'en' | 'fa';
@@ -56,15 +56,15 @@ const defaultConfig: EnvironmentConfig = {
   domain: 'yamata-no-orochi.com',
   baseUrl: 'https://yamata-no-orochi.com:8443',
   apiUrl: 'https://yamata-no-orochi.com:8443/api/v1',
-  
+
   brandName: 'SMS Platform',
   brandSubtitle: 'SMS Marketing Platform',
-  
+
   features: {
     smsMarketing: true,
     analytics: true,
   },
-  
+
   endpoints: {
     auth: {
       login: '/auth/login',
@@ -83,14 +83,14 @@ const defaultConfig: EnvironmentConfig = {
       reports: '/analytics/reports',
     },
   },
-  
+
   ui: {
     primaryColor: '#2563eb',
     logoUrl: '/logo.png',
     faviconUrl: '/favicon.ico',
     theme: 'light',
   },
-  
+
   localization: {
     defaultLanguage: 'en',
     supportedLanguages: ['en', 'fa'],
@@ -125,12 +125,12 @@ const getCurrentDomain = (): string => {
   if (typeof window !== 'undefined') {
     return window.location.hostname;
   }
-  
+
   // For production, use the domain from .env
   if (process.env.REACT_APP_PRODUCTION_DOMAIN) {
     return process.env.REACT_APP_PRODUCTION_DOMAIN;
   }
-  
+
   return process.env.REACT_APP_DOMAIN || 'yamata-no-orochi.com';
 };
 
@@ -138,9 +138,12 @@ const getCurrentDomain = (): string => {
 export const getEnvironmentConfig = (): EnvironmentConfig => {
   const currentDomain = getCurrentDomain();
   let domainConfig = domainConfigs[currentDomain] || {};
-  
+
   // For production domain (not in predefined configs), create dynamic config
-  if (process.env.REACT_APP_PRODUCTION_DOMAIN && currentDomain === process.env.REACT_APP_PRODUCTION_DOMAIN) {
+  if (
+    process.env.REACT_APP_PRODUCTION_DOMAIN &&
+    currentDomain === process.env.REACT_APP_PRODUCTION_DOMAIN
+  ) {
     domainConfig = {
       domain: currentDomain,
       baseUrl: `https://${currentDomain}`,
@@ -159,7 +162,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
       },
     };
   }
-  
+
   // Merge with default config
   const config: EnvironmentConfig = {
     ...defaultConfig,
@@ -181,7 +184,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
       ...domainConfig.localization,
     },
   };
-  
+
   return config;
 };
 
@@ -207,4 +210,4 @@ export const getApiUrl = (endpoint: string): string => {
 
 export const getFullUrl = (path: string): string => {
   return `${config.baseUrl}${path}`;
-}; 
+};

@@ -21,14 +21,19 @@ interface AuthContextType {
   user: Customer | null;
   accessToken: string | null;
   refreshToken: string | null;
-  login: (tokens: { token: string; refresh_token: string }, userData: Customer) => void;
+  login: (
+    tokens: { token: string; refresh_token: string },
+    userData: Customer
+  ) => void;
   logout: () => void;
   updateUser: (userData: Partial<Customer>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<Customer | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -55,8 +60,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const login = (tokens: { token: string; refresh_token: string }, userData: Customer) => {
-    
+  const login = (
+    tokens: { token: string; refresh_token: string },
+    userData: Customer
+  ) => {
     localStorage.setItem('access_token', tokens.token);
     localStorage.setItem('refresh_token', tokens.refresh_token);
     localStorage.setItem('customer_data', JSON.stringify(userData));
@@ -69,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setRefreshToken(tokens.refresh_token);
     setUser(userData);
     setIsAuthenticated(true);
-    
+
     console.log('User data stored successfully. Authentication state updated.');
     console.log('Account type:', userData.account_type);
   };
@@ -98,15 +105,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{
-      isAuthenticated,
-      user,
-      accessToken,
-      refreshToken,
-      login,
-      logout,
-      updateUser,
-    }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        user,
+        accessToken,
+        refreshToken,
+        login,
+        logout,
+        updateUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -118,4 +127,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};

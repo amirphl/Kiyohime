@@ -25,7 +25,7 @@ class ApiService {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = getApiUrl(endpoint);
-    
+
     // Validate URL to prevent SSRF attacks
     if (!this.isValidUrl(url)) {
       return {
@@ -33,10 +33,10 @@ class ApiService {
         error: 'Invalid URL',
       };
     }
-    
+
     const defaultHeaders = {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'X-Requested-With': 'XMLHttpRequest', // CSRF protection
     };
 
@@ -52,15 +52,14 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
-      
+
       // Validate response content type
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         throw new Error('Invalid response content type');
       }
-      
-      const data = await response.json();
 
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.message || `HTTP ${response.status}`);
@@ -73,10 +72,12 @@ class ApiService {
     } catch (error) {
       // Don't expose internal error details in production
       const isProduction = this.isProduction();
-      const errorMessage = isProduction 
-        ? 'An error occurred' 
-        : (error instanceof Error ? error.message : 'Unknown error');
-        
+      const errorMessage = isProduction
+        ? 'An error occurred'
+        : error instanceof Error
+          ? error.message
+          : 'Unknown error';
+
       return {
         success: false,
         error: errorMessage,
@@ -102,17 +103,17 @@ class ApiService {
   private formatPhoneNumber(phoneNumber: string): string {
     // Remove any existing +98 prefix and leading zeros
     let cleaned = phoneNumber.replace(/^\+98/, '').replace(/^0+/, '');
-    
+
     // If it starts with 9 (Iranian mobile numbers), add +98
     if (cleaned.startsWith('9')) {
       return `+98${cleaned}`;
     }
-    
+
     // If it's already in international format, return as is
     if (cleaned.startsWith('98')) {
       return `+${cleaned}`;
     }
-    
+
     // Default: add +98 prefix
     return `+98${cleaned}`;
   }
@@ -120,13 +121,17 @@ class ApiService {
   // Auth endpoints
   async login(identifier: string, password: string): Promise<ApiResponse> {
     // Input validation
-    if (!identifier || typeof identifier !== 'string' || identifier.length > 255) {
+    if (
+      !identifier ||
+      typeof identifier !== 'string' ||
+      identifier.length > 255
+    ) {
       return {
         success: false,
         error: 'Invalid identifier',
       };
     }
-    
+
     if (!password || typeof password !== 'string' || password.length < 8) {
       return {
         success: false,
@@ -137,7 +142,7 @@ class ApiService {
     // Check if identifier looks like a phone number (contains only digits and +)
     const phoneRegex = /^[\d+]+$/;
     let formattedIdentifier = identifier.trim();
-    
+
     if (phoneRegex.test(formattedIdentifier)) {
       // Format phone number to include +98 prefix
       formattedIdentifier = this.formatPhoneNumber(formattedIdentifier);
@@ -207,8 +212,12 @@ class ApiService {
     // Format phone numbers to include +98 prefix
     const formattedData = {
       ...signupData,
-      representative_mobile: this.formatPhoneNumber(signupData.representative_mobile),
-      company_phone: signupData.company_phone ? this.formatPhoneNumber(signupData.company_phone) : undefined,
+      representative_mobile: this.formatPhoneNumber(
+        signupData.representative_mobile
+      ),
+      company_phone: signupData.company_phone
+        ? this.formatPhoneNumber(signupData.company_phone)
+        : undefined,
     };
 
     const response = await this.request('/auth/signup', {
@@ -216,11 +225,14 @@ class ApiService {
       body: JSON.stringify(formattedData),
     });
 
-
     return response;
   }
 
-  async verifyOtp(customerId: number, otpCode: string, otpType: string = 'mobile'): Promise<ApiResponse> {
+  async verifyOtp(
+    customerId: number,
+    otpCode: string,
+    otpType: string = 'mobile'
+  ): Promise<ApiResponse> {
     return this.request('/auth/verify', {
       method: 'POST',
       body: JSON.stringify({
@@ -231,7 +243,10 @@ class ApiService {
     });
   }
 
-  async resendOtp(customerId: number, otpType: string = 'mobile'): Promise<ApiResponse> {
+  async resendOtp(
+    customerId: number,
+    otpType: string = 'mobile'
+  ): Promise<ApiResponse> {
     return this.request('/auth/resend-otp', {
       method: 'POST',
       body: JSON.stringify({
@@ -243,7 +258,11 @@ class ApiService {
 
   async forgotPassword(identifier: string): Promise<ApiResponse> {
     // Input validation
-    if (!identifier || typeof identifier !== 'string' || identifier.length > 255) {
+    if (
+      !identifier ||
+      typeof identifier !== 'string' ||
+      identifier.length > 255
+    ) {
       return {
         success: false,
         error: 'Invalid identifier',
@@ -272,7 +291,12 @@ class ApiService {
     });
   }
 
-  async resetPassword(customerId: number, newPassword: string, confirmPassword: string, otpCode: string): Promise<ApiResponse> {
+  async resetPassword(
+    customerId: number,
+    newPassword: string,
+    confirmPassword: string,
+    otpCode: string
+  ): Promise<ApiResponse> {
     return this.request('/auth/reset', {
       method: 'POST',
       body: JSON.stringify({
@@ -374,4 +398,4 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
-export default apiService; 
+export default apiService;

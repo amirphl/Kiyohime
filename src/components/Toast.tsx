@@ -12,7 +12,13 @@ export interface ToastProps {
   onClose: (id: string) => void;
 }
 
-const Toast: React.FC<ToastProps> = ({ id, type, message, duration = 5000, onClose }) => {
+const Toast: React.FC<ToastProps> = ({
+  id,
+  type,
+  message,
+  duration = 5000,
+  onClose,
+}) => {
   const { isRTL } = useLanguage();
 
   useEffect(() => {
@@ -26,15 +32,15 @@ const Toast: React.FC<ToastProps> = ({ id, type, message, duration = 5000, onClo
   const getIcon = () => {
     switch (type) {
       case 'success':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className='h-5 w-5 text-green-500' />;
       case 'error':
-        return <XCircle className="h-5 w-5 text-red-500" />;
+        return <XCircle className='h-5 w-5 text-red-500' />;
       case 'warning':
-        return <AlertCircle className="h-5 w-5 text-yellow-500" />;
+        return <AlertCircle className='h-5 w-5 text-yellow-500' />;
       case 'info':
-        return <Info className="h-5 w-5 text-blue-500" />;
+        return <Info className='h-5 w-5 text-blue-500' />;
       default:
-        return <Info className="h-5 w-5 text-blue-500" />;
+        return <Info className='h-5 w-5 text-blue-500' />;
     }
   };
 
@@ -56,21 +62,21 @@ const Toast: React.FC<ToastProps> = ({ id, type, message, duration = 5000, onClo
   return (
     <div
       className={`${getBackgroundColor()} border rounded-lg p-4 shadow-lg max-w-sm w-full transform transition-all duration-300 ease-in-out ${isRTL ? 'mr-4' : 'ml-4'}`}
-      role="alert"
+      role='alert'
     >
-      <div className={`flex items-start ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}>
-        <div className="flex-shrink-0">
-          {getIcon()}
+      <div
+        className={`flex items-start ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}
+      >
+        <div className='flex-shrink-0'>{getIcon()}</div>
+        <div className='flex-1 min-w-0'>
+          <p className='text-sm font-medium text-gray-900'>{message}</p>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900">{message}</p>
-        </div>
-        <div className="flex-shrink-0">
+        <div className='flex-shrink-0'>
           <button
             onClick={() => onClose(id)}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className='text-gray-400 hover:text-gray-600 transition-colors'
           >
-            <X className="h-4 w-4" />
+            <X className='h-4 w-4' />
           </button>
         </div>
       </div>
@@ -78,4 +84,4 @@ const Toast: React.FC<ToastProps> = ({ id, type, message, duration = 5000, onClo
   );
 };
 
-export default Toast; 
+export default Toast;

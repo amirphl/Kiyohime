@@ -23,17 +23,20 @@ export const ToastProvider: React.FC<ToastContainerProps> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const { isRTL } = useLanguage();
 
-  const showToast = useCallback((type: ToastType, message: string, duration?: number) => {
-    const id = Date.now().toString();
-    const newToast: ToastItem = {
-      id,
-      type,
-      message,
-      duration,
-    };
+  const showToast = useCallback(
+    (type: ToastType, message: string, duration?: number) => {
+      const id = Date.now().toString();
+      const newToast: ToastItem = {
+        id,
+        type,
+        message,
+        duration,
+      };
 
-    setToasts(prev => [...prev, newToast]);
-  }, []);
+      setToasts(prev => [...prev, newToast]);
+    },
+    []
+  );
 
   const removeToast = useCallback((id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
@@ -62,4 +65,4 @@ export const ToastProvider: React.FC<ToastContainerProps> = ({ children }) => {
   );
 };
 
-export default ToastProvider; 
+export default ToastProvider;

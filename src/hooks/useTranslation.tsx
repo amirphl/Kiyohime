@@ -7,7 +7,7 @@ export const useTranslation = () => {
   const t = (key: string, params?: Record<string, any>): string => {
     const keys = key.split('.');
     let value: any = translations[language];
-    
+
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
@@ -24,18 +24,21 @@ export const useTranslation = () => {
         break;
       }
     }
-    
+
     let result = typeof value === 'string' ? value : key;
-    
+
     // Replace parameters if provided
     if (params) {
       Object.keys(params).forEach(paramKey => {
-        result = result.replace(new RegExp(`{${paramKey}}`, 'g'), String(params[paramKey]));
+        result = result.replace(
+          new RegExp(`{${paramKey}}`, 'g'),
+          String(params[paramKey])
+        );
       });
     }
-    
+
     return result;
   };
 
   return { t };
-}; 
+};
