@@ -292,6 +292,106 @@ export const translations = {
       noActivity: 'No recent activity',
     },
 
+    // Campaign Creation
+    campaign: {
+      title: 'Create SMS Campaign',
+      subtitle: 'Create a targeted SMS campaign in 4 simple steps',
+      
+      // Steps
+      step1: 'Segment',
+      step2: 'Content',
+      step3: 'Budget',
+      step4: 'Payment',
+      
+      // Navigation
+      nextPage: 'Next Page',
+      previousPage: 'Previous Page',
+      finish: 'Finish',
+      
+      // Confirmation Modal
+      confirmTitle: 'Are you sure?',
+      confirmMessage: 'Do you want to finish creating this campaign?',
+      yes: 'Yes',
+      no: 'No',
+      
+      // Loading
+      creating: 'Creating campaign...',
+      pleaseWait: 'Please wait while we create your campaign.',
+      
+      // Success
+      success: 'Campaign created successfully!',
+      redirecting: 'Redirecting to dashboard...',
+      
+      // Errors
+      error: 'Failed to create campaign',
+      tryAgain: 'Please try again.',
+      
+      // Step 1: Segment
+      segment: {
+        title: 'Define Your Target Segment',
+        subtitle: 'Select the criteria for your target audience',
+        customerType: 'Customer Type',
+        customerTypePlaceholder: 'Select customer type',
+        ageRange: 'Age Range',
+        ageRangePlaceholder: 'Select age range',
+        location: 'Location',
+        locationPlaceholder: 'Enter city or province',
+        interests: 'Interests',
+        interestsPlaceholder: 'Select interests',
+        customFilters: 'Custom Filters',
+        addFilter: 'Add Filter',
+        removeFilter: 'Remove',
+        filterField: 'Field',
+        filterOperator: 'Operator',
+        filterValue: 'Value',
+      },
+      
+      // Step 2: Content
+      content: {
+        title: 'Design Your Message',
+        subtitle: 'Create compelling content for your SMS campaign',
+        messageText: 'Message Text',
+        messageTextPlaceholder: 'Enter your SMS message here...',
+        characterCount: 'Characters: {count}/160',
+        senderName: 'Sender Name',
+        senderNamePlaceholder: 'Enter sender name (optional)',
+        preview: 'Message Preview',
+        previewPlaceholder: 'Your message will appear here...',
+      },
+      
+      // Step 3: Budget
+      budget: {
+        title: 'Set Your Budget',
+        subtitle: 'Define the financial parameters for your campaign',
+        totalBudget: 'Total Budget',
+        totalBudgetPlaceholder: 'Enter total budget in تومان',
+        costPerMessage: 'Cost per Message',
+        costPerMessageValue: '50 تومان',
+        estimatedMessages: 'Estimated Messages',
+        estimatedMessagesValue: 'Based on your segment',
+        maxSpend: 'Maximum Spend',
+        maxSpendValue: 'Calculated automatically',
+      },
+      
+      // Step 4: Payment
+      payment: {
+        title: 'Payment & Confirmation',
+        subtitle: 'Review and confirm your campaign details',
+        campaignSummary: 'Campaign Summary',
+        segment: 'Target Segment',
+        message: 'Message Content',
+        budget: 'Budget Information',
+        totalCost: 'Total Cost',
+        paymentMethod: 'Payment Method',
+        selectPayment: 'Select payment method',
+        card: 'Credit/Debit Card',
+        wallet: 'Wallet Balance',
+        bankTransfer: 'Bank Transfer',
+        terms: 'I agree to the terms and conditions',
+        termsRequired: 'You must agree to the terms and conditions',
+      },
+    },
+
     // Home Page
     home: {
       hero: {
@@ -686,6 +786,106 @@ export const translations = {
       // Content
       recentActivity: 'فعالیت‌های اخیر',
       noActivity: 'فعالیتی در حال حاضر وجود ندارد',
+    },
+
+    // Campaign Creation
+    campaign: {
+      title: 'ایجاد کمپین پیامکی',
+      subtitle: 'کمپین پیامکی هدفمند را در ۴ مرحله ساده ایجاد کنید',
+      
+      // Steps
+      step1: 'بخش‌بندی',
+      step2: 'محتوای پیام',
+      step3: 'بودجه',
+      step4: 'پرداخت',
+      
+      // Navigation
+      nextPage: 'صفحه بعدی',
+      previousPage: 'صفحه قبلی',
+      finish: 'پایان',
+      
+      // Confirmation Modal
+      confirmTitle: 'آیا مطمئن هستید؟',
+      confirmMessage: 'آیا می‌خواهید ایجاد این کمپین را تمام کنید؟',
+      yes: 'بله',
+      no: 'خیر',
+      
+      // Loading
+      creating: 'در حال ایجاد کمپین...',
+      pleaseWait: 'لطفاً منتظر بمانید تا کمپین شما ایجاد شود.',
+      
+      // Success
+      success: 'کمپین با موفقیت ایجاد شد!',
+      redirecting: 'در حال بازگشت به داشبورد...',
+      
+      // Errors
+      error: 'ایجاد کمپین ناموفق بود',
+      tryAgain: 'لطفاً دوباره تلاش کنید.',
+      
+      // Step 1: Segment
+      segment: {
+        title: 'بخش هدف خود را تعریف کنید',
+        subtitle: 'معیارهای مخاطب هدف خود را انتخاب کنید',
+        customerType: 'نوع مشتری',
+        customerTypePlaceholder: 'نوع مشتری را انتخاب کنید',
+        ageRange: 'محدوده سنی',
+        ageRangePlaceholder: 'محدوده سنی را انتخاب کنید',
+        location: 'مکان',
+        locationPlaceholder: 'شهر یا استان را وارد کنید',
+        interests: 'علایق',
+        interestsPlaceholder: 'علایق را انتخاب کنید',
+        customFilters: 'فیلترهای سفارشی',
+        addFilter: 'افزودن فیلتر',
+        removeFilter: 'حذف',
+        filterField: 'فیلد',
+        filterOperator: 'عملگر',
+        filterValue: 'مقدار',
+      },
+      
+      // Step 2: Content
+      content: {
+        title: 'پیام خود را طراحی کنید',
+        subtitle: 'محتوای جذاب برای کمپین پیامکی خود ایجاد کنید',
+        messageText: 'متن پیام',
+        messageTextPlaceholder: 'پیام پیامکی خود را اینجا وارد کنید...',
+        characterCount: 'کاراکترها: {count}/۱۶۰',
+        senderName: 'نام فرستنده',
+        senderNamePlaceholder: 'نام فرستنده را وارد کنید (اختیاری)',
+        preview: 'پیش‌نمایش پیام',
+        previewPlaceholder: 'پیام شما اینجا نمایش داده خواهد شد...',
+      },
+      
+      // Step 3: Budget
+      budget: {
+        title: 'بودجه خود را تنظیم کنید',
+        subtitle: 'پارامترهای مالی کمپین خود را تعریف کنید',
+        totalBudget: 'کل بودجه',
+        totalBudgetPlaceholder: 'کل بودجه را به تومان وارد کنید',
+        costPerMessage: 'هزینه هر پیام',
+        costPerMessageValue: '۵۰ تومان',
+        estimatedMessages: 'تخمین پیام‌ها',
+        estimatedMessagesValue: 'بر اساس بخش‌بندی شما',
+        maxSpend: 'حداکثر هزینه',
+        maxSpendValue: 'به طور خودکار محاسبه می‌شود',
+      },
+      
+      // Step 4: Payment
+      payment: {
+        title: 'پرداخت و تأیید',
+        subtitle: 'جزئیات کمپین خود را بررسی و تأیید کنید',
+        campaignSummary: 'خلاصه کمپین',
+        segment: 'بخش هدف',
+        message: 'محتوای پیام',
+        budget: 'اطلاعات بودجه',
+        totalCost: 'کل هزینه',
+        paymentMethod: 'روش پرداخت',
+        selectPayment: 'روش پرداخت را انتخاب کنید',
+        card: 'کارت اعتباری/نقدی',
+        wallet: 'موجودی کیف پول',
+        bankTransfer: 'انتقال بانکی',
+        terms: 'من با شرایط و ضوابط موافقت می‌کنم',
+        termsRequired: 'شما باید با شرایط و ضوابط موافقت کنید',
+      },
     },
 
     // Home Page

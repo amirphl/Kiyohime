@@ -1,4 +1,8 @@
 import React from 'react';
+import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../hooks/useLanguage';
+import { useAuth } from '../hooks/useAuth';
+import { useNavigation } from '../contexts/NavigationContext';
 import {
   LayoutDashboard,
   Send,
@@ -10,9 +14,6 @@ import {
   Percent,
   LogOut,
 } from 'lucide-react';
-import { useTranslation } from '../hooks/useTranslation';
-import { useLanguage } from '../hooks/useLanguage';
-import { useAuth } from '../hooks/useAuth';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 
 interface SidebarItem {
@@ -22,12 +23,18 @@ interface SidebarItem {
   translationKey: string;
   href: string;
   showForAgency?: boolean;
+  onClick?: () => void;
 }
 
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
   const { user, logout } = useAuth();
+  const { navigate } = useNavigation();
+
+  const navigateToPage = (path: string) => {
+    navigate(path);
+  };
 
   const sidebarItems: SidebarItem[] = [
     {
@@ -36,13 +43,15 @@ const DashboardPage: React.FC = () => {
       label: 'Dashboard',
       translationKey: 'dashboard.dashboard',
       href: '/dashboard',
+      onClick: () => navigateToPage('/dashboard'),
     },
     {
       id: 'targeted-send',
       icon: <Send className='h-5 w-5' />,
       label: 'targeted send',
       translationKey: 'dashboard.targetedSend',
-      href: '/dashboard/targeted-send',
+      href: '/campaign-creation',
+      onClick: () => navigateToPage('/campaign-creation'),
     },
     {
       id: 'reports',
@@ -50,6 +59,7 @@ const DashboardPage: React.FC = () => {
       label: 'reports',
       translationKey: 'dashboard.reports',
       href: '/dashboard/reports',
+      onClick: () => navigateToPage('/dashboard/reports'),
     },
     {
       id: 'campaigns',
@@ -57,6 +67,7 @@ const DashboardPage: React.FC = () => {
       label: 'Campaign and Customer',
       translationKey: 'dashboard.campaigns',
       href: '/dashboard/campaigns',
+      onClick: () => navigateToPage('/dashboard/campaigns'),
     },
     {
       id: 'wallet',
@@ -64,6 +75,7 @@ const DashboardPage: React.FC = () => {
       label: 'Wallet and Charge',
       translationKey: 'dashboard.wallet',
       href: '/dashboard/wallet',
+      onClick: () => navigateToPage('/dashboard/wallet'),
     },
     {
       id: 'support',
@@ -71,6 +83,7 @@ const DashboardPage: React.FC = () => {
       label: 'Ticket and Support',
       translationKey: 'dashboard.support',
       href: '/dashboard/support',
+      onClick: () => navigateToPage('/dashboard/support'),
     },
     {
       id: 'customer-management',
@@ -79,6 +92,7 @@ const DashboardPage: React.FC = () => {
       translationKey: 'dashboard.customerManagement',
       href: '/dashboard/customer-management',
       showForAgency: true,
+      onClick: () => navigateToPage('/dashboard/customer-management'),
     },
     {
       id: 'discount-management',
@@ -87,6 +101,7 @@ const DashboardPage: React.FC = () => {
       translationKey: 'dashboard.discountManagement',
       href: '/dashboard/discount-management',
       showForAgency: true,
+      onClick: () => navigateToPage('/dashboard/discount-management'),
     },
   ];
 
@@ -115,21 +130,23 @@ const DashboardPage: React.FC = () => {
                 return null;
               }
 
+              const isActive = window.location.pathname === item.href;
+              
               return (
-                <a
+                <button
                   key={item.id}
-                  href={item.href}
-                  className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                  onClick={item.onClick}
+                  className={`flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
                     isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'
                   } ${
-                    window.location.pathname === item.href
+                    isActive
                       ? 'bg-primary-100 text-primary-700'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
                   {item.icon}
                   <span>{t(item.translationKey)}</span>
-                </a>
+                </button>
               );
             })}
           </nav>

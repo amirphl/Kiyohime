@@ -4,42 +4,46 @@ import SignupPage from '../pages/SignupPage';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage';
 import DashboardPage from '../pages/DashboardPage';
+import CampaignCreationPage from '../pages/CampaignCreationPage';
 import HomePage from '../pages/HomePage';
 import { useAuth } from '../hooks/useAuth';
+import { ROUTES, getRouteByPath } from '../config/routes';
+
+type PageType = 'home' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation';
 
 const AuthRouter: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<
-    | 'home'
-    | 'login'
-    | 'signup'
-    | 'forgotPassword'
-    | 'resetPassword'
-    | 'dashboard'
-  >('home');
+  const [currentPage, setCurrentPage] = useState<PageType>('home');
   const { isAuthenticated } = useAuth();
 
-  // Get current path from URL
-  useEffect(() => {
-    const path = window.location.pathname;
-
-    if (path === '/') {
-      setCurrentPage('home');
-    } else if (path === '/signin') {
-      setCurrentPage('login');
-    } else if (path === '/login') {
-      setCurrentPage('login');
-    } else if (path === '/signup') {
-      setCurrentPage('signup');
-    } else if (path === '/forgot-password') {
-      setCurrentPage('forgotPassword');
-    } else if (path === '/reset-password') {
-      setCurrentPage('resetPassword');
-    } else if (path === '/dashboard') {
-      setCurrentPage('dashboard');
+  // Helper function to update current page based on path
+  const updateCurrentPage = (path: string) => {
+    const route = getRouteByPath(path);
+    if (route) {
+      setCurrentPage(route.page as PageType);
     } else {
       // Default to home for unknown routes
       setCurrentPage('home');
     }
+  };
+
+  // Get current path from URL on mount
+  useEffect(() => {
+    const path = window.location.pathname;
+    updateCurrentPage(path);
+  }, []);
+
+  // Listen for custom navigation events
+  useEffect(() => {
+    const handleNavigation = (event: CustomEvent) => {
+      const path = event.detail.path;
+      updateCurrentPage(path);
+    };
+
+    window.addEventListener('navigation', handleNavigation as EventListener);
+    
+    return () => {
+      window.removeEventListener('navigation', handleNavigation as EventListener);
+    };
   }, []);
 
   // Redirect to dashboard if user is authenticated and trying to access auth pages
@@ -50,7 +54,7 @@ const AuthRouter: React.FC = () => {
         currentPage
       )
     ) {
-      window.location.href = '/dashboard';
+      window.location.href = ROUTES.DASHBOARD.path;
     }
   }, [isAuthenticated, currentPage]);
 
@@ -59,9 +63,9 @@ const AuthRouter: React.FC = () => {
     return <DashboardPage />;
   }
 
-  // If user is not authenticated and trying to access dashboard, redirect to home
-  if (!isAuthenticated && currentPage === 'dashboard') {
-    window.location.href = '/';
+  // If user is not authenticated and trying to access protected routes, redirect to home
+  if (!isAuthenticated && ['dashboard', 'campaign-creation'].includes(currentPage)) {
+    window.location.href = ROUTES.HOME.path;
     return null;
   }
 
@@ -75,11 +79,11 @@ const AuthRouter: React.FC = () => {
         <LoginPage
           onNavigateToSignup={() => {
             setCurrentPage('signup');
-            window.history.pushState({}, '', '/signup');
+            window.history.pushState({}, '', ROUTES.SIGNUP.path);
           }}
           onNavigateToForgotPassword={() => {
             setCurrentPage('forgotPassword');
-            window.history.pushState({}, '', '/forgot-password');
+            window.history.pushState({}, '', ROUTES.FORGOT_PASSWORD.path);
           }}
         />
       );
@@ -89,7 +93,7 @@ const AuthRouter: React.FC = () => {
         <SignupPage
           onNavigateToLogin={() => {
             setCurrentPage('login');
-            window.history.pushState({}, '', '/signin');
+            window.history.pushState({}, '', ROUTES.LOGIN.path);
           }}
         />
       );
@@ -99,13 +103,13 @@ const AuthRouter: React.FC = () => {
         <ForgotPasswordPage
           onNavigateToLogin={() => {
             setCurrentPage('login');
-            window.history.pushState({}, '', '/signin');
+            window.history.pushState({}, '', ROUTES.LOGIN.path);
           }}
           onNavigateToResetPassword={(customerId, maskedPhone) => {
             localStorage.setItem('reset_customer_id', customerId.toString());
             localStorage.setItem('reset_masked_phone', maskedPhone);
             setCurrentPage('resetPassword');
-            window.history.pushState({}, '', '/reset-password');
+            window.history.pushState({}, '', ROUTES.RESET_PASSWORD.path);
           }}
         />
       );
@@ -120,7 +124,7 @@ const AuthRouter: React.FC = () => {
             localStorage.removeItem('reset_customer_id');
             localStorage.removeItem('reset_masked_phone');
             setCurrentPage('login');
-            window.history.pushState({}, '', '/signin');
+            window.history.pushState({}, '', ROUTES.LOGIN.path);
           }}
           customerId={customerId ? parseInt(customerId) : undefined}
           maskedPhone={maskedPhone || undefined}
@@ -129,6 +133,9 @@ const AuthRouter: React.FC = () => {
 
     case 'dashboard':
       return <DashboardPage />;
+
+    case 'campaign-creation':
+      return <CampaignCreationPage />;
 
     default:
       return <HomePage />;
