@@ -3,6 +3,8 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigation } from '../contexts/NavigationContext';
+import { useCampaign } from '../hooks/useCampaign';
+
 import {
   LayoutDashboard,
   Send,
@@ -31,10 +33,50 @@ const DashboardPage: React.FC = () => {
   const { isRTL } = useLanguage();
   const { user, logout } = useAuth();
   const { navigate } = useNavigation();
+  const { resetCampaign } = useCampaign();
 
   const navigateToPage = (path: string) => {
     navigate(path);
   };
+
+  const handleTargetedSend = () => {
+    // Reset campaign data and initialize localStorage
+    resetCampaign();
+    
+    // Initialize campaign data in localStorage
+    const initialCampaignData = {
+      uuid: '',
+      segment: {
+        campaignTitle: '',
+        segment: '',
+        subsegments: [],
+        sex: '',
+        city: [],
+      },
+      content: {
+        insertLink: false,
+        link: '',
+        text: '',
+        scheduleAt: undefined,
+      },
+      budget: {
+        lineNumber: '',
+        totalBudget: 0,
+        estimatedMessages: undefined,
+      },
+      payment: {
+        paymentMethod: '',
+        termsAccepted: false,
+      },
+    };
+    
+    localStorage.setItem('campaign_creation_data', JSON.stringify(initialCampaignData));
+    localStorage.setItem('campaign_creation_step', '1');
+    
+    // Navigate to campaign creation
+    navigate('/campaign-creation');
+  };
+
 
   const sidebarItems: SidebarItem[] = [
     {
@@ -51,7 +93,7 @@ const DashboardPage: React.FC = () => {
       label: 'targeted send',
       translationKey: 'dashboard.targetedSend',
       href: '/campaign-creation',
-      onClick: () => navigateToPage('/campaign-creation'),
+      onClick: handleTargetedSend,
     },
     {
       id: 'reports',

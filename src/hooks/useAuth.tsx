@@ -1,4 +1,14 @@
-import { useState, useEffect, useContext, createContext } from 'react';
+import { useState, useEffect, useContext, createContext, useCallback } from 'react';
+import { apiService } from '../services/api';
+import { clearAllUserData } from '../utils/errorHandler';
+
+// Import campaign context to clear campaign data during logout
+let campaignContextClearFunction: (() => void) | null = null;
+
+// Function to register campaign clear function
+export const registerCampaignClearFunction = (clearFn: () => void) => {
+  campaignContextClearFunction = clearFn;
+};
 
 interface Customer {
   id: number;
@@ -26,6 +36,7 @@ interface AuthContextType {
     userData: Customer
   ) => void;
   logout: () => void;
+  logoutAndRedirect: () => void; // New method for 401 handling
   updateUser: (userData: Partial<Customer>) => void;
 }
 
@@ -55,7 +66,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsAuthenticated(true);
       } catch (error) {
         console.error('Error parsing stored user data:', error);
-        logout();
+        // Clear localStorage on error
+        localStorage.clear();
+        setAccessToken(null);
+        setRefreshToken(null);
+        setUser(null);
+        setIsAuthenticated(false);
       }
     }
   }, []);
@@ -81,20 +97,69 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     console.log('Account type:', userData.account_type);
   };
 
-  const logout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('customer_data');
-    localStorage.removeItem('user_id');
-    localStorage.removeItem('user_uuid');
-    localStorage.removeItem('account_type');
-    localStorage.removeItem('is_authenticated');
-
+  const logout = useCallback(() => {
+    console.log('🔄 Starting comprehensive logout - clearing all localStorage data...');
+    
+    // Use the utility function to clear all user data
+    clearAllUserData();
+    
+    // Clear campaign data if available
+    if (campaignContextClearFunction) {
+      console.log('🧹 Clearing campaign context data...');
+      campaignContextClearFunction();
+    }
+    
+    // Clear all state
     setAccessToken(null);
     setRefreshToken(null);
     setUser(null);
     setIsAuthenticated(false);
-  };
+    
+    // Clear API service token
+    apiService.setAccessToken(null);
+    
+    console.log('✅ Logout completed - all localStorage data cleared');
+    console.log('🧹 localStorage items remaining:', Object.keys(localStorage));
+  }, []);
+
+  const logoutAndRedirect = useCallback(() => {
+    console.log('🚨 Logging out due to 401 Unauthorized response');
+    console.log('🧹 Performing comprehensive cleanup...');
+    
+    // First logout (clear state and localStorage)
+    logout();
+    
+    // Additional safety check - ensure all user data is cleared
+    const remainingItems = Object.keys(localStorage);
+    if (remainingItems.length > 0) {
+      console.log('⚠️  Remaining localStorage items after logout:', remainingItems);
+      // These should only be user preferences like language
+      remainingItems.forEach(item => {
+        if (!item.includes('language') && !item.includes('theme') && !item.includes('ui_')) {
+          console.log(`🗑️  Force removing: ${item}`);
+          localStorage.removeItem(item);
+        }
+      });
+    }
+    
+    // Then redirect to login page
+    // Use window.location.href for a full page reload to ensure clean state
+    console.log('🔄 Redirecting to login page...');
+    window.location.href = '/login';
+  }, [logout]);
+
+  // Set up the unauthorized handler for the API service
+  useEffect(() => {
+    console.log('Setting up unauthorized handler for API service...');
+    apiService.setUnauthorizedHandler(logoutAndRedirect);
+    
+    // Verify the handler was set up correctly
+    if (apiService.isUnauthorizedHandlerConfigured()) {
+      console.log('✅ Unauthorized handler configured successfully');
+    } else {
+      console.error('❌ Failed to configure unauthorized handler');
+    }
+  }, [logoutAndRedirect]);
 
   const updateUser = (userData: Partial<Customer>) => {
     if (user) {
@@ -104,17 +169,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const value: AuthContextType = {
+    isAuthenticated,
+    user,
+    accessToken,
+    refreshToken,
+    login,
+    logout,
+    logoutAndRedirect,
+    updateUser,
+  };
+
   return (
     <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        user,
-        accessToken,
-        refreshToken,
-        login,
-        logout,
-        updateUser,
-      }}
+      value={value}
     >
       {children}
     </AuthContext.Provider>

@@ -14,6 +14,7 @@ import { useLanguage } from '../hooks/useLanguage';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 import apiService from '../services/api';
+import { getApiErrorMessage } from '../utils/errorHandler';
 
 interface SignupFormData {
   accountType: 'individual' | 'independent_company' | 'marketing_agency' | '';
@@ -45,7 +46,7 @@ interface SignupPageProps {
 
 const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
   const { t } = useTranslation();
-  const { isRTL } = useLanguage();
+  const { isRTL, language } = useLanguage();
   const { showError, showSuccess, showInfo } = useToast();
   const { login } = useAuth();
 
@@ -279,9 +280,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
       if (response.success && response.data) {
         // Extract customer_id from the response data
-        // The API service wraps the server response, so we need to access response.data.data.customer_id
-        let customerId =
-          response.data.data?.customer_id || response.data.customer_id;
+        const responseData = response.data.data || response.data;
+        const customerId = responseData?.customer_id;
 
         if (customerId) {
           setCustomerId(customerId);
@@ -291,26 +291,12 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
           showError(t('signup.error.noCustomerId'));
         }
       } else {
-        // Handle error response with new format
-        const errorMessage =
-          response.data?.error?.code === 'EMAIL_EXISTS'
-            ? t('signup.error.emailExists')
-            : response.data?.error?.code === 'MOBILE_EXISTS'
-              ? t('signup.error.mobileExists')
-              : response.data?.error?.code === 'NATIONAL_ID_EXISTS'
-                ? t('signup.error.nationalIdExists')
-                : response.data?.error?.code === 'ACCOUNT_TYPE_NOT_FOUND'
-                  ? t('signup.error.accountTypeNotFound')
-                  : response.data?.error?.code === 'COMPANY_FIELDS_REQUIRED'
-                    ? t('signup.error.companyFieldsRequired')
-                    : response.data?.error?.code === 'REFERRER_AGENCY_NOT_FOUND'
-                      ? t('signup.error.referrerAgencyNotFound')
-                      : response.data?.error?.code === 'REFERRER_MUST_BE_AGENCY'
-                        ? t('signup.error.referrerMustBeAgency')
-                        : response.data?.error?.code ===
-                            'REFERRER_AGENCY_INACTIVE'
-                          ? t('signup.error.referrerAgencyInactive')
-                          : response.error || t('signup.error.signupFailed');
+        // Use the new error handling utility
+        const errorMessage = getApiErrorMessage(
+          response,
+          language,
+          t('signup.error.signupFailed')
+        );
         showError(errorMessage);
       }
     } catch (error) {
@@ -385,23 +371,12 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
           showError(t('signup.error.invalidOtp'));
         }
       } else {
-        // Handle error response with new format
-        const errorMessage =
-          response.data?.error?.code === 'CUSTOMER_NOT_FOUND'
-            ? t('signup.error.customerNotFound')
-            : response.data?.error?.code === 'ACCOUNT_INACTIVE'
-              ? t('signup.error.accountInactive')
-              : response.data?.error?.code === 'ACCOUNT_TYPE_NOT_FOUND'
-                ? t('signup.error.accountTypeNotFound')
-                : response.data?.error?.code === 'NO_VALID_OTP'
-                  ? t('signup.error.noValidOtp')
-                  : response.data?.error?.code === 'INVALID_OTP_CODE'
-                    ? t('signup.error.invalidOtp')
-                    : response.data?.error?.code === 'INVALID_OTP_TYPE'
-                      ? t('signup.error.invalidOtpType')
-                      : response.data?.error?.code === 'OTP_EXPIRED'
-                        ? t('signup.error.otpExpired')
-                        : response.error || t('signup.error.invalidOtp');
+        // Use the new error handling utility
+        const errorMessage = getApiErrorMessage(
+          response,
+          language,
+          t('signup.error.invalidOtp')
+        );
         showError(errorMessage);
       }
     } catch (error) {
@@ -431,15 +406,12 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
           showError(t('signup.error.resendFailed'));
         }
       } else {
-        // Handle error response with new format
-        const errorMessage =
-          response.data?.error?.code === 'CUSTOMER_NOT_FOUND'
-            ? t('signup.error.customerNotFound')
-            : response.data?.error?.code === 'ACCOUNT_INACTIVE'
-              ? t('signup.error.accountInactive')
-              : response.data?.error?.code === 'ACCOUNT_ALREADY_VERIFIED'
-                ? t('signup.error.accountAlreadyVerified')
-                : response.error || t('signup.error.resendFailed');
+        // Use the new error handling utility
+        const errorMessage = getApiErrorMessage(
+          response,
+          language,
+          t('signup.error.resendFailed')
+        );
         showError(errorMessage);
       }
     } catch (error) {

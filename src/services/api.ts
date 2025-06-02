@@ -1,23 +1,54 @@
 import { config, getApiUrl } from '../config/environment';
 
 export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
+  Success: boolean;
+  Data?: T;
+  Message?: string;
+  Error?: ErrorDetail;
 }
 
-export interface ApiError {
-  error: string;
-  message: string;
-  details?: Record<string, string>;
+export interface ErrorDetail {
+  Code: string;
+  Details?: any;
 }
+
+// Global 401 handler type
+export type UnauthorizedHandler = () => void;
 
 class ApiService {
   private baseUrl: string;
+  private accessToken: string | null = null;
+  private unauthorizedHandler: UnauthorizedHandler | null = null;
 
   constructor() {
     this.baseUrl = config.apiUrl;
+  }
+
+  // Method to set the global 401 handler
+  setUnauthorizedHandler(handler: UnauthorizedHandler) {
+    this.unauthorizedHandler = handler;
+    console.log('Unauthorized handler set successfully');
+  }
+
+  // Method to check if unauthorized handler is configured
+  isUnauthorizedHandlerConfigured(): boolean {
+    return !!this.unauthorizedHandler;
+  }
+
+  // Test method to verify 401 handling (for debugging)
+  testUnauthorizedHandler() {
+    console.log('Testing unauthorized handler...');
+    if (this.unauthorizedHandler) {
+      console.log('Triggering test unauthorized handler...');
+      this.unauthorizedHandler();
+    } else {
+      console.warn('No unauthorized handler available for testing');
+    }
+  }
+
+  // Method to set access token for authenticated requests
+  setAccessToken(token: string | null) {
+    this.accessToken = token;
   }
 
   private async request<T>(
@@ -28,17 +59,26 @@ class ApiService {
 
     // Validate URL to prevent SSRF attacks
     if (!this.isValidUrl(url)) {
+      console.log('URL validation failed');
       return {
-        success: false,
-        error: 'Invalid URL',
+        Success: false,
+        Error: {
+          Code: 'Invalid URL',
+          Details: null
+        },
       };
     }
 
-    const defaultHeaders = {
+    const defaultHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
       'X-Requested-With': 'XMLHttpRequest', // CSRF protection
     };
+
+    // Add authorization header if token is available
+    if (this.accessToken) {
+      defaultHeaders['Authorization'] = `Bearer ${this.accessToken}`;
+    }
 
     const config: RequestInit = {
       ...options,
@@ -61,14 +101,77 @@ class ApiService {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || `HTTP ${response.status}`);
-      }
+      // Check for specific status codes
+      if (response.status === 201) {
+        return {
+          Success: true,
+          Data: data,
+        };
+      } else if (response.status === 401) {
+        // Unauthorized - check if this is an auth endpoint
+        const isAuthEndpoint = endpoint.includes('/auth/login') ||
+                              endpoint.includes('/auth/signup') ||
+                              endpoint.includes('/auth/verify') ||
+                              endpoint.includes('/auth/resend-otp') ||
+                              endpoint.includes('/auth/forgot-password') ||
+                              endpoint.includes('/auth/reset');
 
-      return {
-        success: true,
-        data,
-      };
+        if (isAuthEndpoint) {
+          // Extract error message from the response data
+          let errorMessage = 'Authentication failed';
+          if (data.Error && data.Error.Code) {
+            errorMessage = data.Error.Code;
+          } else if (data.Message) {
+            errorMessage = data.Message;
+          }
+
+          return {
+            Success: false,
+            Error: {
+              Code: errorMessage,
+              Details: data.Error?.Details
+            },
+          };
+        } else {
+          // For non-auth endpoints, trigger logout and redirect
+          if (this.unauthorizedHandler) {
+            this.unauthorizedHandler();
+          } else {
+            console.warn('No unauthorized handler set - cannot handle 401 automatically');
+          }
+
+          return {
+            Success: false,
+            Error: {
+              Code: 'Unauthorized - Please log in again',
+              Details: null
+            },
+          };
+        }
+      } else if (!response.ok) {
+        // Handle other error responses
+        let errorMessage = `HTTP ${response.status}`;
+
+        if (data.Error && data.Error.Code) {
+          errorMessage = data.Error.Code;
+        } else if (data.Message) {
+          errorMessage = data.Message;
+        }
+
+        return {
+          Success: false,
+          Error: {
+            Code: errorMessage,
+            Details: data.Error?.Details
+          },
+        };
+      } else {
+        // Other successful responses
+        return {
+          Success: true,
+          Data: data,
+        };
+      }
     } catch (error) {
       // Don't expose internal error details in production
       const isProduction = this.isProduction();
@@ -79,8 +182,11 @@ class ApiService {
           : 'Unknown error';
 
       return {
-        success: false,
-        error: errorMessage,
+        Success: false,
+        Error: {
+          Code: errorMessage,
+          Details: null
+        },
       };
     }
   }
@@ -127,15 +233,21 @@ class ApiService {
       identifier.length > 255
     ) {
       return {
-        success: false,
-        error: 'Invalid identifier',
+        Success: false,
+        Error: {
+          Code: 'Invalid identifier',
+          Details: null
+        },
       };
     }
 
     if (!password || typeof password !== 'string' || password.length < 8) {
       return {
-        success: false,
-        error: 'Invalid password',
+        Success: false,
+        Error: {
+          Code: 'Invalid password',
+          Details: null
+        },
       };
     }
 
@@ -161,8 +273,11 @@ class ApiService {
     // Input validation
     if (!signupData || typeof signupData !== 'object') {
       return {
-        success: false,
-        error: 'Invalid signup data',
+        Success: false,
+        Error: {
+          Code: 'Invalid signup data',
+          Details: null
+        },
       };
     }
 
@@ -171,8 +286,11 @@ class ApiService {
     for (const field of requiredFields) {
       if (!signupData[field] || typeof signupData[field] !== 'string') {
         return {
-          success: false,
-          error: `Missing required field: ${field}`,
+          Success: false,
+          Error: {
+            Code: `Missing required field: ${field}`,
+            Details: null
+          },
         };
       }
     }
@@ -181,31 +299,43 @@ class ApiService {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(signupData.email)) {
       return {
-        success: false,
-        error: 'Invalid email format',
+        Success: false,
+        Error: {
+          Code: 'Invalid email format',
+          Details: null
+        },
       };
     }
 
     // Validate password strength
     if (signupData.password.length < 8) {
       return {
-        success: false,
-        error: 'Password must be at least 8 characters long',
+        Success: false,
+        Error: {
+          Code: 'Password must be at least 8 characters long',
+          Details: null
+        },
       };
     }
 
     // Check for at least 1 uppercase letter and 1 number
     if (!/[A-Z]/.test(signupData.password)) {
       return {
-        success: false,
-        error: 'Password must contain at least 1 uppercase letter',
+        Success: false,
+        Error: {
+          Code: 'Password must contain at least 1 uppercase letter',
+          Details: null
+        },
       };
     }
 
     if (!/\d/.test(signupData.password)) {
       return {
-        success: false,
-        error: 'Password must contain at least 1 number',
+        Success: false,
+        Error: {
+          Code: 'Password must contain at least 1 number',
+          Details: null
+        },
       };
     }
 
@@ -264,8 +394,11 @@ class ApiService {
       identifier.length > 255
     ) {
       return {
-        success: false,
-        error: 'Invalid identifier',
+        Success: false,
+        Error: {
+          Code: 'Invalid identifier',
+          Details: null
+        },
       };
     }
 
@@ -322,21 +455,6 @@ class ApiService {
     });
   }
 
-  async updateCampaign(id: string, campaignData: any): Promise<ApiResponse> {
-    const endpoint = config.endpoints.campaigns.update.replace(':id', id);
-    return this.request(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(campaignData),
-    });
-  }
-
-  async deleteCampaign(id: string): Promise<ApiResponse> {
-    const endpoint = config.endpoints.campaigns.delete.replace(':id', id);
-    return this.request(endpoint, {
-      method: 'DELETE',
-    });
-  }
-
   // Analytics endpoints
   async getDashboardData(): Promise<ApiResponse> {
     return this.request(config.endpoints.analytics.dashboard, {
@@ -347,35 +465,6 @@ class ApiService {
   async getReports(): Promise<ApiResponse> {
     return this.request(config.endpoints.analytics.reports, {
       method: 'GET',
-    });
-  }
-
-  // SMS methods (handled by backend)
-  async sendSms(phoneNumber: string, message: string): Promise<ApiResponse> {
-    // Input validation
-    if (!phoneNumber || typeof phoneNumber !== 'string') {
-      return {
-        success: false,
-        error: 'Invalid phone number',
-      };
-    }
-
-    if (!message || typeof message !== 'string' || message.length > 160) {
-      return {
-        success: false,
-        error: 'Invalid message (max 160 characters)',
-      };
-    }
-
-    // Format phone number to include +98 prefix
-    const formattedPhoneNumber = this.formatPhoneNumber(phoneNumber);
-
-    return this.request('/sms/send', {
-      method: 'POST',
-      body: JSON.stringify({
-        phone_number: formattedPhoneNumber,
-        message,
-      }),
     });
   }
 

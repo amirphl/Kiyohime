@@ -3,6 +3,7 @@ import { Mail, ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import apiService from '../services/api';
+import { getApiErrorMessage } from '../utils/errorHandler';
 
 interface ForgotPasswordPageProps {
   onNavigateToLogin?: () => void;
@@ -14,7 +15,7 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
   onNavigateToResetPassword,
 }) => {
   const { t } = useTranslation();
-  const { isRTL } = useLanguage();
+  const { isRTL, language } = useLanguage();
 
   const [identifier, setIdentifier] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -38,23 +39,26 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
       const response = await apiService.forgotPassword(identifier);
 
       if (response.success && response.data) {
+        console.log("delete this", response.data?.customer_id);
+        console.log("delete this", response.data?.masked_phone);
         setSuccess(true);
-        setCustomerId(response.data.data.customer_id);
-        setMaskedPhone(response.data.data.masked_phone);
+        setCustomerId(response.data?.customer_id);
+        setMaskedPhone(response.data?.masked_phone);
       } else {
-        // Handle error response with new format
-        const errorMessage =
-          response.data?.error?.code === 'CUSTOMER_NOT_FOUND'
-            ? t('forgotPassword.error.customerNotFound')
-            : response.data?.error?.code === 'ACCOUNT_INACTIVE'
-              ? t('forgotPassword.error.accountInactive')
-              : response.data?.error?.code === 'ACCOUNT_TYPE_NOT_FOUND'
-                ? t('forgotPassword.error.accountTypeNotFound')
-                : response.error || t('forgotPassword.error.requestFailed');
+        // Use the new error handling utility
+        const errorMessage = getApiErrorMessage(
+          response,
+          language,
+          t('forgotPassword.error.requestFailed')
+        );
         setError(errorMessage);
       }
     } catch (error) {
-      setError(t('forgotPassword.error.networkError'));
+      setError(getApiErrorMessage(
+        { success: false, error: { code: 'NETWORK_ERROR' } },
+        language,
+        t('forgotPassword.error.networkError')
+      ));
     } finally {
       setIsLoading(false);
     }

@@ -5,6 +5,7 @@ import { useLanguage } from '../hooks/useLanguage';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 import apiService from '../services/api';
+import { getApiErrorMessage } from '../utils/errorHandler';
 
 interface LoginPageProps {
   onNavigateToSignup?: () => void;
@@ -16,7 +17,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
   onNavigateToForgotPassword,
 }) => {
   const { t } = useTranslation();
-  const { isRTL } = useLanguage();
+  const { isRTL, language } = useLanguage();
   const { showSuccess } = useToast();
   const { login } = useAuth();
 
@@ -69,22 +70,21 @@ const LoginPage: React.FC<LoginPageProps> = ({
           setError(t('login.error.invalidCredentials'));
         }
       } else {
-        // Handle error response with new format
-        const errorMessage =
-          response.data?.error?.code === 'CUSTOMER_NOT_FOUND'
-            ? t('login.error.customerNotFound')
-            : response.data?.error?.code === 'ACCOUNT_INACTIVE'
-              ? t('login.error.accountInactive')
-              : response.data?.error?.code === 'ACCOUNT_TYPE_NOT_FOUND'
-                ? t('login.error.accountTypeNotFound')
-                : response.data?.error?.code === 'INCORRECT_PASSWORD'
-                  ? t('login.error.incorrectPassword')
-                  : response.error || t('login.error.invalidCredentials');
+        // Use the new error handling utility
+        const errorMessage = getApiErrorMessage(
+          response,
+          language,
+          t('login.error.invalidCredentials')
+        );
         setError(errorMessage);
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError(t('login.error.networkError'));
+      setError(getApiErrorMessage(
+        { success: false, error: { code: 'NETWORK_ERROR' } },
+        language,
+        t('login.error.networkError')
+      ));
     } finally {
       setIsLoading(false);
     }

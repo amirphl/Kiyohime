@@ -11,6 +11,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import apiService from '../services/api';
+import { getApiErrorMessage } from '../utils/errorHandler';
 
 interface ResetPasswordPageProps {
   onNavigateToLogin?: () => void;
@@ -24,7 +25,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
   maskedPhone: propMaskedPhone,
 }) => {
   const { t } = useTranslation();
-  const { isRTL } = useLanguage();
+  const { isRTL, language } = useLanguage();
   const { login } = useAuth();
 
   const [newPassword, setNewPassword] = useState<string>('');
@@ -146,28 +147,20 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
           setError(t('resetPassword.error.resetFailed'));
         }
       } else {
-        // Handle error response with new format
-        const errorMessage =
-          response.data?.error?.code === 'CUSTOMER_NOT_FOUND'
-            ? t('resetPassword.error.customerNotFound')
-            : response.data?.error?.code === 'ACCOUNT_INACTIVE'
-              ? t('resetPassword.error.accountInactive')
-              : response.data?.error?.code === 'ACCOUNT_TYPE_NOT_FOUND'
-                ? t('resetPassword.error.accountTypeNotFound')
-                : response.data?.error?.code === 'NO_VALID_OTP'
-                  ? t('resetPassword.error.noValidOtp')
-                  : response.data?.error?.code === 'INVALID_OTP_CODE'
-                    ? t('resetPassword.error.invalidOtpCode')
-                    : response.data?.error?.code === 'INVALID_OTP_TYPE'
-                      ? t('resetPassword.error.invalidOtpType')
-                      : response.data?.error?.code === 'OTP_EXPIRED'
-                        ? t('resetPassword.error.otpExpired')
-                        : response.error ||
-                          t('resetPassword.error.resetFailed');
+        // Use the new error handling utility
+        const errorMessage = getApiErrorMessage(
+          response,
+          language,
+          t('resetPassword.error.resetFailed')
+        );
         setError(errorMessage);
       }
     } catch (error) {
-      setError(t('resetPassword.error.networkError'));
+      setError(getApiErrorMessage(
+        { success: false, error: { code: 'NETWORK_ERROR' } },
+        language,
+        t('resetPassword.error.networkError')
+      ));
     } finally {
       setIsLoading(false);
     }

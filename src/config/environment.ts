@@ -26,8 +26,7 @@ export interface EnvironmentConfig {
     campaigns: {
       list: string;
       create: string;
-      update: string;
-      delete: string;
+      calculateCosts: string;
     };
     analytics: {
       dashboard: string;
@@ -73,10 +72,9 @@ const defaultConfig: EnvironmentConfig = {
       resendOtp: '/auth/resend-otp',
     },
     campaigns: {
-      list: '/campaigns',
-      create: '/campaigns',
-      update: '/campaigns/:id',
-      delete: '/campaigns/:id',
+      list: '/sms-campaigns',
+      create: '/sms-campaigns',
+      calculateCosts: '/campaigns/calculate-costs',
     },
     analytics: {
       dashboard: '/analytics/dashboard',
