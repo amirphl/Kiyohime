@@ -1,15 +1,23 @@
+import {
+  CreateCampaignPayload, CreateSMSCampaignResponse,
+  CalculateCampaignCapacityRequest, CalculateCampaignCapacityResponse,
+  CalculateCampaignCostResponse, GetWalletBalanceResponse,
+  CalculateCampaignCostRequest, UpdateSMSCampaignRequest, UpdateSMSCampaignResponse,
+  ListSMSCampaignsParams, ListSMSCampaignsResponse,
+} from '../types/campaign';
 import { config, getApiUrl } from '../config/environment';
 
+// Updated to match Go backend response structure
 export interface ApiResponse<T = any> {
-  Success: boolean;
-  Data?: T;
-  Message?: string;
-  Error?: ErrorDetail;
+  success: boolean;
+  message: string;
+  data?: T;
+  error?: ErrorDetail;
 }
 
 export interface ErrorDetail {
-  Code: string;
-  Details?: any;
+  code: string;
+  details?: any;
 }
 
 // Global 401 handler type
@@ -61,10 +69,11 @@ class ApiService {
     if (!this.isValidUrl(url)) {
       console.log('URL validation failed');
       return {
-        Success: false,
-        Error: {
-          Code: 'Invalid URL',
-          Details: null
+        success: false,
+        message: 'Invalid URL',
+        error: {
+          code: 'Invalid URL',
+          details: null
         },
       };
     }
@@ -75,7 +84,6 @@ class ApiService {
       'X-Requested-With': 'XMLHttpRequest', // CSRF protection
     };
 
-    // Add authorization header if token is available
     if (this.accessToken) {
       defaultHeaders['Authorization'] = `Bearer ${this.accessToken}`;
     }
@@ -104,8 +112,9 @@ class ApiService {
       // Check for specific status codes
       if (response.status === 201) {
         return {
-          Success: true,
-          Data: data,
+          success: true,
+          message: data.message || 'Created successfully',
+          data: data.data,
         };
       } else if (response.status === 401) {
         // Unauthorized - check if this is an auth endpoint
@@ -119,17 +128,18 @@ class ApiService {
         if (isAuthEndpoint) {
           // Extract error message from the response data
           let errorMessage = 'Authentication failed';
-          if (data.Error && data.Error.Code) {
-            errorMessage = data.Error.Code;
-          } else if (data.Message) {
-            errorMessage = data.Message;
+          if (data.error && data.error.code) {
+            errorMessage = data.error.code;
+          } else if (data.message) {
+            errorMessage = data.message;
           }
 
           return {
-            Success: false,
-            Error: {
-              Code: errorMessage,
-              Details: data.Error?.Details
+            success: false,
+            message: errorMessage,
+            error: {
+              code: errorMessage,
+              details: data.error?.details
             },
           };
         } else {
@@ -141,10 +151,11 @@ class ApiService {
           }
 
           return {
-            Success: false,
-            Error: {
-              Code: 'Unauthorized - Please log in again',
-              Details: null
+            success: false,
+            message: 'Unauthorized - Please log in again',
+            error: {
+              code: 'Unauthorized - Please log in again',
+              details: null
             },
           };
         }
@@ -152,24 +163,26 @@ class ApiService {
         // Handle other error responses
         let errorMessage = `HTTP ${response.status}`;
 
-        if (data.Error && data.Error.Code) {
-          errorMessage = data.Error.Code;
-        } else if (data.Message) {
-          errorMessage = data.Message;
+        if (data.error && data.error.code) {
+          errorMessage = data.error.code;
+        } else if (data.message) {
+          errorMessage = data.message;
         }
 
         return {
-          Success: false,
-          Error: {
-            Code: errorMessage,
-            Details: data.Error?.Details
+          success: false,
+          message: errorMessage,
+          error: {
+            code: errorMessage,
+            details: data.error?.details
           },
         };
       } else {
         // Other successful responses
         return {
-          Success: true,
-          Data: data,
+          success: true,
+          message: data.message || 'Success',
+          data: data.data,
         };
       }
     } catch (error) {
@@ -182,10 +195,11 @@ class ApiService {
           : 'Unknown error';
 
       return {
-        Success: false,
-        Error: {
-          Code: errorMessage,
-          Details: null
+        success: false,
+        message: errorMessage,
+        error: {
+          code: errorMessage,
+          details: null
         },
       };
     }
@@ -233,20 +247,22 @@ class ApiService {
       identifier.length > 255
     ) {
       return {
-        Success: false,
-        Error: {
-          Code: 'Invalid identifier',
-          Details: null
+        success: false,
+        message: 'Invalid identifier',
+        error: {
+          code: 'Invalid identifier',
+          details: null
         },
       };
     }
 
     if (!password || typeof password !== 'string' || password.length < 8) {
       return {
-        Success: false,
-        Error: {
-          Code: 'Invalid password',
-          Details: null
+        success: false,
+        message: 'Invalid password',
+        error: {
+          code: 'Invalid password',
+          details: null
         },
       };
     }
@@ -273,10 +289,11 @@ class ApiService {
     // Input validation
     if (!signupData || typeof signupData !== 'object') {
       return {
-        Success: false,
-        Error: {
-          Code: 'Invalid signup data',
-          Details: null
+        success: false,
+        message: 'Invalid signup data',
+        error: {
+          code: 'Invalid signup data',
+          details: null
         },
       };
     }
@@ -286,10 +303,11 @@ class ApiService {
     for (const field of requiredFields) {
       if (!signupData[field] || typeof signupData[field] !== 'string') {
         return {
-          Success: false,
-          Error: {
-            Code: `Missing required field: ${field}`,
-            Details: null
+          success: false,
+          message: `Missing required field: ${field}`,
+          error: {
+            code: `Missing required field: ${field}`,
+            details: null
           },
         };
       }
@@ -299,10 +317,11 @@ class ApiService {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(signupData.email)) {
       return {
-        Success: false,
-        Error: {
-          Code: 'Invalid email format',
-          Details: null
+        success: false,
+        message: 'Invalid email format',
+        error: {
+          code: 'Invalid email format',
+          details: null
         },
       };
     }
@@ -310,10 +329,11 @@ class ApiService {
     // Validate password strength
     if (signupData.password.length < 8) {
       return {
-        Success: false,
-        Error: {
-          Code: 'Password must be at least 8 characters long',
-          Details: null
+        success: false,
+        message: 'Password must be at least 8 characters long',
+        error: {
+          code: 'Password must be at least 8 characters long',
+          details: null
         },
       };
     }
@@ -321,20 +341,22 @@ class ApiService {
     // Check for at least 1 uppercase letter and 1 number
     if (!/[A-Z]/.test(signupData.password)) {
       return {
-        Success: false,
-        Error: {
-          Code: 'Password must contain at least 1 uppercase letter',
-          Details: null
+        success: false,
+        message: 'Password must contain at least 1 uppercase letter',
+        error: {
+          code: 'Password must contain at least 1 uppercase letter',
+          details: null
         },
       };
     }
 
     if (!/\d/.test(signupData.password)) {
       return {
-        Success: false,
-        Error: {
-          Code: 'Password must contain at least 1 number',
-          Details: null
+        success: false,
+        message: 'Password must contain at least 1 number',
+        error: {
+          code: 'Password must contain at least 1 number',
+          details: null
         },
       };
     }
@@ -394,10 +416,11 @@ class ApiService {
       identifier.length > 255
     ) {
       return {
-        Success: false,
-        Error: {
-          Code: 'Invalid identifier',
-          Details: null
+        success: false,
+        message: 'Invalid identifier',
+        error: {
+          code: 'Invalid identifier',
+          details: null
         },
       };
     }
@@ -442,15 +465,70 @@ class ApiService {
   }
 
   // Campaign endpoints
+  async listCampaigns(params: ListSMSCampaignsParams): Promise<ApiResponse<ListSMSCampaignsResponse>> {
+    const query = new URLSearchParams();
+    query.set('page', String(params.page));
+    query.set('limit', String(params.limit));
+    if (params.orderby) query.set('orderby', params.orderby);
+    if (params.title) query.set('title', params.title);
+    if (params.status) query.set('status', params.status);
+    const endpoint = `${config.endpoints.campaigns.list}?${query.toString()}`;
+    return this.request<ListSMSCampaignsResponse>(endpoint, {
+      method: 'GET',
+    });
+  }
+
   async getCampaigns(): Promise<ApiResponse> {
     return this.request(config.endpoints.campaigns.list, {
       method: 'GET',
     });
   }
 
-  async createCampaign(campaignData: any): Promise<ApiResponse> {
-    return this.request(config.endpoints.campaigns.create, {
+  async createCampaign(campaignData: CreateCampaignPayload): Promise<ApiResponse<CreateSMSCampaignResponse>> {
+    return this.request<CreateSMSCampaignResponse>(config.endpoints.campaigns.create, {
       method: 'POST',
+      body: JSON.stringify(campaignData),
+    });
+  }
+
+  async calculateCampaignCapacity(capacityData: CalculateCampaignCapacityRequest): Promise<ApiResponse<CalculateCampaignCapacityResponse>> {
+    return this.request<CalculateCampaignCapacityResponse>(config.endpoints.campaigns.calculateCapacity, {
+      method: 'POST',
+      body: JSON.stringify(capacityData),
+    });
+  }
+
+  // New campaign cost calculation endpoint for message count
+  async calculateCampaignCost(costData: {
+    title?: string;
+    segment?: string;
+    subsegment?: string[];
+    sex?: string;
+    city?: string[];
+    adlink?: string;
+    content?: string;
+    scheduleat?: string;
+    line_number?: string;
+    budget?: number;
+  }): Promise<ApiResponse<CalculateCampaignCostResponse>> {
+    return this.request<CalculateCampaignCostResponse>(config.endpoints.campaigns.calculateCost, {
+      method: 'POST',
+      body: JSON.stringify(costData),
+    });
+  }
+
+  // Wallet balance endpoint
+  async getWalletBalance(): Promise<ApiResponse<GetWalletBalanceResponse>> {
+    return this.request<GetWalletBalanceResponse>(config.endpoints.wallet.balance, {
+      method: 'GET',
+    });
+  }
+
+  // Update campaign endpoint
+  async updateCampaign(uuid: string, campaignData: UpdateSMSCampaignRequest): Promise<ApiResponse<UpdateSMSCampaignResponse>> {
+    const url = config.endpoints.campaigns.update.replace(':uuid', uuid);
+    return this.request<UpdateSMSCampaignResponse>(url, {
+      method: 'PUT',
       body: JSON.stringify(campaignData),
     });
   }
