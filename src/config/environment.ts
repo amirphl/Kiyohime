@@ -27,6 +27,12 @@ export interface EnvironmentConfig {
       list: string;
       create: string;
       calculateCosts: string;
+      calculateCapacity: string;
+      calculateCost: string;
+      update: string;
+    };
+    wallet: {
+      balance: string;
     };
     analytics: {
       dashboard: string;
@@ -75,6 +81,12 @@ const defaultConfig: EnvironmentConfig = {
       list: '/sms-campaigns',
       create: '/sms-campaigns',
       calculateCosts: '/campaigns/calculate-costs',
+      calculateCapacity: '/sms-campaigns/calculate-capacity',
+      calculateCost: '/sms-campaigns/calculate-cost',
+      update: '/sms-campaigns/:uuid',
+    },
+    wallet: {
+      balance: '/wallet/balance',
     },
     analytics: {
       dashboard: '/analytics/dashboard',
