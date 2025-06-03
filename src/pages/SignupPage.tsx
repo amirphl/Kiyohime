@@ -446,7 +446,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('signup.accountType')}{' '}
-                <span className='text-lightGreen-500'>
+                <span className='text-red-500'>
                   {t('common.required')}
                 </span>
               </label>
@@ -486,7 +486,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-2'>
                       {t('signup.companyName')}{' '}
-                      <span className='text-lightGreen-500'>
+                      <span className='text-red-500'>
                         {t('common.required')}
                       </span>
                     </label>
@@ -509,7 +509,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-2'>
                       {t('signup.nationalId')}{' '}
-                      <span className='text-lightGreen-500'>
+                      <span className='text-red-500'>
                         {t('common.required')}
                       </span>
                     </label>
@@ -532,7 +532,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-2'>
                       {t('signup.companyPhone')}{' '}
-                      <span className='text-lightGreen-500'>
+                      <span className='text-red-500'>
                         {t('common.required')}
                       </span>
                     </label>
@@ -555,7 +555,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-2'>
                       {t('signup.postalCode')}{' '}
-                      <span className='text-lightGreen-500'>
+                      <span className='text-red-500'>
                         {t('common.required')}
                       </span>
                     </label>
@@ -579,7 +579,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
                     {t('signup.companyAddress')}{' '}
-                    <span className='text-lightGreen-500'>
+                    <span className='text-red-500'>
                       {t('common.required')}
                     </span>
                   </label>
@@ -618,7 +618,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
                     {t('signup.firstName')}{' '}
-                    <span className='text-lightGreen-500'>
+                    <span className='text-red-500'>
                       {t('common.required')}
                     </span>
                   </label>
@@ -640,7 +640,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
                     {t('signup.lastName')}{' '}
-                    <span className='text-lightGreen-500'>
+                    <span className='text-red-500'>
                       {t('common.required')}
                     </span>
                   </label>
@@ -663,7 +663,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-2'>
                   {t('signup.mobileNumber')}{' '}
-                  <span className='text-lightGreen-500'>
+                  <span className='text-red-500'>
                     {t('common.required')}
                   </span>
                 </label>
@@ -696,7 +696,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-2'>
                   {t('signup.email')}{' '}
-                  <span className='text-lightGreen-500'>
+                  <span className='text-red-500'>
                     {t('common.required')}
                   </span>
                 </label>
@@ -717,7 +717,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
                     {t('signup.password')}{' '}
-                    <span className='text-lightGreen-500'>
+                    <span className='text-red-500'>
                       {t('common.required')}
                     </span>
                   </label>
@@ -764,7 +764,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
                     {t('signup.confirmPassword')}{' '}
-                    <span className='text-lightGreen-500'>
+                    <span className='text-red-500'>
                       {t('common.required')}
                     </span>
                   </label>
