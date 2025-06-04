@@ -63,6 +63,20 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Create Campaign',
     description: 'Create a new SMS campaign',
   },
+  WALLET: {
+    path: '/dashboard/wallet',
+    page: 'wallet',
+    requiresAuth: true,
+    title: 'Wallet & Charge',
+    description: 'Manage your wallet balance and add funds',
+  },
+  REPORTS: {
+    path: '/dashboard/reports',
+    page: 'reports',
+    requiresAuth: true,
+    title: 'Reports',
+    description: 'Campaign reports and history',
+  },
 };
 
 export const getRouteByPath = (path: string): RouteConfig | null => {
