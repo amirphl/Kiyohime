@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, createContext, useCallback } from 'react';
 import { apiService } from '../services/api';
-import { clearAllUserData } from '../utils/errorHandler';
+import { clearAllUserData, clearCampaignData } from '../utils/errorHandler';
 
 // Import campaign context to clear campaign data during logout
 let campaignContextClearFunction: (() => void) | null = null;
@@ -35,8 +35,10 @@ interface AuthContextType {
     tokens: { token: string; refresh_token: string },
     userData: Customer
   ) => void;
-  logout: () => void;
+  logout: (redirectToLogin?: boolean) => void;
+  manualLogout: () => void;
   logoutAndRedirect: () => void; // New method for 401 handling
+  registerCampaignClearFunction: (clearFunction: () => void) => void;
   updateUser: (userData: Partial<Customer>) => void;
 }
 
@@ -64,6 +66,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setRefreshToken(refresh);
         setUser(parsedUser);
         setIsAuthenticated(true);
+        
+        // Sync token with API service
+        apiService.setAccessToken(token);
+        console.log('✅ Access token synced with API service on app initialization');
       } catch (error) {
         console.error('Error parsing stored user data:', error);
         // Clear localStorage on error
@@ -72,6 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setRefreshToken(null);
         setUser(null);
         setIsAuthenticated(false);
+        apiService.setAccessToken(null);
       }
     }
   }, []);
@@ -97,17 +104,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     console.log('Account type:', userData.account_type);
   };
 
-  const logout = useCallback(() => {
+  const logout = useCallback((redirectToLogin: boolean = false) => {
     console.log('🔄 Starting comprehensive logout - clearing all localStorage data...');
     
-    // Use the utility function to clear all user data
-    clearAllUserData();
+    // Clear campaign data first (this will clear localStorage items)
+    clearCampaignData();
     
-    // Clear campaign data if available
+    // Clear campaign context data if available
     if (campaignContextClearFunction) {
       console.log('🧹 Clearing campaign context data...');
       campaignContextClearFunction();
     }
+    
+    // Use the utility function to clear all other user data (but not campaign data)
+    clearAllUserData();
     
     // Clear all state
     setAccessToken(null);
@@ -120,6 +130,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     
     console.log('✅ Logout completed - all localStorage data cleared');
     console.log('🧹 localStorage items remaining:', Object.keys(localStorage));
+    
+    // If redirect is requested, handle it after state is cleared
+    if (redirectToLogin) {
+      console.log('🔄 Manual logout - redirecting to login page...');
+      setTimeout(() => {
+        window.location.replace('/login');
+      }, 100);
+    }
   }, []);
 
   const logoutAndRedirect = useCallback(() => {
@@ -142,10 +160,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       });
     }
     
-    // Then redirect to login page
-    // Use window.location.href for a full page reload to ensure clean state
-    console.log('🔄 Redirecting to login page...');
-    window.location.href = '/login';
+    // Use a more reliable redirect method
+    // Force a full page reload to ensure clean state and prevent React Router conflicts
+    console.log('🔄 Redirecting to login page with full page reload...');
+    
+    // Small delay to ensure logout state is fully processed
+    setTimeout(() => {
+      window.location.replace('/login');
+    }, 100);
   }, [logout]);
 
   // Set up the unauthorized handler for the API service
@@ -161,29 +183,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [logoutAndRedirect]);
 
-  const updateUser = (userData: Partial<Customer>) => {
+  // Keep API service token in sync with accessToken state
+  useEffect(() => {
+    if (accessToken) {
+      apiService.setAccessToken(accessToken);
+      console.log('✅ Access token synced with API service:', accessToken.substring(0, 20) + '...');
+    } else {
+      apiService.setAccessToken(null);
+      console.log('✅ API service token cleared');
+    }
+  }, [accessToken]);
+
+  // Manual logout function for user-initiated logout
+  const manualLogout = useCallback(() => {
+    console.log('👤 User initiated logout');
+    logout(true); // Pass true to redirect to login
+  }, [logout]);
+
+  // Function to update user data
+  const updateUser = useCallback((userData: Partial<Customer>) => {
     if (user) {
       const updatedUser = { ...user, ...userData };
       setUser(updatedUser);
       localStorage.setItem('customer_data', JSON.stringify(updatedUser));
     }
-  };
+  }, [user]);
 
   const value: AuthContextType = {
-    isAuthenticated,
-    user,
     accessToken,
     refreshToken,
+    user,
+    isAuthenticated,
     login,
     logout,
+    manualLogout,
     logoutAndRedirect,
+    registerCampaignClearFunction,
     updateUser,
   };
 
   return (
-    <AuthContext.Provider
-      value={value}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
