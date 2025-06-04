@@ -8,11 +8,10 @@ import LanguageSwitcher from './LanguageSwitcher';
 const Header: React.FC = () => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, manualLogout } = useAuth();
 
   const handleLogout = () => {
-    logout();
-    window.location.href = '/';
+    manualLogout();
   };
 
   const handleSignIn = () => {
