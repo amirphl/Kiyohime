@@ -5,11 +5,13 @@ import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage';
 import DashboardPage from '../pages/DashboardPage';
 import CampaignCreationPage from '../pages/CampaignCreationPage';
+import WalletPage from '../pages/WalletPage';
+import ReportsPage from '../pages/ReportsPage';
 import HomePage from '../pages/HomePage';
 import { useAuth } from '../hooks/useAuth';
 import { ROUTES, getRouteByPath } from '../config/routes';
 
-type PageType = 'home' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation';
+type PageType = 'home' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation' | 'wallet' | 'reports';
 
 const AuthRouter: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PageType>('home');
@@ -64,7 +66,7 @@ const AuthRouter: React.FC = () => {
   }
 
   // If user is not authenticated and trying to access protected routes, redirect to home
-  if (!isAuthenticated && ['dashboard', 'campaign-creation'].includes(currentPage)) {
+  if (!isAuthenticated && ['dashboard', 'campaign-creation', 'wallet', 'reports'].includes(currentPage)) {
     window.location.href = ROUTES.HOME.path;
     return null;
   }
@@ -136,6 +138,11 @@ const AuthRouter: React.FC = () => {
 
     case 'campaign-creation':
       return <CampaignCreationPage />;
+
+    case 'wallet':
+      return <WalletPage />;
+    case 'reports':
+      return <ReportsPage />;
 
     default:
       return <HomePage />;
