@@ -1,16 +1,21 @@
 # SMS Marketing Platform
 
-A modern web application for companies to create targeted SMS marketing campaigns. Built with React, TypeScript, and Tailwind CSS with multi-domain deployment support.
+A modern web application to create and manage targeted SMS marketing campaigns. Built with React, TypeScript, and Tailwind CSS with multi-domain deployment support.
 
 ## 🌟 Features
 
-- **Multi-Domain Support**: Deploy to different domains with automatic configuration
-- **Multi-Language**: English and Farsi (Persian) with RTL support
-- **Phone Number Authentication**: Secure login with phone numbers (+98) and OTP verification
-- **Modern UI/UX**: Clean, responsive design with intuitive user interface
-- **Targeted Campaigns**: Create SMS campaigns with customer segmentation filters
-- **Analytics Dashboard**: Track campaign performance and customer engagement
-- **Compliance**: Built with regulations in mind
+- **Multi-Domain Support**: Automatic configuration per domain (dev/prod)
+- **Internationalization**: English and Persian (RTL) with dynamic calendar and currency labels
+- **Authentication**: Phone/OTP-based login with robust 401 handling and reliable redirects
+- **Campaign Wizard (4 Steps)**:
+  - Segment: title, segment, subsegments, sex, cities; capacity auto-calculated and persisted
+  - Content: link insertion with marker (🔗), Shamsi/Gregorian datetime (24h), strict validation
+  - Budget: debounced API calls, estimated messages (msg_target/max_msg_target), max budget enforced
+  - Payment: cost breakdown from API (sub_total/tax/total), wallet balance check, finish calls Update API
+- **Debounced Inputs**: Budget and report filters avoid API bombardment
+- **Wallet Integration**: Balance fetched once on payment; disables finish if insufficient
+- **Reports**: Paginated (infinite scroll), sort, title filter, translated statuses, details modal with "Fix and restart"
+- **Robust API Client**: Centralized service with token attachment and error handling
 
 ## 🚀 Tech Stack
 
@@ -48,13 +53,19 @@ sudo nano /etc/hosts
 # Add: 127.0.0.1 yamata-no-orochi.com
 ```
 
-4. Build and serve with Nginx:
+4. Development with Nginx proxy (recommended):
 ```bash
-./scripts/deploy.sh yamata
-./scripts/nginx-docker.sh start
+./scripts/nginx-docker.sh dev
+npm start
 ```
 
-5. Access at https://yamata-no-orochi.com:8443 (API at https://yamata-no-orochi.com:8443/api/v1)
+5. Access at https://yamata-no-orochi.com:8443 (API proxied at /api/v1)
+
+6. Type-check and lint:
+```bash
+npm run type-check
+npm run lint
+```
 
 ### Environment Configuration
 
@@ -365,6 +376,13 @@ scripts/              # Deployment scripts
 Dockerfile           # Production Docker build
 ```
 
+Additional notable modules:
+- `src/hooks/useCampaign.tsx`: Campaign context and persistence (localStorage)
+- `src/hooks/useCampaignValidation.ts`: Step-by-step validation (capacity, link marker, schedule >= now+10m, balance)
+- `src/utils/campaignUtils.ts`: Character counting, SMS parts, and content validation
+- `src/pages/ReportsPage.tsx`: Infinite scroll, sort, filter, details modal (translated labels)
+- `src/components/campaign/*`: Step components with debouncing and validation
+
 ## 🔧 Configuration
 
 ### Environment Variables
@@ -409,8 +427,8 @@ REACT_APP_SUPPORTED_LANGUAGES=en,fa
 
 ### Supported Languages
 
-- **English (en)**: Left-to-right layout
-- **Farsi (fa)**: Right-to-left layout with Persian font
+- **English (en)**: Left-to-right layout; Gregorian Tehran time; currency label: Toman
+- **Farsi (fa)**: Right-to-left layout; Shamsi calendar; currency label: تومان
 
 ### Language Switching
 
@@ -435,10 +453,19 @@ REACT_APP_SUPPORTED_LANGUAGES=en,fa
 
 ## 🚀 Available Scripts
 
-- `npm start` - Runs the app in development mode
-- `npm build` - Builds the app for production
-- `npm test` - Launches the test runner
-- `npm eject` - Ejects from Create React App (not recommended)
+- `npm start` - Start dev server (port 8081)
+- `npm run start:direct` - Start dev server without WDS overrides
+- `npm run build` - Build for production
+- `npm run build:production` - Optimized production build
+- `npm test` - Launch tests
+- `npm run type-check` - TypeScript check
+- `npm run lint` - ESLint
+- `npm run lint:fix` - ESLint (fix)
+- `npm run analyze` - Build and analyze bundle
+- `npm run check` - Lint + Prettier check + TS check
+- `npm run fix` - Lint fix + Prettier format
+- `npm run deploy:yamata` - Build/deploy yamata
+- `npm run deploy:production` - Build/deploy production
 
 ## 🤝 Contributing
 
