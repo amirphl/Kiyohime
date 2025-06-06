@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
+import DateObject from 'react-date-object';
+import persian from 'react-date-object/calendars/persian';
+import persian_fa from 'react-date-object/locales/persian_fa';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useCampaign } from '../hooks/useCampaign';
+import { apiService } from '../services/api';
+import { GetSMSCampaignResponse, ListSMSCampaignsResponse } from '../types/campaign';
 
 import {
   LayoutDashboard,
@@ -31,6 +36,7 @@ interface SidebarItem {
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
+  const { language } = useLanguage();
   const { user, logout } = useAuth();
   const { navigate } = useNavigation();
   const { resetCampaign } = useCampaign();
@@ -40,7 +46,24 @@ const DashboardPage: React.FC = () => {
   };
 
   const handleTargetedSend = () => {
-    // Reset campaign data and initialize localStorage
+    // Check if there's existing campaign data
+    const existingData = localStorage.getItem('campaign_creation_data');
+    
+    if (existingData) {
+      try {
+        const parsedData = JSON.parse(existingData);
+        console.log('🔄 Found existing campaign data, preserving it:', parsedData);
+        
+        // Navigate to campaign creation with existing data
+        navigate('/campaign-creation');
+        return;
+      } catch (error) {
+        console.warn('Failed to parse existing campaign data, will create new campaign');
+      }
+    }
+    
+    // Only reset if no existing data found
+    console.log('🆕 No existing campaign data found, creating fresh campaign');
     resetCampaign();
     
     // Initialize campaign data in localStorage
@@ -154,6 +177,65 @@ const DashboardPage: React.FC = () => {
 
   const isAgency = user?.account_type === 'marketing_agency';
 
+  const isReportsView = window.location.pathname === '/dashboard/reports';
+
+  const formatReportDateTime = (iso?: string) => {
+    if (!iso) return '-';
+    try {
+      const jsDate = new Date(iso);
+      if (language === 'en') {
+        return jsDate.toLocaleString('en-US', {
+          timeZone: 'Asia/Tehran',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        });
+      }
+      const tehranMs = jsDate.getTime() + 3.5 * 60 * 60 * 1000;
+      const tehranDate = new Date(tehranMs);
+      const dobj = new DateObject({ date: tehranDate, calendar: persian, locale: persian_fa });
+      return dobj.format('YYYY/MM/DD HH:mm:ss');
+    } catch {
+      return '-';
+    }
+  };
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  // Scroll to top when switching between dashboard and reports view
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [isReportsView]);
+
+  const [loadingReports, setLoadingReports] = useState(false);
+  const [reportsError, setReportsError] = useState<string | null>(null);
+  const [campaigns, setCampaigns] = useState<GetSMSCampaignResponse[]>([]);
+
+  useEffect(() => {
+    if (!isReportsView) return;
+    let mounted = true;
+    setLoadingReports(true);
+    setReportsError(null);
+    (async () => {
+      const res = await apiService.listCampaigns({ page: 1, limit: 20, orderby: 'newest' });
+      if (!mounted) return;
+      if (res.success && res.data) {
+        setCampaigns(res.data.items || []);
+      } else {
+        setReportsError(res.message || 'Failed to load campaigns');
+      }
+      setLoadingReports(false);
+    })();
+    return () => { mounted = false; };
+  }, [isReportsView]);
+
   return (
     <div className='min-h-screen bg-gray-50 flex'>
       {/* Sidebar */}
@@ -224,13 +306,12 @@ const DashboardPage: React.FC = () => {
           <div className='max-w-7xl mx-auto'>
             <div className='mb-8'>
               <h2 className='text-2xl font-bold text-gray-900'>
-                {t('dashboard.welcome')},{' '}
-                {user?.representative_first_name ||
-                  user?.email?.split('@')[0] ||
-                  'User'}
-                !
+                {isReportsView ? t('dashboard.reports') : (<>
+                  {t('dashboard.welcome')},{' '}
+                  {user?.representative_first_name || user?.email?.split('@')[0] || 'User'}!
+                </>)}
               </h2>
-              <p className='text-gray-600 mt-2'>{t('dashboard.subtitle')}</p>
+              {!isReportsView && <p className='text-gray-600 mt-2'>{t('dashboard.subtitle')}</p>}
               {user && (
                 <div className='mt-4 p-3 bg-blue-50 rounded-lg'>
                   <p className='text-sm text-blue-800'>
@@ -248,8 +329,9 @@ const DashboardPage: React.FC = () => {
               )}
             </div>
 
-            {/* Dashboard Content */}
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
+            {/* Content */}
+            {!isReportsView ? (
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
               {/* Quick Stats */}
               <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
                 <h3 className='text-lg font-medium text-gray-900 mb-2'>
@@ -278,21 +360,57 @@ const DashboardPage: React.FC = () => {
                 </h3>
                 <p className='text-3xl font-bold text-primary-600'>0</p>
               </div>
-            </div>
-
-            {/* Recent Activity */}
-            <div className='mt-8'>
-              <h3 className='text-lg font-medium text-gray-900 mb-4'>
-                {t('dashboard.recentActivity')}
-              </h3>
+              </div>
+            ) : (
               <div className='bg-white rounded-lg shadow-sm border border-gray-200'>
                 <div className='p-6'>
-                  <p className='text-gray-500 text-center'>
-                    {t('dashboard.noActivity')}
-                  </p>
+                  {loadingReports ? (
+                    <div className='text-center text-gray-600'>Loading...</div>
+                  ) : reportsError ? (
+                    <div className='text-center text-red-600'>{reportsError}</div>
+                  ) : (
+                    <div className='overflow-x-auto'>
+                      <table className='min-w-full divide-y divide-gray-200'>
+                        <thead className='bg-gray-50'>
+                          <tr>
+                            <th className='px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>#</th>
+                            <th className='px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Title</th>
+                            <th className='px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Text</th>
+                            <th className='px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Line Number</th>
+                            <th className='px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Segment</th>
+                            <th className='px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Sent</th>
+                            <th className='px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Status</th>
+                            <th className='px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Total</th>
+                            <th className='px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Created At</th>
+                            <th className='px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Schedule At</th>
+                            <th className='px-4 py-2'></th>
+                          </tr>
+                        </thead>
+                        <tbody className='bg-white divide-y divide-gray-200'>
+                          {campaigns.map((c, idx) => (
+                            <tr key={c.uuid}>
+                              <td className='px-4 py-2 text-sm text-gray-900'>{idx + 1}</td>
+                              <td className='px-4 py-2 text-sm text-gray-900'>{c.title || '-'}</td>
+                              <td className='px-4 py-2 text-sm text-gray-700 max-w-xs truncate'>{c.content || '-'}</td>
+                              <td className='px-4 py-2 text-sm text-gray-900'>{c.line_number || '-'}</td>
+                              <td className='px-4 py-2 text-sm text-gray-900'>{c.segment || '-'}</td>
+                              <td className='px-4 py-2 text-sm text-gray-500'>-</td>
+                              <td className='px-4 py-2 text-sm text-gray-900'>{c.status}</td>
+                              <td className='px-4 py-2 text-sm text-gray-500'>-</td>
+                              <td className='px-4 py-2 text-sm text-gray-900'>{formatReportDateTime(c.created_at)}</td>
+                              <td className='px-4 py-2 text-sm text-gray-900'>{formatReportDateTime(c.scheduleat)}</td>
+                              <td className='px-4 py-2 text-right'>
+                                <button className='px-3 py-1 text-sm bg-primary-600 text-white rounded hover:bg-primary-700'>Details</button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
