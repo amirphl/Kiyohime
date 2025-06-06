@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
@@ -7,6 +7,7 @@ import { useCampaign } from '../hooks/useCampaign';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useToast } from '../hooks/useToast';
 import { apiService } from '../services/api';
+import { getApiErrorMessage } from '../utils/errorHandler';
 import { useCampaignValidation } from '../hooks/useCampaignValidation';
 import CampaignSegmentStep from '../components/campaign/CampaignSegmentStep';
 import CampaignContentStep from '../components/campaign/CampaignContentStep';
@@ -14,11 +15,11 @@ import CampaignBudgetStep from '../components/campaign/CampaignBudgetStep';
 import CampaignPaymentStep from '../components/campaign/CampaignPaymentStep';
 import Button from '../components/ui/Button';
 import Stepper from '../components/ui/Stepper';
-import { CampaignStep } from '../types/campaign';
+import { CampaignStep, CreateCampaignPayload, UpdateSMSCampaignRequest } from '../types/campaign';
 
 const CampaignCreationPage: React.FC = () => {
   const { t } = useTranslation();
-  const { isRTL } = useLanguage();
+  const { isRTL, language } = useLanguage();
   const { accessToken } = useAuth();
   const {
     currentStep,
@@ -36,26 +37,67 @@ const CampaignCreationPage: React.FC = () => {
   // Use the validation hook
   const validation = useCampaignValidation(campaignData, currentStep);
 
-  // Reset campaign when component unmounts to ensure fresh state on next visit
-  const isUnmountingRef = useRef(false);
-
+  // Campaign data is now retained when navigating away and returning
+  // Only reset when campaign is actually finished (see handleFinish function)
+  
+  // Log when component mounts to track data persistence
   useEffect(() => {
-    return () => {
-      // This cleanup function runs when component unmounts
-      // Reset campaign to ensure fresh UUID on next "targeted send" click
-      if (!isUnmountingRef.current) {
-        isUnmountingRef.current = true;
-        resetCampaign();
+    console.log('🏗️ CampaignCreationPage mounted');
+    console.log('📊 Current campaign data:', campaignData);
+    console.log('📍 Current step:', currentStep);
+    
+    // Check localStorage for existing data
+    const savedData = localStorage.getItem('campaign_creation_data');
+    const savedStep = localStorage.getItem('campaign_creation_step');
+    console.log('💾 localStorage check:', {
+      hasSavedData: !!savedData,
+      savedStep: savedStep,
+      dataSize: savedData ? savedData.length : 0
+    });
+    
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        console.log('🔍 Parsed saved data:', {
+          hasUUID: !!parsed.uuid,
+          hasSegmentData: !!parsed.segment,
+          segmentFields: parsed.segment ? Object.keys(parsed.segment) : [],
+          hasContentData: !!parsed.content,
+          hasBudgetData: !!parsed.budget,
+          hasPaymentData: !!parsed.payment,
+        });
+      } catch (error) {
+        console.error('❌ Failed to parse saved data:', error);
       }
+    }
+    
+    return () => {
+      console.log('🏗️ CampaignCreationPage unmounting - data will be retained');
     };
-  }, [resetCampaign]); // Include resetCampaign in dependencies
+  }, [campaignData, currentStep]);
+
+  // Scroll to top whenever the step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
+
+  // Scroll to top on step change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
 
   // Campaign UUID will be created when user clicks "next" on the segment page (step 1)
 
   // Remove the useEffect that automatically calls API on mount
   // This was causing infinite loops and unnecessary API calls
 
+  // Scroll to top whenever the step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
+
   const handleNextStep = async () => {
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
     // Check if we're on step 1 (segment page)
     if (currentStep === 1) {
       // Check if campaign spec exists in localStorage (existing campaign)
@@ -85,8 +127,23 @@ const CampaignCreationPage: React.FC = () => {
           apiService.setAccessToken(accessToken);
           console.log('Access token set, calling createCampaign API...');
           
-          // Call the API to create a new SMS campaign with empty body
-          const response = await apiService.createCampaign({});
+          // Create payload with segment data
+          const payload: CreateCampaignPayload = {
+            title: campaignData.segment.campaignTitle || undefined,
+            segment: campaignData.segment.segment || undefined,
+            subsegment: campaignData.segment.subsegments && campaignData.segment.subsegments.length > 0 
+              ? campaignData.segment.subsegments 
+              : undefined,
+            sex: campaignData.segment.sex || undefined,
+            city: campaignData.segment.city && campaignData.segment.city.length > 0 
+              ? campaignData.segment.city 
+              : undefined,
+          };
+          
+          console.log('Campaign creation payload:', payload);
+          
+          // Call the API to create a new SMS campaign with segment data
+          const response = await apiService.createCampaign(payload);
           console.log('Create campaign API response:', response);
           
           if (response.success && response.data && response.data.uuid) {
@@ -97,7 +154,11 @@ const CampaignCreationPage: React.FC = () => {
             nextStep();
           } else {
             console.error('Failed to create campaign:', response);
-            const errorMessage = response.error?.code || 'Failed to create campaign';
+            const errorMessage = getApiErrorMessage(
+              response,
+              language,
+              'Failed to create campaign'
+            );
             showError(errorMessage);
             // Stay on current step if campaign creation fails
             return;
@@ -115,10 +176,14 @@ const CampaignCreationPage: React.FC = () => {
   };
 
   const handlePreviousStep = () => {
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
     previousStep();
   };
 
   const handleStepClick = async (step: number) => {
+    if (step !== currentStep) {
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+    }
     if (step < currentStep) {
       // Going back to previous step - no need to save
       goToStep(step);
@@ -137,11 +202,35 @@ const CampaignCreationPage: React.FC = () => {
       console.log('Is step 4 completed?', validation.isStepCompleted(4));
       console.log('Handling finish action...');
       
-      // TODO: Call API to finalize campaign (ignored for now as requested)
-      // const response = await apiService.finalizeCampaign(campaignData.uuid);
-      // if (!response.Success) {
-      //   throw new Error(response.Error?.Code || 'Failed to finalize campaign');
-      // }
+      // Call API to update campaign
+      if (!campaignData.uuid) {
+        throw new Error('Campaign UUID not found');
+      }
+      
+      apiService.setAccessToken(accessToken);
+      console.log('🔑 Access token set for API call');
+      
+      const updateData: UpdateSMSCampaignRequest = {
+        title: campaignData.segment.campaignTitle,
+        segment: campaignData.segment.segment,
+        subsegment: campaignData.segment.subsegments,
+        sex: campaignData.segment.sex,
+        city: campaignData.segment.city,
+        adlink: campaignData.content.link,
+        content: campaignData.content.text,
+        scheduleat: campaignData.content.scheduleAt,
+        line_number: campaignData.budget.lineNumber,
+        budget: campaignData.budget.totalBudget,
+      };
+      
+      console.log('🔄 Calling update campaign API with data:', updateData);
+      const response = await apiService.updateCampaign(campaignData.uuid, updateData);
+      
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to update campaign');
+      }
+      
+      console.log('✅ Campaign updated successfully:', response.data);
       
       console.log('🎯 Campaign finalized successfully, cleaning up localStorage...');
       
@@ -162,9 +251,14 @@ const CampaignCreationPage: React.FC = () => {
       
     } catch (error) {
       console.error('Error finishing campaign:', error);
-      showError('Failed to complete campaign. Please try again.');
-      // Even on unexpected errors, redirect to dashboard
-      navigate('/dashboard');
+      
+      // Show error message but DO NOT redirect to dashboard
+      // This prevents infinite loops and allows user to see the error
+      showError(`Failed to complete campaign: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      
+      // DO NOT redirect to dashboard on error
+      // User stays on payment page to see the error message
+      console.log('❌ Campaign update failed, user remains on payment page');
     }
   };
 
@@ -269,7 +363,8 @@ const CampaignCreationPage: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8"> */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
             <p className="text-sm text-red-600">{error}</p>
