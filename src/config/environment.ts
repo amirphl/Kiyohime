@@ -59,8 +59,8 @@ export interface EnvironmentConfig {
 // Default configuration
 const defaultConfig: EnvironmentConfig = {
   domain: 'yamata-no-orochi.com',
-  baseUrl: 'https://yamata-no-orochi.com:8443',
-  apiUrl: 'https://yamata-no-orochi.com:8443/api/v1',
+  baseUrl: 'https://yamata-no-orochi.com:8443', // Will be overridden by production config
+  apiUrl: 'https://yamata-no-orochi.com:8443/api/v1', // Will be overridden by production config
 
   brandName: 'Jaazebeh',
   brandSubtitle: 'SMS Marketing Platform',
@@ -132,15 +132,19 @@ const domainConfigs: Record<string, Partial<EnvironmentConfig>> = {
 
 // Get current domain
 const getCurrentDomain = (): string => {
-  if (typeof window !== 'undefined') {
-    return window.location.hostname;
-  }
-
-  // For production, use the domain from .env
+  // For production, prioritize the production domain from environment
   if (process.env.REACT_APP_PRODUCTION_DOMAIN) {
+    console.log('Using production domain from env:', process.env.REACT_APP_PRODUCTION_DOMAIN);
     return process.env.REACT_APP_PRODUCTION_DOMAIN;
   }
 
+  // Fallback to current hostname if no production domain set
+  if (typeof window !== 'undefined') {
+    console.log('Using current hostname:', window.location.hostname);
+    return window.location.hostname;
+  }
+
+  console.log('Using fallback domain:', process.env.REACT_APP_DOMAIN || 'yamata-no-orochi.com');
   return process.env.REACT_APP_DOMAIN || 'yamata-no-orochi.com';
 };
 
@@ -171,6 +175,13 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
         theme: 'light',
       },
     };
+    
+    // Log the production configuration for debugging
+    console.log('Production domain detected:', {
+      domain: currentDomain,
+      baseUrl: `https://${currentDomain}`,
+      apiUrl: `https://${currentDomain}/api/v1`
+    });
   }
 
   // Merge with default config
