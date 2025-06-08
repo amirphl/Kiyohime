@@ -16,6 +16,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NPM_REGISTRY: https://registry.npmjs.org/
+        NODE_ENV: production
+      no_cache: false
     container_name: jaazebeh-production
     restart: unless-stopped
     environment:
@@ -49,6 +53,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NPM_REGISTRY: https://registry.npmjs.org/
+        NODE_ENV: production
+      no_cache: false
     container_name: jaazebeh-beta
     restart: unless-stopped
     environment:

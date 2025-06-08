@@ -4,30 +4,39 @@
 # Stage 1: Build stage
 FROM node:24-alpine AS builder
 
+# Build arguments
+ARG NPM_REGISTRY=https://registry.npmjs.org/
+ARG NODE_ENV=production
+
 # Set working directory
 WORKDIR /app
 
-# Install dependencies for build
+# Install build dependencies
 RUN apk add --no-cache python3 make g++
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production --silent
+# Configure npm and install dependencies
+RUN npm config set registry ${NPM_REGISTRY} && \
+    npm config set fetch-retries 3 && \
+    npm config set fetch-retry-mintimeout 5000 && \
+    npm config set fetch-retry-maxtimeout 60000 && \
+    npm config set fetch-retry-factor 2 && \
+    npm ci --silent --no-audit --no-fund
 
 # Copy source code
 COPY . .
 
 # Set production environment variables
-ENV NODE_ENV=production
-ENV REACT_APP_NODE_ENV=production
-ENV GENERATE_SOURCEMAP=false
-ENV INLINE_RUNTIME_CHUNK=false
-ENV FAST_REFRESH=false
-ENV WDS_SOCKET_HOST=
-ENV WDS_SOCKET_PORT=
-ENV WDS_SOCKET_PATH=
+ENV NODE_ENV=production \
+    REACT_APP_NODE_ENV=production \
+    GENERATE_SOURCEMAP=false \
+    INLINE_RUNTIME_CHUNK=false \
+    FAST_REFRESH=false \
+    WDS_SOCKET_HOST= \
+    WDS_SOCKET_PORT= \
+    WDS_SOCKET_PATH=
 
 # Build the application for production
 RUN npm run build:production
@@ -35,12 +44,11 @@ RUN npm run build:production
 # Stage 2: Production stage
 FROM nginx:1.29-alpine AS production
 
-# Install security updates
-RUN apk update && apk upgrade --no-cache
-
-# Create non-root user
-RUN addgroup -g 1001 -S nginx && \
-    adduser -S -D -H -u 1001 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx
+# Install security updates and necessary packages
+RUN apk update && \
+    apk upgrade --no-cache && \
+    apk add --no-cache ca-certificates tzdata curl && \
+    rm -rf /var/cache/apk/*
 
 # Copy built application from builder stage
 COPY --from=builder /app/build /usr/share/nginx/html
@@ -51,10 +59,9 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Create necessary directories with proper permissions
 RUN mkdir -p /var/cache/nginx /var/log/nginx /etc/nginx/conf.d && \
     chown -R nginx:nginx /var/cache/nginx /var/log/nginx /etc/nginx/conf.d /usr/share/nginx/html && \
-    chmod -R 755 /var/cache/nginx /var/log/nginx /etc/nginx/conf.d /usr/share/nginx/html
-
-# Remove default nginx configuration
-RUN rm -f /etc/nginx/conf.d/default.conf
+    chmod -R 755 /var/cache/nginx /var/log/nginx /etc/nginx/conf.d /usr/share/nginx/html && \
+    chmod 755 /var/cache/nginx && \
+    rm -f /etc/nginx/conf.d/default.conf
 
 # Switch to non-root user
 USER nginx
@@ -62,9 +69,9 @@ USER nginx
 # Expose port
 EXPOSE 80
 
-# Health check
+# Health check (using curl instead of wget for better reliability)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 1
+    CMD curl -f http://localhost/health || exit 1
 
 # Start nginx
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["nginx", "-g", "daemon off;"]
