@@ -31,6 +31,12 @@ COPY . .
 # Set production environment variables
 ENV NODE_ENV=production \
     REACT_APP_NODE_ENV=production \
+    REACT_APP_PRODUCTION_DOMAIN=jazz.xerexchain.com \
+    REACT_APP_ENABLE_ANALYTICS=true \
+    REACT_APP_PRIMARY_COLOR=#2563eb \
+    REACT_APP_THEME=light \
+    REACT_APP_DEFAULT_LANGUAGE=en \
+    REACT_APP_SUPPORTED_LANGUAGES=en,fa \
     GENERATE_SOURCEMAP=false \
     INLINE_RUNTIME_CHUNK=false \
     FAST_REFRESH=false \
