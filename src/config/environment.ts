@@ -188,6 +188,11 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
   const config: EnvironmentConfig = {
     ...defaultConfig,
     ...domainConfig,
+    // For production domains, ensure URLs are completely overridden
+    ...(process.env.REACT_APP_PRODUCTION_DOMAIN && currentDomain === process.env.REACT_APP_PRODUCTION_DOMAIN && {
+      baseUrl: `https://${currentDomain}`,
+      apiUrl: `https://${currentDomain}/api/v1`,
+    }),
     features: {
       ...defaultConfig.features,
       ...domainConfig.features,
