@@ -24,6 +24,7 @@ interface SignupFormData {
   companyPhone: string;
   companyAddress: string;
   postalCode: string;
+  shebaNumber: string; // 24 English digits, without IR prefix
   // Representative/Individual fields
   representativeFirstName: string;
   representativeLastName: string;
@@ -57,6 +58,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
     companyPhone: '',
     companyAddress: '',
     postalCode: '',
+    shebaNumber: '',
     representativeFirstName: '',
     representativeLastName: '',
     representativeMobile: '',
@@ -183,10 +185,27 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
         return '';
 
       case 'referrerAgencyCode':
-        if (value && !/^\d+$/.test(value)) {
-          return t('signup.validation.agencyCodeFormat');
-        }
+        // Allow any string (varchar 255). Length constrained by input maxLength.
         return '';
+
+      case 'shebaNumber':
+        if (formData.accountType === 'marketing_agency') {
+          if (!value.trim()) {
+            return t('signup.validation.shebaRequiredAgency');
+          }
+          if (!/^\d+$/.test(value)) {
+            return t('signup.validation.shebaDigits');
+          }
+          if (value.length !== 24) {
+            return t('signup.validation.shebaLength');
+          }
+          return '';
+        } else {
+          if (value && value.trim().length > 0) {
+            return t('signup.validation.shebaNotAllowed');
+          }
+          return '';
+        }
 
       default:
         return '';
@@ -199,7 +218,20 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
     >
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const sanitizedValue = name === 'shebaNumber'
+      ? value.replace(/\D/g, '').slice(0, 24)
+      : value;
+
+    if (name === 'accountType') {
+      const newType = sanitizedValue as SignupFormData['accountType'];
+      setFormData(prev => ({
+        ...prev,
+        accountType: newType,
+        ...(newType === 'marketing_agency' ? { referrerAgencyCode: '' } : {}),
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
+    }
 
     // Clear error when user starts typing
     if (errors[name]) {
@@ -229,6 +261,39 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
     });
 
     setErrors(newErrors);
+
+    // If there are errors, scroll to the first one in visual order
+    if (Object.keys(newErrors).length > 0) {
+      const fieldOrder = [
+        'accountType',
+        'companyName',
+        'nationalId',
+        'companyPhone',
+        'postalCode',
+        'companyAddress',
+        'representativeFirstName',
+        'representativeLastName',
+        'representativeMobile',
+        'email',
+        'password',
+        'confirmPassword',
+        'shebaNumber',
+        'referrerAgencyCode',
+      ];
+      const firstErrorKey = fieldOrder.find(name => newErrors[name]);
+      if (firstErrorKey) {
+        const el = document.querySelector(
+          `[name='${firstErrorKey}']`
+        ) as (HTMLElement | null);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (typeof (el as any).focus === 'function') {
+            (el as HTMLElement).focus();
+          }
+        }
+      }
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -265,15 +330,20 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
           formData.accountType !== 'individual'
             ? formData.postalCode
             : undefined,
+        sheba_number:
+          formData.accountType === 'marketing_agency'
+            ? `IR${formData.shebaNumber}`
+            : undefined,
         representative_first_name: formData.representativeFirstName,
         representative_last_name: formData.representativeLastName,
         representative_mobile: formData.representativeMobile,
         email: formData.email,
         password: formData.password,
         confirm_password: formData.confirmPassword,
-        referrer_agency_code: formData.referrerAgencyCode
-          ? parseInt(formData.referrerAgencyCode)
-          : undefined,
+        referrer_agency_code:
+          formData.accountType !== 'marketing_agency' && formData.referrerAgencyCode
+            ? formData.referrerAgencyCode
+            : undefined,
       };
 
       const response = await apiService.signup(signupData);
@@ -713,6 +783,37 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 )}
               </div>
 
+              {formData.accountType === 'marketing_agency' && (
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    {t('signup.sheba')}{' '}
+                    <span className='text-red-500'>
+                      {t('common.required')}
+                    </span>
+                  </label>
+                  <div className='relative'>
+                    <span className={`absolute inset-y-0 ${isRTL ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center text-gray-500 font-medium`} dir='ltr'>
+                      IR
+                    </span>
+                    <input
+                      type='text'
+                      name='shebaNumber'
+                      value={formData.shebaNumber}
+                      onChange={handleInputChange}
+                      className={`input-field ${isRTL ? 'pr-10' : 'pl-10'}`}
+                      dir={isRTL ? 'ltr' : undefined}
+                      placeholder={t('signup.shebaPlaceholder')}
+                      maxLength={24}
+                    />
+                  </div>
+                  {errors.shebaNumber && (
+                    <p className='mt-1 text-sm text-red-600'>
+                      {errors.shebaNumber}
+                    </p>
+                  )}
+                </div>
+              )}
+
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
@@ -801,6 +902,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
             </div>
 
             {/* Optional Agency Code */}
+            {formData.accountType !== 'marketing_agency' && (
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
                 {t('signup.agencyCode')}
@@ -812,7 +914,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 onChange={handleInputChange}
                 className='input-field'
                 placeholder={t('signup.agencyCodePlaceholder')}
-                maxLength={10}
+                maxLength={255}
               />
               {errors.referrerAgencyCode && (
                 <p className='mt-1 text-sm text-red-600'>
@@ -823,6 +925,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 {t('signup.agencyCodeHelp')}
               </p>
             </div>
+            )}
 
             {/* Submit Button */}
             <button
