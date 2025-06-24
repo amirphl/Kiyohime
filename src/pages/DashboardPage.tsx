@@ -22,6 +22,8 @@ import {
   LogOut,
 } from 'lucide-react';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import { useToast } from '../hooks/useToast';
+import { Plus, Upload, X } from 'lucide-react';
 
 interface SidebarItem {
   id: string;
@@ -40,9 +42,70 @@ const DashboardPage: React.FC = () => {
   const { user, logout } = useAuth();
   const { navigate } = useNavigation();
   const { resetCampaign } = useCampaign();
+  const { showError, showSuccess } = useToast();
+
+  const [showTicketModal, setShowTicketModal] = useState(false);
+  const [ticketTitle, setTicketTitle] = useState('');
+  const [ticketDescription, setTicketDescription] = useState('');
+  const [ticketFile, setTicketFile] = useState<File | null>(null);
+  const [ticketSubmitting, setTicketSubmitting] = useState(false);
+  const [ticketErrors, setTicketErrors] = useState<{ title?: string; description?: string; file?: string }>({});
 
   const navigateToPage = (path: string) => {
     navigate(path);
+  };
+
+  const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/zip'];
+  const maxFileSize = 10 * 1024 * 1024; // 10MB
+
+  const validateTicketForm = () => {
+    const errs: { title?: string; description?: string; file?: string } = {};
+    if (ticketTitle.length > 80) {
+      errs.title = t('dashboard.supportModal.validation.titleMax');
+    }
+    if (!ticketDescription.trim()) {
+      errs.description = t('dashboard.supportModal.validation.descriptionRequired');
+    } else if (ticketDescription.length > 1000) {
+      errs.description = t('dashboard.supportModal.validation.descriptionMax');
+    }
+    if (ticketFile) {
+      if (!allowedTypes.includes(ticketFile.type)) {
+        errs.file = t('dashboard.supportModal.validation.invalidType');
+      } else if (ticketFile.size > maxFileSize) {
+        errs.file = t('dashboard.supportModal.validation.maxSize');
+      }
+    }
+    setTicketErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleTicketSubmit = async () => {
+    if (!validateTicketForm()) return;
+    setTicketSubmitting(true);
+    try {
+      const res = await apiService.createSupportTicket({ title: ticketTitle, description: ticketDescription, attachment: ticketFile });
+      if (res.success) {
+        showSuccess(t('dashboard.supportModal.success'));
+        setShowTicketModal(false);
+        setTicketTitle('');
+        setTicketDescription('');
+        setTicketFile(null);
+        setTicketErrors({});
+      } else {
+        showError(res.message || t('dashboard.supportModal.error'));
+      }
+    } catch (e) {
+      showError(t('dashboard.supportModal.error'));
+    } finally {
+      setTicketSubmitting(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+    setTicketFile(file);
+    // Clear previous file error on change
+    if (ticketErrors.file) setTicketErrors(prev => ({ ...prev, file: undefined }));
   };
 
   const handleTargetedSend = () => {
@@ -151,22 +214,13 @@ const DashboardPage: React.FC = () => {
       onClick: () => navigateToPage('/dashboard/support'),
     },
     {
-      id: 'customer-management',
+      id: 'customer-discount-management',
       icon: <UserCog className='h-5 w-5' />,
-      label: 'Customer Management',
-      translationKey: 'dashboard.customerManagement',
+      label: 'Customer & Discount Management',
+      translationKey: 'dashboard.customerDiscountManagement',
       href: '/dashboard/customer-management',
       showForAgency: true,
       onClick: () => navigateToPage('/dashboard/customer-management'),
-    },
-    {
-      id: 'discount-management',
-      icon: <Percent className='h-5 w-5' />,
-      label: 'Discount Management',
-      translationKey: 'dashboard.discountManagement',
-      href: '/dashboard/discount-management',
-      showForAgency: true,
-      onClick: () => navigateToPage('/dashboard/discount-management'),
     },
   ];
 
@@ -332,34 +386,47 @@ const DashboardPage: React.FC = () => {
             {/* Content */}
             {!isReportsView ? (
               <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
-              {/* Quick Stats */}
-              <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
-                <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                  {t('dashboard.stats.totalCampaigns')}
-                </h3>
-                <p className='text-3xl font-bold text-primary-600'>0</p>
-              </div>
+                {/* Support: New Ticket Button */}
+                <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200 md:col-span-2 lg:col-span-1'>
+                  <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                    {t('dashboard.support')}
+                  </h3>
+                  <button
+                    onClick={() => setShowTicketModal(true)}
+                    className='btn-primary flex items-center justify-center w-full'
+                  >
+                    <Plus className='h-4 w-4 mr-2' /> {t('dashboard.supportModal.newTicket')}
+                  </button>
+                </div>
 
-              <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
-                <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                  {t('dashboard.stats.totalCustomers')}
-                </h3>
-                <p className='text-3xl font-bold text-primary-600'>0</p>
-              </div>
+                {/* Quick Stats */}
+                <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
+                  <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                    {t('dashboard.stats.totalCampaigns')}
+                  </h3>
+                  <p className='text-3xl font-bold text-primary-600'>0</p>
+                </div>
 
-              <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
-                <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                  {t('dashboard.stats.walletBalance')}
-                </h3>
-                <p className='text-3xl font-bold text-primary-600'>0 تومان</p>
-              </div>
+                <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
+                  <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                    {t('dashboard.stats.totalCustomers')}
+                  </h3>
+                  <p className='text-3xl font-bold text-primary-600'>0</p>
+                </div>
 
-              <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
-                <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                  {t('dashboard.stats.activeTickets')}
-                </h3>
-                <p className='text-3xl font-bold text-primary-600'>0</p>
-              </div>
+                <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
+                  <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                    {t('dashboard.stats.walletBalance')}
+                  </h3>
+                  <p className='text-3xl font-bold text-primary-600'>0 تومان</p>
+                </div>
+
+                <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
+                  <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                    {t('dashboard.stats.activeTickets')}
+                  </h3>
+                  <p className='text-3xl font-bold text-primary-600'>0</p>
+                </div>
               </div>
             ) : (
               <div className='bg-white rounded-lg shadow-sm border border-gray-200'>
@@ -414,6 +481,107 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Create Ticket Modal */}
+      {showTicketModal && (
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
+          <div className='bg-white rounded-lg max-w-lg w-full p-6'>
+            <div className={`flex justify-between items-center mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <h3 className='text-lg font-medium text-gray-900'>{t('dashboard.supportModal.title')}</h3>
+              <button onClick={() => setShowTicketModal(false)} className='text-gray-400 hover:text-gray-600'>
+                <X className='h-5 w-5' />
+              </button>
+            </div>
+
+            <div className='space-y-4'>
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  {t('dashboard.supportModal.fields.ticketTitle')}
+                </label>
+                <input
+                  type='text'
+                  className='input-field'
+                  placeholder={t('dashboard.supportModal.placeholders.ticketTitle')}
+                  value={ticketTitle}
+                  onChange={e => {
+                    setTicketTitle(e.target.value.slice(0, 80));
+                    if (ticketErrors.title) setTicketErrors(prev => ({ ...prev, title: undefined }));
+                  }}
+                  maxLength={80}
+                />
+                {ticketErrors.title && (
+                  <p className='mt-1 text-sm text-red-600'>{ticketErrors.title}</p>
+                )}
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  {t('dashboard.supportModal.fields.description')} <span className='text-red-500'>*</span>
+                </label>
+                <textarea
+                  className='input-field'
+                  placeholder={t('dashboard.supportModal.placeholders.description')}
+                  value={ticketDescription}
+                  onChange={e => {
+                    setTicketDescription(e.target.value.slice(0, 1000));
+                    if (ticketErrors.description) setTicketErrors(prev => ({ ...prev, description: undefined }));
+                  }}
+                  rows={5}
+                  maxLength={1000}
+                />
+                <div className='text-xs text-gray-500 mt-1'>
+                  {ticketDescription.length} / 1000
+                </div>
+                {ticketErrors.description && (
+                  <p className='mt-1 text-sm text-red-600'>{ticketErrors.description}</p>
+                )}
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  {t('dashboard.supportModal.fields.attachment')} <span className='text-gray-400'>({t('dashboard.supportModal.fields.attachmentHelp')})</span>
+                </label>
+                <input
+                  type='file'
+                  accept='.jpg,.jpeg,.png,.pdf,.docx,.xlsx,.zip'
+                  onChange={handleFileChange}
+                />
+                {ticketFile && (
+                  <div className='text-xs text-gray-500 mt-1'>
+                    {ticketFile.name} ({Math.ceil(ticketFile.size / 1024)} KB)
+                  </div>
+                )}
+                {ticketErrors.file && (
+                  <p className='mt-1 text-sm text-red-600'>{ticketErrors.file}</p>
+                )}
+              </div>
+
+              <div className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} justify-end`}>
+                <button
+                  className='btn-secondary'
+                  onClick={() => setShowTicketModal(false)}
+                  disabled={ticketSubmitting}
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  className='btn-primary flex items-center justify-center'
+                  onClick={handleTicketSubmit}
+                  disabled={ticketSubmitting}
+                >
+                  {ticketSubmitting ? (
+                    <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-white'></div>
+                  ) : (
+                    <>
+                      <Upload className='h-4 w-4 mr-2' /> {t('dashboard.supportModal.submit')}
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
