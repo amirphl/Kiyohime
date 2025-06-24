@@ -179,8 +179,8 @@ const ReportsPage: React.FC = () => {
     try {
       const jsDate = new Date(iso);
       if (language === 'en') {
-        return jsDate.toLocaleString('en-US', {
-          timeZone: 'Asia/Tehran',
+        // Use user's local system time
+        return jsDate.toLocaleString(undefined, {
           year: 'numeric',
           month: '2-digit',
           day: '2-digit',
