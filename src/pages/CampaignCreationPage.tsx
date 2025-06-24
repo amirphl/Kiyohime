@@ -221,6 +221,7 @@ const CampaignCreationPage: React.FC = () => {
         scheduleat: campaignData.content.scheduleAt,
         line_number: campaignData.budget.lineNumber,
         budget: campaignData.budget.totalBudget,
+        finalize: true,
       };
       
       console.log('🔄 Calling update campaign API with data:', updateData);
