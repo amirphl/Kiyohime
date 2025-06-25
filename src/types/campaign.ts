@@ -34,7 +34,6 @@ export interface CampaignPayment {
 	termsAccepted: boolean;
 	hasEnoughBalance?: boolean; // Track if user has sufficient wallet balance
 	finalCost?: number; // Populated by API, not stored in localStorage
-	tax?: number; // Populated by API, not stored in localStorage
 	total?: number; // Populated by API, not stored in localStorage
 }
 
@@ -113,8 +112,6 @@ export interface CalculateCampaignCostRequest {
 // Campaign cost calculation response interface
 export interface CalculateCampaignCostResponse {
 	message: string;
-	sub_total: number;
-	tax: number;
 	total: number;
 	msg_target: number;
 	max_msg_target?: number;
@@ -131,7 +128,7 @@ export interface GetWalletBalanceResponse {
 	last_updated: string;
 	pending_transactions: number;
 	minimum_balance: number;
-	credit_limit: number;
+	credit?: number;
 	balance_status: string;
 }
 
@@ -147,6 +144,7 @@ export interface UpdateSMSCampaignRequest {
 	scheduleat?: string;
 	line_number?: string;
 	budget?: number;
+	finalize?: boolean;
 }
 
 // Update campaign response interface
