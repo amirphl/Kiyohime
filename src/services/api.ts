@@ -6,6 +6,8 @@ import {
   ListSMSCampaignsParams, ListSMSCampaignsResponse,
 } from '../types/campaign';
 import { config, getApiUrl } from '../config/environment';
+import { GetTransactionHistoryParams, TransactionHistoryResponse } from '../types/payments';
+import { AgencyCustomerReportResponse, ListAgencyActiveDiscountsResponse, ListAgencyCustomerDiscountsResponse, ListAgencyCustomersResponse } from '../types/agency';
 
 // Updated to match Go backend response structure
 export interface ApiResponse<T = any> {
@@ -144,20 +146,20 @@ class ApiService {
           };
         } else {
           // For non-auth endpoints, trigger logout and redirect
-          if (this.unauthorizedHandler) {
-            this.unauthorizedHandler();
-          } else {
-            console.warn('No unauthorized handler set - cannot handle 401 automatically');
-          }
-
-          return {
-            success: false,
+        if (this.unauthorizedHandler) {
+          this.unauthorizedHandler();
+        } else {
+          console.warn('No unauthorized handler set - cannot handle 401 automatically');
+        }
+        
+        return {
+          success: false,
             message: 'Unauthorized - Please log in again',
             error: {
               code: 'Unauthorized - Please log in again',
               details: null
             },
-          };
+        };
         }
       } else if (!response.ok) {
         // Handle other error responses
@@ -524,6 +526,91 @@ class ApiService {
     });
   }
 
+  // Start wallet charge to obtain Atipay token
+  async startWalletCharge(amount: number): Promise<ApiResponse<{ token: string }>> {
+    if (!amount || typeof amount !== 'number' || amount <= 0) {
+      return { success: false, message: 'Invalid amount', error: { code: 'Invalid amount', details: null } };
+    }
+    return this.request<{ token: string }>(`/payments/charge-wallet`, {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    });
+  }
+
+  // Payments endpoints
+  async getPaymentHistory(params: GetTransactionHistoryParams = {}): Promise<ApiResponse<TransactionHistoryResponse>> {
+    const query = new URLSearchParams();
+    if (params.page) query.set('page', String(params.page));
+    if (params.page_size) query.set('page_size', String(params.page_size));
+    if (params.start_date) query.set('start_date', params.start_date);
+    if (params.end_date) query.set('end_date', params.end_date);
+    if (params.type) query.set('type', params.type);
+    if (params.status) query.set('status', params.status);
+    const endpoint = `/payments/history${query.toString() ? `?${query.toString()}` : ''}`;
+    return this.request<TransactionHistoryResponse>(endpoint, { method: 'GET' });
+  }
+
+  // Support endpoints
+  async createSupportTicket(params: { title: string; description: string; attachment?: File | null; }): Promise<ApiResponse> {
+    // Basic input validation
+    const title = (params.title || '').trim();
+    const description = (params.description || '').trim();
+    if (!description) {
+      return { success: false, message: 'Description is required', error: { code: 'Description is required', details: null } };
+    }
+    if (title.length > 80) {
+      return { success: false, message: 'Title must be less than or equal to 80 characters', error: { code: 'Title too long', details: null } };
+    }
+    if (description.length > 1000) {
+      return { success: false, message: 'Description must be at most 1000 characters', error: { code: 'Description too long', details: null } };
+    }
+
+    const form = new FormData();
+    if (title) form.append('title', title);
+    form.append('description', description);
+    if (params.attachment) {
+      form.append('attachment', params.attachment);
+    }
+
+    const url = getApiUrl('/support/tickets');
+    if (!this.isValidUrl(url)) {
+      return { success: false, message: 'Invalid URL', error: { code: 'Invalid URL', details: null } };
+    }
+
+    const headers: Record<string, string> = {
+      Accept: 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    };
+    if (this.accessToken) {
+      headers['Authorization'] = `Bearer ${this.accessToken}`;
+    }
+
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: form,
+        signal: AbortSignal.timeout(30000),
+      });
+
+      const contentType = resp.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        return { success: false, message: 'Invalid response content type', error: { code: 'Invalid response content type', details: null } };
+      }
+      const data = await resp.json();
+
+      if (resp.status === 201 || resp.ok) {
+        return { success: true, message: data.message || 'Created successfully', data: data.data };
+      }
+
+      const errorMessage = data?.error?.code || data?.message || `HTTP ${resp.status}`;
+      return { success: false, message: errorMessage, error: { code: errorMessage, details: data?.error?.details } };
+    } catch (e) {
+      const msg = this.isProduction() ? 'An error occurred' : (e instanceof Error ? e.message : 'Unknown error');
+      return { success: false, message: msg, error: { code: msg, details: null } };
+    }
+  }
+
   // Update campaign endpoint
   async updateCampaign(uuid: string, campaignData: UpdateSMSCampaignRequest): Promise<ApiResponse<UpdateSMSCampaignResponse>> {
     const url = config.endpoints.campaigns.update.replace(':uuid', uuid);
@@ -543,6 +630,57 @@ class ApiService {
   async getReports(): Promise<ApiResponse> {
     return this.request(config.endpoints.analytics.reports, {
       method: 'GET',
+    });
+  }
+
+  // Agency report: customers
+  async getAgencyCustomerReport(params: { start_date?: string; end_date?: string; orderby?: string; name?: string } = {}): Promise<ApiResponse<AgencyCustomerReportResponse>> {
+    const query = new URLSearchParams();
+    if (params.start_date) query.set('start_date', params.start_date);
+    if (params.end_date) query.set('end_date', params.end_date);
+    if (params.orderby) query.set('orderby', params.orderby);
+    if (params.name) query.set('name', params.name);
+    const endpoint = `/reports/agency/customers${query.toString() ? `?${query.toString()}` : ''}`;
+    return this.request<AgencyCustomerReportResponse>(endpoint, { method: 'GET' });
+  }
+
+  // Agency active discounts
+  async listAgencyActiveDiscounts(params: { name?: string } = {}): Promise<ApiResponse<ListAgencyActiveDiscountsResponse>> {
+    const query = new URLSearchParams();
+    if (params.name) query.set('name', params.name);
+    const endpoint = `/reports/agency/discounts/active${query.toString() ? `?${query.toString()}` : ''}`;
+    return this.request<ListAgencyActiveDiscountsResponse>(endpoint, { method: 'GET' });
+  }
+
+  // Agency customer discount history
+  async listAgencyCustomerDiscounts(customerId: number): Promise<ApiResponse<ListAgencyCustomerDiscountsResponse>> {
+    if (!customerId || customerId <= 0) {
+      return { success: false, message: 'Invalid customer id', error: { code: 'Invalid customer id', details: null } };
+    }
+    const endpoint = `/reports/agency/customers/${customerId}/discounts`;
+    return this.request<ListAgencyCustomerDiscountsResponse>(endpoint, { method: 'GET' });
+  }
+
+  // List agency customers
+  async listAgencyCustomers(): Promise<ApiResponse<ListAgencyCustomersResponse>> {
+    return this.request<ListAgencyCustomersResponse>(`/reports/agency/customers/list`, { method: 'GET' });
+  }
+
+  // Create agency discount
+  async createAgencyDiscount(payload: { customer_id: number; name: string; discount_rate: number }): Promise<ApiResponse> {
+    if (!payload || typeof payload !== 'object') {
+      return { success: false, message: 'Invalid payload', error: { code: 'Invalid payload', details: null } };
+    }
+    const { customer_id, name, discount_rate } = payload;
+    if ((!customer_id && customer_id !== 0) || !name?.trim()) {
+      return { success: false, message: 'Missing required fields', error: { code: 'Missing required fields', details: null } };
+    }
+    if (!(discount_rate > 0 && discount_rate < 0.5)) {
+      return { success: false, message: 'Rate must be between 0 and 0.5', error: { code: 'DISCOUNT_RATE_OUT_OF_RANGE', details: null } };
+    }
+    return this.request(`/reports/agency/discounts`, {
+      method: 'POST',
+      body: JSON.stringify({ customer_id, name: name.trim(), discount_rate }),
     });
   }
 
