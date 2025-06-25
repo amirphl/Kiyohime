@@ -107,12 +107,14 @@ export const validateCampaignContent = (content: {
 		return { isValid: false, error: 'Please insert the link marker (🔗) in your text' };
 	}
 
-	// Require scheduling at least 10 minutes in the future
+	// Scheduling is optional. If provided, require at least 20 minutes in the future
 	const nowMs = Date.now();
-	const minScheduleMs = nowMs + 10 * 60 * 1000;
-	const scheduledMs = content.scheduleAt ? new Date(content.scheduleAt).getTime() : NaN;
-	if (!content.scheduleAt || Number.isNaN(scheduledMs) || scheduledMs < minScheduleMs) {
-		return { isValid: false, error: 'Please select a schedule at least 10 minutes from now' };
+	const minScheduleMs = nowMs + 20 * 60 * 1000;
+	if (content.scheduleAt) {
+		const scheduledMs = new Date(content.scheduleAt).getTime();
+		if (Number.isNaN(scheduledMs) || scheduledMs < minScheduleMs) {
+			return { isValid: false, error: 'Please select a schedule at least 20 minutes from now' };
+		}
 	}
 	
 	// Check character limit
