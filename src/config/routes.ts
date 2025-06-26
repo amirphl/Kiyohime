@@ -77,6 +77,13 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Reports',
     description: 'Campaign reports and history',
   },
+  CUSTOMER_MANAGEMENT: {
+    path: '/dashboard/customer-management',
+    page: 'customer-management',
+    requiresAuth: true,
+    title: 'Customer & Discount Management',
+    description: 'Manage customers and discounts',
+  },
 };
 
 export const getRouteByPath = (path: string): RouteConfig | null => {
