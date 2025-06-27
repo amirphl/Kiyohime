@@ -433,56 +433,6 @@ const CampaignSegmentStep: React.FC = () => {
             </Card>
           )}
           </div>
-
-        {/* Row 4: Summary (full width) */}
-        <div className="md:col-span-2">
-          <Card>
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">{t('campaign.segment.campaignSummary')}</h3>
-              <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-700">{t('campaign.segment.campaignTitleLabel')}</span>
-                  <span className="text-sm text-gray-900">{campaignData.segment.campaignTitle || t('campaign.segment.notSet')}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-700">{t('campaign.segment.segmentLabel')}</span>
-                  <span className="text-sm text-gray-900">
-                    {segments.find(s => s.value === campaignData.segment.segment)?.label || t('campaign.segment.notSet')}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-700">{t('campaign.segment.subsegmentsLabel')}</span>
-                  <span className="text-sm text-gray-900">
-                    {campaignData.segment.subsegments && campaignData.segment.subsegments.length > 0
-                      ? campaignData.segment.subsegments.map(sub => {
-                          const availableSubsegments = getSubsegmentsForSegment(campaignData.segment.segment);
-                          return availableSubsegments.find(s => s.value === sub)?.label;
-                        }).join(', ')
-                      : t('campaign.segment.notSet')
-                    }
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-700">{t('campaign.segment.sexLabel')}</span>
-                  <span className="text-sm text-gray-900">
-                    {sexOptions.find(s => s.value === campaignData.segment.sex)?.label || t('campaign.segment.notSet')}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-700">{t('campaign.segment.citiesLabel')}</span>
-                  <span className="text-sm text-gray-900">
-                    {campaignData.segment.city && campaignData.segment.city.length > 0
-                      ? campaignData.segment.city.map(city => 
-                          cities.find(c => c.value === city)?.label
-                        ).join(', ')
-                      : t('campaign.segment.notSet')
-                    }
-                  </span>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
       </div>
     </div>
   );
