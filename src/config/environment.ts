@@ -78,12 +78,12 @@ const defaultConfig: EnvironmentConfig = {
       resendOtp: '/auth/resend-otp',
     },
     campaigns: {
-      list: '/sms-campaigns',
-      create: '/sms-campaigns',
+      list: '/campaigns',
+      create: '/campaigns',
       calculateCosts: '/campaigns/calculate-costs',
-      calculateCapacity: '/sms-campaigns/calculate-capacity',
-      calculateCost: '/sms-campaigns/calculate-cost',
-      update: '/sms-campaigns/:uuid',
+      calculateCapacity: '/campaigns/calculate-capacity',
+      calculateCost: '/campaigns/calculate-cost',
+      update: '/campaigns/:uuid',
     },
     wallet: {
       balance: '/wallet/balance',
