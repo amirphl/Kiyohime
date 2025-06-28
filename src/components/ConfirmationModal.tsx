@@ -7,9 +7,10 @@ interface ConfirmationModalProps {
   onConfirm: () => void;
   onCancel: () => void;
   title: string;
-  message: string;
+  message?: string;
   confirmText: string;
   cancelText: string;
+  children?: React.ReactNode;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -20,6 +21,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   message,
   confirmText,
   cancelText,
+  children,
 }) => {
   const { isRTL } = useLanguage();
 
@@ -43,9 +45,13 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
         {/* Content */}
         <div className="p-6">
-          <p className="text-gray-600">
-            {message}
-          </p>
+          {children ? (
+            children
+          ) : (
+            <p className="text-gray-600 whitespace-pre-line">
+              {message}
+            </p>
+          )}
         </div>
 
         {/* Actions */}
