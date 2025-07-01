@@ -127,10 +127,10 @@ const CampaignContentStep: React.FC = () => {
   const handleDateTimeToggle = () => {
     setShowDateTimePicker(!showDateTimePicker);
     if (!showDateTimePicker) {
-      // Set default schedule to now + 10 minutes (Tehran timezone formatting is handled on display)
+      // Set default schedule to now + 20 minutes (Tehran timezone formatting is handled on display)
       const now = new Date();
-      const plus10 = new Date(now.getTime() + 10 * 60 * 1000);
-      updateContent({ scheduleAt: plus10.toISOString() });
+      const plus20 = new Date(now.getTime() + 20 * 60 * 1000);
+      updateContent({ scheduleAt: plus20.toISOString() });
     } else {
       // Clear schedule when disabling
       updateContent({ scheduleAt: undefined });
@@ -166,7 +166,7 @@ const CampaignContentStep: React.FC = () => {
   const numberOfParts = calculateSMSParts(totalCharacterCount);
 
   const linkCharacterCount = campaignData.content.link?.length || 0;
-  const maxLinkCharacters = 1024;
+  const maxLinkCharacters = 10000;
   const isLinkOverLimit = linkCharacterCount > maxLinkCharacters;
 
   return (
@@ -197,7 +197,7 @@ const CampaignContentStep: React.FC = () => {
                 <span className="text-sm text-gray-600">
                   {campaignData.content.insertLink ? t('campaign.content.linkInsertionEnabled') : t('campaign.content.linkInsertionDisabled')}
                 </span>
-              </div>
+      </div>
 
               {campaignData.content.insertLink && (
                 <>
@@ -210,7 +210,7 @@ const CampaignContentStep: React.FC = () => {
                     onChange={handleLinkChange}
                     required
                     validation={{
-                      max: 1024,
+                      max: 10000,
                       message: t('campaign.content.linkValidation')
                     }}
                   />
@@ -222,14 +222,14 @@ const CampaignContentStep: React.FC = () => {
                   </div>
                 </>
               )}
-            </div>
+          </div>
           </Card>
         </div>
 
         {/* Row 1 - Col 2: DateTime Picker */}
         <div className="flex flex-col">
           <Card className="h-full">
-            <div className="space-y-4">
+        <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
                 <Calendar className="h-5 w-5 mr-2 text-primary-600" />
                 {t('campaign.content.scheduleAt')}
@@ -275,9 +275,9 @@ const CampaignContentStep: React.FC = () => {
                     {/* Inline validation message for < now+10m */}
                     {(() => {
                       const nowMs = Date.now();
-                      const minMs = nowMs + 10 * 60 * 1000;
+                      const minMs = nowMs + 20 * 60 * 1000;
                       const schedMs = campaignData.content.scheduleAt ? new Date(campaignData.content.scheduleAt).getTime() : NaN;
-                      const invalid = !campaignData.content.scheduleAt || Number.isNaN(schedMs) || schedMs < minMs;
+                      const invalid = campaignData.content.scheduleAt ? (Number.isNaN(schedMs) || schedMs < minMs) : false;
                       return invalid ? (
                         <p className="text-sm text-red-600 mt-2">{t('campaign.content.scheduleTooSoon')}</p>
                       ) : null;
@@ -287,7 +287,7 @@ const CampaignContentStep: React.FC = () => {
               )}
             </div>
           </Card>
-        </div>
+              </div>
 
         {/* Row 2: Text Box (Full Width) */}
         <div className="md:col-span-2">
@@ -343,68 +343,17 @@ const CampaignContentStep: React.FC = () => {
                   <div>{t('campaign.content.partsExplanation')}</div>
                   <div className="mt-1">
                     {campaignData.content.insertLink ? t('campaign.content.withLinkExplanation') : t('campaign.content.withoutLinkExplanation')}
-                  </div>
-                </div>
+              </div>
+              </div>
                 {isOverLimit && (
                   <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
                     {t('campaign.content.textExceedsLimit')}
-                  </div>
+              </div>
                 )}
               </div>
-            </div>
+          </div>
           </Card>
-        </div>
-
-        {/* Row 3: Summary (Full Width) */}
-        <div className="md:col-span-2">
-          <Card>
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">{t('campaign.content.contentSummary')}</h3>
-              <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-                <div className="grid grid-cols-1 gap-2">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                    <span className="text-sm font-medium text-gray-700 mb-1 sm:mb-0">{t('campaign.content.linkInsertionLabel')}</span>
-                    <span className="text-sm text-gray-900 break-words">
-                      {campaignData.content.insertLink ? t('campaign.content.enabled') : t('campaign.content.disabled')}
-                    </span>
-                  </div>
-                  {campaignData.content.insertLink && (
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                      <span className="text-sm font-medium text-gray-700 mb-1 sm:mb-0">{t('campaign.content.linkLabel')}</span>
-                      <span className="text-sm text-gray-900 break-words max-w-full">
-                        {campaignData.content.link || t('campaign.content.notSet')}
-                      </span>
-                    </div>
-                  )}
-                  {campaignData.content.insertLink && !(campaignData.content.text || '').includes('🔗') && (
-                    <div className="text-sm text-red-600">{t('campaign.content.linkCharacterInsertedMessage')}</div>
-                  )}
-                  <div className="flex flex-col sm:flex-col sm:items-start sm:justify-start">
-                    <span className="text-sm font-medium text-gray-700 mb-1">{t('campaign.content.textLabel')}</span>
-                    <span className="text-sm text-gray-900 break-words max-w-full">
-                      {campaignData.content.text || t('campaign.content.notSet')}
-                    </span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                    <span className="text-sm font-medium text-gray-700 mb-1 sm:mb-0">{t('campaign.content.scheduleLabel')}</span>
-                    <span className="text-sm text-gray-900 break-words">
-                      {campaignData.content.scheduleAt ? formatTehranDateTime(campaignData.content.scheduleAt) : t('campaign.content.immediate')}
-                    </span>
-                  </div>
-                  {(() => {
-                    const nowMs = Date.now();
-                    const minMs = nowMs + 10 * 60 * 1000;
-                    const schedMs = campaignData.content.scheduleAt ? new Date(campaignData.content.scheduleAt).getTime() : NaN;
-                    const invalid = !campaignData.content.scheduleAt || Number.isNaN(schedMs) || schedMs < minMs;
-                    return invalid ? (
-                      <div className="text-sm text-red-600">{t('campaign.content.scheduleTooSoon')}</div>
-                    ) : null;
-                  })()}
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
+        </div> 
       </div>
     </div>
   );
