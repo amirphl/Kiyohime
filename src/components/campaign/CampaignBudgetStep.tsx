@@ -164,7 +164,7 @@ const CampaignBudgetStep: React.FC = () => {
       <div className="space-y-6">
         {/* Line Number Selection */}
         <Card>
-          <div className="space-y-4">
+        <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900 flex items-center">
               <Phone className="h-5 w-5 mr-2 text-primary-600" />
               {t('campaign.budget.lineNumber')}
@@ -191,7 +191,7 @@ const CampaignBudgetStep: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Total Budget */}
           <Card>
-            <div className="space-y-4">
+        <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
                 <DollarSign className="h-5 w-5 mr-2 text-primary-600" />
                 {t('campaign.budget.totalBudget')}
@@ -199,7 +199,7 @@ const CampaignBudgetStep: React.FC = () => {
               <FormField
                 id="totalBudget"
                 label={t('campaign.budget.campaignBudget')}
-                type="number"
+              type="number"
                 placeholder={t('campaign.budget.budgetPlaceholder')}
                 value={campaignData.budget.totalBudget || ''}
                 onChange={handleTotalBudgetChange}
@@ -249,55 +249,11 @@ const CampaignBudgetStep: React.FC = () => {
                     {campaignData.budget.lineNumber && campaignData.budget.totalBudget > 0 ? t('campaign.budget.calculating') : t('campaign.budget.enterBudgetToSee')}
                   </div>
                 )}
-              </div>
+          </div>
               <div className="text-sm text-gray-500">{t('campaign.budget.messageCountHelp')}</div>
-            </div>
+          </div>
           </Card>
         </div>
-
-        {/* Budget Summary */}
-        <Card>
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900 flex items-center">
-              <DollarSign className="h-5 w-5 mr-2 text-primary-600" />
-              {t('campaign.budget.budgetSummary')}
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <div className="text-sm text-gray-600">{t('campaign.budget.selectedLine')}</div>
-                <div className="text-lg font-semibold text-gray-900">
-                  {campaignData.budget.lineNumber ? 
-                    lineNumbers.find(l => l.value === campaignData.budget.lineNumber)?.label || 'Unknown' :
-                    t('campaign.budget.notSelected')
-                  }
-                </div>
-              </div>
-              
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <div className="text-sm text-gray-600">{t('campaign.budget.totalBudgetLabel')}</div>
-                <div className="text-lg font-semibold text-gray-900">
-                  {campaignData.budget.totalBudget > 0 ? 
-                    formatBudget(campaignData.budget.totalBudget) : 
-                    t('campaign.budget.notSet')
-                  }
-                </div>
-              </div>
-            </div>
-            
-            {messageCount !== undefined && (
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="text-sm text-blue-800">
-                  <span className="font-medium">{t('campaign.budget.estimatedReach')}</span> {t('campaign.budget.estimatedReachMessage', { count: messageCount.toLocaleString() })}
-                </div>
-              </div>
-            )}
-            
-            <div className="text-sm text-gray-500 text-center">
-              {t('campaign.budget.budgetSummaryHelp')}
-            </div>
-          </div>
-        </Card>
       </div>
     </div>
   );
