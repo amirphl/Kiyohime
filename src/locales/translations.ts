@@ -34,7 +34,7 @@ export const translations = {
       title: 'Welcome to SMS Platform',
       subtitle: 'Sign in to access your SMS marketing dashboard',
       emailOrMobile: 'Email or Mobile Number',
-      emailOrMobilePlaceholder: 'user@example.com or +989123456789',
+      emailOrMobilePlaceholder: '',
       password: 'Password',
       passwordPlaceholder: 'Enter your password',
       signIn: 'Sign In',
@@ -212,9 +212,7 @@ export const translations = {
         postalCodeRequired: 'Postal code is required',
         postalCodeFormat: 'Postal code must be at least 10 digits',
         firstNameRequired: 'First name is required',
-        firstNameFormat: 'First name can only contain letters and spaces',
         lastNameRequired: 'Last name is required',
-        lastNameFormat: 'Last name can only contain letters and spaces',
         mobileRequired: 'Mobile number is required',
         mobileFormat: 'Mobile number must be in format 09xxxxxxxxx',
         emailRequired: 'Email is required',
@@ -268,6 +266,7 @@ export const translations = {
       welcome: 'Welcome',
       subtitle:
         'Manage your SMS marketing campaigns and track your performance',
+      language: 'Language',
       logout: 'Logout',
 
       // Sidebar Navigation
@@ -422,9 +421,9 @@ export const translations = {
       title: 'به پلتفرم پیامکی خوش آمدید',
       subtitle: 'برای دسترسی به داشبورد بازاریابی پیامکی وارد شوید',
       emailOrMobile: 'ایمیل یا شماره موبایل',
-      emailOrMobilePlaceholder: 'user@example.com یا +989123456789',
+      emailOrMobilePlaceholder: '',
       password: 'رمز عبور',
-      passwordPlaceholder: 'رمز عبور خود را وارد کنید',
+      passwordPlaceholder: '',
       signIn: 'ورود',
       forgotPassword: 'رمز عبور را فراموش کرده‌اید؟',
       noAccount: 'حساب کاربری ندارید؟',
@@ -608,9 +607,7 @@ export const translations = {
         postalCodeRequired: 'کد پستی الزامی است',
         postalCodeFormat: 'کد پستی باید حداقل ۱۰ رقم باشد',
         firstNameRequired: 'نام الزامی است',
-        firstNameFormat: 'نام فقط می‌تواند شامل حروف و فاصله باشد',
         lastNameRequired: 'نام خانوادگی الزامی است',
-        lastNameFormat: 'نام خانوادگی فقط می‌تواند شامل حروف و فاصله باشد',
         mobileRequired: 'شماره موبایل الزامی است',
         mobileFormat: 'شماره موبایل باید به فرمت ۰۹xxxxxxxxx باشد',
         emailRequired: 'ایمیل الزامی است',
@@ -665,6 +662,7 @@ export const translations = {
       welcome: 'خوش آمدید',
       subtitle:
         'مدیریت کمپین‌های پیامکی خود را و پیگیری عملکرد خود را شروع کنید',
+      language: 'زبان',
       logout: 'خروج',
 
       // Sidebar Navigation

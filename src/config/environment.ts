@@ -57,7 +57,7 @@ const defaultConfig: EnvironmentConfig = {
   baseUrl: 'https://yamata-no-orochi.com:8443',
   apiUrl: 'https://yamata-no-orochi.com:8443/api/v1',
 
-  brandName: 'SMS Platform',
+  brandName: 'Jaazebeh',
   brandSubtitle: 'SMS Marketing Platform',
 
   features: {
@@ -148,7 +148,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
       domain: currentDomain,
       baseUrl: `https://${currentDomain}`,
       apiUrl: `https://${currentDomain}/api/v1`,
-      brandName: 'SMS Platform',
+      brandName: 'Jaazebeh',
       brandSubtitle: 'SMS Marketing Platform',
       features: {
         smsMarketing: true,

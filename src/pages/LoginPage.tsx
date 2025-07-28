@@ -127,6 +127,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 onChange={e => setIdentifier(e.target.value)}
                 className='input-field'
                 placeholder={t('login.emailOrMobilePlaceholder')}
+                dir='ltr'
                 required
               />
             </div>
@@ -146,6 +147,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
                   onChange={e => setPassword(e.target.value)}
                   className={`input-field ${isRTL ? 'pl-10' : 'pr-10'}`}
                   placeholder={t('login.passwordPlaceholder')}
+                  dir='ltr'
                   required
                 />
                 <button

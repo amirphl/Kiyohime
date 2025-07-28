@@ -13,6 +13,7 @@ import {
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 interface SidebarItem {
   id: string;
@@ -133,8 +134,18 @@ const DashboardPage: React.FC = () => {
             })}
           </nav>
 
+          {/* Language Switcher */}
+          <div className='mt-6 pt-6 border-t border-gray-200'>
+            <div className='flex items-center justify-between mb-4'>
+              <span className='text-sm font-medium text-gray-700'>
+                {t('dashboard.language')}
+              </span>
+            </div>
+            <LanguageSwitcher />
+          </div>
+
           {/* Logout Button */}
-          <div className='mt-8 pt-6 border-t border-gray-200'>
+          <div className='mt-6 pt-6 border-t border-gray-200'>
             <button
               onClick={handleLogout}
               className={`flex items-center w-full px-4 py-3 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors ${

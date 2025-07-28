@@ -97,7 +97,6 @@ case $ENVIRONMENT in
         print_status "Build completed for production domain"
         print_success "Production build completed!"
         print_warning "Add your production deployment commands here:"
-        echo "  - AWS S3: aws s3 sync build/ s3://your-domain.com --delete"
         echo "  - Docker: docker build -t sms-platform-prod . && docker push your-registry/sms-platform-prod"
         echo "  - CDN: aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths '/*'"
         ;;

@@ -131,17 +131,11 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
         if (!value.trim()) {
           return t('signup.validation.firstNameRequired');
         }
-        if (!/^[a-zA-Z\s]+$/.test(value)) {
-          return t('signup.validation.firstNameFormat');
-        }
         return '';
 
       case 'representativeLastName':
         if (!value.trim()) {
           return t('signup.validation.lastNameRequired');
-        }
-        if (!/^[a-zA-Z\s]+$/.test(value)) {
-          return t('signup.validation.lastNameFormat');
         }
         return '';
 
