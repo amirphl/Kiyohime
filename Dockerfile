@@ -19,8 +19,18 @@ RUN npm ci --only=production --silent
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Set production environment variables
+ENV NODE_ENV=production
+ENV REACT_APP_NODE_ENV=production
+ENV GENERATE_SOURCEMAP=false
+ENV INLINE_RUNTIME_CHUNK=false
+ENV FAST_REFRESH=false
+ENV WDS_SOCKET_HOST=
+ENV WDS_SOCKET_PORT=
+ENV WDS_SOCKET_PATH=
+
+# Build the application for production
+RUN npm run build:production
 
 # Stage 2: Production stage
 FROM nginx:1.29-alpine AS production
