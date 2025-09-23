@@ -84,6 +84,34 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Customer & Discount Management',
     description: 'Manage customers and discounts',
   },
+  ADMIN_LOGIN: {
+    path: '/satrap',
+    page: 'admin-login',
+    requiresAuth: false,
+    title: 'Admin Login',
+    description: 'Administrator sign in'
+  },
+  ADMIN_SARDIS: {
+    path: '/satrap/sardis',
+    page: 'admin-sardis',
+    requiresAuth: false,
+    title: 'Sardis',
+    description: 'Admin Sardis'
+  },
+  ADMIN_LINE_NUMBERS: {
+    path: '/satrap/sardis/line-numbers',
+    page: 'admin-line-numbers',
+    requiresAuth: false,
+    title: 'Line Numbers',
+    description: 'Admin Line Numbers Management'
+  },
+  ADMIN_CAMPAIGNS: {
+    path: '/satrap/campaigns',
+    page: 'admin-campaigns',
+    requiresAuth: false,
+    title: 'Admin Campaigns',
+    description: 'Admin Campaign Management'
+  },
 };
 
 export const getRouteByPath = (path: string): RouteConfig | null => {
