@@ -8,6 +8,7 @@ import {
 import { config, getApiUrl } from '../config/environment';
 import { GetTransactionHistoryParams, TransactionHistoryResponse } from '../types/payments';
 import { AgencyCustomerReportResponse, ListAgencyActiveDiscountsResponse, ListAgencyCustomerDiscountsResponse, ListAgencyCustomersResponse } from '../types/agency';
+import { AdminListCampaignsFilter, AdminListCampaignsResponse } from '../types/admin';
 
 // Updated to match Go backend response structure
 export interface ApiResponse<T = any> {
