@@ -29,6 +29,15 @@ export const translations = {
       copyright: '© 2024 SMS Platform. All rights reserved.',
     },
 
+    contact: {
+      title: 'Contact Us',
+      companyName: 'Rahkarhaye Hadafmand-e Khalagh Company (Private Joint Stock)',
+      address: 'Address: Tehran, Molla Sadra Street, North Shirazi Street, Hakim Azam Street, No. 19, Monstrect',
+      postalCode: 'Postal Code: 1991647419',
+      email: 'info@jaazebeh.ir',
+      phone: 'Phone: +98 21 8967 7330'
+    },
+
     // --- Admin (new) ---
     adminSardis: {
       title: 'Sardis (Admin)',
@@ -1028,6 +1037,15 @@ export const translations = {
       privacyPolicy: 'حریم خصوصی',
       termsOfService: 'شرایط خدمات',
       copyright: '© ۱۴۰۳ پلتفرم پیامکی. تمامی حقوق محفوظ است.',
+    },
+
+    contact: {
+      title: 'تماس با ما',
+      companyName: 'شرکت راه کارهای هدفمند خلاق (سهامی خاص)',
+      address: 'نشانی: تهران، خیابان ملاصدرا، خیابان شیرازی شمالی، خیابان حکیم اعظم پلاک ۱۹، مانسترکت',
+      postalCode: 'کدپستی: ۱۹۹۱۶۴۷۴۱۹',
+      email: 'info@jaazebeh.ir',
+      phone: 'تلفن ثابت: ۰۲۱۸۹۶۷۷۳۳۰'
     },
 
     // --- Admin (new) ---

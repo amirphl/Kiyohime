@@ -84,6 +84,13 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Customer & Discount Management',
     description: 'Manage customers and discounts',
   },
+  CONTACT_US: {
+    path: '/contact',
+    page: 'contact',
+    requiresAuth: false,
+    title: 'Contact Us',
+    description: 'Get in touch with us',
+  },
   ADMIN_LOGIN: {
     path: '/satrap',
     page: 'admin-login',

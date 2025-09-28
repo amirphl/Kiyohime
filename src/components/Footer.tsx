@@ -2,11 +2,14 @@ import React from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
+import { useNavigation } from '../contexts/NavigationContext';
+import { ROUTES } from '../config/routes';
 import DynamicBrand from './DynamicBrand';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
+  const { navigate } = useNavigation();
 
   return (
     <footer className='bg-gray-900 text-white'>
@@ -76,7 +79,7 @@ const Footer: React.FC = () => {
                 </button>
               </li>
               <li>
-                <button className='text-gray-400 hover:text-white transition-colors duration-200'>
+                <button onClick={() => navigate(ROUTES.CONTACT_US.path)} className='text-gray-400 hover:text-white transition-colors duration-200'>
                   {t('footer.contactUs')}
                 </button>
               </li>

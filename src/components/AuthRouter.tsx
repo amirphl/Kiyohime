@@ -13,10 +13,11 @@ import AdminLoginPage from '../pages/AdminLoginPage';
 import AdminSardisPage from '../pages/AdminSardisPage';
 import AdminLineNumbersPage from '../pages/AdminLineNumbersPage';
 import AdminCampaignsPage from '../pages/AdminCampaignsPage';
+import ContactUsPage from '../pages/ContactUsPage';
 import { useAuth } from '../hooks/useAuth';
 import { ROUTES, getRouteByPath } from '../config/routes';
 
-type PageType = 'home' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation' | 'wallet' | 'reports' | 'customer-management' | 'admin-login' | 'admin-sardis' | 'admin-line-numbers' | 'admin-campaigns';
+type PageType = 'home' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation' | 'wallet' | 'reports' | 'customer-management' | 'contact' | 'admin-login' | 'admin-sardis' | 'admin-line-numbers' | 'admin-campaigns';
 
 const AuthRouter: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PageType>('home');
@@ -150,6 +151,8 @@ const AuthRouter: React.FC = () => {
       return <ReportsPage />;
     case 'customer-management':
       return <CustomerManagementPage />;
+    case 'contact':
+      return <ContactUsPage />;
 
     case 'admin-login':
       return <AdminLoginPage />;
