@@ -1036,7 +1036,7 @@ export const translations = {
       contactUs: 'تماس با ما',
       privacyPolicy: 'حریم خصوصی',
       termsOfService: 'شرایط خدمات',
-      copyright: '© ۱۴۰۳ پلتفرم پیامکی. تمامی حقوق محفوظ است.',
+      copyright: 'صاحب امتیاز تمامی حقوق وب‌سایت، شرکت راه‌کارهای هدفمند خلاق می‌باشد',
     },
 
     contact: {
