@@ -28,6 +28,17 @@ class AdminApiService {
     return this.accessToken || localStorage.getItem(ADMIN_ACCESS_TOKEN_KEY);
   }
 
+  private handleUnauthorized() {
+    // Clear tokens and broadcast a global event so UI can react (e.g., show blocking modal + redirect)
+    this.setAccessToken(null);
+    this.setRefreshToken(null);
+    try {
+      window.dispatchEvent(new CustomEvent('admin-session-expired'));
+    } catch {
+      // no-op if window not available
+    }
+  }
+
   async initCaptcha(): Promise<ApiResponse<AdminCaptchaInitResponse>> {
     const url = getApiUrl('/admin/auth/captcha/init');
     try {
@@ -36,6 +47,10 @@ class AdminApiService {
         headers: { Accept: 'application/json' },
         signal: AbortSignal.timeout(15000),
       });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
       const data = await resp.json();
       if (!resp.ok) {
         return { success: false, message: data?.message || 'Captcha init failed', error: data?.error };
@@ -94,6 +109,10 @@ class AdminApiService {
         },
         signal: AbortSignal.timeout(20000),
       });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
       if (resp.status === 204) {
         return { success: true, message: 'OK', data: [] };
       }
@@ -128,6 +147,10 @@ class AdminApiService {
         body: JSON.stringify(payload),
         signal: AbortSignal.timeout(20000),
       });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
       const data = await resp.json();
       if (!resp.ok) {
         return { success: false, message: data?.message || 'Create line number failed', error: data?.error };
@@ -151,6 +174,10 @@ class AdminApiService {
         body: JSON.stringify(payload),
         signal: AbortSignal.timeout(20000),
       });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
       const data = await resp.json();
       if (!resp.ok) {
         return { success: false, message: data?.message || 'Batch update failed', error: data?.error };
@@ -172,6 +199,10 @@ class AdminApiService {
         },
         signal: AbortSignal.timeout(20000),
       });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
       if (resp.status === 204) {
         return { success: true, message: 'OK', data: [] };
       }
@@ -209,6 +240,10 @@ class AdminApiService {
         },
         signal: AbortSignal.timeout(20000),
       });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
       const data = await resp.json();
       if (!resp.ok) {
         return { success: false, message: data?.message || 'List campaigns failed', error: data?.error };
@@ -232,6 +267,10 @@ class AdminApiService {
         body: JSON.stringify({ campaign_id: campaignId, comment: comment ?? undefined }),
         signal: AbortSignal.timeout(20000),
       });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
       const data = await resp.json();
       if (!resp.ok) {
         return { success: false, message: data?.message || 'Approve failed', error: data?.error };
@@ -255,11 +294,93 @@ class AdminApiService {
         body: JSON.stringify({ campaign_id: campaignId, comment }),
         signal: AbortSignal.timeout(20000),
       });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
       const data = await resp.json();
       if (!resp.ok) {
         return { success: false, message: data?.message || 'Reject failed', error: data?.error };
       }
       return { success: true, message: data?.message || 'OK', data: data?.data as AdminRejectCampaignResponse };
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } };
+    }
+  }
+
+  async getCustomersShares(params: { start_date?: string; end_date?: string } = {}): Promise<ApiResponse<import('../types/admin').AdminCustomersSharesResponse>> {
+    const qs = new URLSearchParams();
+    if (params.start_date) qs.set('start_date', params.start_date);
+    if (params.end_date) qs.set('end_date', params.end_date);
+    const url = getApiUrl(`/admin/customer-management/shares${qs.toString() ? `?${qs.toString()}` : ''}`);
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return { success: false, message: data?.message || 'Failed to retrieve customers shares', error: data?.error };
+      }
+      return { success: true, message: data?.message || 'OK', data: (data?.data || {}) as import('../types/admin').AdminCustomersSharesResponse };
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } };
+    }
+  }
+
+  async getCustomerWithCampaigns(customerId: number): Promise<ApiResponse<import('../types/admin').AdminCustomerWithCampaignsResponse>> {
+    const url = getApiUrl(`/admin/customer-management/${customerId}`);
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return { success: false, message: data?.message || 'Failed to retrieve customer details', error: data?.error };
+      }
+      return { success: true, message: data?.message || 'OK', data: (data?.data || {}) as import('../types/admin').AdminCustomerWithCampaignsResponse };
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } };
+    }
+  }
+
+  async getCampaignById(id: number): Promise<ApiResponse<import('../types/admin').AdminGetCampaignResponse>> {
+    const url = getApiUrl(`/admin/campaigns/${id}`);
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return { success: false, message: data?.message || 'Failed to get campaign', error: data?.error };
+      }
+      return { success: true, message: data?.message || 'OK', data: (data?.data || {}) as import('../types/admin').AdminGetCampaignResponse };
     } catch (e) {
       return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } };
     }
