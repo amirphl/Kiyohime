@@ -117,7 +117,14 @@ export const ROUTES: Record<string, RouteConfig> = {
     page: 'admin-campaigns',
     requiresAuth: false,
     title: 'Admin Campaigns',
-    description: 'Admin Campaign Management'
+    description: 'Admin campaign management',
+  },
+  ADMIN_CUSTOMERS: {
+    path: '/satrap/sardis/customers',
+    page: 'admin-customers',
+    requiresAuth: false,
+    title: 'Admin Customers',
+    description: 'Admin customer management',
   },
 };
 
