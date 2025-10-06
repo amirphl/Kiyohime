@@ -3,6 +3,8 @@ import adminApi from '../services/adminApi';
 import { AdminCaptchaInitResponse } from '../types/admin';
 import { useLanguage } from '../hooks/useLanguage';
 import { useToast } from '../hooks/useToast';
+import { useNavigation } from '../contexts/NavigationContext';
+import { ROUTES } from '../config/routes';
 
 const toDataSrc = (raw?: string | null): string => {
   if (!raw) return '';
@@ -19,6 +21,7 @@ const clampAngle0to360 = (n: number): number => {
 const AdminLoginPage: React.FC = () => {
   const { language } = useLanguage();
   const { showError } = useToast();
+  const { navigate } = useNavigation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [captcha, setCaptcha] = useState<AdminCaptchaInitResponse | null>(null);
@@ -45,6 +48,11 @@ const AdminLoginPage: React.FC = () => {
   };
 
   useEffect(() => {
+    // If admin already logged in, redirect to Sardis and skip captcha
+    if (adminApi.getAccessToken()) {
+      navigate(ROUTES.ADMIN_SARDIS.path);
+      return;
+    }
     loadCaptcha();
   }, []);
 
@@ -80,8 +88,8 @@ const AdminLoginPage: React.FC = () => {
       return;
     }
     // Admin logged in: keep admin tokens separate in adminApi
-    // Redirect to admin dashboard (placeholder)
-    window.location.href = '/satrap/sardis';
+    // Redirect to admin dashboard (Sardis)
+    navigate(ROUTES.ADMIN_SARDIS.path);
   };
 
   return (
