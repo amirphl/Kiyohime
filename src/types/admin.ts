@@ -85,12 +85,11 @@ export interface AdminListCampaignsFilter {
 }
 
 export interface AdminGetCampaignResponse {
+  id: number;
   uuid: string;
-  // Optional numeric ID if provided by backend for admin actions
-  id?: number | null;
   status: string;
-  created_at: string; // ISO/RFC3339
-  updated_at?: string | null; // ISO/RFC3339 or null
+  created_at: string;
+  updated_at?: string | null;
   title?: string | null;
   segment?: string | null;
   subsegment?: string[];
@@ -98,10 +97,12 @@ export interface AdminGetCampaignResponse {
   city?: string[];
   adlink?: string | null;
   content?: string | null;
-  scheduleat?: string | null; // ISO/RFC3339 or null
+  scheduleat?: string | null;
   line_number?: string | null;
   budget?: number | null;
   comment?: string | null;
+  segment_price_factor?: number;
+  line_number_price_factor?: number;
 }
 
 export interface AdminListCampaignsResponse {
@@ -116,4 +117,78 @@ export interface AdminApproveCampaignResponse {
 
 export interface AdminRejectCampaignResponse {
   message: string;
+}
+
+// Admin Customer Management - Customers Shares
+export interface AdminCustomersSharesRequest {
+  start_date?: string; // RFC3339
+  end_date?: string;   // RFC3339
+}
+
+export interface AdminCustomersSharesItem {
+  first_name: string;
+  last_name: string;
+  full_name: string;
+  company_name: string;
+  referrer_agency_name: string;
+  agency_share_with_tax: number; // uint64
+  system_share: number;          // uint64
+  tax_share: number;             // uint64
+  total_sent: number;            // uint64
+  click_rate: number;
+  customer_id?: number;          // optional numeric id if available
+}
+
+export interface AdminCustomersSharesResponse {
+  message: string;
+  items: AdminCustomersSharesItem[];
+  sum_agency_share_with_tax: number;
+  sum_system_share: number;
+  sum_tax_share: number;
+  sum_total_sent: number;
+}
+
+// Admin Customer Details with Campaigns
+export interface AdminCustomerDetailDTO {
+  id: number;
+  uuid: string;
+  agency_referer_code: string;
+  account_type_id: number;
+  account_type_name: string;
+  company_name?: string | null;
+  national_id?: string | null;
+  company_phone?: string | null;
+  company_address?: string | null;
+  postal_code?: string | null;
+  representative_first_name: string;
+  representative_last_name: string;
+  representative_mobile: string;
+  email: string;
+  sheba_number?: string | null;
+  referrer_agency_id?: number | null;
+  is_email_verified?: boolean | null;
+  is_mobile_verified?: boolean | null;
+  is_active?: boolean | null;
+  created_at: string; // ISO
+  updated_at?: string | null; // ISO
+  email_verified_at?: string | null; // ISO
+  mobile_verified_at?: string | null; // ISO
+  last_login_at?: string | null; // ISO
+}
+
+export interface AdminCustomerCampaignItem {
+  title?: string | null;
+  created_at: string; // ISO
+  schedule_at?: string | null; // ISO
+  status: string;
+  total_sent: number; // uint64
+  total_delivered: number; // uint64
+  click_rate: number;
+  campaign_id?: number | null;
+}
+
+export interface AdminCustomerWithCampaignsResponse {
+  message: string;
+  customer: AdminCustomerDetailDTO;
+  campaigns: AdminCustomerCampaignItem[];
 } 
