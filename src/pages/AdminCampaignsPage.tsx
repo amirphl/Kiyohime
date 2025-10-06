@@ -4,6 +4,8 @@ import { AdminGetCampaignResponse, AdminListCampaignsFilter, AdminListCampaignsR
 import { useToast } from '../hooks/useToast';
 import { translations } from '../locales/translations';
 import { useLanguage } from '../hooks/useLanguage';
+import { useNavigation } from '../contexts/NavigationContext';
+import { ROUTES } from '../config/routes';
 
 const buildStatusOptions = (t: any): Array<{ value: AdminListCampaignsFilter['status']; label: string }> => [
   { value: undefined, label: t.adminCampaigns?.filters?.all || 'All' },
@@ -27,6 +29,7 @@ const AdminCampaignsPage: React.FC = () => {
   const { showError } = useToast();
   const didInitRef = useRef(false);
   const statusOptions = useMemo(() => buildStatusOptions(t), [t]);
+  const { navigate } = useNavigation();
 
   // Approve/Reject modal state
   const [actionCampaign, setActionCampaign] = useState<AdminGetCampaignResponse | null>(null);
@@ -135,7 +138,15 @@ const AdminCampaignsPage: React.FC = () => {
 
   return (
     <div className="p-4 max-w-[1400px] mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">{t.adminCampaigns?.title || 'Admin Campaigns'}</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">{t.adminCampaigns?.title || 'Admin Campaigns'}</h1>
+        <button
+          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded"
+          onClick={() => navigate(ROUTES.ADMIN_SARDIS.path)}
+        >
+          {t.adminCommon?.backToSardis || 'Back to Sardis'}
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <div>
@@ -161,7 +172,7 @@ const AdminCampaignsPage: React.FC = () => {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">{t.adminCampaigns?.filters?.startDateLabel || 'Start Date'}</label>
+          <label className="block text sm font-medium mb-1">{t.adminCampaigns?.filters?.startDateLabel || 'Start Date'}</label>
           <input
             type="datetime-local"
             value={start}
