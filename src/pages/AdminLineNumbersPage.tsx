@@ -4,11 +4,14 @@ import { useLanguage } from '../hooks/useLanguage';
 import adminApi from '../services/adminApi';
 import { AdminCreateLineNumberRequest, AdminLineNumberDTO, AdminLineNumberReportItem } from '../types/admin';
 import { useToast } from '../hooks/useToast';
+import { useNavigation } from '../contexts/NavigationContext';
+import { ROUTES } from '../config/routes';
 
 const AdminLineNumbersPage: React.FC = () => {
   const { language } = useLanguage();
   const t = useMemo(() => translations[language], [language]);
   const { showError, showSuccess } = useToast();
+  const { navigate } = useNavigation();
 
   const [open, setOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -210,7 +213,15 @@ const AdminLineNumbersPage: React.FC = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-semibold mb-4">{t.adminLineNumbers?.managementTitle || 'Line Number Management'}</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-semibold">{t.adminLineNumbers?.managementTitle || 'Line Number Management'}</h1>
+        <button
+          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded"
+          onClick={() => navigate(ROUTES.ADMIN_SARDIS.path)}
+        >
+          {t.adminCommon?.backToSardis || 'Back to Sardis'}
+        </button>
+      </div>
 
       <div className="flex items-center gap-2">
         <button
