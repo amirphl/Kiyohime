@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Wallet, CheckCircle, FileText, Calculator, Receipt, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Wallet, CheckCircle, Calculator, Receipt, AlertCircle } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useCampaign } from '../../hooks/useCampaign';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -12,9 +12,16 @@ import Button from '../ui/Button';
 const CampaignPaymentStep: React.FC = () => {
   const { t } = useTranslation();
   const { campaignData, updatePayment } = useCampaign();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, accessToken } = useAuth();
   const { language } = useLanguage();
   const currencyLabel = language === 'en' ? 'Toman' : 'تومان';
+  
+  // Ensure API service has token to avoid race on hard refresh
+  useEffect(() => {
+    if (accessToken) {
+      apiService.setAccessToken(accessToken);
+    }
+  }, [accessToken]);
   
   // State for cost calculation
   const [total, setTotal] = useState<number | undefined>(undefined);
@@ -22,6 +29,10 @@ const CampaignPaymentStep: React.FC = () => {
   const [lastCostCalculation, setLastCostCalculation] = useState<number>(0);
   const [isLoadingCosts, setIsLoadingCosts] = useState(false);
   const [costError, setCostError] = useState<string | null>(null);
+
+  // Guards to avoid duplicate API calls (Strict Mode and rerenders)
+  const costRequestInFlightRef = useRef(false);
+  const costTriggeredKeyRef = useRef<string | null>(null);
 
   // State for wallet balance
   const [walletBalance, setWalletBalance] = useState<number | undefined>(undefined);
@@ -32,46 +43,77 @@ const CampaignPaymentStep: React.FC = () => {
 
   // API call for cost calculation
   const calculateCosts = useCallback(async () => {
-    if (!campaignData.segment.campaignTitle || 
-        !campaignData.segment.segment || 
-        !campaignData.content.text || 
-        !campaignData.budget.totalBudget || 
-        !campaignData.budget.lineNumber) {
+    const title = campaignData.segment.campaignTitle;
+    const segment = campaignData.segment.segment;
+    const subsegment = campaignData.segment.subsegments || [];
+    const tags = campaignData.segment.tags || [];
+    const sex = campaignData.segment.sex;
+    const city = campaignData.segment.city || [];
+    const adlink = campaignData.content.link;
+    const content = campaignData.content.text;
+    const scheduleat = campaignData.content.scheduleAt;
+    const line_number = campaignData.budget.lineNumber;
+    const budget = campaignData.budget.totalBudget;
+
+    if (!title || !segment || !content || !budget || !line_number) {
       return;
     }
+
+    // Build selection key to avoid duplicates for the same inputs
+    const selectionKey = [
+      title,
+      segment,
+      [...subsegment].sort().join(','),
+      [...tags].sort().join(','),
+      sex || '',
+      [...city].sort().join(','),
+      adlink || '',
+      content,
+      scheduleat || '',
+      line_number,
+      String(budget),
+    ].join('|');
+
+    if (costRequestInFlightRef.current || costTriggeredKeyRef.current === selectionKey) {
+      return;
+    }
+    costRequestInFlightRef.current = true;
 
     setIsLoadingCosts(true);
     setCostError(null);
     
     try {
       const response = await apiService.calculateCampaignCost({
-        title: campaignData.segment.campaignTitle,
-        segment: campaignData.segment.segment,
-        subsegment: campaignData.segment.subsegments,
-        sex: campaignData.segment.sex,
-        city: campaignData.segment.city,
-        adlink: campaignData.content.link,
-        content: campaignData.content.text,
-        scheduleat: campaignData.content.scheduleAt,
-        line_number: campaignData.budget.lineNumber,
-        budget: campaignData.budget.totalBudget,
+        title,
+        segment,
+        subsegment,
+        sex,
+        city,
+        adlink,
+        content,
+        scheduleat,
+        line_number,
+        budget,
+        tags,
       });
       
       if (response.success && response.data) {
-        setTotal(response.data.total);
+        setTotal(response.data.total_cost);
         setMessageCount(response.data.msg_target);
         setLastCostCalculation(Date.now());
+        updatePayment({ total: response.data.total_cost, finalCost: response.data.total_cost });
+        costTriggeredKeyRef.current = selectionKey; // mark as done for this selection
       } else {
         setCostError(response.message || 'Failed to calculate costs.');
       }
       
-      setIsLoadingCosts(false);
-      
     } catch (error) {
       setCostError('Failed to calculate costs due to an unexpected error.');
+    } finally {
       setIsLoadingCosts(false);
+      costRequestInFlightRef.current = false;
     }
-  }, [campaignData]);
+  }, [campaignData, updatePayment]);
 
   // API call for wallet balance - CALLED ONLY ONCE
   const getWalletBalance = useCallback(async () => {

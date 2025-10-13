@@ -6,6 +6,7 @@ export interface CustomerSegment {
 	subsegments: string[];
 	sex: string;
 	city: string[];
+	tags?: string[]; // Optional campaign tags derived from audience spec
 	capacityTooLow?: boolean;
 	capacity?: number; // Persist last calculated capacity
 }
@@ -87,6 +88,7 @@ export interface CalculateCampaignCapacityRequest {
 	scheduleat?: string;
 	line_number?: string;
 	budget?: number;
+	tags?: string[]; // Added: send selected/implied tags for capacity calc
 }
 
 // Campaign capacity calculation response interface
@@ -107,12 +109,13 @@ export interface CalculateCampaignCostRequest {
 	scheduleat?: string;
 	line_number?: string;
 	budget?: number;
+	tags?: string[]; // Added tags support for cost calc
 }
 
 // Campaign cost calculation response interface
 export interface CalculateCampaignCostResponse {
 	message: string;
-	total: number;
+	total_cost: number;
 	msg_target: number;
 	max_msg_target?: number;
 }
@@ -145,6 +148,7 @@ export interface UpdateSMSCampaignRequest {
 	line_number?: string;
 	budget?: number;
 	finalize?: boolean;
+	tags?: string[]; // Added: include tags in update request
 }
 
 // Update campaign response interface
@@ -223,4 +227,27 @@ export interface ListSMSCampaignsParams {
 	orderby?: 'newest' | 'oldest';
 	title?: string;
 	status?: 'initiated' | 'in-progress' | 'waiting-for-approval' | 'approved' | 'rejected';
+}
+
+// Audience Spec types (segments, subsegments, tags)
+export interface AudienceSpecItem {
+	tags: string[];
+	available_audience: number;
+}
+
+export type AudienceSpec = Record<string, Record<string, AudienceSpecItem>>;
+
+export interface ListAudienceSpecResponse {
+	message: string;
+	spec: AudienceSpec;
+}
+
+// Active line numbers
+export interface ActiveLineNumberItem {
+	line_number: string;
+}
+
+export interface ListActiveLineNumbersResponse {
+	message: string;
+	items: ActiveLineNumberItem[];
 } 

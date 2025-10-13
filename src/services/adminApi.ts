@@ -6,6 +6,9 @@ import { AdminCaptchaInitResponse, AdminCaptchaVerifyRequest, AdminLoginResponse
 const ADMIN_ACCESS_TOKEN_KEY = 'admin_access_token';
 const ADMIN_REFRESH_TOKEN_KEY = 'admin_refresh_token';
 
+// Global modal/redirect guard
+let adminSessionModalShown = false;
+
 class AdminApiService {
   private accessToken: string | null = null;
 
@@ -29,14 +32,31 @@ class AdminApiService {
   }
 
   private handleUnauthorized() {
-    // Clear tokens and broadcast a global event so UI can react (e.g., show blocking modal + redirect)
+    // Clear tokens
     this.setAccessToken(null);
     this.setRefreshToken(null);
+
+    if (adminSessionModalShown) return;
+    adminSessionModalShown = true;
+
     try {
       window.dispatchEvent(new CustomEvent('admin-session-expired'));
-    } catch {
-      // no-op if window not available
-    }
+    } catch {}
+
+    // Show a blocking alert as a fallback if modal listener not mounted
+    const currentLang = document.documentElement.lang || 'en';
+    const isFa = currentLang === 'fa';
+    const msg = isFa ? 'نشست مدیریتی شما منقضی شده است. برای ادامه باید دوباره وارد شوید.' : 'Your admin session has expired. Please sign in again to continue.';
+    setTimeout(() => {
+      try {
+        // In case no UI listener, use alert as fallback to inform the user
+        if (!document.getElementById('admin-session-modal-mounted')) {
+          alert(msg);
+        }
+      } catch {}
+      // Redirect to Sardis (admin login hub)
+      window.location.replace('/satrap');
+    }, 1500);
   }
 
   async initCaptcha(): Promise<ApiResponse<AdminCaptchaInitResponse>> {

@@ -20,6 +20,7 @@ const WalletPage: React.FC = () => {
   const [chargeAmount, setChargeAmount] = useState<number | ''>('');
   const [error, setError] = useState<string>('');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentSubmitting, setPaymentSubmitting] = useState<boolean>(false);
   const [historyItems, setHistoryItems] = useState<TransactionHistoryItem[]>([]);
   const [historyPage, setHistoryPage] = useState<number>(1);
   const [historyHasNext, setHistoryHasNext] = useState<boolean>(false);
@@ -77,6 +78,8 @@ const WalletPage: React.FC = () => {
 
   const handlePaymentContinue = async () => {
     if (chargeAmount === '' || error) return;
+    if (paymentSubmitting) return;
+    setPaymentSubmitting(true);
     try {
       const baseAmount = Number(chargeAmount);
       const tax = Math.round(baseAmount * 0.1);
@@ -103,6 +106,8 @@ const WalletPage: React.FC = () => {
     } catch (e) {
       setShowPaymentModal(false);
       setError(e instanceof Error ? e.message : 'Network error');
+    } finally {
+      setPaymentSubmitting(false);
     }
   };
 
@@ -376,6 +381,7 @@ const WalletPage: React.FC = () => {
         title={t('wallet.modalTitle')}
         confirmText={t('common.continue')}
         cancelText={t('common.cancel')}
+        loading={paymentSubmitting}
       >
         <div className="space-y-3">
           <div className="flex justify-between">

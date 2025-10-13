@@ -2,13 +2,13 @@ import {
   CreateCampaignPayload, CreateSMSCampaignResponse,
   CalculateCampaignCapacityRequest, CalculateCampaignCapacityResponse,
   CalculateCampaignCostResponse, GetWalletBalanceResponse,
-  CalculateCampaignCostRequest, UpdateSMSCampaignRequest, UpdateSMSCampaignResponse,
+  UpdateSMSCampaignRequest, UpdateSMSCampaignResponse,
   ListSMSCampaignsParams, ListSMSCampaignsResponse,
 } from '../types/campaign';
 import { config, getApiUrl } from '../config/environment';
 import { GetTransactionHistoryParams, TransactionHistoryResponse } from '../types/payments';
 import { AgencyCustomerReportResponse, ListAgencyActiveDiscountsResponse, ListAgencyCustomerDiscountsResponse, ListAgencyCustomersResponse } from '../types/agency';
-import { AdminListCampaignsFilter, AdminListCampaignsResponse } from '../types/admin';
+import { ListAudienceSpecResponse, ListActiveLineNumbersResponse } from '../types/campaign';
 
 // Updated to match Go backend response structure
 export interface ApiResponse<T = any> {
@@ -513,6 +513,7 @@ class ApiService {
     scheduleat?: string;
     line_number?: string;
     budget?: number;
+    tags?: string[];
   }): Promise<ApiResponse<CalculateCampaignCostResponse>> {
     return this.request<CalculateCampaignCostResponse>(config.endpoints.campaigns.calculateCost, {
       method: 'POST',
@@ -683,6 +684,16 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ customer_id, name: name.trim(), discount_rate }),
     });
+  }
+
+  // Audience spec endpoint
+  async listAudienceSpec(): Promise<ApiResponse<ListAudienceSpecResponse>> {
+    return this.request<ListAudienceSpecResponse>(config.endpoints.campaigns.audienceSpec, { method: 'GET' });
+  }
+
+  // Active line numbers
+  async listActiveLineNumbers(): Promise<ApiResponse<ListActiveLineNumbersResponse>> {
+    return this.request<ListActiveLineNumbersResponse>(config.endpoints.lineNumbers.active, { method: 'GET' });
   }
 
   // Utility methods

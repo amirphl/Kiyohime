@@ -33,6 +33,7 @@ const CampaignCreationPage: React.FC = () => {
   } = useCampaign();
   const { showError, showSuccess } = useToast();
   const { navigate } = useNavigation();
+  const [isFinishing, setIsFinishing] = React.useState(false);
 
   // Use the validation hook
   const validation = useCampaignValidation(campaignData, currentStep);
@@ -81,20 +82,17 @@ const CampaignCreationPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentStep]);
 
-  // Scroll to top on step change
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentStep]);
-
   // Campaign UUID will be created when user clicks "next" on the segment page (step 1)
 
   // Remove the useEffect that automatically calls API on mount
   // This was causing infinite loops and unnecessary API calls
 
-  // Scroll to top whenever the step changes
+  // Ensure API service has token to avoid race on hard refresh
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentStep]);
+    if (accessToken) {
+      apiService.setAccessToken(accessToken);
+    }
+  }, [accessToken]);
 
   const handleNextStep = async () => {
     try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
@@ -102,14 +100,14 @@ const CampaignCreationPage: React.FC = () => {
     if (currentStep === 1) {
       // Check if campaign spec exists in localStorage (existing campaign)
       const savedData = localStorage.getItem('campaign_creation_data');
-      const hasExistingCampaign = savedData && (() => {
+      const hasExistingCampaign = (savedData && (() => {
         try {
           const parsed = JSON.parse(savedData);
           return parsed.uuid && parsed.uuid !== '';
         } catch {
           return false;
         }
-      })();
+      })()) || (!!campaignData.uuid && campaignData.uuid !== '');
 
       if (hasExistingCampaign) {
         // User has existing campaign - DO NOT call API, just proceed
@@ -195,6 +193,8 @@ const CampaignCreationPage: React.FC = () => {
   };
 
   const handleFinish = async () => {
+    if (isFinishing) return;
+    setIsFinishing(true);
     try {
       console.log('=== FINISH BUTTON CLICKED ===');
       console.log('Current step:', currentStep);
@@ -222,6 +222,7 @@ const CampaignCreationPage: React.FC = () => {
         line_number: campaignData.budget.lineNumber,
         budget: campaignData.budget.totalBudget,
         finalize: true,
+        tags: campaignData.segment.tags,
       };
       
       console.log('🔄 Calling update campaign API with data:', updateData);
@@ -260,6 +261,8 @@ const CampaignCreationPage: React.FC = () => {
       // DO NOT redirect to dashboard on error
       // User stays on payment page to see the error message
       console.log('❌ Campaign update failed, user remains on payment page');
+    } finally {
+      setIsFinishing(false);
     }
   };
 
@@ -409,13 +412,13 @@ const CampaignCreationPage: React.FC = () => {
             ) : (
               <Button
                 onClick={handleFinish}
-                disabled={!validation.canFinishCampaign()}
+                disabled={!validation.canFinishCampaign() || isFinishing}
                 className={`flex items-center ${
                   isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
                 }`}
               >
                 <Check className="h-4 w-4" />
-                {t('common.finish')}
+                {isFinishing ? t('common.loading') : t('common.finish')}
               </Button>
             )}
           </div>
