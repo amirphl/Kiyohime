@@ -188,7 +188,7 @@ const CampaignSegmentStep: React.FC = () => {
     setLoadingSpec(true);
     setSpecError(null);
 
-    const useSpec = (spec: AudienceSpec) => {
+    const applySpec = (spec: AudienceSpec) => {
       if (canceled) return;
       setAudienceSpec(spec);
       setSpecError(null);
@@ -197,13 +197,13 @@ const CampaignSegmentStep: React.FC = () => {
     };
 
     if (audienceSpecCache) {
-      useSpec(audienceSpecCache);
+      applySpec(audienceSpecCache);
       return () => { canceled = true; };
     }
 
     if (audienceSpecFetchInFlight) {
       audienceSpecFetchInFlight
-        .then(spec => useSpec(spec))
+        .then(spec => applySpec(spec))
         .catch(() => {
           if (canceled) return;
           const msg = 'Failed to load audience spec';
@@ -226,7 +226,7 @@ const CampaignSegmentStep: React.FC = () => {
     audienceSpecFetchInFlight
       .then(spec => {
         audienceSpecCache = spec;
-        useSpec(spec);
+        applySpec(spec);
       })
       .catch((e: any) => {
         if (canceled) return;
@@ -240,7 +240,7 @@ const CampaignSegmentStep: React.FC = () => {
       });
 
     return () => { canceled = true; };
-  }, [accessToken]);
+  }, [accessToken, showToast]);
 
   // Build segments and subsegments from audience spec
   const segments = useMemo(() => {
