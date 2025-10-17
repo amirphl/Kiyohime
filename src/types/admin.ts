@@ -79,7 +79,7 @@ export interface AdminLineNumberReportItem {
 
 export interface AdminListCampaignsFilter {
   title?: string;
-  status?: 'initiated' | 'in_progress' | 'waiting_for_approval' | 'approved' | 'rejected';
+  status?: 'initiated' | 'in-progress' | 'waiting-for-approval' | 'approved' | 'rejected' | 'running' | 'executed';
   start_date?: string; // RFC3339 string
   end_date?: string; // RFC3339 string
 }
