@@ -10,8 +10,8 @@ import { ROUTES } from '../config/routes';
 const buildStatusOptions = (t: any): Array<{ value: AdminListCampaignsFilter['status']; label: string }> => [
   { value: undefined, label: t.adminCampaigns?.filters?.all || 'All' },
   { value: 'initiated', label: t.adminCampaigns?.filters?.statuses?.initiated || 'Initiated' },
-  { value: 'in_progress', label: t.adminCampaigns?.filters?.statuses?.in_progress || 'In Progress' },
-  { value: 'waiting_for_approval', label: t.adminCampaigns?.filters?.statuses?.waiting_for_approval || 'Waiting for Approval' },
+  { value: 'in-progress', label: t.adminCampaigns?.filters?.statuses?.in_progress || 'In Progress' },
+  { value: 'waiting-for-approval', label: t.adminCampaigns?.filters?.statuses?.waiting_for_approval || 'Waiting for Approval' },
   { value: 'approved', label: t.adminCampaigns?.filters?.statuses?.approved || 'Approved' },
   { value: 'rejected', label: t.adminCampaigns?.filters?.statuses?.rejected || 'Rejected' },
 ] as any;
@@ -106,6 +106,11 @@ const AdminCampaignsPage: React.FC = () => {
     setActionComment('');
     setActionError(null);
     setActionSubmitting(false);
+  };
+
+  const isWaitingForApproval = (status?: string | null) => {
+    if (!status) return false;
+    return status === 'waiting_for_approval' || status === 'waiting-for-approval';
   };
 
   const submitAction = async () => {
@@ -210,7 +215,6 @@ const AdminCampaignsPage: React.FC = () => {
           <thead className="bg-gray-50">
             <tr>
               <th className="border px-2 py-2">{t.adminCampaigns?.table?.headers?.row || '#'}</th>
-              <th className="border px-2 py-2">{t.adminCampaigns?.table?.headers?.uuid || 'UUID'}</th>
               <th className="border px-2 py-2">{t.adminCampaigns?.table?.headers?.status || 'Status'}</th>
               <th className="border px-2 py-2">{t.adminCampaigns?.table?.headers?.createdAt || 'Created At'}</th>
               <th className="border px-2 py-2">{t.adminCampaigns?.table?.headers?.updatedAt || 'Updated At'}</th>
@@ -241,34 +245,33 @@ const AdminCampaignsPage: React.FC = () => {
               items.map((it, idx) => (
                 <tr key={it.uuid} className="odd:bg-white even:bg-gray-50">
                   <td className="border px-2 py-2 text-center">{idx + 1}</td>
-                  <td className="border px-2 py-2 font-mono break-all">{it.uuid}</td>
                   <td className="border px-2 py-2">{it.status}</td>
                   <td className="border px-2 py-2">{formatDateTime(it.created_at)}</td>
                   <td className="border px-2 py-2">{formatDateTime(it.updated_at)}</td>
-                  <td className="border px-2 py-2">{it.title || ''}</td>
-                  <td className="border px-2 py-2">{it.segment || ''}</td>
-                  <td className="border px-2 py-2">{Array.isArray(it.subsegment) ? it.subsegment.join(', ') : ''}</td>
+                  <td className="border px-2 py-2 max-w-[220px] truncate" title={it.title || ''}>{it.title || ''}</td>
+                  <td className="border px-2 py-2 max-w-[220px] truncate" title={it.segment || ''}>{it.segment || ''}</td>
+                  <td className="border px-2 py-2 max-w-[220px] truncate" title={Array.isArray(it.subsegment) ? it.subsegment.join(', ') : ''}>{Array.isArray(it.subsegment) ? it.subsegment.join(', ') : ''}</td>
                   <td className="border px-2 py-2">{it.sex || ''}</td>
                   <td className="border px-2 py-2">{Array.isArray(it.city) ? it.city.join(', ') : ''}</td>
-                  <td className="border px-2 py-2 break-all">{it.adlink || ''}</td>
-                  <td className="border px-2 py-2 break-all">{it.content || ''}</td>
+                  <td className="border px-2 py-2 max-w-[220px] truncate" title={it.adlink || ''}>{it.adlink || ''}</td>
+                  <td className="border px-2 py-2 max-w-[220px] truncate" title={it.content || ''}>{it.content || ''}</td>
                   <td className="border px-2 py-2">{formatDateTime(it.scheduleat)}</td>
                   <td className="border px-2 py-2">{it.line_number || ''}</td>
                   <td className="border px-2 py-2">{typeof it.budget === 'number' ? it.budget.toLocaleString() : ''}</td>
-                  <td className="border px-2 py-2">{it.comment || ''}</td>
+                  <td className="border px-2 py-2 max-w-[220px] truncate" title={it.comment || ''}>{it.comment || ''}</td>
                   <td className="border px-2 py-2 whitespace-nowrap">
                     <div className="flex gap-2">
                       <button
                         className="px-3 py-1 rounded bg-green-600 text-white disabled:opacity-60"
                         onClick={() => openApprove(it)}
-                        disabled={actionSubmitting || it.status !== 'waiting_for_approval'}
+                        disabled={actionSubmitting || !isWaitingForApproval(it.status)}
                       >
                         {t.adminCampaigns?.modal?.approve || 'Approve'}
                       </button>
                       <button
                         className="px-3 py-1 rounded bg-red-600 text-white disabled:opacity-60"
                         onClick={() => openReject(it)}
-                        disabled={actionSubmitting || it.status !== 'waiting_for_approval'}
+                        disabled={actionSubmitting || !isWaitingForApproval(it.status)}
                       >
                         {t.adminCampaigns?.modal?.reject || 'Reject'}
                       </button>
