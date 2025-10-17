@@ -18,6 +18,10 @@ const clampAngle0to360 = (n: number): number => {
   return Math.round(n);
 };
 
+// Module-level guards to prevent double init under Strict Mode
+let captchaInitCache: AdminCaptchaInitResponse | null = null;
+let captchaInitInFlight: Promise<AdminCaptchaInitResponse> | null = null;
+
 const AdminLoginPage: React.FC = () => {
   const { language } = useLanguage();
   const { showError } = useToast();
@@ -32,19 +36,51 @@ const AdminLoginPage: React.FC = () => {
   const masterSrc = useMemo(() => toDataSrc(captcha?.master_image_base64), [captcha]);
   const thumbSrc = useMemo(() => toDataSrc(captcha?.thumb_image_base64), [captcha]);
 
-  const loadCaptcha = async () => {
+  const loadCaptcha = async (force: boolean = false) => {
     setError(null);
     setLoading(true);
-    const res = await adminApi.initCaptcha();
-    setLoading(false);
-    if (!res.success) {
-      const msg = res.message || 'Failed to initialize captcha';
+
+    try {
+      if (force) {
+        captchaInitCache = null;
+        captchaInitInFlight = null;
+      }
+
+      if (captchaInitCache) {
+        setCaptcha(captchaInitCache);
+        setAngle(0);
+        setLoading(false);
+        return;
+      }
+
+      if (captchaInitInFlight) {
+        const data = await captchaInitInFlight;
+        setCaptcha(data);
+        setAngle(0);
+        setLoading(false);
+        return;
+      }
+
+      captchaInitInFlight = (async () => {
+        const res = await adminApi.initCaptcha();
+        if (!res.success || !res.data) {
+          throw new Error(res.message || 'Failed to initialize captcha');
+        }
+        return res.data;
+      })();
+
+      const data = await captchaInitInFlight;
+      captchaInitCache = data;
+      setCaptcha(data);
+      setAngle(0);
+    } catch (e: any) {
+      const msg = e?.message || 'Failed to initialize captcha';
       setError(msg);
       showError(msg);
-      return;
+    } finally {
+      setLoading(false);
+      captchaInitInFlight = null;
     }
-    setCaptcha(res.data!);
-    setAngle(0);
   };
 
   useEffect(() => {
@@ -53,7 +89,7 @@ const AdminLoginPage: React.FC = () => {
       navigate(ROUTES.ADMIN_SARDIS.path);
       return;
     }
-    loadCaptcha();
+    loadCaptcha(false);
   }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -83,8 +119,8 @@ const AdminLoginPage: React.FC = () => {
       const msg = resp.message || 'Login failed';
       setError(msg);
       showError(msg);
-      // Re-init captcha on any login error
-      loadCaptcha();
+      // Re-init captcha on any login error (force refresh)
+      loadCaptcha(true);
       return;
     }
     // Admin logged in: keep admin tokens separate in adminApi
@@ -152,7 +188,7 @@ const AdminLoginPage: React.FC = () => {
                 />
                 <span className="w-16 text-right text-sm">{angle}°</span>
               </div>
-              <button type="button" onClick={loadCaptcha} className="text-sm text-blue-600">Reload Captcha</button>
+              <button type="button" onClick={() => loadCaptcha(true)} className="text-sm text-blue-600">Reload Captcha</button>
             </div>
           </div>
 
