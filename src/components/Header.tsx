@@ -45,19 +45,19 @@ const Header: React.FC = () => {
             <nav className='hidden md:flex items-center space-x-8'>
               <a
                 href='#features'
-                className='text-gray-700 hover:text-primary-600 transition-colors'
+                className='text-gray-700 hover:text-red-600 transition-colors'
               >
                 {t('header.features')}
               </a>
               <a
                 href='#how-it-works'
-                className='text-gray-700 hover:text-primary-600 transition-colors'
+                className='text-gray-700 hover:text-red-600 transition-colors'
               >
                 {t('header.howItWorks')}
               </a>
               <a
                 href='/pricing'
-                className='text-gray-700 hover:text-primary-600 transition-colors'
+                className='text-gray-700 hover:text-red-600 transition-colors'
               >
                 {t('header.pricing')}
               </a>
@@ -76,7 +76,7 @@ const Header: React.FC = () => {
               >
                 <button
                   onClick={handleDashboard}
-                  className='text-gray-700 hover:text-primary-600 transition-colors font-medium'
+                  className='text-gray-700 hover:text-red-600 transition-colors font-medium'
                 >
                   {t('header.dashboard')}
                 </button>
@@ -90,13 +90,13 @@ const Header: React.FC = () => {
               >
                 <button
                   onClick={handleSignIn}
-                  className='text-gray-700 hover:text-primary-600 transition-colors font-medium'
+                  className='text-gray-700 hover:text-red-600 transition-colors font-medium'
                 >
                   {t('header.signin')}
                 </button>
                 <button
                   onClick={() => (window.location.href = '/signup')}
-                  className='btn-primary'
+                  className='btn-red'
                 >
                   {t('header.signup')}
                 </button>

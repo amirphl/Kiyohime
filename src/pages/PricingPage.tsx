@@ -68,7 +68,7 @@ const PricingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white">
+      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-4">{t('pricing.title') || 'Pricing'}</h1>
@@ -85,7 +85,7 @@ const PricingPage: React.FC = () => {
         <Card className="mb-12">
           <div className="flex items-start space-x-4 rtl:space-x-reverse">
             <div className="flex-shrink-0">
-              <DollarSign className="h-12 w-12 text-primary-600" />
+              <DollarSign className="h-12 w-12 text-red-600" />
             </div>
             <div className="flex-1">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
@@ -148,7 +148,7 @@ const PricingPage: React.FC = () => {
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                   <p className="text-gray-600 mb-4">{plan.description}</p>
-                  <div className="text-3xl font-bold text-primary-600">{plan.discount}</div>
+                  <div className="text-3xl font-bold text-red-600">{plan.discount}</div>
                 </div>
                 <ul className="space-y-3 mb-6">
                   {plan.features.map((feature, idx) => (
@@ -173,7 +173,7 @@ const PricingPage: React.FC = () => {
         </div> */}
 
         {/* CTA Section */}
-        <Card className="bg-gradient-to-r from-primary-600 to-primary-700 text-white">
+        <Card className="bg-gradient-to-r from-red-600 to-red-700 text-white">
           <div className="text-center py-8">
             <h2 className="text-3xl font-bold mb-4">
               {t('pricing.cta.title') || 'Ready to get started?'}
@@ -184,14 +184,14 @@ const PricingPage: React.FC = () => {
             <div className="flex justify-center space-x-4 rtl:space-x-reverse">
               <Button
                 variant="outline"
-                className="bg-white text-primary-600 hover:bg-gray-100 border-white"
+                className="bg-white text-red-600 hover:bg-gray-100 border-white"
                 onClick={() => navigate('/signup')}
               >
                 {t('pricing.cta.signup') || 'Sign Up Now'}
               </Button>
               <Button
                 variant="outline"
-                className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-primary-600"
+                className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-red-600"
                 onClick={() => navigate('/contact')}
               >
                 {t('pricing.cta.contact') || 'Contact Sales'}

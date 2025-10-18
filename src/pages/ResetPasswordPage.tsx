@@ -196,7 +196,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
           <button
             type='button'
             onClick={() => (window.location.href = '/dashboard')}
-            className={`w-full btn-primary flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
+            className={`w-full btn-red flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
           >
             <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
             <span>{t('resetPassword.success.backToLogin')}</span>
@@ -211,7 +211,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
       <div className='max-w-md w-full space-y-8'>
         {/* Header */}
         <div className='text-center'>
-          <div className='mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center'>
+          <div className='mx-auto h-12 w-12 bg-red-600 rounded-lg flex items-center justify-center'>
             <Lock className='h-6 w-6 text-white' />
           </div>
           <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
@@ -339,7 +339,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
             <button
               type='submit'
               disabled={isLoading}
-              className={`w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
+              className={`w-full btn-red disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
             >
               {isLoading ? (
                 <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-white'></div>
@@ -360,7 +360,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
           <button
             type='button'
             onClick={onNavigateToLogin}
-            className={`text-sm text-primary-600 hover:text-primary-700 flex items-center justify-center mx-auto ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
+            className={`text-sm text-red-600 hover:text-red-700 flex items-center justify-center mx-auto ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
           >
             <ArrowLeft className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
             <span>{t('resetPassword.backToLogin')}</span>

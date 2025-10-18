@@ -26,7 +26,7 @@ const Stepper: React.FC<StepperProps> = ({
                 disabled={!step.isAccessible}
                 className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
                   step.id === currentStep
-                    ? 'border-primary-600 bg-primary-600 text-white'
+                    ? 'border-primary-600 bg-red-600 text-white'
                     : step.isCompleted
                       ? 'border-green-500 bg-green-500 text-white'
                       : 'border-gray-300 bg-white text-gray-500'
@@ -47,7 +47,7 @@ const Stepper: React.FC<StepperProps> = ({
               <div className="ml-3 text-left">
                 <div className={`text-sm font-medium ${
                   step.id === currentStep
-                    ? 'text-primary-600'
+                    ? 'text-red-600'
                     : step.isCompleted
                       ? 'text-green-600'
                       : 'text-gray-500'

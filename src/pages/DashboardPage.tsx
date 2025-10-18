@@ -50,7 +50,6 @@ const DashboardPage: React.FC = () => {
   const [ticketFile, setTicketFile] = useState<File | null>(null);
   const [ticketSubmitting, setTicketSubmitting] = useState(false);
   const [ticketErrors, setTicketErrors] = useState<{ title?: string; description?: string; file?: string }>({});
-  const [enamadImageOk, setEnamadImageOk] = useState(true);
 
   const navigateToPage = (path: string) => {
     navigate(path);
@@ -394,7 +393,7 @@ const DashboardPage: React.FC = () => {
                   </h3>
                   <button
                     onClick={() => setShowTicketModal(true)}
-                    className='btn-primary flex items-center justify-center w-full'
+                    className='btn-red flex items-center justify-center w-full'
                   >
                     <Plus className='h-4 w-4 mr-2' /> {t('dashboard.supportModal.newTicket')}
                   </button>
@@ -405,28 +404,28 @@ const DashboardPage: React.FC = () => {
                   <h3 className='text-lg font-medium text-gray-900 mb-2'>
                     {t('dashboard.stats.totalCampaigns')}
                   </h3>
-                  <p className='text-3xl font-bold text-primary-600'>0</p>
+                  <p className='text-3xl font-bold text-red-600'>0</p>
                 </div>
 
                 <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
                   <h3 className='text-lg font-medium text-gray-900 mb-2'>
                     {t('dashboard.stats.totalCustomers')}
                   </h3>
-                  <p className='text-3xl font-bold text-primary-600'>0</p>
+                  <p className='text-3xl font-bold text-red-600'>0</p>
                 </div>
 
                 <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
                   <h3 className='text-lg font-medium text-gray-900 mb-2'>
                     {t('dashboard.stats.walletBalance')}
                   </h3>
-                  <p className='text-3xl font-bold text-primary-600'>0 تومان</p>
+                  <p className='text-3xl font-bold text-red-600'>0 تومان</p>
                 </div>
 
                 <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
                   <h3 className='text-lg font-medium text-gray-900 mb-2'>
                     {t('dashboard.stats.activeTickets')}
                   </h3>
-                  <p className='text-3xl font-bold text-primary-600'>0</p>
+                  <p className='text-3xl font-bold text-red-600'>0</p>
                 </div>
               </div>
             ) : (
@@ -468,7 +467,7 @@ const DashboardPage: React.FC = () => {
                               <td className='px-4 py-2 text-sm text-gray-900'>{formatReportDateTime(c.created_at)}</td>
                               <td className='px-4 py-2 text-sm text-gray-900'>{formatReportDateTime(c.scheduleat)}</td>
                               <td className='px-4 py-2 text-right'>
-                                <button className='px-3 py-1 text-sm bg-primary-600 text-white rounded hover:bg-primary-700'>Details</button>
+                                <button className='px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700'>Details</button>
                               </td>
                             </tr>
                           ))}
@@ -566,7 +565,7 @@ const DashboardPage: React.FC = () => {
                   {t('common.cancel')}
                 </button>
                 <button
-                  className='btn-primary flex items-center justify-center'
+                  className='btn-red flex items-center justify-center'
                   onClick={handleTicketSubmit}
                   disabled={ticketSubmitting}
                 >
@@ -583,34 +582,6 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
       )}
-      {
-        <footer className="mt-10 rounded-3xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-200 relative">
-          {/* Enamad trust seal - left side */}
-          <div className="absolute left-4 top-1/2 -translate-y-1/2">
-            <a
-              referrerPolicy='origin'
-              target='_blank'
-              href='https://trustseal.enamad.ir/?id=654611&Code=8m3trW0HWMHwsdycPLC79HZTsO97SjFl'
-            >
-                                              {enamadImageOk ? (
-                <img
-                  referrerPolicy='origin'
-                  src='https://trustseal.enamad.ir/logo.aspx?id=654611&Code=8m3trW0HWMHwsdycPLC79HZTsO97SjFl'
-                  alt='Enamad Trust Seal'
-                  className='h-12 w-auto'
-                  style={{ cursor: 'pointer' }}
-                  data-code='8m3trW0HWMHwsdycPLC79HZTsO97SjFl'
-                  onError={() => setEnamadImageOk(false)}
-                />
-              ) : (
-                <div className='h-12 w-28 grid place-items-center rounded bg-gray-200 text-gray-600 text-xs'>
-                  Enamad
-                </div>
-              )}
-            </a>
-          </div>
-        </footer>
-      }
     </div>
   );
 };

@@ -374,7 +374,7 @@ const CampaignSegmentStep: React.FC = () => {
       <StepHeader
         title={t('campaign.segment.title')}
         subtitle={t('campaign.segment.subtitle')}
-        icon={<Target className="h-6 w-6 text-primary-600" />}
+        icon={<Target className="h-6 w-6 text-red-600" />}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
@@ -383,7 +383,7 @@ const CampaignSegmentStep: React.FC = () => {
           <Card>
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <Target className="h-5 w-5 mr-2 text-primary-600" />
+                <Target className="h-5 w-5 mr-2 text-red-600" />
                 {t('campaign.segment.campaignTitle')}
               </h3>
               <FormField
@@ -408,21 +408,21 @@ const CampaignSegmentStep: React.FC = () => {
           <Card className="h-full">
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <MapPin className="h-5 w-5 mr-2 text-primary-600" />
+                <MapPin className="h-5 w-5 mr-2 text-red-600" />
                 {t('campaign.segment.campaignCapacity')}
               </h3>
               <p className="text-sm text-gray-600">{t('campaign.segment.campaignCapacityHelp')}</p>
               <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
                 <div>
                   <p className="text-sm font-medium text-gray-700">{t('campaign.segment.estimatedCapacity')}</p>
-                  <p className="text-2xl font-bold text-primary-600">{isLoadingCapacity ? t('campaign.segment.calculating') : (capacity !== undefined ? `${capacity.toLocaleString()} ${t('campaign.segment.users')}` : (campaignData.segment.capacity !== undefined ? `${campaignData.segment.capacity.toLocaleString()} ${t('campaign.segment.users')}` : t('campaign.segment.notSet')))}</p>
+                  <p className="text-2xl font-bold text-red-600">{isLoadingCapacity ? t('campaign.segment.calculating') : (capacity !== undefined ? `${capacity.toLocaleString()} ${t('campaign.segment.users')}` : (campaignData.segment.capacity !== undefined ? `${campaignData.segment.capacity.toLocaleString()} ${t('campaign.segment.users')}` : t('campaign.segment.notSet')))}</p>
                   {((capacity ?? campaignData.segment.capacity) !== undefined) && (capacity ?? campaignData.segment.capacity)! < 500 && (
                     <p className="text-xs text-red-600 mt-1">{t('campaign.segment.capacityTooLow')}</p>
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
                   {isLoadingCapacity && (
-                    <svg className="animate-spin h-6 w-6 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -446,7 +446,7 @@ const CampaignSegmentStep: React.FC = () => {
           <Card>
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <Users className="h-5 w-5 mr-2 text-primary-600" />
+                <Users className="h-5 w-5 mr-2 text-red-600" />
                 {t('campaign.segment.segment')}
               </h3>
               {specError ? (
@@ -463,7 +463,7 @@ const CampaignSegmentStep: React.FC = () => {
                       onChange={(e) => setSegmentSearch(e.target.value)}
                       onFocus={() => setIsSearchFocused(true)}
                       placeholder={t('campaign.segment.searchPlaceholder') || 'Search segments or subsegments...'}
-                      className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 border-gray-300"
+                      className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary-500 border-gray-300"
                     />
                     {(isSearchFocused && (segmentSearch.trim().length === 0 || segmentSearch.trim().length >= 3)) && (
                       <div className="absolute z-10 mt-1 w-full max-h-64 overflow-auto bg-white border border-gray-200 rounded-md shadow-lg">
@@ -542,7 +542,7 @@ const CampaignSegmentStep: React.FC = () => {
             <Card>
               <div className="space-y-4">
                 <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                  <Target className="h-5 w-5 mr-2 text-primary-600" />
+                  <Target className="h-5 w-5 mr-2 text-red-600" />
                   {t('campaign.segment.subsegmentsFor', { segment: segments.find(s => s.value === campaignData.segment.segment)?.label })}
                 </h3>
                 <p className="text-sm text-gray-600">{t('campaign.segment.subsegmentsHelp')}</p>
@@ -553,7 +553,7 @@ const CampaignSegmentStep: React.FC = () => {
                         type="checkbox"
                         checked={campaignData.segment.subsegments?.includes(subsegment.value) || false}
                         onChange={() => handleSubsegmentsChange(subsegment.value)}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
                       />
                       <span className="text-sm text-gray-700">{subsegment.label}</span>
                     </label>
@@ -573,7 +573,7 @@ const CampaignSegmentStep: React.FC = () => {
           <Card className="h-full">
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <User className="h-5 w-5 mr-2 text-primary-600" />
+                <User className="h-5 w-5 mr-2 text-red-600" />
                 {t('campaign.segment.sex')}
               </h3>
               <FormField
@@ -592,7 +592,7 @@ const CampaignSegmentStep: React.FC = () => {
           <Card className="h-full">
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <Building className="h-4 w-4 mr-2 text-primary-600" />
+                <Building className="h-4 w-4 mr-2 text-red-600" />
                 {t('campaign.segment.cities')}
               </h3>
               <select
@@ -607,7 +607,7 @@ const CampaignSegmentStep: React.FC = () => {
                   updateSegment({ city: next });
                   triggerCapacityCalculation({ city: next });
                 }}
-                className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary-500"
               >
                 <option value="">{t('campaign.segment.citiesPlaceholder') || 'Select a city'}</option>
                 {cities.map((city) => (
@@ -627,7 +627,7 @@ const CampaignSegmentStep: React.FC = () => {
                           type="checkbox"
                           checked={true}
                           onChange={() => handleCityChange(cityValue)}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                          className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
                         />
                         <span className="text-sm text-gray-700">{cityDef.label}</span>
                       </label>

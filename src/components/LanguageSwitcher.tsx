@@ -7,21 +7,21 @@ const LanguageSwitcher: React.FC = () => {
   return (
     <div className='flex items-center space-x-2'>
       <button
-        onClick={() => setLanguage('en')}
-        className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:bg-gray-100 ${
+        disabled={true}
+        className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 opacity-50 cursor-not-allowed ${
           language === 'en'
-            ? 'bg-primary-100 text-primary-700'
-            : 'text-gray-700'
+            ? 'bg-gray-100 text-gray-700'
+            : 'text-gray-500'
         } ${isRTL ? 'space-x-reverse' : ''}`}
       >
         <span>EN</span>
       </button>
       <button
-        onClick={() => setLanguage('fa')}
-        className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:bg-gray-100 ${
+        disabled={true}
+        className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 opacity-50 cursor-not-allowed ${
           language === 'fa'
-            ? 'bg-primary-100 text-primary-700'
-            : 'text-gray-700'
+            ? 'bg-gray-100 text-gray-700'
+            : 'text-gray-500'
         } ${isRTL ? 'space-x-reverse' : ''}`}
       >
         <span>فا</span>

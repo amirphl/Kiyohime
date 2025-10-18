@@ -195,7 +195,7 @@ const SupportPage: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <h1 className="text-xl font-semibold text-gray-900 flex items-center">
-                <Headphones className="h-6 w-6 mr-2 text-primary-600" />
+                <Headphones className="h-6 w-6 mr-2 text-red-600" />
                 {t('dashboard.support') || 'Ticket & Support'}
               </h1>
             </div>
@@ -285,7 +285,7 @@ const SupportPage: React.FC = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t('dashboard.supportModal.titlePlaceholder') || 'Enter a short title (<= 80 chars)'}
-              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 border-gray-300"
+              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary-500 border-gray-300"
             />
             {errors?.title && <p className="text-sm text-red-600 mt-1">{errors.title}</p>}
           </div>
@@ -297,7 +297,7 @@ const SupportPage: React.FC = () => {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder={t('dashboard.supportModal.contentPlaceholder') || 'Describe your request (<= 1000 chars)'}
-              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 border-gray-300"
+              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary-500 border-gray-300"
             />
             {errors?.content && <p className="text-sm text-red-600 mt-1">{errors.content}</p>}
           </div>
@@ -371,7 +371,7 @@ const SupportPage: React.FC = () => {
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
               placeholder={t('dashboard.supportModal.contentPlaceholder') || 'Describe your reply (<= 1000 chars)'}
-              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 border-gray-300"
+              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary-500 border-gray-300"
             />
             {replyError && <p className="text-sm text-red-600 mt-1">{replyError}</p>}
           </div>

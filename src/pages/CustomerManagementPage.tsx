@@ -220,7 +220,7 @@ const CustomerManagementPage: React.FC = () => {
                 value={nameFilter}
                 onChange={(e) => setNameFilter(e.target.value)}
                 placeholder={t('agencyReport.namePlaceholder')}
-                className="w-56 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 mt-1"
+                className="w-56 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-primary-500 mt-1"
               />
             </div>
             <div className="pb-1">
@@ -379,7 +379,7 @@ const CustomerManagementPage: React.FC = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">{t('agencyReport.discountSelectCustomer')}</label>
                     <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-primary-500"
                       value={globalCustomerId}
                       onChange={(e) => setGlobalCustomerId(e.target.value ? parseInt(e.target.value, 10) : '')}
                     >
@@ -408,7 +408,7 @@ const CustomerManagementPage: React.FC = () => {
                     type="text"
                     value={newDiscountName}
                     onChange={(e) => setNewDiscountName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-primary-500"
                   />
                 </div>
                 <div>
@@ -418,7 +418,7 @@ const CustomerManagementPage: React.FC = () => {
                     step="0.01"
                     value={newDiscountRate}
                     onChange={(e) => setNewDiscountRate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-primary-500"
                   />
                 </div>
                 <div className="flex justify-end gap-2">

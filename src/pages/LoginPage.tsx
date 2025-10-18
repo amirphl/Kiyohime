@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Mail, ArrowRight, Eye, EyeOff, LogIn } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useToast } from '../hooks/useToast';
@@ -95,7 +95,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
       <div className='max-w-md w-full space-y-8'>
         {/* Header */}
         <div className='text-center'>
-          <div className='mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center'>
+          <div className='mx-auto h-12 w-12 bg-red-600 rounded-lg flex items-center justify-center'>
             <Mail className='h-6 w-6 text-white' />
           </div>
           <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
@@ -167,7 +167,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <button
               type='submit'
               disabled={isLoading}
-              className={`w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
+              className={`w-full btn-red disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
             >
               {isLoading ? (
                 <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-white'></div>
@@ -185,7 +185,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
               <button
                 type='button'
                 onClick={onNavigateToForgotPassword}
-                className='text-sm text-primary-600 hover:text-primary-700'
+                className='text-sm text-red-600 hover:text-red-700'
               >
                 {t('login.forgotPassword')}
               </button>
@@ -202,7 +202,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <div
               className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}
             >
-              <div className='w-2 h-2 bg-primary-600 rounded-full'></div>
+              <div className='w-2 h-2 bg-red-600 rounded-full'></div>
               <span className='text-sm text-gray-600'>
                 {t('login.features.targeted')}
               </span>
@@ -210,7 +210,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <div
               className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}
             >
-              <div className='w-2 h-2 bg-primary-600 rounded-full'></div>
+              <div className='w-2 h-2 bg-red-600 rounded-full'></div>
               <span className='text-sm text-gray-600'>
                 {t('login.features.segmentation')}
               </span>
@@ -218,7 +218,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <div
               className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}
             >
-              <div className='w-2 h-2 bg-primary-600 rounded-full'></div>
+              <div className='w-2 h-2 bg-red-600 rounded-full'></div>
               <span className='text-sm text-gray-600'>
                 {t('login.features.analytics')}
               </span>
@@ -226,7 +226,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <div
               className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}
             >
-              <div className='w-2 h-2 bg-primary-600 rounded-full'></div>
+              <div className='w-2 h-2 bg-red-600 rounded-full'></div>
               <span className='text-sm text-gray-600'>
                 {t('login.features.compliance')}
               </span>
@@ -241,7 +241,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <button
               type='button'
               onClick={onNavigateToSignup}
-              className='text-primary-600 hover:text-primary-700 font-medium'
+              className='text-red-600 hover:text-red-700 font-medium'
             >
               {t('login.signUpHere')}
             </button>

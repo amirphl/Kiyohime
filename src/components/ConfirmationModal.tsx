@@ -63,7 +63,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         } justify-end space-x-3`}>
           <button
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-60 disabled:cursor-not-allowed"
             disabled={loading}
           >
             {cancelText}
@@ -112,7 +112,7 @@ const SessionExpiredModal: React.FC<SessionExpiredModalProps> = ({ isOpen, onClo
           </p>
           <div className={`flex ${isFa ? 'space-x-reverse space-x-3' : 'space-x-3'} justify-end`}>
             <button
-              className='btn-primary'
+              className='btn-red'
               onClick={onClose}
             >
               {isFa ? 'باشه' : 'OK'}

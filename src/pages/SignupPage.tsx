@@ -500,7 +500,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
       <div className='max-w-2xl mx-auto'>
         {/* Header */}
         <div className='text-center mb-8'>
-          <div className='mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center'>
+          <div className='mx-auto h-12 w-12 bg-red-600 rounded-lg flex items-center justify-center'>
             <User className='h-6 w-6 text-white' />
           </div>
           <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
@@ -931,7 +931,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
             <button
               type='submit'
               disabled={isLoading}
-              className={`w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
+              className={`w-full btn-red disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
             >
               {isLoading ? (
                 <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-white'></div>
@@ -952,7 +952,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 <button
                   type='button'
                   onClick={onNavigateToLogin}
-                  className='text-primary-600 hover:text-primary-700 font-medium'
+                  className='text-red-600 hover:text-red-700 font-medium'
                 >
                   {t('signup.signInHere')}
                 </button>
@@ -1007,7 +1007,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 <button
                   onClick={handleOtpVerification}
                   disabled={isLoading || otpCode.length !== 6}
-                  className='w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='w-full btn-red disabled:opacity-50 disabled:cursor-not-allowed'
                 >
                   {isLoading ? (
                     <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-white mx-auto'></div>
@@ -1021,7 +1021,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                     <button
                       onClick={handleResendOtp}
                       disabled={!canResendOtp || isLoading}
-                      className='text-sm text-primary-600 hover:text-primary-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                      className='text-red-600 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed'
                     >
                       {t('common.resend')}
                     </button>

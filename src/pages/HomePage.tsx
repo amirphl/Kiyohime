@@ -78,7 +78,7 @@ const HomePage: React.FC = () => {
             <div className='flex flex-col sm:flex-row gap-4 justify-center'>
               <button
                 onClick={handleGetStarted}
-                className={`btn-primary text-lg px-8 py-4 flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}
+                className={`btn-red text-lg px-8 py-4 flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}
               >
                 <span>{t('home.hero.cta')}</span>
                 <ArrowRight
@@ -103,7 +103,7 @@ const HomePage: React.FC = () => {
           <div className='grid grid-cols-2 md:grid-cols-4 gap-8'>
             {stats.map((stat, index) => (
               <div key={index} className='text-center'>
-                <div className='text-3xl md:text-4xl font-bold text-primary-600 mb-2'>
+                <div className='text-3xl md:text-4xl font-bold text-red-600 mb-2'>
                   {stat.number}
                 </div>
                 <div className='text-gray-600'>{stat.label}</div>
@@ -131,7 +131,7 @@ const HomePage: React.FC = () => {
                 key={index}
                 className='bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow'
               >
-                <div className='text-primary-600 mb-4'>{feature.icon}</div>
+                <div className='text-red-600 mb-4'>{feature.icon}</div>
                 <h3 className='text-xl font-semibold text-gray-900 mb-3'>
                   {feature.title}
                 </h3>
@@ -157,7 +157,7 @@ const HomePage: React.FC = () => {
           <div className='grid md:grid-cols-3 gap-8'>
             <div className='text-center'>
               <div className='bg-primary-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6'>
-                <span className='text-2xl font-bold text-primary-600'>1</span>
+                <span className='text-2xl font-bold text-red-600'>1</span>
               </div>
               <h3 className='text-xl font-semibold text-gray-900 mb-3'>
                 {t('home.howItWorks.step1.title')}
@@ -169,7 +169,7 @@ const HomePage: React.FC = () => {
 
             <div className='text-center'>
               <div className='bg-primary-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6'>
-                <span className='text-2xl font-bold text-primary-600'>2</span>
+                <span className='text-2xl font-bold text-red-600'>2</span>
               </div>
               <h3 className='text-xl font-semibold text-gray-900 mb-3'>
                 {t('home.howItWorks.step2.title')}
@@ -181,7 +181,7 @@ const HomePage: React.FC = () => {
 
             <div className='text-center'>
               <div className='bg-primary-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6'>
-                <span className='text-2xl font-bold text-primary-600'>3</span>
+                <span className='text-2xl font-bold text-red-600'>3</span>
               </div>
               <h3 className='text-xl font-semibold text-gray-900 mb-3'>
                 {t('home.howItWorks.step3.title')}
@@ -195,7 +195,7 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className='py-20 bg-primary-600'>
+      <section className='py-20 bg-red-600'>
         <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center'>
           <h2 className='text-3xl md:text-4xl font-bold text-white mb-4'>
             {t('home.cta.title')}
@@ -205,7 +205,7 @@ const HomePage: React.FC = () => {
           </p>
           <button
             onClick={handleGetStarted}
-            className={`bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors flex items-center mx-auto ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}
+            className={`bg-white text-red-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors flex items-center mx-auto ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}
           >
             <span>{t('home.cta.button')}</span>
             <ArrowRight className={`h-5 w-5 ${isRTL ? 'rotate-180' : ''}`} />

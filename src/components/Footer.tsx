@@ -99,6 +99,7 @@ const Footer: React.FC = () => {
 
         <div className='border-t border-gray-800 mt-8 pt-8 text-center relative'>
           {/* Enamad trust seal - left side */}
+          {/* Commented out as per request
           <div className='absolute left-0 top-1/2 -translate-y-1/2'>
             <a
               referrerPolicy='origin'
@@ -116,6 +117,7 @@ const Footer: React.FC = () => {
               />
             </a>
           </div>
+          */}
           <p className='text-gray-400'>{t('footer.copyright')}</p>
         </div>
       </div>

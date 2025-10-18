@@ -41,7 +41,7 @@ const ErrorBoundaryContent: React.FC<{
             {t('error.title')}
           </h2>
           <p className='text-sm text-gray-600 mb-4'>{t('error.message')}</p>
-          <button onClick={onRefresh} className='btn-primary'>
+          <button onClick={onRefresh} className='btn-red'>
             {t('error.refresh')}
           </button>
         </div>

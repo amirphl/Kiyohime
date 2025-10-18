@@ -7,16 +7,16 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+          50: '#fff1f2',   // Very light red/pink
+          100: '#ffe4e6', // Light red/pink
+          200: '#fecdd3', // Soft red/pink
+          300: '#fda4af', // Muted coral
+          400: '#fb7185', // Soft coral
+          500: '#f43f5e', // Main soft red
+          600: '#e11d48', // Deeper red
+          700: '#be123c', // Rich red
+          800: '#9f1239', // Dark red
+          900: '#881337', // Very dark red
         },
         lightGreen: {
           50: '#f0fdf4',

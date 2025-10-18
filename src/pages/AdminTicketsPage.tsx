@@ -190,7 +190,7 @@ const AdminTicketsPage: React.FC = () => {
               rows={4}
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 border-gray-300"
+              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary-500 border-gray-300"
             />
           </div>
           <div>

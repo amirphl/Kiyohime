@@ -159,7 +159,7 @@ const CampaignBudgetStep: React.FC = () => {
       calculateMessageCount(campaignData.budget.lineNumber, campaignData.budget.totalBudget);
     }
   }, [campaignData.budget.lineNumber, campaignData.budget.totalBudget, calculateMessageCount]);
-
+  
   // Reset error flag when user makes changes to budget fields
   useEffect(() => {
     if (hasMessageCountError) {
@@ -211,33 +211,33 @@ const CampaignBudgetStep: React.FC = () => {
       <StepHeader
         title={t('campaign.budget.title')}
         subtitle={t('campaign.budget.subtitle')}
-        icon={<DollarSign className="h-6 w-6 text-primary-600" />}
+        icon={<DollarSign className="h-6 w-6 text-red-600" />}
       />
 
       <div className="space-y-6">
         {/* Line Number Selection */}
         <Card>
-          <div className="space-y-4">
+        <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900 flex items-center">
-              <Phone className="h-5 w-5 mr-2 text-primary-600" />
+              <Phone className="h-5 w-5 mr-2 text-red-600" />
               {t('campaign.budget.lineNumber')}
             </h3>
-
+            
             {lineNumbersError ? (
               <div className="text-red-600 text-sm">{lineNumbersError}</div>
             ) : (
-              <FormField
-                id="lineNumber"
+            <FormField
+              id="lineNumber"
                 label={isLoadingLineNumbers ? t('common.loading') : t('campaign.budget.selectLineNumber')}
-                type="select"
+              type="select"
                 options={lineNumberOptions}
-                value={campaignData.budget.lineNumber || ''}
-                onChange={handleLineNumberChange}
-                required
-                placeholder={t('campaign.budget.lineNumberPlaceholder')}
-              />
+              value={campaignData.budget.lineNumber || ''}
+              onChange={handleLineNumberChange}
+              required
+              placeholder={t('campaign.budget.lineNumberPlaceholder')}
+            />
             )}
-
+            
             <div className="text-sm text-gray-500">
               {t('campaign.budget.lineNumberHelp')}
             </div>
@@ -248,15 +248,15 @@ const CampaignBudgetStep: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Total Budget */}
           <Card>
-            <div className="space-y-4">
+        <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <DollarSign className="h-5 w-5 mr-2 text-primary-600" />
+                <DollarSign className="h-5 w-5 mr-2 text-red-600" />
                 {t('campaign.budget.totalBudget')}
               </h3>
               <FormField
                 id="totalBudget"
                 label={t('campaign.budget.campaignBudget')}
-                type="number"
+              type="number"
                 placeholder={t('campaign.budget.budgetPlaceholder')}
                 value={campaignData.budget.totalBudget || ''}
                 onChange={handleTotalBudgetChange}
@@ -276,7 +276,7 @@ const CampaignBudgetStep: React.FC = () => {
           <Card>
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <MessageSquare className="h-5 w-5 mr-2 text-primary-600" />
+                <MessageSquare className="h-5 w-5 mr-2 text-red-600" />
                 {t('campaign.budget.estimatedMessages')}
               </h3>
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -287,7 +287,7 @@ const CampaignBudgetStep: React.FC = () => {
                   </div>
                 ) : messageCount !== undefined ? (
                   <div className="space-y-2">
-                    <div className="text-2xl font-bold text-primary-600">
+                    <div className="text-2xl font-bold text-red-600">
                       {messageCount.toLocaleString()}{typeof maxMessageCount === 'number' ? ` / ${maxMessageCount.toLocaleString()}` : ''} {t('campaign.budget.messages')}
                     </div>
                     <div className="text-sm text-gray-600">
@@ -306,9 +306,9 @@ const CampaignBudgetStep: React.FC = () => {
                     {campaignData.budget.lineNumber && campaignData.budget.totalBudget > 0 ? t('campaign.budget.calculating') : t('campaign.budget.enterBudgetToSee')}
                   </div>
                 )}
-              </div>
+          </div>
               <div className="text-sm text-gray-500">{t('campaign.budget.messageCountHelp')}</div>
-            </div>
+          </div>
           </Card>
         </div>
       </div>

@@ -212,20 +212,20 @@ const ReportsPage: React.FC = () => {
                 value={titleInput}
                 onChange={handleTitleChange}
                 placeholder={t('dashboard.filterTitlePlaceholder') || 'Filter by title...'}
-                className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary-500"
               />
             </div>
             <span className="text-sm text-gray-600">{t('dashboard.sortBy') || 'Sort by'}:</span>
             <div className="inline-flex rounded-md shadow-sm border border-gray-200 overflow-hidden">
               <button
                 onClick={() => setOrderBy('newest')}
-                className={`px-3 py-1 text-sm ${orderBy === 'newest' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                className={`px-3 py-1 text-sm ${orderBy === 'newest' ? 'bg-red-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
               >
                 {t('dashboard.sortNewest') || 'Newest'}
               </button>
               <button
                 onClick={() => setOrderBy('oldest')}
-                className={`px-3 py-1 text-sm border-l border-gray-200 ${orderBy === 'oldest' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                className={`px-3 py-1 text-sm border-l border-gray-200 ${orderBy === 'oldest' ? 'bg-red-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
               >
                 {t('dashboard.sortOldest') || 'Oldest'}
               </button>
@@ -266,7 +266,7 @@ const ReportsPage: React.FC = () => {
                       <td className="px-4 py-2 text-sm text-gray-900">{formatReportDateTime(c.created_at)}</td>
                       <td className="px-4 py-2 text-sm text-gray-900">{formatReportDateTime(c.scheduleat)}</td>
                       <td className="px-4 py-2 text-right">
-                        <button onClick={() => openDetails(c)} className="px-3 py-1 text-sm bg-primary-600 text-white rounded hover:bg-primary-700">{t('dashboard.reportsTable.details')}</button>
+                        <button onClick={() => openDetails(c)} className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700">{t('dashboard.reportsTable.details')}</button>
                       </td>
                     </tr>
                   ))}
@@ -358,7 +358,7 @@ const ReportsPage: React.FC = () => {
             <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
               <button onClick={closeModal} className="px-4 py-2 text-sm rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">{t('common.close') || 'Close'}</button>
               {selected.status === 'rejected' && (
-                <button onClick={handleFixAndRestart} className="px-4 py-2 text-sm rounded bg-primary-600 text-white hover:bg-primary-700">{t('dashboard.fixAndRestart') || 'Fix and restart the campaign?'}</button>
+                <button onClick={handleFixAndRestart} className="px-4 py-2 text-sm rounded bg-red-600 text-white hover:bg-red-700">{t('dashboard.fixAndRestart') || 'Fix and restart the campaign?'}</button>
               )}
             </div>
           </div>

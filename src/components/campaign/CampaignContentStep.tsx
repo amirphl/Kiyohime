@@ -174,7 +174,7 @@ const CampaignContentStep: React.FC = () => {
       <StepHeader
         title={t('campaign.content.title')}
         subtitle={t('campaign.content.subtitle')}
-        icon={<MessageSquare className="h-6 w-6 text-primary-600" />}
+        icon={<MessageSquare className="h-6 w-6 text-red-600" />}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
@@ -183,7 +183,7 @@ const CampaignContentStep: React.FC = () => {
           <Card className="h-full">
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <Link className="h-5 w-5 mr-2 text-primary-600" />
+                <Link className="h-5 w-5 mr-2 text-red-600" />
                 {t('campaign.content.insertLink')}
               </h3>
               <div className="flex items-center space-x-3">
@@ -231,7 +231,7 @@ const CampaignContentStep: React.FC = () => {
           <Card className="h-full">
         <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <Calendar className="h-5 w-5 mr-2 text-primary-600" />
+                <Calendar className="h-5 w-5 mr-2 text-red-600" />
                 {t('campaign.content.scheduleAt')}
               </h3>
               <div className="flex items-center space-x-3">
@@ -294,7 +294,7 @@ const CampaignContentStep: React.FC = () => {
           <Card>
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <MessageSquare className="h-5 w-5 mr-2 text-primary-600" />
+                <MessageSquare className="h-5 w-5 mr-2 text-red-600" />
                 {t('campaign.content.text')}
               </h3>
               <FormField

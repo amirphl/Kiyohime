@@ -210,7 +210,7 @@ const WalletPage: React.FC = () => {
             
             <div className="flex items-center space-x-4">
               <h1 className="text-xl font-semibold text-gray-900 flex items-center">
-                <Wallet className="h-6 w-6 mr-2 text-primary-600" />
+                <Wallet className="h-6 w-6 mr-2 text-red-600" />
                 {t('wallet.title')}
               </h1>
             </div>
@@ -270,7 +270,7 @@ const WalletPage: React.FC = () => {
                   id="chargeAmount"
                   value={chargeAmount}
                   onChange={handleChargeAmountChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-primary-500"
                   placeholder={t('wallet.amountPlaceholder')}
                 />
                 {error && <p className="mt-1 text-sm text-red-600">{error}</p>}

@@ -227,7 +227,7 @@ const CampaignPaymentStep: React.FC = () => {
       <StepHeader
         title={t('campaign.payment.title')}
         subtitle={t('campaign.payment.subtitle')}
-        icon={<Receipt className="h-6 w-6 text-primary-600" />}
+        icon={<Receipt className="h-6 w-6 text-red-600" />}
       />
 
       <div className="space-y-6">
@@ -236,7 +236,7 @@ const CampaignPaymentStep: React.FC = () => {
         <Card>
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900 flex items-center">
-              <Calculator className="h-5 w-5 mr-2 text-primary-600" />
+              <Calculator className="h-5 w-5 mr-2 text-red-600" />
               {t('campaign.payment.costBreakdown')}
             </h3>
             
@@ -278,7 +278,7 @@ const CampaignPaymentStep: React.FC = () => {
                   <div className="text-sm">{costError}</div>
                   <button 
                     onClick={calculateCosts}
-                    className="mt-3 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                    className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                   >
                     {t('campaign.payment.retryCalculation')}
                   </button>
@@ -305,7 +305,7 @@ const CampaignPaymentStep: React.FC = () => {
          <Card>
            <div className="space-y-4">
              <h3 className="text-lg font-medium text-gray-900 flex items-center">
-               <Wallet className="h-5 w-5 mr-2 text-primary-600" />
+               <Wallet className="h-5 w-5 mr-2 text-red-600" />
                {t('campaign.payment.walletBalance')}
              </h3>
              
