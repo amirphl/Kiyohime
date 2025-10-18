@@ -8,12 +8,18 @@ import { useToast } from '../../hooks/useToast';
 import StepHeader from '../ui/StepHeader';
 import Card from '../ui/Card';
 import FormField from '../ui/FormField';
+import { useAuth } from '../../hooks/useAuth';
+
+// Module-level cache and in-flight promise to avoid duplicate fetches
+let activeLineNumbersCache: Array<{ value: string; label: string }> | null = null;
+let activeLineNumbersFetchInFlight: Promise<Array<{ value: string; label: string }>> | null = null;
 
 const CampaignBudgetStep: React.FC = () => {
   const { t } = useTranslation();
   const { campaignData, updateBudget } = useCampaign();
   const { showToast } = useToast();
   const { language } = useLanguage();
+  const { accessToken } = useAuth();
   const currencyLabel = language === 'en' ? 'Toman' : 'تومان';
   
   // State for message count calculation
@@ -23,27 +29,73 @@ const CampaignBudgetStep: React.FC = () => {
   const [messageCountError, setMessageCountError] = useState<string | null>(null);
   const [hasMessageCountError, setHasMessageCountError] = useState(false);
   const [lastApiCall, setLastApiCall] = useState<number>(0);
+
+  // Line numbers state
+  const [lineNumberOptions, setLineNumberOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [isLoadingLineNumbers, setIsLoadingLineNumbers] = useState(false);
+  const [lineNumbersError, setLineNumbersError] = useState<string | null>(null);
   
   // Debouncing for budget field
   const budgetDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const initialCostCalculatedRef = useRef(false);
+  const messageCountRequestInFlightRef = useRef(false);
 
-  // Test data for line numbers
-  const lineNumbers = [
-    { value: 'line_1', label: t('campaign.budget.line1') },
-    { value: 'line_2', label: t('campaign.budget.line2') },
-    { value: 'line_3', label: t('campaign.budget.line3') },
-    { value: 'line_4', label: t('campaign.budget.line4') },
-    { value: 'line_5', label: t('campaign.budget.line5') },
-  ];
+  // Fetch active line numbers once with token
+  useEffect(() => {
+    if (!accessToken) return;
+    if (activeLineNumbersCache) {
+      setLineNumberOptions(activeLineNumbersCache);
+      return;
+    }
+    if (activeLineNumbersFetchInFlight) {
+      setIsLoadingLineNumbers(true);
+      setLineNumbersError(null);
+      activeLineNumbersFetchInFlight
+        .then(opts => {
+          setLineNumberOptions(opts);
+          setIsLoadingLineNumbers(false);
+        })
+        .catch(err => {
+          setLineNumbersError('Failed to load line numbers');
+          setIsLoadingLineNumbers(false);
+          showToast('error', 'Failed to load line numbers');
+        });
+      return;
+    }
+
+    setIsLoadingLineNumbers(true);
+    setLineNumbersError(null);
+    activeLineNumbersFetchInFlight = (async () => {
+      const res = await apiService.listActiveLineNumbers();
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to load line numbers');
+      }
+      const items = (res.data.items || []) as Array<{ line_number: string }>;
+      const opts = items.map(it => ({ value: it.line_number, label: it.line_number }));
+      return opts;
+    })();
+
+    activeLineNumbersFetchInFlight
+      .then(opts => {
+        activeLineNumbersCache = opts;
+        setLineNumberOptions(opts);
+      })
+      .catch(err => {
+        setLineNumbersError('Failed to load line numbers');
+        showToast('error', 'Failed to load line numbers');
+      })
+      .finally(() => {
+        setIsLoadingLineNumbers(false);
+        activeLineNumbersFetchInFlight = null;
+      });
+  }, [accessToken, showToast]);
 
   // API call for message count calculation
   const calculateMessageCount = useCallback(async (currentLineNumber?: string, currentBudget?: number) => {
-    // Don't send request if we have a message count error
     if (hasMessageCountError) {
       return;
     }
 
-    // Use passed values or fall back to current state
     const lineNumber = currentLineNumber || campaignData.budget.lineNumber;
     const budget = currentBudget || campaignData.budget.totalBudget;
 
@@ -51,6 +103,10 @@ const CampaignBudgetStep: React.FC = () => {
       return;
     }
 
+    if (messageCountRequestInFlightRef.current) {
+      return;
+    }
+    messageCountRequestInFlightRef.current = true;
     setIsLoadingMessageCount(true);
     setMessageCountError(null);
 
@@ -66,20 +122,20 @@ const CampaignBudgetStep: React.FC = () => {
         scheduleat: campaignData.content.scheduleAt,
         line_number: lineNumber,
         budget: budget,
+        tags: campaignData.segment.tags,
       });
 
       if (response.success && response.data) {
         setMessageCount(response.data.msg_target);
         setMaxMessageCount(response.data.max_msg_target);
         setMessageCountError(null);
-        setHasMessageCountError(false); // Clear error flag on success
+        setHasMessageCountError(false);
         setLastApiCall(Date.now());
-        console.log('✅ Message count calculated:', response.data.msg_target);
       } else {
         const errorMessage = response.message || 'Failed to calculate message count';
         setMessageCountError(errorMessage);
         setMessageCount(undefined);
-        setHasMessageCountError(true); // Set error flag to prevent further requests
+        setHasMessageCountError(true);
         showToast('error', errorMessage);
       }
     } catch (error) {
@@ -87,13 +143,23 @@ const CampaignBudgetStep: React.FC = () => {
       const errorMessage = 'Network error while calculating message count';
       setMessageCountError(errorMessage);
       setMessageCount(undefined);
-      setHasMessageCountError(true); // Set error flag to prevent further requests
+      setHasMessageCountError(true);
       showToast('error', errorMessage);
     } finally {
       setIsLoadingMessageCount(false);
+      messageCountRequestInFlightRef.current = false;
     }
-  }, [hasMessageCountError, campaignData.segment.campaignTitle, campaignData.segment.segment, campaignData.segment.subsegments, campaignData.segment.sex, campaignData.segment.city, campaignData.content.link, campaignData.content.text, campaignData.content.scheduleAt, showToast]);
+  }, [hasMessageCountError, campaignData.segment.campaignTitle, campaignData.segment.segment, campaignData.segment.subsegments, campaignData.segment.sex, campaignData.segment.city, campaignData.content.link, campaignData.content.text, campaignData.content.scheduleAt, showToast, campaignData.budget.lineNumber, campaignData.budget.totalBudget]);
   
+  // One-time initial calculate if both line number and budget are pre-filled
+  useEffect(() => {
+    if (initialCostCalculatedRef.current) return;
+    if (campaignData.budget.lineNumber && campaignData.budget.totalBudget > 0) {
+      initialCostCalculatedRef.current = true;
+      calculateMessageCount(campaignData.budget.lineNumber, campaignData.budget.totalBudget);
+    }
+  }, [campaignData.budget.lineNumber, campaignData.budget.totalBudget, calculateMessageCount]);
+
   // Reset error flag when user makes changes to budget fields
   useEffect(() => {
     if (hasMessageCountError) {
@@ -112,39 +178,26 @@ const CampaignBudgetStep: React.FC = () => {
   }, []);
 
   const handleLineNumberChange = (value: string) => {
-    console.log('🔧 Line number changed to:', value, 'Current budget:', campaignData.budget.totalBudget);
     updateBudget({ lineNumber: value });
-    
-    // Only calculate if we have both line number and budget
-    // Pass the new value directly to ensure we use the latest
+    if (budgetDebounceRef.current) {
+      clearTimeout(budgetDebounceRef.current);
+    }
     if (value && campaignData.budget.totalBudget > 0) {
-      console.log('✅ Line number change: Both fields have values, scheduling API call');
-      setTimeout(() => {
+      budgetDebounceRef.current = setTimeout(() => {
         calculateMessageCount(value, campaignData.budget.totalBudget);
       }, 1000);
-    } else {
-      console.log('⚠️ Line number change: Missing budget value, skipping API call');
     }
   };
 
   const handleTotalBudgetChange = (value: number) => {
-    console.log('💰 Budget changed to:', value, 'Current line number:', campaignData.budget.lineNumber);
     updateBudget({ totalBudget: value });
-    
-    // Clear any existing timeout
     if (budgetDebounceRef.current) {
       clearTimeout(budgetDebounceRef.current);
     }
-    
-    // Only calculate if we have both line number and budget
-    // Pass the new value directly to ensure we use the latest
     if (value > 0 && campaignData.budget.lineNumber) {
-      console.log('✅ Budget change: Both fields have values, scheduling API call');
       budgetDebounceRef.current = setTimeout(() => {
         calculateMessageCount(campaignData.budget.lineNumber, value);
       }, 1000);
-    } else {
-      console.log('⚠️ Budget change: Missing line number value, skipping API call');
     }
   };
 
@@ -164,23 +217,27 @@ const CampaignBudgetStep: React.FC = () => {
       <div className="space-y-6">
         {/* Line Number Selection */}
         <Card>
-        <div className="space-y-4">
+          <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900 flex items-center">
               <Phone className="h-5 w-5 mr-2 text-primary-600" />
               {t('campaign.budget.lineNumber')}
             </h3>
-            
-            <FormField
-              id="lineNumber"
-              label={t('campaign.budget.selectLineNumber')}
-              type="select"
-              options={lineNumbers}
-              value={campaignData.budget.lineNumber || ''}
-              onChange={handleLineNumberChange}
-              required
-              placeholder={t('campaign.budget.lineNumberPlaceholder')}
-            />
-            
+
+            {lineNumbersError ? (
+              <div className="text-red-600 text-sm">{lineNumbersError}</div>
+            ) : (
+              <FormField
+                id="lineNumber"
+                label={isLoadingLineNumbers ? t('common.loading') : t('campaign.budget.selectLineNumber')}
+                type="select"
+                options={lineNumberOptions}
+                value={campaignData.budget.lineNumber || ''}
+                onChange={handleLineNumberChange}
+                required
+                placeholder={t('campaign.budget.lineNumberPlaceholder')}
+              />
+            )}
+
             <div className="text-sm text-gray-500">
               {t('campaign.budget.lineNumberHelp')}
             </div>
@@ -191,7 +248,7 @@ const CampaignBudgetStep: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Total Budget */}
           <Card>
-        <div className="space-y-4">
+            <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
                 <DollarSign className="h-5 w-5 mr-2 text-primary-600" />
                 {t('campaign.budget.totalBudget')}
@@ -199,7 +256,7 @@ const CampaignBudgetStep: React.FC = () => {
               <FormField
                 id="totalBudget"
                 label={t('campaign.budget.campaignBudget')}
-              type="number"
+                type="number"
                 placeholder={t('campaign.budget.budgetPlaceholder')}
                 value={campaignData.budget.totalBudget || ''}
                 onChange={handleTotalBudgetChange}
@@ -249,9 +306,9 @@ const CampaignBudgetStep: React.FC = () => {
                     {campaignData.budget.lineNumber && campaignData.budget.totalBudget > 0 ? t('campaign.budget.calculating') : t('campaign.budget.enterBudgetToSee')}
                   </div>
                 )}
-          </div>
+              </div>
               <div className="text-sm text-gray-500">{t('campaign.budget.messageCountHelp')}</div>
-          </div>
+            </div>
           </Card>
         </div>
       </div>
