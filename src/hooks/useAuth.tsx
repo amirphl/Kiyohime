@@ -10,6 +10,9 @@ export const registerCampaignClearFunction = (clearFn: () => void) => {
   campaignContextClearFunction = clearFn;
 };
 
+// Guard to ensure we only handle customer unauthorized once per session
+let customerUnauthorizedHandled = false;
+
 interface Customer {
   id: number;
   uuid: string;
@@ -47,13 +50,33 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<Customer | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  // Initialize state from localStorage synchronously to avoid token race on first render
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => localStorage.getItem('is_authenticated') === 'true');
+  const [user, setUser] = useState<Customer | null>(() => {
+    const userData = localStorage.getItem('customer_data');
+    if (!userData) return null;
+    try {
+      return JSON.parse(userData);
+    } catch {
+      return null;
+    }
+  });
+  const [accessToken, setAccessToken] = useState<string | null>(() => localStorage.getItem('access_token'));
+  const [refreshToken, setRefreshToken] = useState<string | null>(() => localStorage.getItem('refresh_token'));
 
   useEffect(() => {
-    // Check for existing authentication on app load
+    // Keep API service token in sync with accessToken state (runs immediately after mount)
+    if (accessToken) {
+      apiService.setAccessToken(accessToken);
+      console.log('✅ Access token synced with API service:', accessToken.substring(0, 20) + '...');
+    } else {
+      apiService.setAccessToken(null);
+      console.log('✅ API service token cleared');
+    }
+  }, [accessToken]);
+
+  // Backward compatibility: fallback initialization if localStorage changes or was not set
+  useEffect(() => {
     const token = localStorage.getItem('access_token');
     const refresh = localStorage.getItem('refresh_token');
     const userData = localStorage.getItem('customer_data');
@@ -66,8 +89,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setRefreshToken(refresh);
         setUser(parsedUser);
         setIsAuthenticated(true);
-        
-        // Sync token with API service
         apiService.setAccessToken(token);
         console.log('✅ Access token synced with API service on app initialization');
       } catch (error) {
@@ -99,6 +120,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setRefreshToken(tokens.refresh_token);
     setUser(userData);
     setIsAuthenticated(true);
+
+    // Attach token to API service immediately
+    apiService.setAccessToken(tokens.token);
 
     console.log('User data stored successfully. Authentication state updated.');
     console.log('Account type:', userData.account_type);
@@ -142,32 +166,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logoutAndRedirect = useCallback(() => {
     console.log('🚨 Logging out due to 401 Unauthorized response');
-    console.log('🧹 Performing comprehensive cleanup...');
-    
-    // First logout (clear state and localStorage)
-    logout();
-    
-    // Additional safety check - ensure all user data is cleared
-    const remainingItems = Object.keys(localStorage);
-    if (remainingItems.length > 0) {
-      console.log('⚠️  Remaining localStorage items after logout:', remainingItems);
-      // These should only be user preferences like language
-      remainingItems.forEach(item => {
-        if (!item.includes('language') && !item.includes('theme') && !item.includes('ui_')) {
-          console.log(`🗑️  Force removing: ${item}`);
-          localStorage.removeItem(item);
-        }
-      });
+    // Prevent duplicate alerts/redirects if multiple requests hit 401
+    if (customerUnauthorizedHandled) {
+      return;
     }
-    
-    // Use a more reliable redirect method
-    // Force a full page reload to ensure clean state and prevent React Router conflicts
-    console.log('🔄 Redirecting to login page with full page reload...');
-    
-    // Small delay to ensure logout state is fully processed
+    customerUnauthorizedHandled = true;
+
+    // Perform cleanup first to stop further authenticated requests
+    logout();
+
+    // Determine language for alert before clearing storage
+    let lang: 'en' | 'fa' = 'en';
+    try {
+      const docLang = (document?.documentElement?.lang || '').toLowerCase();
+      const storedLang = (localStorage.getItem('language') || '').toLowerCase();
+      if (docLang === 'fa' || storedLang === 'fa') lang = 'fa';
+    } catch {}
+
+    // Show alert to user before redirecting
+    try {
+      if (lang === 'fa') {
+        alert('نشست شما منقضی شده است. در حال هدایت به صفحه ورود...');
+      } else {
+        alert('Session expired. Redirecting to login page...');
+      }
+    } catch {}
+
+    // Ensure all local storage is cleared before redirecting
+    try {
+      localStorage.clear();
+    } catch {}
+
+    // Redirect after a short delay
     setTimeout(() => {
-      window.location.replace('/login');
-    }, 100);
+      window.location.replace('/signin');
+    }, 1500);
   }, [logout]);
 
   // Set up the unauthorized handler for the API service
@@ -182,17 +215,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error('❌ Failed to configure unauthorized handler');
     }
   }, [logoutAndRedirect]);
-
-  // Keep API service token in sync with accessToken state
-  useEffect(() => {
-    if (accessToken) {
-      apiService.setAccessToken(accessToken);
-      console.log('✅ Access token synced with API service:', accessToken.substring(0, 20) + '...');
-    } else {
-      apiService.setAccessToken(null);
-      console.log('✅ API service token cleared');
-    }
-  }, [accessToken]);
 
   // Manual logout function for user-initiated logout
   const manualLogout = useCallback(() => {
