@@ -30,9 +30,13 @@ export interface EnvironmentConfig {
       calculateCapacity: string;
       calculateCost: string;
       update: string;
+      audienceSpec: string;
     };
     wallet: {
       balance: string;
+    };
+    lineNumbers: {
+      active: string;
     };
     analytics: {
       dashboard: string;
@@ -84,9 +88,13 @@ const defaultConfig: EnvironmentConfig = {
       calculateCapacity: '/campaigns/calculate-capacity',
       calculateCost: '/campaigns/calculate-cost',
       update: '/campaigns/:uuid',
+      audienceSpec: '/campaigns/audience-spec',
     },
     wallet: {
       balance: '/wallet/balance',
+    },
+    lineNumbers: {
+      active: '/line-numbers/active',
     },
     analytics: {
       dashboard: '/analytics/dashboard',
