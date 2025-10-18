@@ -11,8 +11,7 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
         segment.campaignTitle && 
         segment.segment && 
         segment.subsegments && segment.subsegments.length > 0 &&
-        segment.sex && 
-        segment.city && segment.city.length > 0 &&
+        // sex and city are optional for now
         segment.capacityTooLow !== true
       );
     },
