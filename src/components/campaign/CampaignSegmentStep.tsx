@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Target, Users, MapPin, User, Building } from 'lucide-react';
+import { Target, Users, MapPin } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useCampaign } from '../../hooks/useCampaign';
 import { useToast } from '../../hooks/useToast';
@@ -7,26 +7,47 @@ import { apiService } from '../../services/api';
 import StepHeader from '../ui/StepHeader';
 import Card from '../ui/Card';
 import FormField from '../ui/FormField';
-import { CalculateCampaignCapacityRequest } from '../../types/campaign';
+import { CalculateCampaignCapacityRequest, AudienceSpec, AudienceSpecItem } from '../../types/campaign';
 import { iranCitiesOrdered } from '../../data/iranCities';
+import { useAuth } from '../../hooks/useAuth';
+
+// Module-level cache and in-flight promise to avoid duplicate audience-spec fetches (handles Strict Mode double effects)
+let audienceSpecCache: AudienceSpec | null = null;
+let audienceSpecFetchInFlight: Promise<AudienceSpec> | null = null;
 
 const CampaignSegmentStep: React.FC = () => {
   const { t } = useTranslation();
   const { campaignData, updateSegment } = useCampaign();
   const { showToast } = useToast();
+  const { isAuthenticated, accessToken } = useAuth();
   
+  // Ensure API service has token to avoid race on hard refresh
+  useEffect(() => {
+    if (accessToken) {
+      apiService.setAccessToken(accessToken);
+    }
+  }, [accessToken]);
+
   // Campaign capacity state
   const [capacity, setCapacity] = useState<number | undefined>(campaignData.segment.capacity);
   const [isLoadingCapacity, setIsLoadingCapacity] = useState(false);
   const [capacityError, setCapacityError] = useState<string | null>(null);
   const [hasCapacityError, setHasCapacityError] = useState(false);
   const capacityDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const capacityRequestInFlightRef = useRef(false);
+  const capacityTriggeredForKeyRef = useRef<string | null>(null);
+  const initialCapacityTriggeredRef = useRef(false);
+
+  // Audience spec state
+  const [audienceSpec, setAudienceSpec] = useState<AudienceSpec | null>(null);
+  const [loadingSpec, setLoadingSpec] = useState(false);
+  const [specError, setSpecError] = useState<string | null>(null);
+  const audienceSpecFetchedRef = useRef(false);
 
   // Debounced capacity calculation
   const debouncedCalculateCapacity = useCallback((data: CalculateCampaignCapacityRequest) => {
-    // Don't send request if we have a capacity error
     if (hasCapacityError) return;
-    if (!data.segment) return; // Don't calculate without segment
+    if (!data.segment) return;
 
     if (capacityDebounceRef.current) {
       clearTimeout(capacityDebounceRef.current);
@@ -34,6 +55,8 @@ const CampaignSegmentStep: React.FC = () => {
 
     setIsLoadingCapacity(true);
     setCapacityError(null);
+    if (capacityRequestInFlightRef.current) return;
+    capacityRequestInFlightRef.current = true;
 
     capacityDebounceRef.current = setTimeout(async () => {
       try {
@@ -68,8 +91,9 @@ const CampaignSegmentStep: React.FC = () => {
         showToast('error', errorMessage);
       } finally {
         setIsLoadingCapacity(false);
+        capacityRequestInFlightRef.current = false;
       }
-    }, 1000); // 1 second debounce
+    }, 800);
   }, [showToast, hasCapacityError, t, updateSegment]);
 
   // Reset capacity error when user makes changes
@@ -85,100 +109,241 @@ const CampaignSegmentStep: React.FC = () => {
     campaignData.segment.subsegments,
     campaignData.segment.sex,
     campaignData.segment.city,
+    campaignData.segment.tags,
   ]);
+
+  // Helper: compute all tags for current segment + subsegments
+  const computeTags = useCallback((segmentValue: string, subsegments: string[]): string[] => {
+    const tagSet = new Set<string>();
+    if (!audienceSpec || !segmentValue || !subsegments?.length) return [];
+    subsegments.forEach(s => {
+      const item = audienceSpec[segmentValue]?.[s];
+      if (item?.tags) item.tags.forEach(tg => tagSet.add(tg));
+    });
+    return Array.from(tagSet);
+  }, [audienceSpec]);
 
   // Helper function to trigger capacity calculation
   const triggerCapacityCalculation = useCallback((overrides?: Partial<CalculateCampaignCapacityRequest>) => {
+    const effectiveSegment = overrides?.segment ?? campaignData.segment.segment;
+    const effectiveSubsegments = overrides?.subsegment ?? campaignData.segment.subsegments;
+    const effectiveTags = overrides?.tags ?? campaignData.segment.tags ?? [];
+
+    if (
+      hasCapacityError ||
+      !effectiveSegment ||
+      !effectiveSubsegments || effectiveSubsegments.length === 0 ||
+      effectiveTags.length === 0
+    ) {
+      return;
+    }
+
+    // Build a key for the current selection to avoid duplicate calls for same selection
+    const selectionKey = `${effectiveSegment}__${effectiveSubsegments.sort().join(',')}__${effectiveTags.sort().join(',')}`;
+    if (capacityTriggeredForKeyRef.current === selectionKey || capacityRequestInFlightRef.current) {
+      return;
+    }
+    capacityTriggeredForKeyRef.current = selectionKey;
+
     const capacityData: CalculateCampaignCapacityRequest = {
       title: campaignData.segment.campaignTitle,
-      segment: campaignData.segment.segment,
-      subsegment: campaignData.segment.subsegments,
+      segment: effectiveSegment,
+      subsegment: effectiveSubsegments,
       sex: campaignData.segment.sex,
       city: campaignData.segment.city,
+      tags: effectiveTags,
       ...overrides,
     };
 
-    if (hasCapacityError || !capacityData.segment) return;
     debouncedCalculateCapacity(capacityData);
-  }, [hasCapacityError, campaignData.segment.campaignTitle, campaignData.segment.segment, campaignData.segment.subsegments, campaignData.segment.sex, campaignData.segment.city, debouncedCalculateCapacity]);
+  }, [hasCapacityError, campaignData.segment.campaignTitle, campaignData.segment.segment, campaignData.segment.subsegments, campaignData.segment.sex, campaignData.segment.city, campaignData.segment.tags, debouncedCalculateCapacity]);
 
-  // Test data for segments with their specific subsegments
-  const segmentsWithSubsegments = {
-    new_customers: {
-      label: 'New Customers',
-      subsegments: [
-        { value: 'first_time_buyers', label: 'First Time Buyers' },
-        { value: 'recent_signups', label: 'Recent Signups' },
-        { value: 'trial_users', label: 'Trial Users' },
-        { value: 'onboarding', label: 'Onboarding' },
-      ]
-    },
-    existing_customers: {
-      label: 'Existing Customers',
-      subsegments: [
-        { value: 'active_users', label: 'Active Users' },
-        { value: 'regular_buyers', label: 'Regular Buyers' },
-        { value: 'returning_customers', label: 'Returning Customers' },
-        { value: 'engaged_users', label: 'Engaged Users' },
-      ]
-    },
-    vip_customers: {
-      label: 'VIP Customers',
-      subsegments: [
-        { value: 'high_value', label: 'High Value' },
-        { value: 'premium_tier', label: 'Premium Tier' },
-        { value: 'exclusive_members', label: 'Exclusive Members' },
-        { value: 'whale_customers', label: 'Whale Customers' },
-      ]
-    },
-    inactive_customers: {
-      label: 'Inactive Customers',
-      subsegments: [
-        { value: 'dormant_users', label: 'Dormant Users' },
-        { value: 'churned_customers', label: 'Churned Customers' },
-        { value: 'low_engagement', label: 'Low Engagement' },
-        { value: 'at_risk', label: 'At Risk' },
-      ]
-    },
-    loyal_customers: {
-      label: 'Loyal Customers',
-      subsegments: [
-        { value: 'long_term', label: 'Long Term' },
-        { value: 'brand_advocates', label: 'Brand Advocates' },
-        { value: 'referral_sources', label: 'Referral Sources' },
-        { value: 'community_members', label: 'Community Members' },
-      ]
-    },
-    premium_customers: {
-      label: 'Premium Customers',
-      subsegments: [
-        { value: 'subscription_holders', label: 'Subscription Holders' },
-        { value: 'enterprise_clients', label: 'Enterprise Clients' },
-        { value: 'high_spenders', label: 'High Spenders' },
-        { value: 'feature_users', label: 'Feature Users' },
-      ]
-    },
+  // Reset the trigger key when selection changes
+  useEffect(() => {
+    capacityTriggeredForKeyRef.current = null;
+  }, [campaignData.segment.segment, campaignData.segment.subsegments, campaignData.segment.tags]);
+
+  // One-time initial trigger when preselected values exist
+  useEffect(() => {
+    if (initialCapacityTriggeredRef.current) return;
+    const hasSegment = !!campaignData.segment.segment;
+    const hasSubs = !!campaignData.segment.subsegments && campaignData.segment.subsegments.length > 0;
+    const hasTags = !!campaignData.segment.tags && campaignData.segment.tags.length > 0;
+    if (hasSegment && hasSubs && hasTags) {
+      initialCapacityTriggeredRef.current = true;
+      triggerCapacityCalculation({
+        segment: campaignData.segment.segment,
+        subsegment: campaignData.segment.subsegments,
+        tags: campaignData.segment.tags,
+      });
+    }
+  }, [campaignData.segment.segment, campaignData.segment.subsegments, campaignData.segment.tags, triggerCapacityCalculation]);
+
+  // Fetch audience spec once using module-level cache/promise (handles Strict Mode)
+  useEffect(() => {
+    if (!accessToken) return;
+    if (audienceSpecFetchedRef.current) return;
+
+    let canceled = false;
+    setLoadingSpec(true);
+    setSpecError(null);
+
+    const useSpec = (spec: AudienceSpec) => {
+      if (canceled) return;
+      setAudienceSpec(spec);
+      setSpecError(null);
+      audienceSpecFetchedRef.current = true;
+      setLoadingSpec(false);
+    };
+
+    if (audienceSpecCache) {
+      useSpec(audienceSpecCache);
+      return () => { canceled = true; };
+    }
+
+    if (audienceSpecFetchInFlight) {
+      audienceSpecFetchInFlight
+        .then(spec => useSpec(spec))
+        .catch(() => {
+          if (canceled) return;
+          const msg = 'Failed to load audience spec';
+          setSpecError(msg);
+          showToast('error', msg);
+          setLoadingSpec(false);
+        });
+      return () => { canceled = true; };
+    }
+
+    audienceSpecFetchInFlight = (async () => {
+      const res = await apiService.listAudienceSpec();
+      const spec = (res as any)?.data?.spec ?? (res as any)?.data?.data?.spec;
+      if (!res.success || !spec) {
+        throw new Error(res.message || 'Failed to load audience spec');
+      }
+      return spec as AudienceSpec;
+    })();
+
+    audienceSpecFetchInFlight
+      .then(spec => {
+        audienceSpecCache = spec;
+        useSpec(spec);
+      })
+      .catch((e: any) => {
+        if (canceled) return;
+        const msg = e?.message || 'Failed to load audience spec';
+        setSpecError(msg);
+        showToast('error', msg);
+        setLoadingSpec(false);
+      })
+      .finally(() => {
+        audienceSpecFetchInFlight = null;
+      });
+
+    return () => { canceled = true; };
+  }, [accessToken]);
+
+  // Build segments and subsegments from audience spec
+  const segments = useMemo(() => {
+    if (!audienceSpec) return [] as Array<{ value: string; label: string }>;
+    return Object.keys(audienceSpec).map(seg => ({ value: seg, label: seg.replace(/_/g, ' ') }));
+  }, [audienceSpec]);
+
+  // Local search for segments
+  const [segmentSearch, setSegmentSearch] = useState('');
+  const filteredSegments = useMemo(() => {
+    const q = segmentSearch.trim().toLowerCase();
+    if (!q) return segments;
+    return segments.filter(s => s.label.toLowerCase().includes(q) || s.value.toLowerCase().includes(q));
+  }, [segmentSearch, segments]);
+
+  // Build segment-subsegment pairs for search recommendations
+  const segmentSubPairs = useMemo(() => {
+    if (!audienceSpec) return [] as Array<{ segValue: string; segLabel: string; subValue: string; subLabel: string }>;
+    const pairs: Array<{ segValue: string; segLabel: string; subValue: string; subLabel: string }> = [];
+    Object.keys(audienceSpec).forEach(seg => {
+      const segLabel = seg.replace(/_/g, ' ');
+      Object.keys(audienceSpec[seg] || {}).forEach(sub => {
+        pairs.push({ segValue: seg, segLabel, subValue: sub, subLabel: sub.replace(/_/g, ' ') });
+      });
+    });
+    return pairs;
+  }, [audienceSpec]);
+
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchBoxRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const onClickOutside = (e: MouseEvent) => {
+      if (searchBoxRef.current && !searchBoxRef.current.contains(e.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, []);
+
+  const getSubsegmentsForSegment = useCallback((segmentValue: string): Array<{ value: string; label: string; item?: AudienceSpecItem }> => {
+    if (!audienceSpec || !segmentValue || !audienceSpec[segmentValue]) return [];
+    return Object.entries(audienceSpec[segmentValue]).map(([sub, item]) => ({ value: sub, label: sub.replace(/_/g, ' '), item }));
+  }, [audienceSpec]);
+
+  // Keep tags in sync implicitly based on current selection
+  useEffect(() => {
+    if (!audienceSpec) return;
+    if (!campaignData.segment.segment) return;
+    const subs = campaignData.segment.subsegments || [];
+    const newTags = computeTags(campaignData.segment.segment, subs);
+    const currentTags = campaignData.segment.tags || [];
+    if (newTags.length !== currentTags.length || newTags.some(t => !currentTags.includes(t))) {
+      updateSegment({ tags: newTags });
+    }
+  }, [audienceSpec, campaignData.segment.segment, campaignData.segment.subsegments, computeTags, updateSegment]);
+
+  const handleCampaignTitleChange = (value: string) => {
+    updateSegment({ campaignTitle: value });
   };
 
-  // Get available segments for dropdown
-  const segments = Object.entries(segmentsWithSubsegments).map(([value, data]) => ({
-    value,
-    label: data.label
-  }));
-
-  // Get subsegments based on selected segment
-  const getSubsegmentsForSegment = (segmentValue: string) => {
-    return segmentsWithSubsegments[segmentValue as keyof typeof segmentsWithSubsegments]?.subsegments || [];
+  const handleSegmentChange = (value: string) => {
+    updateSegment({ 
+      segment: value,
+      subsegments: [],
+      tags: [],
+      capacity: undefined,
+      capacityTooLow: false,
+    });
+    setCapacity(undefined);
+    setHasCapacityError(false);
+    setCapacityError(null);
+    triggerCapacityCalculation({ segment: value, subsegment: [], tags: [] });
   };
 
-  // Sex options
+  const handleSubsegmentsChange = (value: string) => {
+    const currentSubsegments = campaignData.segment.subsegments || [];
+    let newSubsegments: string[];
+    
+    if (currentSubsegments.includes(value)) {
+      newSubsegments = currentSubsegments.filter(sub => sub !== value);
+    } else {
+      newSubsegments = [...currentSubsegments, value];
+    }
+    const newTags = computeTags(campaignData.segment.segment, newSubsegments);
+    updateSegment({ subsegments: newSubsegments, tags: newTags });
+    if (!newSubsegments.length || !newTags.length) {
+      setCapacity(undefined);
+      setHasCapacityError(false);
+      setCapacityError(null);
+      updateSegment({ capacity: undefined, capacityTooLow: false });
+    }
+    triggerCapacityCalculation({ subsegment: newSubsegments, tags: newTags });
+  };
+
+  // Sex and City now optional: keep handlers but do not require in UI
   const sexOptions = [
     { value: 'male', label: 'Male' },
     { value: 'female', label: 'Female' },
     { value: 'all', label: 'All' },
   ];
 
-  // Cities ordered by population (top ~200) - ensure unique values to avoid duplicate React keys
   const cities = useMemo(() => {
     const seen = new Set<string>();
     return iranCitiesOrdered.filter(c => {
@@ -188,38 +353,8 @@ const CampaignSegmentStep: React.FC = () => {
     });
   }, []);
 
-  const handleCampaignTitleChange = (value: string) => {
-    updateSegment({ campaignTitle: value });
-  };
-
-  const handleSegmentChange = (value: string) => {
-    // Clear subsegments when segment changes
-    updateSegment({ 
-      segment: value,
-      subsegments: []
-    });
-    triggerCapacityCalculation({ segment: value, subsegment: [] });
-  };
-
-  const handleSubsegmentsChange = (value: string) => {
-    const currentSubsegments = campaignData.segment.subsegments || [];
-    let newSubsegments: string[];
-    
-    if (currentSubsegments.includes(value)) {
-      // Remove if already selected
-      newSubsegments = currentSubsegments.filter(sub => sub !== value);
-    } else {
-      // Add if not selected
-      newSubsegments = [...currentSubsegments, value];
-    }
-    
-    updateSegment({ subsegments: newSubsegments });
-    triggerCapacityCalculation({ subsegment: newSubsegments });
-  };
-
   const handleSexChange = (value: string) => {
     updateSegment({ sex: value });
-    triggerCapacityCalculation({ sex: value });
   };
 
   const handleCityChange = (value: string) => {
@@ -227,15 +362,11 @@ const CampaignSegmentStep: React.FC = () => {
     let newCities: string[];
     
     if (currentCities.includes(value)) {
-      // Remove if already selected
       newCities = currentCities.filter(city => city !== value);
     } else {
-      // Add if not selected
       newCities = [...currentCities, value];
     }
-    
     updateSegment({ city: newCities });
-    triggerCapacityCalculation({ city: newCities });
   };
 
   return (
@@ -250,7 +381,7 @@ const CampaignSegmentStep: React.FC = () => {
         {/* Row 1: Campaign Title (full width) */}
         <div className="md:col-span-2">
           <Card>
-      <div className="space-y-4">
+            <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
                 <Target className="h-5 w-5 mr-2 text-primary-600" />
                 {t('campaign.segment.campaignTitle')}
@@ -268,32 +399,12 @@ const CampaignSegmentStep: React.FC = () => {
                   message: t('campaign.segment.campaignTitleValidation')
                 }}
               />
-        </div>
+            </div>
           </Card>
-      </div>
+        </div>
 
-        {/* Row 2: Sex (left) and Capacity (right) */}
-        <div className="flex flex-col">
-          <Card className="h-full">
-      <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <User className="h-5 w-5 mr-2 text-primary-600" />
-                {t('campaign.segment.sex')}
-              </h3>
-              <FormField
-                id="sex"
-                label={t('campaign.segment.selectSex')}
-                type="select"
-                options={sexOptions}
-                value={campaignData.segment.sex || ''}
-                onChange={handleSexChange}
-                required
-                placeholder={t('campaign.segment.sexPlaceholder')}
-        />
-      </div>
-          </Card>
-        </div>
-        <div className="flex flex-col">
+        {/* Row 2: Capacity */}
+        <div className="md:col-span-2">
           <Card className="h-full">
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
@@ -321,16 +432,16 @@ const CampaignSegmentStep: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L2.298 18c-.77 1.333.192 3 1.732 3z"></path>
                     </svg>
                   )}
-      </div>
+                </div>
               </div>
               {capacityError && (
                 <p className="text-sm text-red-600">{capacityError}</p>
               )}
             </div>
           </Card>
-          </div>
+        </div>
 
-        {/* Row 3: Segment (left, includes Cities) and Subsegments (right) */}
+        {/* Row 3: Segment and Subsegments */}
         <div>
           <Card>
             <div className="space-y-4">
@@ -338,74 +449,96 @@ const CampaignSegmentStep: React.FC = () => {
                 <Users className="h-5 w-5 mr-2 text-primary-600" />
                 {t('campaign.segment.segment')}
               </h3>
-              <FormField
-                id="segment"
-                label={t('campaign.segment.selectSegment')}
-                type="select"
-                options={segments}
-                value={campaignData.segment.segment || ''}
-                onChange={handleSegmentChange}
-                required
-                placeholder={t('campaign.segment.segmentPlaceholder')}
-              />
-
-              {/* Cities inside Segment card for compact layout */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-gray-900 flex items-center">
-                  <Building className="h-4 w-4 mr-2 text-primary-600" />
-                  {t('campaign.segment.cities')}
-                </h4>
-                <p className="text-sm text-gray-600">{t('campaign.segment.citiesHelp')}</p>
-            <select
-                  id="cities"
-                  value=""
-                  onChange={(e) => {
-                    const selectedValue = e.target.value;
-                    if (!selectedValue) return;
-                    const current = campaignData.segment.city || [];
-                    const exists = current.includes(selectedValue);
-                    const next = exists ? current : [...current, selectedValue];
-                    updateSegment({ city: next });
-                    triggerCapacityCalculation({ city: next });
-                  }}
-                  className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                >
-                  <option value="">{t('campaign.segment.citiesPlaceholder') || 'Select a city'}</option>
-                  {cities.map((city) => (
-                    <option key={city.value} value={city.value}>
-                      {city.label}
-                </option>
-              ))}
-            </select>
-                {campaignData.segment.city && campaignData.segment.city.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {campaignData.segment.city.map((cityValue) => {
-                      const cityDef = cities.find(c => c.value === cityValue);
-                      if (!cityDef) return null;
-                      return (
-                        <label key={cityValue} className="inline-flex items-center space-x-2 bg-gray-50 border rounded-md px-2 py-1">
-                          <input
-                            type="checkbox"
-                            checked={true}
-                            onChange={() => handleCityChange(cityValue)}
-                            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                          />
-                          <span className="text-sm text-gray-700">{cityDef.label}</span>
-                        </label>
-                      );
-                    })}
+              {specError ? (
+                <div className="text-sm text-red-600">{specError}</div>
+              ) : loadingSpec ? (
+                <div className="text-sm text-gray-600">{t('common.loading')}</div>
+              ) : (
+                <>
+                  <div className="mb-2 relative" ref={searchBoxRef}>
+                    <input
+                      id="segmentSearch"
+                      type="text"
+                      value={segmentSearch}
+                      onChange={(e) => setSegmentSearch(e.target.value)}
+                      onFocus={() => setIsSearchFocused(true)}
+                      placeholder={t('campaign.segment.searchPlaceholder') || 'Search segments or subsegments...'}
+                      className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 border-gray-300"
+                    />
+                    {(isSearchFocused && (segmentSearch.trim().length === 0 || segmentSearch.trim().length >= 3)) && (
+                      <div className="absolute z-10 mt-1 w-full max-h-64 overflow-auto bg-white border border-gray-200 rounded-md shadow-lg">
+                        {segmentSearch.trim().length === 0 ? (
+                          // Recommend only segments when empty
+                          filteredSegments.length > 0 ? (
+                            filteredSegments.map(seg => (
+                              <button
+                                key={seg.value}
+                                type="button"
+                                className="w-full text-left px-3 py-2 hover:bg-gray-50"
+                                onMouseDown={() => {
+                                  setSegmentSearch(seg.label);
+                                  setIsSearchFocused(false);
+                                  handleSegmentChange(seg.value);
+                                }}
+                              >
+                                {seg.label}
+                              </button>
+                            ))
+                          ) : (
+                            <div className="px-3 py-2 text-sm text-gray-500">{t('common.noResults') || 'No results'}</div>
+                          )
+                        ) : (
+                          // Recommend segment - subsegment pairs when query length >= 3
+                          (() => {
+                            const q = segmentSearch.trim().toLowerCase();
+                            const matches = segmentSubPairs.filter(p =>
+                              p.segLabel.toLowerCase().includes(q) || p.subLabel.toLowerCase().includes(q)
+                            );
+                            return matches.length > 0 ? (
+                              matches.map(p => (
+                                <button
+                                  key={`${p.segValue}__${p.subValue}`}
+                                  type="button"
+                                  className="w-full text-left px-3 py-2 hover:bg-gray-50"
+                                  onMouseDown={() => {
+                                    setSegmentSearch(`${p.segLabel} - ${p.subLabel}`);
+                                    setIsSearchFocused(false);
+                                    // Apply selection: set segment and ensure subsegment is checked
+                                    if (campaignData.segment.segment !== p.segValue) {
+                                      const newTags = computeTags(p.segValue, [p.subValue]);
+                                      updateSegment({ segment: p.segValue, subsegments: [p.subValue], tags: newTags, capacity: undefined, capacityTooLow: false });
+                                      setCapacity(undefined);
+                                      setHasCapacityError(false);
+                                      setCapacityError(null);
+                                      triggerCapacityCalculation({ segment: p.segValue, subsegment: [p.subValue], tags: newTags });
+                                    } else {
+                                      const currentSubs = campaignData.segment.subsegments || [];
+                                      const mergedSubs = currentSubs.includes(p.subValue) ? currentSubs : [...currentSubs, p.subValue];
+                                      const newTags = computeTags(p.segValue, mergedSubs);
+                                      updateSegment({ subsegments: mergedSubs, tags: newTags });
+                                      triggerCapacityCalculation({ subsegment: mergedSubs, tags: newTags });
+                                    }
+                                  }}
+                                >
+                                  {p.segLabel} - {p.subLabel}
+                                </button>
+                              ))
+                            ) : (
+                              <div className="px-3 py-2 text-sm text-gray-500">{t('common.noResults') || 'No results'}</div>
+                            );
+                          })()
+                        )}
+                      </div>
+                    )}
                   </div>
-                )}
-                {campaignData.segment.city && campaignData.segment.city.length === 0 && (
-                  <p className="text-sm text-red-600">{t('campaign.segment.citiesValidation')}</p>
-                )}
-              </div>
+                </>
+              )}
             </div>
           </Card>
         </div>
 
         <div>
-          {campaignData.segment.segment && (
+          {campaignData.segment.segment && !specError && !loadingSpec && (
             <Card>
               <div className="space-y-4">
                 <h3 className="text-lg font-medium text-gray-900 flex items-center">
@@ -416,7 +549,7 @@ const CampaignSegmentStep: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                   {getSubsegmentsForSegment(campaignData.segment.segment).map((subsegment) => (
                     <label key={subsegment.value} className="flex items-center space-x-3 cursor-pointer">
-            <input
+                      <input
                         type="checkbox"
                         checked={campaignData.segment.subsegments?.includes(subsegment.value) || false}
                         onChange={() => handleSubsegmentsChange(subsegment.value)}
@@ -432,7 +565,80 @@ const CampaignSegmentStep: React.FC = () => {
               </div>
             </Card>
           )}
-          </div>
+        </div>
+
+        {/* Optional filters: hide for now */}
+        {/*
+        <div className="flex flex-col">
+          <Card className="h-full">
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                <User className="h-5 w-5 mr-2 text-primary-600" />
+                {t('campaign.segment.sex')}
+              </h3>
+              <FormField
+                id="sex"
+                label={t('campaign.segment.selectSex')}
+                type="select"
+                options={sexOptions}
+                value={campaignData.segment.sex || ''}
+                onChange={handleSexChange}
+                placeholder={t('campaign.segment.sexPlaceholder')}
+              />
+            </div>
+          </Card>
+        </div>
+        <div className="flex flex-col">
+          <Card className="h-full">
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                <Building className="h-4 w-4 mr-2 text-primary-600" />
+                {t('campaign.segment.cities')}
+              </h3>
+              <select
+                id="cities"
+                value=""
+                onChange={(e) => {
+                  const selectedValue = e.target.value;
+                  if (!selectedValue) return;
+                  const current = campaignData.segment.city || [];
+                  const exists = current.includes(selectedValue);
+                  const next = exists ? current : [...current, selectedValue];
+                  updateSegment({ city: next });
+                  triggerCapacityCalculation({ city: next });
+                }}
+                className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              >
+                <option value="">{t('campaign.segment.citiesPlaceholder') || 'Select a city'}</option>
+                {cities.map((city) => (
+                  <option key={city.value} value={city.value}>
+                    {city.label}
+                  </option>
+                ))}
+              </select>
+              {campaignData.segment.city && campaignData.segment.city.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {campaignData.segment.city.map((cityValue) => {
+                    const cityDef = cities.find(c => c.value === cityValue);
+                    if (!cityDef) return null;
+                    return (
+                      <label key={cityValue} className="inline-flex items-center space-x-2 bg-gray-50 border rounded-md px-2 py-1">
+                        <input
+                          type="checkbox"
+                          checked={true}
+                          onChange={() => handleCityChange(cityValue)}
+                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                        />
+                        <span className="text-sm text-gray-700">{cityDef.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
+        */}
       </div>
     </div>
   );
