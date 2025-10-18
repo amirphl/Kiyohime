@@ -1,7 +1,7 @@
 {
   "name": "sms-marketing-platform",
   "version": "1.0.0",
-  "description": "SMS Marketing Platform for Companies",
+  "description": "Marketing Platform for Companies",
   "private": true,
   "dependencies": {
     "@types/node": "^18.0.0",

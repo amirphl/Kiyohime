@@ -12,7 +12,7 @@ export const ROUTES: Record<string, RouteConfig> = {
     page: 'home',
     requiresAuth: false,
     title: 'Home',
-    description: 'Welcome to SMS Marketing Platform',
+    description: 'Welcome to Marketing Platform',
   },
   LOGIN: {
     path: '/signin',

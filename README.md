@@ -1,4 +1,4 @@
-# SMS Marketing Platform
+# Marketing Platform
 
 A modern web application to create and manage targeted SMS marketing campaigns. Built with React, TypeScript, and Tailwind CSS with multi-domain deployment support.
 
