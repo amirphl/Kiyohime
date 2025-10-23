@@ -191,4 +191,43 @@ export interface AdminCustomerWithCampaignsResponse {
   message: string;
   customer: AdminCustomerDetailDTO;
   campaigns: AdminCustomerCampaignItem[];
+}
+
+// Ticket Management
+export interface TicketItem {
+  id: number;
+  title: string;
+  content: string;
+  created_at: string;
+  replied_by_admin?: boolean | null;
+  // Admin-only fields (populated in admin listings only)
+  customer_first_name?: string;
+  customer_last_name?: string;
+  company_name?: string;
+  phone_number?: string;
+  agency_name?: string;
+}
+
+export interface TicketGroup {
+  correlation_id: string;
+  items: TicketItem[];
+}
+
+export interface ListTicketsResponse {
+  message: string;
+  groups: TicketGroup[];
+}
+
+export interface AdminCreateResponseTicketRequest {
+  ticket_id: number;
+  content: string;
+  file?: File;
+}
+
+export interface AdminCreateResponseTicketResponse {
+  message: string;
+  id: number;
+  uuid: string;
+  correlation_id: string;
+  created_at: string;
 } 
