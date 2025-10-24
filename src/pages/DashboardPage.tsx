@@ -84,7 +84,7 @@ const DashboardPage: React.FC = () => {
     if (!validateTicketForm()) return;
     setTicketSubmitting(true);
     try {
-      const res = await apiService.createSupportTicket({ title: ticketTitle, description: ticketDescription, attachment: ticketFile });
+      const res = await apiService.createSupportTicket({ title: ticketTitle, content: ticketDescription, file: ticketFile });
       if (res.success) {
         showSuccess(t('dashboard.supportModal.success'));
         setShowTicketModal(false);
