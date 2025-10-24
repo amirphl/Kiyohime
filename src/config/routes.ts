@@ -77,6 +77,13 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Reports',
     description: 'Campaign reports and history',
   },
+  SUPPORT: {
+    path: '/dashboard/support',
+    page: 'support',
+    requiresAuth: true,
+    title: 'Ticket & Support',
+    description: 'Create and manage support tickets',
+  },
   CUSTOMER_MANAGEMENT: {
     path: '/dashboard/customer-management',
     page: 'customer-management',
@@ -118,6 +125,13 @@ export const ROUTES: Record<string, RouteConfig> = {
     requiresAuth: false,
     title: 'Admin Campaigns',
     description: 'Admin campaign management',
+  },
+  ADMIN_TICKETS: {
+    path: '/satrap/tickets',
+    page: 'admin-tickets',
+    requiresAuth: false,
+    title: 'Admin Tickets',
+    description: 'Admin ticket management',
   },
   ADMIN_CUSTOMERS: {
     path: '/satrap/sardis/customers',
