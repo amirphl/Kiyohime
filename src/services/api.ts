@@ -553,28 +553,28 @@ class ApiService {
   }
 
   // Support endpoints
-  async createSupportTicket(params: { title: string; description: string; attachment?: File | null; }): Promise<ApiResponse> {
+  async createSupportTicket(params: { title: string; content: string; file?: File | null; }): Promise<ApiResponse> {
     // Basic input validation
     const title = (params.title || '').trim();
-    const description = (params.description || '').trim();
-    if (!description) {
-      return { success: false, message: 'Description is required', error: { code: 'Description is required', details: null } };
+    const content = (params.content || '').trim();
+    if (!content) {
+      return { success: false, message: 'Content is required', error: { code: 'Content is required', details: null } };
     }
     if (title.length > 80) {
       return { success: false, message: 'Title must be less than or equal to 80 characters', error: { code: 'Title too long', details: null } };
     }
-    if (description.length > 1000) {
+    if (content.length > 1000) {
       return { success: false, message: 'Description must be at most 1000 characters', error: { code: 'Description too long', details: null } };
     }
 
     const form = new FormData();
     if (title) form.append('title', title);
-    form.append('description', description);
-    if (params.attachment) {
-      form.append('attachment', params.attachment);
+    form.append('content', content);
+    if (params.file) {
+      form.append('file', params.file);
     }
 
-    const url = getApiUrl('/support/tickets');
+    const url = getApiUrl('/tickets');
     if (!this.isValidUrl(url)) {
       return { success: false, message: 'Invalid URL', error: { code: 'Invalid URL', details: null } };
     }
@@ -603,6 +603,86 @@ class ApiService {
 
       if (resp.status === 201 || resp.ok) {
         return { success: true, message: data.message || 'Created successfully', data: data.data };
+      }
+
+      const errorMessage = data?.error?.code || data?.message || `HTTP ${resp.status}`;
+      return { success: false, message: errorMessage, error: { code: errorMessage, details: data?.error?.details } };
+    } catch (e) {
+      const msg = this.isProduction() ? 'An error occurred' : (e instanceof Error ? e.message : 'Unknown error');
+      return { success: false, message: msg, error: { code: msg, details: null } };
+    }
+  }
+
+  async listSupportTickets(params: { title?: string; start_date?: string; end_date?: string; page?: number; page_size?: number } = {}): Promise<ApiResponse<{ message: string; groups: Array<{ correlation_id: string; items: Array<{ id: number; title: string; content: string; created_at: string; replied_by_admin?: boolean | null }> }> }>> {
+    const query = new URLSearchParams();
+    if (params.title) query.set('title', params.title);
+    if (params.start_date) query.set('start_date', params.start_date);
+    if (params.end_date) query.set('end_date', params.end_date);
+    if (params.page) query.set('page', String(params.page));
+    if (params.page_size) query.set('page_size', String(params.page_size));
+    const endpoint = `/tickets${query.toString() ? `?${query.toString()}` : ''}`;
+    return this.request(endpoint, { method: 'GET' });
+  }
+
+  // Create ticket reply (customer response to existing ticket)
+  async createTicketReply(params: { ticket_id: number; content: string; file?: File | null; }): Promise<ApiResponse> {
+    // Basic input validation
+    const content = (params.content || '').trim();
+    if (!content) {
+      return { success: false, message: 'Content is required', error: { code: 'Content is required', details: null } };
+    }
+    if (content.length > 1000) {
+      return { success: false, message: 'Content must be at most 1000 characters', error: { code: 'Content too long', details: null } };
+    }
+    if (!params.ticket_id || params.ticket_id <= 0) {
+      return { success: false, message: 'Valid ticket ID is required', error: { code: 'Invalid ticket ID', details: null } };
+    }
+
+    const form = new FormData();
+    form.append('ticket_id', String(params.ticket_id));
+    form.append('content', content);
+    if (params.file) {
+      form.append('file', params.file);
+    }
+
+    const url = getApiUrl('/tickets/reply');
+    if (!this.isValidUrl(url)) {
+      return { success: false, message: 'Invalid URL', error: { code: 'Invalid URL', details: null } };
+    }
+
+    const headers: Record<string, string> = {
+      Accept: 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    };
+    if (this.accessToken) {
+      headers['Authorization'] = `Bearer ${this.accessToken}`;
+    }
+
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: form,
+        signal: AbortSignal.timeout(30000),
+      });
+
+      const contentType = resp.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        return { success: false, message: 'Invalid response content type', error: { code: 'Invalid response content type', details: null } };
+      }
+      const data = await resp.json();
+
+      // Handle 401 unauthorized
+      if (resp.status === 401) {
+        if (this.unauthorizedHandler) {
+          this.unauthorizedHandler();
+        }
+        const errorMessage = data?.error?.code || data?.message || 'Unauthorized';
+        return { success: false, message: errorMessage, error: { code: errorMessage, details: data?.error?.details } };
+      }
+
+      if (resp.status === 201 || resp.ok) {
+        return { success: true, message: data.message || 'Reply created successfully', data: data.data };
       }
 
       const errorMessage = data?.error?.code || data?.message || `HTTP ${resp.status}`;
