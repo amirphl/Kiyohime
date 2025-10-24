@@ -58,6 +58,10 @@ export const translations = {
           title: 'Customer Management',
           description: 'Customers shares and performance report'
         },
+        support: {
+          title: 'Tickets & Support',
+          description: 'Manage and reply to customer tickets',
+        },
       },
     },
     adminCustomers: {
@@ -496,9 +500,15 @@ export const translations = {
       language: 'Language',
       logout: 'Logout',
       support: 'Ticket and Support',
+      supportIntro: 'Open a ticket to contact our support team.',
       supportModal: {
         newTicket: 'New Ticket',
         title: 'Create New Support Ticket',
+        titleLabel: 'Title (optional)',
+        contentLabel: 'Content',
+        fileLabel: 'Attachment (optional)',
+        titlePlaceholder: 'Enter a short title (<= 80 chars)',
+        contentPlaceholder: 'Describe your request (<= 1000 chars)',
         fields: {
           ticketTitle: 'Title (optional, max 80)',
           description: 'Description',
@@ -516,6 +526,7 @@ export const translations = {
           invalidType: 'Invalid file type. Allowed: jpg, png, pdf, docx, xlsx, zip',
           maxSize: 'File size must be less than 10 MB',
         },
+        replyTitle: 'Reply to Ticket',
         submit: 'Submit Ticket',
         success: 'Your ticket has been created successfully',
         error: 'Failed to create ticket. Please try again.',
@@ -576,6 +587,7 @@ export const translations = {
         rejected: 'Rejected',
       },
       fixAndRestart: 'Fix and restart the campaign?',
+      supportHistory: 'Tickets History',
     },
 
     // Campaign Creation
@@ -1078,6 +1090,8 @@ export const translations = {
       yes: 'Yes',
       no: 'No',
       comingSoon: 'Coming soon',
+      details: 'Details',
+      reply: 'Reply',
     },
 
     // Agency Customer Report
@@ -1115,6 +1129,32 @@ export const translations = {
       discountExpiresAt: 'Expires At',
       discountGlobalCreate: 'Create Discount',
       discountSelectCustomer: 'Select Customer',
+    },
+
+    // Support (Customer)
+    supportPage: {
+      title: 'Ticket & Support',
+      intro: 'Open a ticket to contact our support team.',
+      create: 'Create Ticket',
+      history: 'Tickets History',
+      modal: {
+        title: 'Create Support Ticket',
+        submit: 'Submit',
+        titleLabel: 'Title (optional)',
+        titlePlaceholder: 'Enter a short title (<= 80 chars)',
+        contentLabel: 'Content',
+        contentPlaceholder: 'Describe your request (<= 1000 chars)',
+        fileLabel: 'Attachment (optional)',
+        success: 'Ticket created successfully'
+      },
+      table: {
+        row: 'Row',
+        title: 'Title',
+        content: 'Content',
+        createdAt: 'Created At',
+        details: 'Details',
+        noRecords: 'No records'
+      }
     },
   },
 
@@ -1176,6 +1216,10 @@ export const translations = {
         customers: {
           title: 'مدیریت مشتریان',
           description: 'گزارش سهم‌ها و عملکرد مشتریان'
+        },
+        support: {
+          title: 'تیکت‌ها و پشتیبانی',
+          description: 'مدیریت و پاسخ به تیکت‌های مشتریان'
         },
       },
     },
@@ -1522,7 +1566,7 @@ export const translations = {
 
       credentials: 'اطلاعات حساب کاربری',
       sheba: 'شماره شبا',
-      shebaPlaceholder: '۲۴ رقم انگلیسی (بدون IR) را وارد کنید',
+      shebaPlaceholder: '۲۴ رقم انگلیسی (بدون IR)',
       email: 'آدرس ایمیل',
       password: 'رمز عبور',
       passwordPlaceholder: 'رمز عبور را وارد کنید',
@@ -1624,14 +1668,20 @@ export const translations = {
       language: 'زبان',
       logout: 'خروج',
       support: 'تیکت و پشتیبانی',
+      supportIntro: 'برای ارتباط با پشتیبانی، یک تیکت ثبت کنید.',
       supportModal: {
         newTicket: 'تیکت جدید',
-        title: 'ایجاد تیکت پشتیبانی جدید',
+        title: 'ایجاد تیکت جدید',
+        titleLabel: 'عنوان (اختیاری)',
+        contentLabel: 'متن تیکت',
+        fileLabel: 'ضمیمه (اختیاری)',
+        titlePlaceholder: 'یک عنوان کوتاه وارد کنید (حداکثر ۸۰ کاراکتر)',
+        contentPlaceholder: 'درخواست خود را توضیح دهید (حداکثر ۱۰۰۰ کاراکتر)',
         fields: {
           ticketTitle: 'عنوان (اختیاری، حداکثر ۸۰)',
           description: 'توضیحات',
-          attachment: 'فایل پیوست (اختیاری)',
-          attachmentHelp: 'jpg, png, pdf, docx, xlsx, zip — حداکثر ۱۰ مگابایت',
+          attachment: 'ضمیمه (اختیاری)',
+          attachmentHelp: 'jpg, png, pdf, docx, xlsx, zip — تا ۱۰ مگابایت',
         },
         placeholders: {
           ticketTitle: 'یک عنوان کوتاه وارد کنید (حداکثر ۸۰ کاراکتر)',
@@ -1639,14 +1689,15 @@ export const translations = {
         },
         validation: {
           titleMax: 'عنوان باید حداکثر ۸۰ کاراکتر باشد',
-          descriptionRequired: 'توضیحات الزامی است',
-          descriptionMax: 'توضیحات باید حداکثر ۱۰۰۰ کاراکتر باشد',
-          invalidType: 'نوع فایل نامعتبر است. مجاز: jpg, png, pdf, docx, xlsx, zip',
+          descriptionRequired: 'متن تیکت الزامی است',
+          descriptionMax: 'متن تیکت باید حداکثر ۱۰۰۰ کاراکتر باشد',
+          invalidType: 'نوع فایل نامعتبر است. فرمت‌های مجاز: jpg, png, pdf, docx, xlsx, zip',
           maxSize: 'حجم فایل باید کمتر از ۱۰ مگابایت باشد',
         },
-        submit: 'ارسال تیکت',
-        success: 'تیکت شما با موفقیت ایجاد شد',
-        error: 'ایجاد تیکت با خطا مواجه شد. دوباره تلاش کنید.',
+        replyTitle: 'پاسخ دادن',
+        submit: 'ثبت تیکت',
+        success: 'تیکت شما با موفقیت ثبت شد',
+        error: 'ثبت تیکت ناموفق بود. لطفاً دوباره تلاش کنید.',
       },
 
       // Filters
@@ -1704,6 +1755,7 @@ export const translations = {
         rejected: 'رد شده',
       },
       fixAndRestart: 'اصلاح و شروع مجدد کمپین؟',
+      supportHistory: 'تاریخچه تیکت‌ها',
     },
 
     // Campaign Creation
@@ -2198,6 +2250,8 @@ export const translations = {
       yes: 'بله',
       no: 'خیر',
       comingSoon: 'به زودی',
+      details: 'جزئیات',
+      reply: 'پاسخ دادن',
     },
 
     // Agency Customer Report
@@ -2235,6 +2289,32 @@ export const translations = {
       discountExpiresAt: 'تاریخ انقضا',
       discountGlobalCreate: 'ایجاد تخفیف',
       discountSelectCustomer: 'انتخاب مشتری',
+    },
+
+    // Support (Customer)
+    supportPage: {
+      title: 'تیکت و پشتیبانی',
+      intro: 'برای ارتباط با پشتیبانی، یک تیکت ثبت کنید.',
+      create: 'ایجاد تیکت',
+      history: 'تاریخچه تیکت‌ها',
+      modal: {
+        title: 'ایجاد تیکت پشتیبانی',
+        submit: 'ارسال',
+        titleLabel: 'عنوان (اختیاری)',
+        titlePlaceholder: 'یک عنوان کوتاه وارد کنید (حداکثر ۸۰ کاراکتر)',
+        contentLabel: 'متن تیکت',
+        contentPlaceholder: 'درخواست خود را توضیح دهید (حداکثر ۱۰۰۰ کاراکتر)',
+        fileLabel: 'ضمیمه (اختیاری)',
+        success: 'تیکت با موفقیت ایجاد شد'
+      },
+      table: {
+        row: 'ردیف',
+        title: 'عنوان',
+        content: 'متن',
+        createdAt: 'تاریخ ایجاد',
+        details: 'جزئیات',
+        noRecords: 'رکوردی یافت نشد'
+      }
     },
   },
 };
