@@ -356,6 +356,86 @@ class AdminApiService {
     }
   }
 
+  async listTickets(params: { customer_id?: number; title?: string; start_date?: string; end_date?: string; replied_by_admin?: boolean; page?: number; page_size?: number } = {}): Promise<ApiResponse<{ message: string; groups: Array<{ correlation_id: string; items: Array<{ id: number; title: string; content: string; created_at: string; customer_first_name?: string; customer_last_name?: string; company_name?: string; phone_number?: string; agency_name?: string }> }> }>> {
+    const qs = new URLSearchParams();
+    if (params.customer_id) qs.set('customer_id', String(params.customer_id));
+    if (params.title) qs.set('title', params.title);
+    if (params.start_date) qs.set('start_date', params.start_date);
+    if (params.end_date) qs.set('end_date', params.end_date);
+    if (typeof params.replied_by_admin === 'boolean') qs.set('replied_by_admin', params.replied_by_admin ? 'true' : 'false');
+    if (params.page) qs.set('page', String(params.page));
+    if (params.page_size) qs.set('page_size', String(params.page_size));
+    const url = getApiUrl(`/admin/tickets${qs.toString() ? `?${qs.toString()}` : ''}`);
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return { success: false, message: data?.message || 'Failed to list tickets', error: data?.error };
+      }
+      return { success: true, message: data?.message || 'OK', data: (data?.data || { groups: [] }) };
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } };
+    }
+  }
+
+  async createTicketReply(payload: { ticket_id: number; content: string; file?: File | null }): Promise<ApiResponse<{ id: number; uuid: string; correlation_id: string; created_at: string }>> {
+    const url = getApiUrl('/admin/tickets/reply');
+    try {
+      let resp: Response;
+      if (payload.file) {
+        const form = new FormData();
+        if (payload.ticket_id) form.append('ticket_id', String(payload.ticket_id));
+        if (payload.content) form.append('content', payload.content);
+        form.append('file', payload.file);
+        resp = await fetch(url, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+          },
+          body: form,
+          signal: AbortSignal.timeout(20000),
+        });
+      } else {
+        resp = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+          },
+          body: JSON.stringify({ ticket_id: payload.ticket_id, content: payload.content }),
+          signal: AbortSignal.timeout(20000),
+        });
+      }
+
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
+
+      const data = await resp.json();
+      if (resp.status === 201 || resp.ok) {
+        return { success: true, message: data?.message || 'OK', data: data?.data } as any;
+      }
+      const errorMessage = data?.error?.code || data?.message || `HTTP ${resp.status}`;
+      return { success: false, message: errorMessage, error: { code: errorMessage, details: data?.error?.details } } as any;
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } } as any;
+    }
+  }
+
   async getCustomerWithCampaigns(customerId: number): Promise<ApiResponse<import('../types/admin').AdminCustomerWithCampaignsResponse>> {
     const url = getApiUrl(`/admin/customer-management/${customerId}`);
     try {
