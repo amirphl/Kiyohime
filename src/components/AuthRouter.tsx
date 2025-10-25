@@ -20,8 +20,9 @@ import { useTranslation } from '../hooks/useTranslation';
 import AdminCustomerManagementPage from '../pages/AdminCustomerManagementPage';
 import SupportPage from '../pages/SupportPage';
 import AdminTicketsPage from '../pages/AdminTicketsPage';
+import PricingPage from '../pages/PricingPage';
 
-type PageType = 'home' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation' | 'wallet' | 'reports' | 'customer-management' | 'contact' | 'admin-login' | 'admin-sardis' | 'admin-line-numbers' | 'admin-campaigns' | 'admin-customers' | 'support' | 'admin-tickets';
+type PageType = 'home' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation' | 'wallet' | 'reports' | 'customer-management' | 'contact' | 'pricing' | 'admin-login' | 'admin-sardis' | 'admin-line-numbers' | 'admin-campaigns' | 'admin-customers' | 'support' | 'admin-tickets';
 
 const AuthRouter: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PageType>('home');
@@ -187,6 +188,8 @@ const AuthRouter: React.FC = () => {
       return <CustomerManagementPage />;
     case 'contact':
       return <ContactUsPage />;
+    case 'pricing':
+      return <PricingPage />;
     case 'support':
       return <SupportPage />;
 
