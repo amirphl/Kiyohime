@@ -18,8 +18,10 @@ import { useAuth } from '../hooks/useAuth';
 import { ROUTES, getRouteByPath } from '../config/routes';
 import { useTranslation } from '../hooks/useTranslation';
 import AdminCustomerManagementPage from '../pages/AdminCustomerManagementPage';
+import SupportPage from '../pages/SupportPage';
+import AdminTicketsPage from '../pages/AdminTicketsPage';
 
-type PageType = 'home' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation' | 'wallet' | 'reports' | 'customer-management' | 'contact' | 'admin-login' | 'admin-sardis' | 'admin-line-numbers' | 'admin-campaigns' | 'admin-customers';
+type PageType = 'home' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation' | 'wallet' | 'reports' | 'customer-management' | 'contact' | 'admin-login' | 'admin-sardis' | 'admin-line-numbers' | 'admin-campaigns' | 'admin-customers' | 'support' | 'admin-tickets';
 
 const AuthRouter: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PageType>('home');
@@ -185,6 +187,8 @@ const AuthRouter: React.FC = () => {
       return <CustomerManagementPage />;
     case 'contact':
       return <ContactUsPage />;
+    case 'support':
+      return <SupportPage />;
 
     case 'admin-login':
       return <AdminLoginPage />;
@@ -200,6 +204,8 @@ const AuthRouter: React.FC = () => {
 
     case 'admin-customers':
       return <AdminCustomerManagementPage />;
+    case 'admin-tickets':
+      return <AdminTicketsPage />;
 
     default:
       return <HomePage />;
