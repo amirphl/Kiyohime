@@ -15,7 +15,7 @@ const ContactUsPage: React.FC = () => {
           <p>{t('contact.address')}</p>
           <p>{t('contact.postalCode')}</p>
           <p>
-            <a href='mailto:info@jaazebeh.ir' className='text-blue-600 hover:underline'>
+            <a href='mailto:info@jazebeh.ir' className='text-blue-600 hover:underline'>
               {t('contact.email')}
             </a>
           </p>

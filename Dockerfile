@@ -31,7 +31,7 @@ COPY . .
 # Set production environment variables
 ENV NODE_ENV=production \
     REACT_APP_NODE_ENV=production \
-    REACT_APP_PRODUCTION_DOMAIN=jaazebeh.ir \
+    REACT_APP_PRODUCTION_DOMAIN=jazebeh.ir \
     REACT_APP_ENABLE_ANALYTICS=true \
     REACT_APP_PRIMARY_COLOR=#2563eb \
     REACT_APP_THEME=light \

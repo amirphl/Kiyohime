@@ -34,7 +34,7 @@ export const translations = {
       companyName: 'Rahkarhaye Hadafmand-e Khalagh Company (Private Joint Stock)',
       address: 'Address: Tehran, Molla Sadra Street, North Shirazi Street, Hakim Azam Street, No. 19, Monstrect',
       postalCode: 'Postal Code: 1991647419',
-      email: 'info@jaazebeh.ir',
+      email: 'info@jazebeh.ir',
       phone: 'Phone: +98 21 8967 7330'
     },
 
@@ -1193,7 +1193,7 @@ export const translations = {
       companyName: 'شرکت راه کارهای هدفمند خلاق (سهامی خاص)',
       address: 'نشانی: استان : تهران - شهرستان : تهران - بخش : مرکزی - شهر : تهران - محله : آرارات - بزرگراه کردستان - خیابان حکیم اعظم - پلاک : -19.0 - طبقه : 3 - واحد : 6',
       postalCode: 'کدپستی: ۱۹۹۱۶۴۷۴۱۹',
-      email: 'info@jaazebeh.ir',
+      email: 'info@jazebeh.ir',
       phone: 'تلفن ثابت: ۰۲۱۸۹۶۷۷۳۳۰ - ۰۲۱۸۹۶۷۰۰۰۰'
     },
 

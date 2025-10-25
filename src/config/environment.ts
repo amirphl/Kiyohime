@@ -66,7 +66,7 @@ const defaultConfig: EnvironmentConfig = {
   baseUrl: 'https://yamata-no-orochi.com:8443', // Will be overridden by production config
   apiUrl: 'https://yamata-no-orochi.com:8443/api/v1', // Will be overridden by production config
 
-  brandName: 'Jaazebeh',
+  brandName: 'Jazebeh',
   brandSubtitle: 'SMS Marketing Platform',
 
   features: {
@@ -170,7 +170,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
       domain: currentDomain,
       baseUrl: `https://${currentDomain}`,
       apiUrl: `https://${currentDomain}/api/v1`,
-      brandName: 'Jaazebeh',
+      brandName: 'Jazebeh',
       brandSubtitle: 'SMS Marketing Platform',
       features: {
         smsMarketing: true,
