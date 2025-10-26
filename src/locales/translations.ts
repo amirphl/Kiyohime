@@ -713,6 +713,8 @@ export const translations = {
         filterField: 'Field',
         filterOperator: 'Operator',
         filterValue: 'Value',
+
+        searchPlaceholder: 'Search ...',
       },
       
       // Step 2: Content
@@ -1155,6 +1157,11 @@ export const translations = {
         details: 'Details',
         noRecords: 'No records'
       }
+    },
+
+    // Admin Tickets
+    adminTickets: {
+      title: 'Admin Tickets & Support',
     },
 
     // Pricing
@@ -1949,6 +1956,8 @@ export const translations = {
         filterField: 'فیلد',
         filterOperator: 'عملگر',
         filterValue: 'مقدار',
+
+        searchPlaceholder: 'جستجو کنید.',
       },
       
       // Step 2: Content
@@ -2374,6 +2383,11 @@ export const translations = {
         details: 'جزئیات',
         noRecords: 'رکوردی یافت نشد'
       }
+    },
+
+    // Admin Tickets
+    adminTickets: {
+      title: 'تیکت‌های ادمین و پشتیبانی',
     },
 
     // Pricing
