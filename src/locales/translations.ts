@@ -3,7 +3,7 @@ export const translations = {
     // Header
     header: {
       brand: 'SMS Platform',
-      subtitle: 'SMS Marketing Platform',
+      subtitle: 'Consulting and Data-Driven Technology',
       dashboard: 'Dashboard',
       campaigns: 'Campaigns',
       analytics: 'Analytics',
@@ -939,10 +939,10 @@ export const translations = {
     // Home Page
     home: {
       hero: {
-        badge: 'Leading SMS Marketing Platform',
+        badge: 'Consulting and Data-Driven Technology',
         title: 'Transform Your Business with Targeted SMS Marketing',
         subtitle:
-          'Reach your customers with precision, drive engagement, and boost conversions with our advanced SMS marketing platform designed for modern businesses.',
+          'Reach your customers with precision, drive engagement, and boost conversions with our advanced Data-Driven Technology designed for modern businesses.',
         cta: 'Get Started Free',
         signin: 'Sign In',
       },
@@ -1156,6 +1156,75 @@ export const translations = {
         noRecords: 'No records'
       }
     },
+
+    // Pricing
+    pricing: {
+      title: 'Pricing',
+      subtitle: 'Simple, transparent pricing that grows with you',
+      intro: {
+        title: 'How Pricing Works',
+        description: 'To use Jadhbe\'s features, you need to top up your account. By charging your digital wallet, you can access all Jadhbe services including landing page design and optimization, marketing lead tracking, customer journey analysis, and marketing automation. The cost of each service is calculated based on usage volume (number of active campaigns, number of processed segments, and analytical features), and the legal tax (10%) is transparently deducted from your charge. By purchasing more credit, you will also benefit from discounts on Basic, Pro, and Enterprise plans.',
+        payAsYouGo: {
+          title: 'Pay As You Go',
+          description: 'Charged based on actual usage'
+        },
+        transparent: {
+          title: 'Transparent Fees',
+          description: '10% tax included in all transactions'
+        },
+        volume: {
+          title: 'Volume Discounts',
+          description: 'Save more with higher credit purchases'
+        }
+      },
+      plans: {
+        title: 'Choose Your Plan',
+        popular: 'Popular',
+        getStarted: 'Get Started',
+        basic: {
+          name: 'Basic',
+          description: 'Perfect for small businesses getting started',
+          discount: '5% discount',
+          features: {
+            campaigns: 'Up to 10 active campaigns',
+            segments: 'Basic segmentation',
+            analytics: 'Standard analytics',
+            support: 'Email support'
+          }
+        },
+        pro: {
+          name: 'Pro',
+          description: 'For growing businesses with advanced needs',
+          discount: '10% discount',
+          features: {
+            campaigns: 'Up to 50 active campaigns',
+            segments: 'Advanced segmentation',
+            analytics: 'Advanced analytics & tracking',
+            automation: 'Marketing automation',
+            support: 'Priority support'
+          }
+        },
+        enterprise: {
+          name: 'Enterprise',
+          description: 'Custom solutions for large organizations',
+          discount: '15% discount',
+          features: {
+            campaigns: 'Unlimited campaigns',
+            segments: 'Custom segmentation',
+            analytics: 'Enterprise analytics',
+            automation: 'Full automation suite',
+            support: 'Dedicated account manager',
+            custom: 'Custom integrations'
+          }
+        }
+      },
+      cta: {
+        title: 'Ready to get started?',
+        description: 'Create your account today and start your first campaign',
+        signup: 'Sign Up Now',
+        contact: 'Contact Sales'
+      }
+    },
   },
 
   fa: {
@@ -1168,7 +1237,7 @@ export const translations = {
       analytics: 'تحلیلات',
       support: 'پشتیبانی',
       features: 'ویژگی‌ها',
-      howItWorks: 'چگونه کار می‌کند',
+      howItWorks: 'چگونه جاذبه به شما کمک می‌کند',
       pricing: 'قیمت‌گذاری',
       signin: 'ورود',
       signup: 'ثبت نام',
@@ -1177,8 +1246,7 @@ export const translations = {
 
     // Footer
     footer: {
-      description:
-        'کسب و کار خود را با کمپین‌های هدفمند پیامکی قدرتمند کنید. با دقت به مشتریان خود برسید و نتایج مطلوب کسب کنید.',
+      description: 'بازاریابی خود را با جاذبه علمی و شخصی‌سازی‌شده کنید. از ابزارهای تحلیل داده و اتومیشن ما برای بهینه‌سازی تجربهٔ مشتری و افزایش نرخ تبدیل بهره ببرید',
       quickLinks: 'لینک‌های سریع',
       support: 'پشتیبانی',
       helpCenter: 'مرکز راهنمایی',
@@ -2099,10 +2167,9 @@ export const translations = {
     home: {
       hero: {
         badge: 'پلتفرم پیشرو بازاریابی پیامکی',
-        title: 'کسب و کار خود را با بازاریابی هدفمند پیامکی متحول کنید',
-        subtitle:
-          'با دقت به مشتریان خود برسید، تعامل را افزایش دهید و تبدیل را با پلتفرم پیشرفته بازاریابی پیامکی ما که برای کسب و کارهای مدرن طراحی شده است، تقویت کنید.',
-        cta: 'شروع رایگان',
+        title: 'تصمیم‌های بازاریابی دقیق‌تر، با بینش داده‌محور',
+        subtitle: 'از داده‌ها و ابزارهای هوشمند برای شناخت بهتر مشتریان، بهینه‌سازی مسیر جذب و طراحی لندینگ‌های بهتر استفاده کنید',
+        cta: 'ورود به جاذبه',
         signin: 'ورود',
       },
       stats: {
@@ -2112,54 +2179,46 @@ export const translations = {
         support: 'پشتیبانی مشتریان',
       },
       features: {
-        title: 'چرا پلتفرم ما را انتخاب کنیم؟',
+        title: 'چرا جاذبه را انتخاب کنید؟',
         subtitle:
           'ویژگی‌های قدرتمند طراحی شده برای کمک به موفقیت شما در بازاریابی پیامکی',
         targeted: {
-          title: 'کمپین‌های هدفمند',
-          description:
-            'کمپین‌های پیامکی بسیار هدفمند بر اساس رفتار، جمعیت‌شناسی و ترجیحات مشتری ایجاد کنید.',
+          title: 'کمپین‌های عملکردی مبتنی بر داده',
+          description: 'کمپین‌های خود را بر اساس داده‌های رفتاری و تقسیم‌بندی هوشمند طراحی کنید و به نتیجهٔ بهتر برسید',
         },
         segmentation: {
-          title: 'بخش‌بندی هوشمند',
-          description:
-            'مخاطبان خود را هوشمندانه بخش‌بندی کنید و پیام‌های شخصی‌سازی شده که تأثیرگذار هستند ارسال کنید.',
+          title: 'بخش‌بندی داده‌محور',
+          description: 'کاربران را بر اساس رفتار، علاقه‌مندی و چرخهٔ عمر تقسیم‌بندی کنید تا اثرگذاری کمپین‌ها افزایش یابد',
         },
         analytics: {
-          title: 'تحلیلات بلادرنگ',
-          description:
-            'عملکرد کمپین را با تحلیلات دقیق و بینش‌های قابل اجرا پیگیری کنید.',
+          title: 'تحلیل داده و قیف‌های بازاریابی',
+          description: 'مسیر کاربر تا اقدام نهایی را بررسی کنید و نقاط افت را با ابزارهای تحلیلی ما شناسایی کنید',
         },
         compliance: {
-          title: 'سازگاری مقرراتی',
-          description:
-            'ویژگی‌های سازگاری داخلی اطمینان حاصل می‌کنند که کمپین‌های شما تمام الزامات مقرراتی را برآورده می‌کنند.',
+          title: 'اتومیشن بازاریابی و پیگیری هوشمند',
+          description: 'فلوهای خودکار برای پیگیری سرنخ‌ها و مشتریان تعریف کنید و در زمان مناسب با آن‌ها تعامل داشته باشید',
         },
       },
       howItWorks: {
-        title: 'چگونه کار می‌کند',
+        title: 'چگونه جاذبه به شما کمک می‌کند',
         subtitle: 'در سه مرحله ساده با بازاریابی پیامکی شروع کنید',
         step1: {
-          title: 'حساب کاربری خود را ایجاد کنید',
-          description:
-            'ثبت نام کنید و پروفایل کسب و کار خود را در چند دقیقه با فرآیند ساده‌سازی شده ما تنظیم کنید.',
+          title: 'ثبت‌نام کنید و اطلاعات کسب‌وکار خود را وارد کنید',
+          description: 'امکان اتصال داده‌های موجود و تعریف اهداف بازاریابی شما فراهم است',
         },
         step2: {
-          title: 'کمپین خود را طراحی کنید',
-          description:
-            'از ابزارهای شهودی ما برای ایجاد کمپین‌های پیامکی جذاب با گزینه‌های هدف‌گذاری پیشرفته استفاده کنید.',
+          title: 'مسیرهای بازاریابی و لندینگ‌های خود را طراحی کنید',
+          description: 'با کمک ابزارهای تحلیل و پیشنهاد هوش مصنوعی محتوای مناسب، زمان‌بندی و تقسیم‌بندی را انتخاب کنید',
         },
         step3: {
-          title: 'ارسال و پیگیری نتایج',
-          description:
-            'کمپین‌های خود را راه‌اندازی کنید و عملکرد بلادرنگ را با تحلیلات جامع نظارت کنید.',
+          title: 'پیاده‌سازی و پایش نتایج',
+          description: 'عملکرد کمپین‌ها و مسیر مشتری را در لحظه بررسی کنید و با ابزار اتومیشن بازاریابی به‌طور خودکار بهینه‌سازی کنید',
         },
       },
       cta: {
-        title: 'آماده شروع هستید؟',
-        subtitle:
-          'به هزاران کسب و کاری که قبلاً از پلتفرم ما برای رشد پایگاه مشتریان خود استفاده می‌کنند بپیوندید.',
-        button: 'شروع آزمایشی رایگان',
+        title: 'آماده‌اید بازاریابی داده‌محور را تجربه کنید؟',
+        subtitle: 'به صدها شرکت و آژانسی بپیوندید که برای تصمیم‌گیری‌های بازاریابی از جاذبه استفاده می‌کنند',
+        button: 'ورود به حساب / ثبت‌نام',
       },
     },
 
@@ -2314,6 +2373,75 @@ export const translations = {
         createdAt: 'تاریخ ایجاد',
         details: 'جزئیات',
         noRecords: 'رکوردی یافت نشد'
+      }
+    },
+
+    // Pricing
+    pricing: {
+      title: 'تعرفه‌ها',
+      subtitle: 'قیمت‌گذاری ساده و شفاف که با شما رشد می‌کند',
+      intro: {
+        title: 'نحوه قیمت‌گذاری',
+        description: 'برای استفاده از امکانات جاذبه، لازم است حساب خود را در جاذبه شارژ کنید. شما می‌توانید با شارژ کیف پول دیجیتال خود، از همهٔ خدمات جاذبه مانند طراحی و بهبود لندینگ‌ها، ترکینگ لیدهای بازاریابی، تحلیل مسیر مشتریان و اتومیشن بازاریابی بهره‌مند شوید. هزینهٔ هر سرویس بر اساس حجم استفاده (تعداد کمپین‌های فعال، تعداد سگمنت‌های پردازش‌شده، و امکانات تحلیلی) محاسبه می‌شود و مالیات قانونی (٪۱۰) به‌صورت شفاف از شارژ کسر می‌شود. با خرید اعتبار بیشتر، از تخفیف‌های پلن‌های Basic، Pro و Enterprise نیز بهره‌مند خواهید شد.',
+        payAsYouGo: {
+          title: 'پرداخت بر اساس استفاده',
+          description: 'محاسبه بر اساس میزان استفاده واقعی'
+        },
+        transparent: {
+          title: 'هزینه‌های شفاف',
+          description: 'مالیات ۱۰٪ در همه تراکنش‌ها لحاظ شده است'
+        },
+        volume: {
+          title: 'تخفیف حجمی',
+          description: 'با خرید اعتبار بیشتر، بیشتر صرفه‌جویی کنید'
+        }
+      },
+      plans: {
+        title: 'پلن خود را انتخاب کنید',
+        popular: 'محبوب',
+        getStarted: 'شروع کنید',
+        basic: {
+          name: 'پایه',
+          description: 'مناسب برای کسب‌وکارهای کوچک',
+          discount: '۵٪ تخفیف',
+          features: {
+            campaigns: 'تا ۱۰ کمپین فعال',
+            segments: 'سگمنت‌بندی پایه',
+            analytics: 'تحلیل‌های استاندارد',
+            support: 'پشتیبانی ایمیلی'
+          }
+        },
+        pro: {
+          name: 'حرفه‌ای',
+          description: 'برای کسب‌وکارهای در حال رشد با نیازهای پیشرفته',
+          discount: '۱۰٪ تخفیف',
+          features: {
+            campaigns: 'تا ۵۰ کمپین فعال',
+            segments: 'سگمنت‌بندی پیشرفته',
+            analytics: 'تحلیل و ردیابی پیشرفته',
+            automation: 'اتومیشن بازاریابی',
+            support: 'پشتیبانی اولویت‌دار'
+          }
+        },
+        enterprise: {
+          name: 'سازمانی',
+          description: 'راهکارهای سفارشی برای سازمان‌های بزرگ',
+          discount: '۱۵٪ تخفیف',
+          features: {
+            campaigns: 'کمپین‌های نامحدود',
+            segments: 'سگمنت‌بندی سفارشی',
+            analytics: 'تحلیل‌های سازمانی',
+            automation: 'مجموعه کامل اتومیشن',
+            support: 'مدیر اختصاصی حساب',
+            custom: 'یکپارچه‌سازی‌های سفارشی'
+          }
+        }
+      },
+      cta: {
+        title: 'آماده شروع هستید؟',
+        description: 'همین امروز حساب خود را ایجاد کنید و اولین کمپین خود را شروع کنید',
+        signup: 'ثبت‌نام کنید',
+        contact: 'تماس با فروش'
       }
     },
   },
