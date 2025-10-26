@@ -54,9 +54,9 @@ const WalletPage: React.FC = () => {
       return;
     }
 
-    if (numValue < 100000) {
+    if (numValue < 1000) {
       setError(t('wallet.errorMinAmount'));
-    } else if (numValue % 10000 !== 0) {
+    } else if (numValue % 1000 !== 0) {
       setError(t('wallet.errorMultipleOf'));
     } else {
       setError('');
