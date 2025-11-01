@@ -72,6 +72,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // OTP Modal state
   const [showOtpModal, setShowOtpModal] = useState(false);
@@ -299,6 +300,11 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!acceptedTerms) {
+      showError(language === 'fa' ? 'برای ثبت‌نام باید شرایط را بپذیرید.' : 'Please accept the terms to continue.');
+      return;
+    }
 
     if (!validateForm()) {
       return;
@@ -927,10 +933,27 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
             </div>
             )}
 
+            {/* Terms & Conditions */}
+            <div className='flex items-start gap-2 border-t pt-6'>
+              <input
+                id='acceptedTerms'
+                type='checkbox'
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className='mt-1'
+              />
+              <label htmlFor='acceptedTerms' className='text-sm text-gray-700'>
+                {language === 'fa' ? 'شرایط استفاده را می‌پذیرم' : 'I accept the Terms of Service'}
+                {' '}<a href='/terms' className='text-primary-600 hover:text-primary-700' target='_self' rel='noopener noreferrer'>
+                  {language === 'fa' ? 'مشاهده شرایط' : 'View terms'}
+                </a>
+              </label>
+            </div>
+
             {/* Submit Button */}
             <button
               type='submit'
-              disabled={isLoading}
+              disabled={isLoading || !acceptedTerms}
               className={`w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
             >
               {isLoading ? (
