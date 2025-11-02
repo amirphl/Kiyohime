@@ -5,7 +5,7 @@ import { useToast } from '../hooks/useToast';
 import adminApi from '../services/adminApi';
 import { useNavigation } from '../contexts/NavigationContext';
 import { ROUTES } from '../config/routes';
-import { AdminCustomersSharesResponse, AdminCustomerWithCampaignsResponse, AdminGetCampaignResponse } from '../types/admin';
+import { AdminCustomersSharesResponse, AdminCustomerWithCampaignsResponse, AdminGetCampaignResponse, AdminCustomerDiscountHistoryItem, AdminSetCustomerActiveStatusRequest } from '../types/admin';
 
 const AdminCustomerManagementPage: React.FC = () => {
   const { language } = useLanguage();
@@ -31,6 +31,68 @@ const AdminCustomerManagementPage: React.FC = () => {
   const [campaignLoading, setCampaignLoading] = useState(false);
   const [campaignError, setCampaignError] = useState<string | null>(null);
   const [campaign, setCampaign] = useState<AdminGetCampaignResponse | null>(null);
+
+  // Discounts history modal state (top-half like details)
+  const [discountsOpen, setDiscountsOpen] = useState(false);
+  const [discountsLoading, setDiscountsLoading] = useState(false);
+  const [discountsError, setDiscountsError] = useState<string | null>(null);
+  const [discountsItems, setDiscountsItems] = useState<AdminCustomerDiscountHistoryItem[] | null>(null);
+  const discountsOnceRef = useRef<number | null>(null);
+
+  const openDiscounts = async (customerId?: number | null) => {
+    if (!customerId || customerId <= 0) {
+      setDiscountsError(language === 'fa' ? 'شناسه مشتری نامعتبر است' : 'Invalid customer id');
+      setDiscountsOpen(true);
+      return;
+    }
+    // One-shot guard per customer open action
+    if (discountsOnceRef.current === customerId && (discountsLoading || discountsItems || discountsError)) {
+      setDiscountsOpen(true);
+      return;
+    }
+    discountsOnceRef.current = customerId;
+    setDiscountsOpen(true);
+    setDiscountsLoading(true);
+    setDiscountsError(null);
+    setDiscountsItems(null);
+    const res = await adminApi.getCustomerDiscountsHistory(customerId);
+    setDiscountsLoading(false);
+    if (!res.success) {
+      const msg = res.message || (language === 'fa' ? 'دریافت تاریخچه تخفیف‌ها ناموفق بود' : 'Failed to load discounts history');
+      setDiscountsError(msg);
+      return;
+    }
+    setDiscountsItems(res.data?.items || []);
+  };
+
+  // Toggle active status handler with one-shot guard
+  const toggleOnceRef = useRef<number | null>(null);
+  const [toggleLoadingId, setToggleLoadingId] = useState<number | null>(null);
+  const handleToggleActive = async (customerId?: number, current?: boolean | null) => {
+    if (!customerId || customerId <= 0) return;
+    if (toggleOnceRef.current === customerId && toggleLoadingId === customerId) return;
+    toggleOnceRef.current = customerId;
+    setToggleLoadingId(customerId);
+    const payload: AdminSetCustomerActiveStatusRequest = {
+      customer_id: customerId,
+      is_active: !(!!current),
+    };
+    const res = await adminApi.setCustomerActiveStatus(payload);
+    setToggleLoadingId(null);
+    if (!res.success) {
+      const msg = res.message || (language === 'fa' ? 'تغییر وضعیت فعال/غیرفعال ناموفق بود' : 'Failed to toggle active status');
+      showError(msg);
+      return;
+    }
+    // Update local row state if available in current dataset
+    setData((prev) => {
+      if (!prev) return prev;
+      const items = (prev.items || []).map((row) =>
+        row.customer_id === customerId ? { ...row, is_active: res.data?.is_active ?? !current } : row
+      );
+      return { ...prev, items } as AdminCustomersSharesResponse;
+    });
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -158,6 +220,9 @@ const AdminCustomerManagementPage: React.FC = () => {
               <th className="border px-2 py-2">{t.adminCustomers?.table?.headers?.customerName || 'Customer Name'}</th>
               <th className="border px-2 py-2">{t.adminCustomers?.table?.headers?.representativeName || 'Representative Name'}</th>
               <th className="border px-2 py-2">{t.adminCustomers?.table?.headers?.agencyName || 'Agency Name'}</th>
+              <th className="border px-2 py-2">{t.adminCustomers?.detailsModal?.fields?.accountType || 'Account Type'}</th>
+              <th className="border px-2 py-2">{t.adminCustomers?.detailsModal?.fields?.isActive || 'Active'}</th>
+              <th className="border px-2 py-2">{t.adminCustomers?.table?.headers?.toggle || 'Toggle'}</th>
               <th className="border px-2 py-2">{t.adminCustomers?.table?.headers?.totalSent || 'Total Sent'}</th>
               <th className="border px-2 py-2">{t.adminCustomers?.table?.headers?.clickRate || 'Click Rate'}</th>
               <th className="border px-2 py-2">{t.adminCustomers?.table?.headers?.agencyIncome || 'Agency Income'}</th>
@@ -170,7 +235,7 @@ const AdminCustomerManagementPage: React.FC = () => {
           <tbody>
             {!loading && (error || !data?.items?.length) ? (
               <tr>
-                <td colSpan={11} className="text-center py-6">{error ? error : (t.adminCampaigns?.table?.noData || 'No data')}</td>
+                <td colSpan={13} className="text-center py-6">{error ? error : (t.adminCampaigns?.table?.noData || 'No data')}</td>
               </tr>
             ) : (data?.items || []).map((it, idx) => (
               <tr key={`${it.full_name}-${idx}`} className="odd:bg-white even:bg-gray-50">
@@ -178,6 +243,20 @@ const AdminCustomerManagementPage: React.FC = () => {
                 <td className="border px-2 py-2">{it.company_name}</td>
                 <td className="border px-2 py-2">{it.full_name || `${it.first_name} ${it.last_name}`.trim()}</td>
                 <td className="border px-2 py-2">{it.referrer_agency_name}</td>
+                <td className="border px-2 py-2">{it.account_type_name}</td>
+                <td className="border px-2 py-2">{typeof it.is_active === 'boolean' ? (it.is_active ? (t.common?.yes || 'Yes') : (t.common?.no || 'No')) : '-'}</td>
+                <td className="border px-2 py-2 text-center">
+                  <button
+                    className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-60"
+                    onClick={() => handleToggleActive(it.customer_id || 0, it.is_active ?? null)}
+                    disabled={toggleLoadingId === (it.customer_id || 0)}
+                    title={it.is_active ? (language === 'fa' ? 'غیر فعال کردن' : 'Deactivate') : (language === 'fa' ? 'فعال کردن' : 'Activate')}
+                  >
+                    {toggleLoadingId === (it.customer_id || 0)
+                      ? (t.common?.loading || 'Loading...')
+                      : (it.is_active ? (language === 'fa' ? 'غیر فعال کردن' : 'Deactivate') : (language === 'fa' ? 'فعال کردن' : 'Activate'))}
+                  </button>
+                </td>
                 <td className="border px-2 py-2 text-right">{formatNumber(it.total_sent)}</td>
                 <td className="border px-2 py-2 text-right">{toPct(it.click_rate)}</td>
                 <td className="border px-2 py-2 text-right">{formatNumber(it.agency_share_with_tax)}</td>
@@ -194,8 +273,8 @@ const AdminCustomerManagementPage: React.FC = () => {
                 <td className="border px-2 py-2 text-center">
                   <button
                     className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
-                    disabled
-                    title={t.common?.comingSoon || 'Coming soon'}
+                    onClick={() => openDiscounts(it.customer_id || 0)}
+                    title={t.adminCustomers?.actions?.show || 'Show'}
                   >
                     {t.adminCustomers?.actions?.show || 'Show'}
                   </button>
@@ -357,6 +436,65 @@ const AdminCustomerManagementPage: React.FC = () => {
                       <div><div className="text-xs text-gray-500">{t.adminCustomers?.campaignDetails?.fields?.comment || 'Comment'}</div><div className="font-medium break-all">{campaign.comment || '-'}</div></div>
                       <div><div className="text-xs text-gray-500">{t.adminCustomers?.campaignDetails?.fields?.segmentPriceFactor || 'Segment Price Factor'}</div><div className="font-medium">{typeof campaign.segment_price_factor === 'number' ? campaign.segment_price_factor : '-'}</div></div>
                       <div><div className="text-xs text-gray-500">{t.adminCustomers?.campaignDetails?.fields?.lineNumberPriceFactor || 'Line Number Price Factor'}</div><div className="font-medium">{typeof campaign.line_number_price_factor === 'number' ? campaign.line_number_price_factor : '-'}</div></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {discountsOpen && (
+        <div className="fixed inset-0 z-50 pointer-events-none">
+          <div className="absolute top-0 left-0 right-0 h-1/2 bg-black/50 pointer-events-auto">
+            <div className="h-full flex items-start justify-center p-4">
+              <div className="w-full max-w-5xl h-full bg-white rounded-xl shadow-2xl border overflow-hidden">
+                <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+                  <h2 className="text-lg font-semibold">{t.agencyReport?.discountHistoryTitle || 'Discounts History'}</h2>
+                  <button className="text-gray-500 hover:text-gray-700" onClick={() => { setDiscountsOpen(false); }}>
+                    ✕
+                  </button>
+                </div>
+                <div className="p-4 overflow-auto h-[calc(100%-56px)]">
+                  {discountsLoading ? (
+                    <div className="text-sm text-gray-500">{t.common?.loading || 'Loading...'}</div>
+                  ) : (
+                    <div className="overflow-auto">
+                      <table className="min-w-full border text-sm">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="border px-2 py-2">#</th>
+                            <th className="border px-2 py-2">{t.agencyReport?.discountRate || 'Rate (%)'}</th>
+                            <th className="border px-2 py-2">{t.agencyReport?.discountCreatedAt || 'Created At'}</th>
+                            <th className="border px-2 py-2">{t.agencyReport?.discountExpiresAt || 'Expires At'}</th>
+                            <th className="border px-2 py-2">{t.adminCustomers?.table?.headers?.totalSent || 'Total Sent'}</th>
+                            <th className="border px-2 py-2">{t.adminCustomers?.totals?.agencyIncome || 'Sum Agency Income'}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {discountsError ? (
+                            <tr>
+                              <td colSpan={6} className="text-center py-4 text-red-600">{discountsError}</td>
+                            </tr>
+                          ) : (discountsItems && discountsItems.length ? (
+                            (discountsItems || []).map((d, idx) => (
+                              <tr key={`${d.created_at}-${idx}`} className="odd:bg-white even:bg-gray-50">
+                                <td className="border px-2 py-2 text-center">{idx + 1}</td>
+                                <td className="border px-2 py-2 text-right">{typeof d.discount_rate === 'number' ? (d.discount_rate * 100).toFixed(2) + '%' : '-'}</td>
+                                <td className="border px-2 py-2">{new Date(d.created_at).toLocaleString()}</td>
+                                <td className="border px-2 py-2">{d.expires_at ? new Date(d.expires_at).toLocaleString() : '-'}</td>
+                                <td className="border px-2 py-2 text-right">{typeof d.total_sent === 'number' ? d.total_sent.toLocaleString() : '-'}</td>
+                                <td className="border px-2 py-2 text-right">{typeof d.agency_share_with_tax === 'number' ? d.agency_share_with_tax.toLocaleString() : '-'}</td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={6} className="text-center py-4">{t.adminCustomers?.detailsModal?.campaignsTable?.noData || 'No data'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </div>
