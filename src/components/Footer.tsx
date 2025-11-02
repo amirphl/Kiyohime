@@ -100,18 +100,14 @@ const Footer: React.FC = () => {
         <div className='border-t border-gray-800 mt-8 pt-8 text-center relative'>
           {/* Enamad trust seal - left side */}
           <div className='absolute left-0 top-1/2 -translate-y-1/2'>
-            <a
-              referrerPolicy='origin'
-              target='_blank'
-              href='https://trustseal.enamad.ir/?id=661721&Code=r4BODxWmdiblxLISgjWqikLYQWf2IbYP'
-            >
+            <a referrerPolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'>
               <img
                 referrerPolicy='origin'
-                src='https://trustseal.enamad.ir/logo.aspx?id=661721&Code=r4BODxWmdiblxLISgjWqikLYQWf2IbYP'
+                src='https://trustseal.enamad.ir/logo.aspx?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'
                 alt='Enamad Trust Seal'
                 className='h-12 w-auto'
                 style={{ cursor: 'pointer' }}
-                data-code='r4BODxWmdiblxLISgjWqikLYQWf2IbYP'
+                data-code='FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'
               />
             </a>
           </div>
