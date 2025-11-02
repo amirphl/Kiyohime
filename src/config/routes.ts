@@ -98,6 +98,13 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Contact Us',
     description: 'Get in touch with us',
   },
+  TERMS: {
+    path: '/terms',
+    page: 'terms',
+    requiresAuth: false,
+    title: 'Terms of Service',
+    description: 'Service terms and conditions',
+  },
   PRICING: {
     path: '/pricing',
     page: 'pricing',
