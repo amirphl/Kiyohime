@@ -585,30 +585,6 @@ const DashboardPage: React.FC = () => {
       )}
       {
         <footer className="mt-10 rounded-3xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-200 relative">
-          {/* Enamad trust seal - left side */}
-          <div className="absolute left-4 top-1/2 -translate-y-1/2">
-            <a
-              referrerPolicy='origin'
-              target='_blank'
-              href='https://trustseal.enamad.ir/?id=654611&Code=8m3trW0HWMHwsdycPLC79HZTsO97SjFl'
-            >
-                                              {enamadImageOk ? (
-                <img
-                  referrerPolicy='origin'
-                  src='https://trustseal.enamad.ir/logo.aspx?id=654611&Code=8m3trW0HWMHwsdycPLC79HZTsO97SjFl'
-                  alt='Enamad Trust Seal'
-                  className='h-12 w-auto'
-                  style={{ cursor: 'pointer' }}
-                  data-code='8m3trW0HWMHwsdycPLC79HZTsO97SjFl'
-                  onError={() => setEnamadImageOk(false)}
-                />
-              ) : (
-                <div className='h-12 w-28 grid place-items-center rounded bg-gray-200 text-gray-600 text-xs'>
-                  Enamad
-                </div>
-              )}
-            </a>
-          </div>
         </footer>
       }
     </div>
