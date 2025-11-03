@@ -485,6 +485,58 @@ class AdminApiService {
       return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } };
     }
   }
+
+  async getCustomerDiscountsHistory(customerId: number): Promise<ApiResponse<import('../types/admin').AdminCustomerDiscountHistoryResponse>> {
+    const url = getApiUrl(`/admin/customer-management/${customerId}/discounts`);
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return { success: false, message: data?.message || 'Failed to list customer discounts history', error: data?.error } as any;
+      }
+      return { success: true, message: data?.message || 'OK', data: (data?.data || { items: [] }) as import('../types/admin').AdminCustomerDiscountHistoryResponse };
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } } as any;
+    }
+  }
+
+  async setCustomerActiveStatus(payload: import('../types/admin').AdminSetCustomerActiveStatusRequest): Promise<ApiResponse<import('../types/admin').AdminSetCustomerActiveStatusResponse>> {
+    const url = getApiUrl('/admin/customer-management/active-status');
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return { success: false, message: data?.message || 'Failed to set active status', error: data?.error } as any;
+      }
+      return { success: true, message: data?.message || 'OK', data: (data?.data || {}) as import('../types/admin').AdminSetCustomerActiveStatusResponse };
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } } as any;
+    }
+  }
 }
 
 export const adminApiService = new AdminApiService();
