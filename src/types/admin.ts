@@ -137,6 +137,8 @@ export interface AdminCustomersSharesItem {
   total_sent: number;            // uint64
   click_rate: number;
   customer_id?: number;          // optional numeric id if available
+  account_type_name: string;
+  is_active?: boolean | null;
 }
 
 export interface AdminCustomersSharesResponse {
@@ -230,4 +232,29 @@ export interface AdminCreateResponseTicketResponse {
   uuid: string;
   correlation_id: string;
   created_at: string;
+}
+
+// Admin Customer Discounts History
+export interface AdminCustomerDiscountHistoryItem {
+  discount_rate: number;
+  created_at: string;
+  expires_at?: string | null;
+  total_sent: number;
+  agency_share_with_tax: number;
+}
+
+export interface AdminCustomerDiscountHistoryResponse {
+  message: string;
+  items: AdminCustomerDiscountHistoryItem[];
+}
+
+// Admin Set Customer Active Status
+export interface AdminSetCustomerActiveStatusRequest {
+  customer_id: number;
+  is_active: boolean;
+}
+
+export interface AdminSetCustomerActiveStatusResponse {
+  message: string;
+  is_active: boolean;
 } 
