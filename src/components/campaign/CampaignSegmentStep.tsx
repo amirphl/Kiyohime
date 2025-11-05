@@ -43,6 +43,7 @@ const CampaignSegmentStep: React.FC = () => {
   const [loadingSpec, setLoadingSpec] = useState(false);
   const [specError, setSpecError] = useState<string | null>(null);
   const audienceSpecFetchedRef = useRef(false);
+  const hasRequestedSpecRef = useRef(false);
 
   // Debounced capacity calculation
   const debouncedCalculateCapacity = useCallback((data: CalculateCampaignCapacityRequest) => {
@@ -214,6 +215,9 @@ const CampaignSegmentStep: React.FC = () => {
       return () => { canceled = true; };
     }
 
+    if (!hasRequestedSpecRef.current) {
+      hasRequestedSpecRef.current = true;
+    }
     audienceSpecFetchInFlight = (async () => {
       const res = await apiService.listAudienceSpec();
       const spec = (res as any)?.data?.spec ?? (res as any)?.data?.data?.spec;
@@ -240,7 +244,7 @@ const CampaignSegmentStep: React.FC = () => {
       });
 
     return () => { canceled = true; };
-  }, [accessToken, showToast]);
+  }, [accessToken]);
 
   // Build segments and subsegments from audience spec
   const segments = useMemo(() => {
@@ -318,14 +322,7 @@ const CampaignSegmentStep: React.FC = () => {
   };
 
   const handleSubsegmentsChange = (value: string) => {
-    const currentSubsegments = campaignData.segment.subsegments || [];
-    let newSubsegments: string[];
-    
-    if (currentSubsegments.includes(value)) {
-      newSubsegments = currentSubsegments.filter(sub => sub !== value);
-    } else {
-      newSubsegments = [...currentSubsegments, value];
-    }
+    const newSubsegments: string[] = value ? [value] : [];
     const newTags = computeTags(campaignData.segment.segment, newSubsegments);
     updateSegment({ subsegments: newSubsegments, tags: newTags });
     if (!newSubsegments.length || !newTags.length) {
@@ -505,18 +502,21 @@ const CampaignSegmentStep: React.FC = () => {
                                     setIsSearchFocused(false);
                                     // Apply selection: set segment and ensure subsegment is checked
                                     if (campaignData.segment.segment !== p.segValue) {
-                                      const newTags = computeTags(p.segValue, [p.subValue]);
-                                      updateSegment({ segment: p.segValue, subsegments: [p.subValue], tags: newTags, capacity: undefined, capacityTooLow: false });
+                                      const newSubs = [p.subValue];
+                                      const newTags = computeTags(p.segValue, newSubs);
+                                      updateSegment({ segment: p.segValue, subsegments: newSubs, tags: newTags, capacity: undefined, capacityTooLow: false });
                                       setCapacity(undefined);
                                       setHasCapacityError(false);
                                       setCapacityError(null);
-                                      triggerCapacityCalculation({ segment: p.segValue, subsegment: [p.subValue], tags: newTags });
+                                      triggerCapacityCalculation({ segment: p.segValue, subsegment: newSubs, tags: newTags });
                                     } else {
-                                      const currentSubs = campaignData.segment.subsegments || [];
-                                      const mergedSubs = currentSubs.includes(p.subValue) ? currentSubs : [...currentSubs, p.subValue];
-                                      const newTags = computeTags(p.segValue, mergedSubs);
-                                      updateSegment({ subsegments: mergedSubs, tags: newTags });
-                                      triggerCapacityCalculation({ subsegment: mergedSubs, tags: newTags });
+                                      const newSubs = [p.subValue];
+                                      const newTags = computeTags(p.segValue, newSubs);
+                                      updateSegment({ subsegments: newSubs, tags: newTags, capacity: undefined, capacityTooLow: false });
+                                      setCapacity(undefined);
+                                      setHasCapacityError(false);
+                                      setCapacityError(null);
+                                      triggerCapacityCalculation({ subsegment: newSubs, tags: newTags });
                                     }
                                   }}
                                 >
@@ -550,10 +550,11 @@ const CampaignSegmentStep: React.FC = () => {
                   {getSubsegmentsForSegment(campaignData.segment.segment).map((subsegment) => (
                     <label key={subsegment.value} className="flex items-center space-x-3 cursor-pointer">
                       <input
-                        type="checkbox"
+                        type="radio"
+                        name="subsegment-single"
                         checked={campaignData.segment.subsegments?.includes(subsegment.value) || false}
                         onChange={() => handleSubsegmentsChange(subsegment.value)}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
                       />
                       <span className="text-sm text-gray-700">{subsegment.label}</span>
                     </label>
