@@ -21,7 +21,14 @@ const CampaignBudgetStep: React.FC = () => {
   const { language } = useLanguage();
   const { accessToken } = useAuth();
   const currencyLabel = language === 'en' ? 'Toman' : 'تومان';
-  
+
+  // Ensure API service has token to avoid 401 loops on hard refresh
+  useEffect(() => {
+    if (accessToken) {
+      apiService.setAccessToken(accessToken);
+    }
+  }, [accessToken]);
+
   // State for message count calculation
   const [messageCount, setMessageCount] = useState<number | undefined>(undefined);
   const [maxMessageCount, setMaxMessageCount] = useState<number | undefined>(undefined);
@@ -34,7 +41,7 @@ const CampaignBudgetStep: React.FC = () => {
   const [lineNumberOptions, setLineNumberOptions] = useState<Array<{ value: string; label: string }>>([]);
   const [isLoadingLineNumbers, setIsLoadingLineNumbers] = useState(false);
   const [lineNumbersError, setLineNumbersError] = useState<string | null>(null);
-  
+
   // Debouncing for budget field
   const budgetDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const initialCostCalculatedRef = useRef(false);
@@ -58,7 +65,6 @@ const CampaignBudgetStep: React.FC = () => {
         .catch(err => {
           setLineNumbersError('Failed to load line numbers');
           setIsLoadingLineNumbers(false);
-          showToast('error', 'Failed to load line numbers');
         });
       return;
     }
@@ -88,7 +94,7 @@ const CampaignBudgetStep: React.FC = () => {
         setIsLoadingLineNumbers(false);
         activeLineNumbersFetchInFlight = null;
       });
-  }, [accessToken, showToast]);
+  }, [accessToken]);
 
   // API call for message count calculation
   const calculateMessageCount = useCallback(async (currentLineNumber?: string, currentBudget?: number) => {
@@ -150,7 +156,7 @@ const CampaignBudgetStep: React.FC = () => {
       messageCountRequestInFlightRef.current = false;
     }
   }, [hasMessageCountError, campaignData.segment.campaignTitle, campaignData.segment.segment, campaignData.segment.subsegments, campaignData.segment.sex, campaignData.segment.city, campaignData.content.link, campaignData.content.text, campaignData.content.scheduleAt, showToast, campaignData.budget.lineNumber, campaignData.budget.totalBudget]);
-  
+
   // One-time initial calculate if both line number and budget are pre-filled
   useEffect(() => {
     if (initialCostCalculatedRef.current) return;
@@ -167,7 +173,7 @@ const CampaignBudgetStep: React.FC = () => {
       setMessageCountError(null);
     }
   }, [hasMessageCountError, campaignData.budget.lineNumber, campaignData.budget.totalBudget]);
-  
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
