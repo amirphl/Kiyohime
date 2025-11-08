@@ -45,6 +45,16 @@ interface SignupPageProps {
   onNavigateToLogin?: () => void;
 }
 
+// Convert Persian/Arabic-Indic digits to ASCII English digits
+const toEnglishDigits = (input: string): string => {
+  if (!input) return input;
+  const persian = '۰۱۲۳۴۵۶۷۸۹';
+  const arabic = '٠١٢٣٤٥٦٧٨٩';
+  return input
+    .replace(/[۰-۹]/g, (d) => String(persian.indexOf(d)))
+    .replace(/[٠-٩]/g, (d) => String(arabic.indexOf(d)));
+};
+
 const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
   const { t } = useTranslation();
   const { isRTL, language } = useLanguage();
@@ -219,9 +229,10 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
     >
   ) => {
     const { name, value } = e.target;
+    const normalized = toEnglishDigits(value);
     const sanitizedValue = name === 'shebaNumber'
-      ? value.replace(/\D/g, '').slice(0, 24)
-      : value;
+      ? normalized.replace(/\D/g, '').slice(0, 24)
+      : normalized;
 
     if (name === 'accountType') {
       const newType = sanitizedValue as SignupFormData['accountType'];
