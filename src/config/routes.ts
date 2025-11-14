@@ -154,6 +154,13 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Admin Customers',
     description: 'Admin customer management',
   },
+  ADMIN_SHORT_LINKS: {
+    path: '/satrap/sardis/short-links',
+    page: 'admin-short-links',
+    requiresAuth: false,
+    title: 'Admin Short Links',
+    description: 'Admin short link management',
+  },
 };
 
 export const getRouteByPath = (path: string): RouteConfig | null => {
