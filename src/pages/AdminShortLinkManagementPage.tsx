@@ -1,0 +1,324 @@
+import React, { useState } from 'react';
+import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../hooks/useLanguage';
+import { useNavigation } from '../contexts/NavigationContext';
+import { ROUTES } from '../config/routes';
+import adminApi from '../services/adminApi';
+import { getApiUrl } from '../config/environment';
+
+const AdminShortLinkManagementPage: React.FC = () => {
+  const { t } = useTranslation();
+  const { isRTL } = useLanguage();
+  const { navigate } = useNavigation();
+
+  const [selectedDomain, setSelectedDomain] = useState<string>('https://jo1n.ir');
+  const [file, setFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [statusMessage, setStatusMessage] = useState<string>('');
+  const [statusType, setStatusType] = useState<'idle' | 'success' | 'error'>('idle');
+  const [uploadedScenarioId, setUploadedScenarioId] = useState<number | null>(null);
+  const [scenarioId, setScenarioId] = useState<string>('');
+  const [downloading, setDownloading] = useState<boolean>(false);
+  const [downloadMessage, setDownloadMessage] = useState<string>('');
+  const [downloadType, setDownloadType] = useState<'idle' | 'success' | 'error'>('idle');
+  const [scenarioIdClicks, setScenarioIdClicks] = useState<string>('');
+  const [downloadingClicks, setDownloadingClicks] = useState<boolean>(false);
+  const [downloadMessageClicks, setDownloadMessageClicks] = useState<string>('');
+  const [downloadTypeClicks, setDownloadTypeClicks] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+    setStatusMessage('');
+    setStatusType('idle');
+    setUploadedScenarioId(null);
+
+    if (!file) {
+      setStatusMessage(t('adminShortLinks.messages.validationFileRequired'));
+      setStatusType('error');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const resp = await adminApi.uploadShortLinksCSV(file, selectedDomain);
+      if (resp.success) {
+        const id = typeof resp.data?.scenario_id === 'number' ? resp.data.scenario_id : parseInt(String(resp.data?.scenario_id || ''), 10);
+        if (!isNaN(id)) setUploadedScenarioId(id);
+        setStatusMessage(resp.message || t('adminShortLinks.messages.success'));
+        setStatusType('success');
+      } else {
+        setStatusMessage(resp.message || t('adminShortLinks.messages.error'));
+        setStatusType('error');
+      }
+    } catch (err) {
+      setStatusMessage(t('adminShortLinks.messages.error'));
+      setStatusType('error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const onDownload = async () => {
+    setDownloadMessage('');
+    setDownloadType('idle');
+
+    const idNum = parseInt(scenarioId, 10);
+    if (!idNum || idNum <= 0) {
+      setDownloadMessage(t('adminShortLinks.download.error'));
+      setDownloadType('error');
+      return;
+    }
+
+    try {
+      setDownloading(true);
+      const token = adminApi.getAccessToken();
+      const url = getApiUrl('/admin/short-links/download');
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'text/csv, application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ scenario_id: idNum }),
+        signal: AbortSignal.timeout(30000),
+      });
+
+      const contentType = resp.headers.get('Content-Type') || '';
+      if (resp.ok && contentType.includes('text/csv')) {
+        const blob = await resp.blob();
+        const cd = resp.headers.get('Content-Disposition') || '';
+        const match = cd.match(/filename\s*=\s*([^;]+)/i);
+        const filename = match ? match[1].replace(/"/g, '').trim() : `short-links-${idNum}.csv`;
+        const urlObj = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = urlObj;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(urlObj);
+        setDownloadMessage(t('adminShortLinks.download.success'));
+        setDownloadType('success');
+      } else {
+        let errorText = t('adminShortLinks.download.error');
+        try {
+          const data = await resp.json();
+          errorText = data?.message || data?.error?.code || errorText;
+        } catch {}
+        setDownloadMessage(errorText);
+        setDownloadType('error');
+      }
+    } catch {
+      setDownloadMessage(t('adminShortLinks.download.error'));
+      setDownloadType('error');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const onDownloadWithClicks = async () => {
+    setDownloadMessageClicks('');
+    setDownloadTypeClicks('idle');
+
+    const idNum = parseInt(scenarioIdClicks, 10);
+    if (!idNum || idNum <= 0) {
+      setDownloadMessageClicks(t('adminShortLinks.downloadWithClicks.error'));
+      setDownloadTypeClicks('error');
+      return;
+    }
+
+    try {
+      setDownloadingClicks(true);
+      const token = adminApi.getAccessToken();
+      const url = getApiUrl('/admin/short-links/download-with-clicks');
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'text/csv, application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ scenario_id: idNum }),
+        signal: AbortSignal.timeout(30000),
+      });
+
+      const contentType = resp.headers.get('Content-Type') || '';
+      if (resp.ok && contentType.includes('text/csv')) {
+        const blob = await resp.blob();
+        const cd = resp.headers.get('Content-Disposition') || '';
+        const match = cd.match(/filename\s*=\s*([^;]+)/i);
+        const filename = match ? match[1].replace(/"/g, '').trim() : `short-links-with-clicks-${idNum}.csv`;
+        const urlObj = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = urlObj;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(urlObj);
+        setDownloadMessageClicks(t('adminShortLinks.downloadWithClicks.success'));
+        setDownloadTypeClicks('success');
+      } else {
+        let errorText = t('adminShortLinks.downloadWithClicks.error');
+        try {
+          const data = await resp.json();
+          errorText = data?.message || data?.error?.code || errorText;
+        } catch {}
+        setDownloadMessageClicks(errorText);
+        setDownloadTypeClicks('error');
+      }
+    } catch {
+      setDownloadMessageClicks(t('adminShortLinks.downloadWithClicks.error'));
+      setDownloadTypeClicks('error');
+    } finally {
+      setDownloadingClicks(false);
+    }
+  };
+
+  return (
+    <div className="px-4 sm:px-6 lg:px-8 py-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-xl font-semibold">{t('adminShortLinks.title')}</h1>
+        <button
+          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded"
+          onClick={() => navigate(ROUTES.ADMIN_SARDIS.path)}
+        >
+          {t('adminCommon.backToSardis')}
+        </button>
+      </div>
+
+      <p className="text-gray-600 mb-6">{t('adminShortLinks.subtitle')}</p>
+
+      <form onSubmit={onSubmit} className="max-w-xl space-y-5">
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="domain">
+            {t('adminShortLinks.form.domainLabel')}
+          </label>
+          <select
+            id="domain"
+            value={selectedDomain}
+            onChange={(e) => setSelectedDomain(e.target.value)}
+            className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+          >
+            <option value="https://jo1n.ir">{t('adminShortLinks.domain.jo1n')}</option>
+            <option value="https://joinsahel.ir">{t('adminShortLinks.domain.joinsahel')}</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="csv">
+            {t('adminShortLinks.form.fileLabel')}
+          </label>
+          <input
+            id="csv"
+            type="file"
+            accept=".csv"
+            onChange={(e) => setFile(e.target.files && e.target.files[0] ? e.target.files[0] : null)}
+            className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+          />
+        </div>
+
+        <div className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}>
+          <button
+            type="submit"
+            disabled={submitting}
+            className={`px-4 py-2 rounded text-white ${submitting ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+          >
+            {submitting ? t('adminShortLinks.form.uploading') : t('adminShortLinks.form.upload')}
+          </button>
+
+          {statusMessage && (
+            <span className={`${statusType === 'error' ? 'text-red-600' : statusType === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}>
+              {statusMessage}
+            </span>
+          )}
+        </div>
+
+        {uploadedScenarioId !== null && (
+          <div className="text-sm text-gray-700">
+            {t('adminShortLinks.result.scenarioId', { id: uploadedScenarioId })}
+          </div>
+        )}
+      </form>
+
+      {/* Download by Scenario */}
+      <div className="mt-10 max-w-xl border-t border-gray-200 pt-6">
+        <h2 className="text-lg font-semibold mb-4">{t('adminShortLinks.download.title')}</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="scenario-id">
+              {t('adminShortLinks.download.scenarioIdLabel')}
+            </label>
+            <input
+              id="scenario-id"
+              type="number"
+              inputMode="numeric"
+              value={scenarioId}
+              onChange={(e) => setScenarioId(e.target.value)}
+              placeholder={t('adminShortLinks.download.scenarioIdPlaceholder')}
+              className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+            />
+          </div>
+
+          <div className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}>
+            <button
+              type="button"
+              onClick={onDownload}
+              disabled={downloading}
+              className={`px-4 py-2 rounded text-white ${downloading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+            >
+              {downloading ? t('adminShortLinks.download.downloading') : t('adminShortLinks.download.download')}
+            </button>
+
+            {downloadMessage && (
+              <span className={`${downloadType === 'error' ? 'text-red-600' : downloadType === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}>
+                {downloadMessage}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Download with Clicks by Scenario */}
+      <div className="mt-10 max-w-xl border-t border-gray-200 pt-6">
+        <h2 className="text-lg font-semibold mb-4">{t('adminShortLinks.downloadWithClicks.title')}</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="scenario-id-clicks">
+              {t('adminShortLinks.downloadWithClicks.scenarioIdLabel')}
+            </label>
+            <input
+              id="scenario-id-clicks"
+              type="number"
+              inputMode="numeric"
+              value={scenarioIdClicks}
+              onChange={(e) => setScenarioIdClicks(e.target.value)}
+              placeholder={t('adminShortLinks.downloadWithClicks.scenarioIdPlaceholder')}
+              className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+            />
+          </div>
+
+          <div className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}>
+            <button
+              type="button"
+              onClick={onDownloadWithClicks}
+              disabled={downloadingClicks}
+              className={`px-4 py-2 rounded text-white ${downloadingClicks ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+            >
+              {downloadingClicks ? t('adminShortLinks.downloadWithClicks.downloading') : t('adminShortLinks.downloadWithClicks.download')}
+            </button>
+
+            {downloadMessageClicks && (
+              <span className={`${downloadTypeClicks === 'error' ? 'text-red-600' : downloadTypeClicks === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}>
+                {downloadMessageClicks}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminShortLinkManagementPage; 
