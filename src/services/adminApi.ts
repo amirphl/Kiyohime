@@ -537,6 +537,37 @@ class AdminApiService {
       return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } } as any;
     }
   }
+
+  // NEW: Upload short links CSV (no retries, single request)
+  async uploadShortLinksCSV(file: File, shortLinkDomain: string): Promise<ApiResponse<any>> {
+    const url = getApiUrl('/admin/short-links/upload-csv');
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      form.append('short_link_domain', shortLinkDomain);
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+        },
+        body: form,
+        signal: AbortSignal.timeout(30000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
+      const data = await resp.json();
+      if (resp.status === 201 || resp.ok) {
+        return { success: true, message: data?.message || 'Short links created', data: data?.data } as any;
+      }
+      const errorMessage = data?.message || data?.error?.code || `HTTP ${resp.status}`;
+      return { success: false, message: errorMessage, error: data?.error } as any;
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } } as any;
+    }
+  }
 }
 
 export const adminApiService = new AdminApiService();
