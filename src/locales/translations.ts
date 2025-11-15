@@ -58,6 +58,10 @@ export const translations = {
           title: 'Customer Management',
           description: 'Customers shares and performance report'
         },
+        shortLinks: {
+          title: 'Short Link Management',
+          description: 'Upload CSV to create short links'
+        },
         support: {
           title: 'Tickets & Support',
           description: 'Manage and reply to customer tickets',
@@ -71,7 +75,6 @@ export const translations = {
           customerName: 'Customer Name',
           representativeName: 'Representative Name',
           agencyName: 'Agency Name',
-          toggle: 'Toggle',
           totalSent: 'Total Sent',
           clickRate: 'Click Rate',
           agencyIncome: 'Agency Income',
@@ -79,6 +82,7 @@ export const translations = {
           tax: 'Tax',
           details: 'Details',
           discounts: 'Discounts',
+          toggle: 'Toggle',
         },
       },
       totals: {
@@ -166,6 +170,47 @@ export const translations = {
           lineNumberPriceFactor: 'Line Number Price Factor',
         },
       },
+    },
+    adminShortLinks: {
+      title: 'Short Link Management',
+      subtitle: 'Upload a CSV with long_link column to create short links',
+      form: {
+        domainLabel: 'Short link domain',
+        fileLabel: 'CSV file',
+        selectPlaceholder: 'Select a domain',
+        upload: 'Upload CSV',
+        uploading: 'Uploading…'
+      },
+      domain: {
+        jo1n: 'jo1n.ir',
+        joinsahel: 'joinsahel.ir'
+      },
+      messages: {
+        success: 'Short links created successfully',
+        error: 'Failed to create short links',
+        validationFileRequired: 'Please choose a CSV file'
+      },
+      result: {
+        scenarioId: 'Scenario ID: {id}'
+      },
+      download: {
+        title: 'Download Short Links by Scenario',
+        scenarioIdLabel: 'Scenario ID',
+        scenarioIdPlaceholder: 'Enter scenario ID',
+        download: 'Download CSV',
+        downloading: 'Downloading…',
+        success: 'Download started',
+        error: 'Failed to generate CSV'
+      },
+      downloadWithClicks: {
+        title: 'Download Short Links with Clicks by Scenario',
+        scenarioIdLabel: 'Scenario ID',
+        scenarioIdPlaceholder: 'Enter scenario ID',
+        download: 'Download CSV',
+        downloading: 'Downloading…',
+        success: 'Download started',
+        error: 'Failed to generate CSV'
+      }
     },
     adminLineNumbers: {
       managementTitle: 'Line Number Management',
@@ -1294,6 +1339,10 @@ export const translations = {
           title: 'مدیریت مشتریان',
           description: 'گزارش سهم‌ها و عملکرد مشتریان'
         },
+        shortLinks: {
+          title: 'مدیریت لینک کوتاه',
+          description: 'آپلود CSV برای ساخت لینک‌های کوتاه'
+        },
         support: {
           title: 'تیکت‌ها و پشتیبانی',
           description: 'مدیریت و پاسخ به تیکت‌های مشتریان'
@@ -1402,6 +1451,47 @@ export const translations = {
           lineNumberPriceFactor: 'ضریب قیمت شماره خط',
         },
       },
+    },
+    adminShortLinks: {
+      title: 'مدیریت لینک کوتاه',
+      subtitle: 'فایل CSV با ستون long_link را آپلود کنید',
+      form: {
+        domainLabel: 'دامنه لینک کوتاه',
+        fileLabel: 'فایل CSV',
+        selectPlaceholder: 'انتخاب دامنه',
+        upload: 'آپلود CSV',
+        uploading: 'در حال آپلود…'
+      },
+      domain: {
+        jo1n: 'jo1n.ir',
+        joinsahel: 'joinsahel.ir'
+      },
+      messages: {
+        success: 'لینک‌های کوتاه با موفقیت ایجاد شد',
+        error: 'ایجاد لینک‌های کوتاه ناموفق بود',
+        validationFileRequired: 'لطفاً فایل CSV را انتخاب کنید'
+      },
+      result: {
+        scenarioId: 'شناسه سناریو: {id}'
+      },
+      download: {
+        title: 'دانلود لینک‌های کوتاه بر اساس سناریو',
+        scenarioIdLabel: 'شناسه سناریو',
+        scenarioIdPlaceholder: 'شناسه سناریو را وارد کنید',
+        download: 'دانلود CSV',
+        downloading: 'در حال دانلود…',
+        success: 'دانلود آغاز شد',
+        error: 'تولید CSV ناموفق بود'
+      },
+      downloadWithClicks: {
+        title: 'دانلود لینک‌های کوتاه دارای کلیک بر اساس سناریو',
+        scenarioIdLabel: 'شناسه سناریو',
+        scenarioIdPlaceholder: 'شناسه سناریو را وارد کنید',
+        download: 'دانلود CSV',
+        downloading: 'در حال دانلود…',
+        success: 'دانلود آغاز شد',
+        error: 'تولید CSV ناموفق بود'
+      }
     },
     adminLineNumbers: {
       managementTitle: 'مدیریت شماره خط',
