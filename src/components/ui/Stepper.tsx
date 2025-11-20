@@ -24,17 +24,15 @@ const Stepper: React.FC<StepperProps> = ({
               <button
                 onClick={() => onStepClick(step.id)}
                 disabled={!step.isAccessible}
-                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
-                  step.id === currentStep
+                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${step.id === currentStep
                     ? 'border-primary-600 bg-primary-600 text-white'
                     : step.isCompleted
                       ? 'border-green-500 bg-green-500 text-white'
                       : 'border-gray-300 bg-white text-gray-500'
-                } ${
-                  step.isAccessible
+                  } ${step.isAccessible
                     ? 'hover:border-primary-400 cursor-pointer'
                     : 'cursor-not-allowed'
-                }`}
+                  }`}
               >
                 {step.isCompleted ? (
                   <Check className="h-5 w-5" />
@@ -42,28 +40,26 @@ const Stepper: React.FC<StepperProps> = ({
                   <span className="text-sm font-medium">{step.id}</span>
                 )}
               </button>
-              
+
               {/* Step label */}
               <div className="ml-3 text-left">
-                <div className={`text-sm font-medium ${
-                  step.id === currentStep
+                <div className={`text-sm font-medium ${step.id === currentStep
                     ? 'text-primary-600'
                     : step.isCompleted
                       ? 'text-green-600'
                       : 'text-gray-500'
-                }`}>
+                  }`}>
                   {step.title}
                 </div>
                 <div className="text-xs text-gray-400">
                   {step.subtitle}
                 </div>
               </div>
-              
+
               {/* Connector line */}
               {index < steps.length - 1 && (
-                <div className={`w-16 h-0.5 mx-4 ${
-                  step.isCompleted ? 'bg-green-500' : 'bg-gray-300'
-                }`} />
+                <div className={`w-16 h-0.5 mx-4 ${step.isCompleted ? 'bg-green-500' : 'bg-gray-300'
+                  }`} />
               )}
             </div>
           ))}

@@ -199,15 +199,14 @@ const WalletPage: React.FC = () => {
               <Button
                 variant="ghost"
                 onClick={() => window.location.href = '/dashboard'}
-                className={`flex items-center text-gray-600 hover:text-gray-900 transition-colors ${
-                  isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
-                }`}
+                className={`flex items-center text-gray-600 hover:text-gray-900 transition-colors ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
+                  }`}
               >
                 <ArrowLeft className="h-5 w-5" />
                 <span>{t('dashboard.title')}</span>
               </Button>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <h1 className="text-xl font-semibold text-gray-900 flex items-center">
                 <Wallet className="h-6 w-6 mr-2 text-primary-600" />

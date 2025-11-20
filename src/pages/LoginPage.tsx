@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
-import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 import apiService from '../services/api';
 import { getApiErrorMessage } from '../utils/errorHandler';
+import { loginI18n } from '../locales/login';
 
 interface LoginPageProps {
   onNavigateToSignup?: () => void;
@@ -16,8 +16,9 @@ const LoginPage: React.FC<LoginPageProps> = ({
   onNavigateToSignup,
   onNavigateToForgotPassword,
 }) => {
-  const { t } = useTranslation();
-  const { isRTL, language } = useLanguage();
+  const { language } = useLanguage();
+  const { isRTL } = useLanguage();
+  const loginT = loginI18n[language as keyof typeof loginI18n] || loginI18n.en;
   const { showSuccess } = useToast();
   const { login } = useAuth();
 
@@ -31,7 +32,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
     e.preventDefault();
 
     if (!identifier.trim() || !password.trim()) {
-      setError(t('login.validation.allFieldsRequired'));
+      setError(loginT.validation.allFieldsRequired);
       return;
     }
 
@@ -59,7 +60,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
           );
 
           // Redirect to dashboard or show success
-          showSuccess(t('login.success'));
+          showSuccess(loginT.success);
           // Redirect to dashboard
           window.location.href = '/dashboard';
         } else {
@@ -67,14 +68,14 @@ const LoginPage: React.FC<LoginPageProps> = ({
             'Missing required data in login response:',
             responseData
           );
-          setError(t('login.error.invalidCredentials'));
+          setError(loginT.error.invalidCredentials);
         }
       } else {
         // Use the new error handling utility
         const errorMessage = getApiErrorMessage(
           response,
           language,
-          t('login.error.invalidCredentials')
+          loginT.error.invalidCredentials
         );
         setError(errorMessage);
       }
@@ -83,7 +84,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
       setError(getApiErrorMessage(
         { success: false, error: { code: 'NETWORK_ERROR' } },
         language,
-        t('login.error.networkError')
+        loginT.error.networkError
       ));
     } finally {
       setIsLoading(false);
@@ -99,9 +100,9 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <Mail className='h-6 w-6 text-white' />
           </div>
           <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
-            {t('login.title')}
+            {loginT.title}
           </h2>
-          <p className='mt-2 text-sm text-gray-600'>{t('login.subtitle')}</p>
+          <p className='mt-2 text-sm text-gray-600'>{loginT.subtitle}</p>
         </div>
 
         {/* Login Form */}
@@ -118,7 +119,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 htmlFor='identifier'
                 className='block text-sm font-medium text-gray-700 mb-2'
               >
-                {t('login.emailOrMobile')}
+                {loginT.emailOrMobile}
               </label>
               <input
                 type='text'
@@ -126,7 +127,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 value={identifier}
                 onChange={e => setIdentifier(e.target.value)}
                 className='input-field'
-                placeholder={t('login.emailOrMobilePlaceholder')}
+                placeholder={loginT.emailOrMobilePlaceholder}
                 dir='ltr'
                 required
               />
@@ -137,7 +138,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 htmlFor='password'
                 className='block text-sm font-medium text-gray-700 mb-2'
               >
-                {t('login.password')}
+                {loginT.password}
               </label>
               <div className='relative'>
                 <input
@@ -146,7 +147,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   className={`input-field ${isRTL ? 'pl-10' : 'pr-10'}`}
-                  placeholder={t('login.passwordPlaceholder')}
+                  placeholder={loginT.passwordPlaceholder}
                   dir='ltr'
                   required
                 />
@@ -173,7 +174,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-white'></div>
               ) : (
                 <>
-                  <span>{t('login.signIn')}</span>
+                  <span>{loginT.signIn}</span>
                   <ArrowRight
                     className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`}
                   />
@@ -187,7 +188,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 onClick={onNavigateToForgotPassword}
                 className='text-sm text-primary-600 hover:text-primary-700'
               >
-                {t('login.forgotPassword')}
+                {loginT.forgotPassword}
               </button>
             </div>
           </form>
@@ -196,7 +197,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
         {/* Features */}
         <div className='bg-white p-6 rounded-lg border border-gray-200'>
           <h3 className='text-lg font-medium text-gray-900 mb-4'>
-            {t('login.features.title')}
+            {loginT.features.title}
           </h3>
           <div className='space-y-3'>
             <div
@@ -204,7 +205,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             >
               <div className='w-2 h-2 bg-primary-600 rounded-full'></div>
               <span className='text-sm text-gray-600'>
-                {t('login.features.targeted')}
+                {loginT.features.targeted}
               </span>
             </div>
             <div
@@ -212,7 +213,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             >
               <div className='w-2 h-2 bg-primary-600 rounded-full'></div>
               <span className='text-sm text-gray-600'>
-                {t('login.features.segmentation')}
+                {loginT.features.segmentation}
               </span>
             </div>
             <div
@@ -220,7 +221,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             >
               <div className='w-2 h-2 bg-primary-600 rounded-full'></div>
               <span className='text-sm text-gray-600'>
-                {t('login.features.analytics')}
+                {loginT.features.analytics}
               </span>
             </div>
             <div
@@ -228,7 +229,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             >
               <div className='w-2 h-2 bg-primary-600 rounded-full'></div>
               <span className='text-sm text-gray-600'>
-                {t('login.features.compliance')}
+                {loginT.features.compliance}
               </span>
             </div>
           </div>
@@ -237,13 +238,13 @@ const LoginPage: React.FC<LoginPageProps> = ({
         {/* Signup Link */}
         <div className='text-center'>
           <p className='text-sm text-gray-600'>
-            {t('login.noAccount')}{' '}
+            {loginT.noAccount}{' '}
             <button
               type='button'
               onClick={onNavigateToSignup}
               className='text-primary-600 hover:text-primary-700 font-medium'
             >
-              {t('login.signUpHere')}
+              {loginT.signUpHere}
             </button>
           </p>
         </div>

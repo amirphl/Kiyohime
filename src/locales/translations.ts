@@ -1,43 +1,5 @@
 export const translations = {
   en: {
-    // Header
-    header: {
-      brand: 'SMS Platform',
-      subtitle: 'Consulting and Data-Driven Technology',
-      dashboard: 'Dashboard',
-      campaigns: 'Campaigns',
-      analytics: 'Analytics',
-      support: 'Support',
-      features: 'Features',
-      howItWorks: 'How It Works',
-      pricing: 'Pricing',
-      signin: 'Sign In',
-      signup: 'Sign Up',
-      logout: 'Logout',
-    },
-
-    // Footer
-    footer: {
-      description:
-        'Empower your business with targeted SMS marketing campaigns. Reach your customers with precision and drive results.',
-      quickLinks: 'Quick Links',
-      support: 'Support',
-      helpCenter: 'Help Center',
-      contactUs: 'Contact Us',
-      privacyPolicy: 'Privacy Policy',
-      termsOfService: 'Terms of Service',
-      copyright: '© 2024 SMS Platform. All rights reserved.',
-    },
-
-    contact: {
-      title: 'Contact Us',
-      companyName: 'Rahkarhaye Hadafmand-e Khalagh Company (Private Joint Stock)',
-      address: 'Address: Tehran, Molla Sadra Street, North Shirazi Street, Hakim Azam Street, No. 19, Monstrect',
-      postalCode: 'Postal Code: 1991647419',
-      email: 'info@jazebeh.ir',
-      phone: 'Phone: +98 21 8967 7330'
-    },
-
     // --- Admin (new) ---
     adminCommon: {
       backToSardis: 'Back to Sardis',
@@ -301,243 +263,6 @@ export const translations = {
         missingNumericId: 'Campaign numeric id not available',
       },
     },
-
-    // Login Page
-    login: {
-      title: 'Welcome to SMS Platform',
-      subtitle: 'Sign in to access your SMS marketing dashboard',
-      emailOrMobile: 'Email or Mobile Number',
-      emailOrMobilePlaceholder: '',
-      password: 'Password',
-      passwordPlaceholder: 'Enter your password',
-      signIn: 'Sign In',
-      forgotPassword: 'Forgot Password?',
-      noAccount: "Don't have an account?",
-      signUpHere: 'Sign up here',
-      success: 'Login successful!',
-      validation: {
-        allFieldsRequired: 'Please fill in all fields',
-      },
-      error: {
-        invalidCredentials: 'Invalid email/mobile or password',
-        customerNotFound: 'Customer not found. Please check your information.',
-        accountInactive: 'Account is inactive. Please contact support.',
-        accountTypeNotFound: 'Account type not found. Please contact support.',
-        incorrectPassword: 'Incorrect password. Please try again.',
-        networkError: 'Network error. Please try again.',
-      },
-      features: {
-        title: 'Why Choose SMS Platform?',
-        targeted: 'Targeted SMS campaigns',
-        segmentation: 'Advanced customer segmentation',
-        analytics: 'Real-time analytics and reporting',
-        compliance: 'Compliance with regulations',
-      },
-    },
-
-    // Forgot Password Page
-    forgotPassword: {
-      title: 'Forgot Password',
-      subtitle: 'Enter your email or mobile number to reset your password',
-      emailOrMobile: 'Email or Mobile Number',
-      emailOrMobilePlaceholder: 'Enter your email or mobile number',
-      sendResetLink: 'Send Reset Link',
-      backToLogin: 'Back to Login',
-      helpText: 'We will send a password reset OTP to your mobile number',
-      validation: {
-        identifierRequired: 'Please enter your email or mobile number',
-      },
-      error: {
-        requestFailed: 'Failed to send reset link. Please try again.',
-        customerNotFound: 'Customer not found. Please check your information.',
-        accountInactive: 'Account is inactive. Please contact support.',
-        accountTypeNotFound: 'Account type not found. Please contact support.',
-        networkError: 'Network error. Please try again.',
-      },
-      success: {
-        title: 'Reset Link Sent',
-        subtitle: 'Check your mobile for the OTP',
-        message: 'Password reset OTP has been sent to {phone}',
-        expiresIn: 'OTP expires in {minutes} minutes',
-        tryAgain: 'Try Another Email/Mobile',
-        resetPassword: 'Reset Password',
-        backToLogin: 'Back to Login',
-      },
-    },
-
-    // Reset Password Page
-    resetPassword: {
-      title: 'Reset Password',
-      subtitle: 'Enter your new password and OTP code',
-      forPhone: 'For phone number: {phone}',
-      otpCode: 'OTP Code',
-      otpHelp: 'Enter the 6-digit code sent to your mobile',
-      newPassword: 'New Password',
-      newPasswordPlaceholder: 'Enter your new password',
-      confirmPassword: 'Confirm Password',
-      confirmPasswordPlaceholder: 'Confirm your new password',
-      resetPassword: 'Reset Password',
-      backToLogin: 'Back to Login',
-      requirements: {
-        title: 'Password Requirements',
-        minLength: 'At least 8 characters',
-        letterAndDigit: 'At least 1 letter and 1 digit',
-      },
-      validation: {
-        newPasswordRequired: 'Please enter a new password',
-        passwordMin: 'Password must be at least 8 characters',
-        passwordUppercase: 'Password must contain at least 1 uppercase letter',
-        passwordNumber: 'Password must contain at least 1 number',
-        passwordStrength: 'Password must contain at least 1 letter and 1 digit',
-        passwordMismatch: 'Passwords do not match',
-        otpRequired: 'Please enter the 6-digit OTP code',
-      },
-      error: {
-        resetFailed: 'Failed to reset password. Please try again.',
-        customerNotFound: 'Customer not found. Please check your information.',
-        accountInactive: 'Account is inactive. Please contact support.',
-        accountTypeNotFound: 'Account type not found. Please contact support.',
-        noValidOtp: 'No valid OTP found. Please request a new OTP.',
-        invalidOtpCode: 'Invalid OTP code. Please try again.',
-        invalidOtpType: 'Invalid OTP type. Please try again.',
-        otpExpired: 'OTP has expired. Please request a new OTP.',
-        networkError: 'Network error. Please try again.',
-        noCustomerId: 'Invalid reset link. Please try again.',
-      },
-      success: {
-        title: 'Password Reset Successful',
-        subtitle: 'Your password has been updated and you are now logged in',
-        message: 'You have been automatically logged in with your new password',
-        backToLogin: 'Go to Dashboard',
-      },
-    },
-
-    // Signup Page
-    signup: {
-      title: 'Create Your Account',
-      subtitle: 'Join SMS Platform and start your SMS marketing journey',
-      accountType: 'Account Type',
-      selectAccountType: 'Select account type',
-      individual: 'Individual',
-      independentCompany: 'Independent Company',
-      marketingAgency: 'Marketing Agency',
-
-      companyInfo: 'Company Information',
-      companyName: 'Company Name',
-      companyNamePlaceholder: 'Enter company name',
-      nationalId: 'National ID',
-      nationalIdPlaceholder: '10-digit national ID',
-      companyPhone: 'Company Phone',
-      companyPhonePlaceholder: 'Company phone number',
-      postalCode: 'Postal Code',
-      postalCodePlaceholder: '10-digit postal code',
-      companyAddress: 'Company Address',
-      companyAddressPlaceholder: 'Enter complete company address',
-
-      personalInfo: 'Personal Information',
-      representativeInfo: 'Representative Information',
-      firstName: 'First Name',
-      firstNamePlaceholder: 'Enter first name',
-      lastName: 'Last Name',
-      lastNamePlaceholder: 'Enter last name',
-      mobileNumber: 'Mobile Number',
-      mobilePlaceholder: '09xxxxxxxxx',
-
-      credentials: 'Account Credentials',
-      sheba: 'Sheba Number',
-      shebaPlaceholder: 'Enter 24 digits (without IR)',
-      email: 'Email Address',
-      password: 'Password',
-      passwordPlaceholder: 'Enter password',
-      confirmPassword: 'Confirm Password',
-      confirmPasswordPlaceholder: 'Confirm password',
-
-      agencyCode: 'Agency Referral Code (Optional)',
-      agencyCodePlaceholder: 'Enter agency code if you have one',
-      agencyCodeHelp:
-        'If you were referred by an agency, enter their code here',
-
-      createAccount: 'Create Account',
-      haveAccount: 'Already have an account?',
-      signInHere: 'Sign in here',
-      passwordRequirements: 'Password Requirements',
-
-      // OTP Modal
-      verifyMobile: 'Verify Your Mobile Number',
-      otpSent: "We've sent a 6-digit verification code to",
-      enterVerificationCode: 'Enter Verification Code',
-      verifyCode: 'Verify Code',
-      attemptsRemaining: 'Attempts remaining:',
-      maxAttemptsReached: 'Maximum attempts reached',
-      resendIn: 'Resend in',
-
-      // Validation Messages
-      validation: {
-        required: 'This field is required',
-        accountTypeRequired: 'Please select an account type',
-        companyNameRequired: 'Company name is required',
-        companyNameMax: 'Company name must be 60 characters or less',
-        nationalIdRequired: 'National ID is required',
-        nationalIdFormat: 'National ID must be 10 to 20 digits',
-        companyPhoneRequired: 'Company phone is required',
-        companyPhoneMin: 'Phone number must be at least 10 digits',
-        companyAddressRequired: 'Company address is required',
-        companyAddressMax: 'Address must be 255 characters or less',
-        postalCodeRequired: 'Postal code is required',
-        postalCodeFormat: 'Postal code must be at least 10 digits',
-        firstNameRequired: 'First name is required',
-        lastNameRequired: 'Last name is required',
-        mobileRequired: 'Mobile number is required',
-        mobileFormat: 'Mobile number must be in format 09xxxxxxxxx',
-        emailRequired: 'Email is required',
-        emailFormat: 'Please enter a valid email address',
-        passwordRequired: 'Password is required',
-        passwordMin: 'Password must be at least 8 characters',
-        passwordUppercase: 'Password must contain at least 1 uppercase letter',
-        passwordNumber: 'Password must contain at least 1 number',
-        passwordStrength: 'Password must contain at least 1 letter and 1 digit',
-        confirmPasswordRequired: 'Please confirm your password',
-        passwordMismatch: 'Passwords do not match',
-        agencyCodeFormat: 'Agency code must be a valid number',
-        invalidOtp: 'Please enter a valid 6-digit OTP',
-        maxOtpAttempts: 'Maximum attempts reached. Please try again later.',
-        shebaRequiredAgency: 'Sheba number is required for agencies',
-        shebaDigits: 'Sheba must contain only English digits',
-        shebaLength: 'Sheba must be exactly 24 digits (without IR)',
-        shebaNotAllowed: 'Sheba must not be provided for this account type',
-      },
-      success: 'Account created successfully! Welcome to SMS Platform!',
-      otpResent: 'New OTP sent to your mobile number',
-      error: {
-        signupFailed: 'Failed to create account. Please try again.',
-        invalidOtp: 'Invalid OTP. Please try again.',
-        resendFailed: 'Failed to resend OTP. Please try again.',
-        customerNotFound: 'Customer not found. Please check your information.',
-        accountInactive: 'Account is inactive. Please contact support.',
-        accountAlreadyVerified: 'Account is already verified. Please sign in.',
-        emailExists:
-          'Email address already exists. Please use a different email.',
-        mobileExists:
-          'Mobile number already exists. Please use a different number.',
-        nationalIdExists:
-          'National ID already exists. Please check your information.',
-        accountTypeNotFound:
-          'Account type not found. Please select a valid account type.',
-        companyFieldsRequired:
-          'Company fields are required for business accounts.',
-        referrerAgencyNotFound:
-          'Referrer agency not found. Please check the agency code.',
-        referrerMustBeAgency: 'Referrer must be a marketing agency.',
-        referrerAgencyInactive:
-          'Referrer agency is inactive. Please contact support.',
-        noValidOtp: 'No valid OTP found. Please request a new OTP.',
-        invalidOtpType: 'Invalid OTP type. Please try again.',
-        otpExpired: 'OTP has expired. Please request a new OTP.',
-        networkError: 'Network error. Please try again.',
-        noCustomerId: 'No customer ID found. Please try again.',
-      },
-    },
-
     // Dashboard
     dashboard: {
       title: 'Dashboard',
@@ -581,7 +306,7 @@ export const translations = {
 
       // Filters
       filterTitlePlaceholder: 'Filter by title...'
-,
+      ,
       // Sort controls
       sortBy: 'Sort by',
       sortNewest: 'Newest',
@@ -641,13 +366,13 @@ export const translations = {
     campaign: {
       title: 'Create SMS Campaign',
       subtitle: 'Create a targeted SMS campaign in 4 simple steps',
-      
+
       // Steps
       step1: 'Segment',
       step2: 'Content',
       step3: 'Budget',
       step4: 'Payment',
-      
+
       // Steps structure for StepHeader components
       steps: {
         segment: {
@@ -667,62 +392,62 @@ export const translations = {
           subtitle: 'Review and confirm your campaign details',
         },
       },
-      
+
       // Navigation
       nextPage: 'Next Page',
       previousPage: 'Previous Page',
       finish: 'Finish',
-      
+
       // Confirmation Modal
       confirmTitle: 'Are you sure?',
       confirmMessage: 'Do you want to finish creating this campaign?',
       yes: 'Yes',
       no: 'No',
-      
+
       // Loading
       creating: 'Creating campaign...',
       pleaseWait: 'Please wait while we create your campaign.',
-      
+
       // Success
       success: 'Campaign created successfully!',
       redirecting: 'Redirecting to dashboard...',
-      
+
       // Errors
       error: 'Failed to create campaign',
       tryAgain: 'Please try again.',
-      
+
       // Step 1: Segment
       segment: {
         title: 'Define Your Target Segment',
         subtitle: 'Select the criteria for your target audience',
-        
+
         // Campaign Title
         campaignTitle: 'Campaign Title',
         campaignTitlePlaceholder: 'Enter campaign title (max 255 characters)',
         campaignTitleValidation: 'Campaign title must be at most 255 characters',
-        
+
         // Segment Selection
         segment: 'Segment',
         segmentPlaceholder: 'Choose a segment',
         selectSegment: 'Select Segment',
-        
+
         // Subsegments
         subsegments: 'Subsegments',
         subsegmentsFor: 'Subsegments for {segment}',
         subsegmentsHelp: 'Select at least one subsegment (multiple selection allowed)',
         subsegmentsValidation: 'Please select at least one subsegment',
-        
+
         // Sex Selection
         sex: 'Sex',
         sexPlaceholder: 'Choose sex preference',
         selectSex: 'Select Sex',
-        
+
         // City Selection
         cities: 'Cities',
         citiesHelp: 'Select at least one city (multiple selection allowed)',
         citiesPlaceholder: 'Select a city',
         citiesValidation: 'Please select at least one city',
-        
+
         // Summary Section
         campaignSummary: 'Campaign Summary',
         campaignTitleLabel: 'Campaign Title:',
@@ -731,7 +456,7 @@ export const translations = {
         sexLabel: 'Sex:',
         citiesLabel: 'Cities:',
         notSet: 'Not set',
-        
+
         // Campaign Capacity Section
         campaignCapacity: 'Campaign Capacity',
         capacityDescription: 'Number of people who will receive your SMS based on selected filters',
@@ -739,12 +464,12 @@ export const translations = {
         capacityResult: '{count} people will receive your SMS',
         capacityError: 'Unable to calculate capacity. Please check your selections.',
         capacityHelp: 'Capacity is calculated automatically as you adjust your campaign filters.',
-                campaignCapacityHelp: 'Capacity is calculated automatically as you adjust your campaign filters.',
+        campaignCapacityHelp: 'Capacity is calculated automatically as you adjust your campaign filters.',
         capacityTooLow: 'Capacity too low (< 500). Remove some filters to increase campaign capacity.',
-         estimatedCapacity: 'Estimated Capacity',
+        estimatedCapacity: 'Estimated Capacity',
         calculating: 'Calculating...',
         users: 'users',
-        
+
         // Legacy fields (keeping for backward compatibility)
         customerType: 'Customer Type',
         customerTypePlaceholder: 'Select customer type',
@@ -763,12 +488,12 @@ export const translations = {
 
         searchPlaceholder: 'Search ...',
       },
-      
+
       // Step 2: Content
       content: {
         title: 'Design Your Message',
         subtitle: 'Create compelling content for your SMS campaign',
-        
+
         // Legacy fields (keeping for backward compatibility)
         messageText: 'Message Text',
         messageTextPlaceholder: 'Enter your SMS message here...',
@@ -777,14 +502,14 @@ export const translations = {
         senderNamePlaceholder: 'Enter sender name (optional)',
         preview: 'Message Preview',
         previewPlaceholder: 'Your message will appear here...',
-        
+
         // Insert Link Section
         insertLink: 'Insert Link',
         linkInsertionEnabled: 'Link insertion is enabled',
         linkInsertionDisabled: 'Link insertion is disabled',
         on: 'ON',
         off: 'OFF',
-        
+
         // Link Input Section
         link: 'Link',
         campaignLink: 'Campaign Link',
@@ -795,27 +520,27 @@ export const translations = {
         linkCharacterInserted: 'Link position marked',
         linkCharacterInsertedMessage: 'Link will be inserted at the marked position (🔗)',
         characters: 'characters',
-        
+
         // Text Content Section
         text: 'Text',
         campaignText: 'Campaign Text',
         textPlaceholder: 'Enter your campaign message text',
-        
+
         // Character Counter Section
         charactersLabel: 'Characters: {count} (user input)',
         totalLabel: 'Total: {count} / {max}',
         partsLabel: 'Parts: {count}',
         partsCount: '{total}/{parts}',
-        
+
         // Parts Explanation
         partsBreakdown: 'Parts breakdown:',
         partsExplanation: '≤70 chars = 1 part, ≤132 = 2 parts, ≤198 = 3 parts, ≤264 = 4 parts, ≤330 = 5 parts',
         withLinkExplanation: 'With link: starts at 20 chars (6 cancellation + 14 shortened link)',
         withoutLinkExplanation: 'Without link: starts at 6 chars (cancellation append)',
-        
+
         // Warning Messages
         textExceedsLimit: '⚠️ Text exceeds maximum length. Please shorten your message.',
-        
+
         // Schedule Section
         scheduleAt: 'Schedule At (Optional)',
         enableSchedule: 'Enable Schedule',
@@ -826,7 +551,7 @@ export const translations = {
         schedulePlaceholder: 'Select date and time',
         scheduledFor: 'Scheduled for: {datetime}',
         scheduleTooSoon: 'Please pick a time at least 20 minutes from now',
-        
+
         // Content Summary Section
         contentSummary: 'Content Summary',
         linkInsertionLabel: 'Link Insertion:',
@@ -838,19 +563,19 @@ export const translations = {
         immediate: 'Immediate',
         notSet: 'Not set',
       },
-      
+
       // Step 3: Budget
       budget: {
         title: 'Set Your Budget',
         subtitle: 'Define the financial parameters for your campaign',
-        
+
         // Line Number Selection
         lineNumber: 'Line Number',
         selectLineNumber: 'Select Line Number',
         lineNumberPlaceholder: 'Choose a line number for your campaign',
         lineNumberHelp: 'Select the phone line that will be used to send SMS messages for this campaign.',
         selectedLine: 'Selected Line',
-        
+
         // Total Budget
         totalBudget: 'Total Budget',
         campaignBudget: 'Campaign Budget',
@@ -858,7 +583,7 @@ export const translations = {
         budgetValidation: 'Budget must be between 1 and 100,000,000,000 Toman',
         budget: 'Budget',
         budgetHelp: 'Set your total campaign budget. The system will calculate how many messages can be sent with this budget.',
-        
+
         // Estimated Messages
         estimatedMessages: 'Number of Messages That Can Be Sent',
         calculatingMessages: 'Calculating messages...',
@@ -870,7 +595,7 @@ export const translations = {
         estimatedMessagesHelp: 'This field is automatically calculated by the backend based on your budget and current message costs.',
         note: 'Note:',
         notStored: 'This value is not stored in your campaign data and will be recalculated when needed.',
-        
+
         // Budget Summary
         budgetSummary: 'Budget Summary',
         lineNumberLabel: 'Line Number:',
@@ -886,14 +611,14 @@ export const translations = {
         estimatedReach: 'Estimated Reach',
         estimatedReachMessage: 'This shows how many people your campaign can reach based on your budget and targeting criteria.',
         budgetSummaryHelp: 'Review your budget allocation and estimated campaign reach before proceeding to payment.',
-        
+
         // Line number options
         line1: 'Line 1 - Main Campaign Line',
         line2: 'Line 2 - Secondary Line',
         line3: 'Line 3 - Support Line',
         line4: 'Line 4 - Marketing Line',
         line5: 'Line 5 - Customer Service',
-        
+
         // Wallet Balance Section
         walletBalance: 'Wallet Balance',
         checkingBalance: 'Checking wallet balance...',
@@ -909,12 +634,12 @@ export const translations = {
         enterBudgetToCheck: 'Enter a budget to check wallet balance',
         balanceHelp: 'Your wallet balance is checked against the campaign budget to ensure you have sufficient funds.',
       },
-      
+
       // Step 4: Payment
       payment: {
         title: 'Payment & Confirmation',
         subtitle: 'Review and confirm your campaign details',
-        
+
         // Campaign Summary Section
         campaignSummary: 'Campaign Summary',
         campaignTitle: 'Campaign Title:',
@@ -932,7 +657,7 @@ export const translations = {
         budget: 'Budget:',
         lineNumber: 'Line Number:',
         notSet: 'Not set',
-        
+
         // Cost Breakdown Section
         costBreakdown: 'Cost Breakdown',
         calculatingCosts: 'Calculating costs...',
@@ -947,7 +672,7 @@ export const translations = {
         messages: 'messages',
         costCalculationError: 'Failed to calculate costs',
         retryCalculation: 'Retry Calculation',
-        
+
         // Payment Method Section
         paymentMethod: 'Payment Method',
         creditCard: 'Credit Card',
@@ -956,18 +681,18 @@ export const translations = {
         walletDesc: 'Use your wallet balance for payment',
         bankTransfer: 'Bank Transfer',
         bankTransferDesc: 'Transfer directly from your bank account',
-        
+
         // Terms and Conditions Section
         termsAndConditions: 'Terms and Conditions',
         acceptTerms: 'I agree to the terms and conditions',
         termsHelp: 'By accepting these terms, you agree to our campaign policies and payment terms. The total amount shown above will be charged upon campaign completion.',
-        
+
         // Final Summary Section
         finalSummary: 'Final Summary',
         readyForPayment: 'Your campaign is ready for payment',
         totalLabel: 'Total:',
         clickFinish: 'Click "Finish" to complete your campaign',
-        
+
         // Wallet Balance Section
         walletBalance: 'Wallet Balance',
         checkingBalance: 'Checking wallet balance...',
@@ -1282,43 +1007,6 @@ export const translations = {
   },
 
   fa: {
-    // Header
-    header: {
-      brand: 'پلتفرم هوشمند و داده‌محور',
-      subtitle: 'پلتفرم بازاریابی هوشمند و داده‌محور',
-      dashboard: 'داشبورد',
-      campaigns: 'کمپین‌ها',
-      analytics: 'تحلیلات',
-      support: 'پشتیبانی',
-      features: 'ویژگی‌ها',
-      howItWorks: 'چگونه جاذبه به شما کمک می‌کند',
-      pricing: 'قیمت‌گذاری',
-      signin: 'ورود',
-      signup: 'ثبت نام',
-      logout: 'خروج',
-    },
-
-    // Footer
-    footer: {
-      description: 'بازاریابی خود را با جاذبه علمی و شخصی‌سازی‌شده کنید. از ابزارهای تحلیل داده و اتومیشن ما برای بهینه‌سازی تجربهٔ مشتری و افزایش نرخ تبدیل بهره ببرید',
-      quickLinks: 'لینک‌های سریع',
-      support: 'پشتیبانی',
-      helpCenter: 'مرکز راهنمایی',
-      contactUs: 'تماس با ما',
-      privacyPolicy: 'حریم خصوصی',
-      termsOfService: 'شرایط خدمات',
-      copyright: 'صاحب امتیاز تمامی حقوق وب‌سایت، شرکت راه‌کارهای هدفمند خلاق می‌باشد',
-    },
-
-    contact: {
-      title: 'تماس با ما',
-      companyName: 'شرکت راه کارهای هدفمند خلاق (سهامی خاص)',
-      address: 'نشانی: استان : تهران - شهرستان : تهران - بخش : مرکزی - شهر : تهران - محله : آرارات - بزرگراه کردستان - خیابان حکیم اعظم - پلاک : -19.0 - طبقه : 3 - واحد : 6',
-      postalCode: 'کدپستی: ۱۹۹۱۶۴۷۴۱۹',
-      email: 'info@jazebeh.ir',
-      phone: 'تلفن ثابت: ۰۲۱۸۹۶۷۷۳۳۰ - ۰۲۱۸۹۶۷۰۰۰۰'
-    },
-
     // --- Admin (new) ---
     adminCommon: {
       backToSardis: 'بازگشت به ساردیس',
@@ -1582,252 +1270,6 @@ export const translations = {
         missingNumericId: 'شناسه عددی کمپین در دسترس نیست',
       },
     },
-
-    // Login Page
-    login: {
-      title: 'به پلتفرم هوشمند و داده‌محور خوش آمدید',
-      subtitle: 'برای دسترسی به داشبورد بازاریابی هوشمند و داده‌محور وارد شوید',
-      emailOrMobile: 'ایمیل یا شماره موبایل',
-      emailOrMobilePlaceholder: '',
-      password: 'رمز عبور',
-      passwordPlaceholder: '',
-      signIn: 'ورود',
-      forgotPassword: 'رمز عبور را فراموش کرده‌اید؟',
-      noAccount: 'حساب کاربری ندارید؟',
-      signUpHere: 'اینجا ثبت نام کنید',
-      success: 'ورود موفقیت‌آمیز بود!',
-      validation: {
-        allFieldsRequired: 'لطفاً تمام فیلدها را پر کنید',
-      },
-      error: {
-        invalidCredentials: 'ایمیل/موبایل یا رمز عبور نامعتبر',
-        customerNotFound: 'مشتری یافت نشد. لطفاً اطلاعات خود را بررسی کنید.',
-        accountInactive:
-          'حساب کاربری غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.',
-        accountTypeNotFound:
-          'نوع حساب کاربری یافت نشد. لطفاً با پشتیبانی تماس بگیرید.',
-        incorrectPassword: 'رمز عبور نادرست است. لطفاً دوباره تلاش کنید.',
-        networkError: 'خطای شبکه. لطفاً دوباره تلاش کنید.',
-      },
-      features: {
-        title: 'چرا پلتفرم هوشمند و داده‌محور را انتخاب کنیم؟',
-        targeted: 'کمپین‌های هوشمند و داده‌محور هدفمند',
-        segmentation: 'بخش‌بندی پیشرفته مشتریان',
-        analytics: 'تحلیلات و گزارش‌گیری بلادرنگ',
-        compliance: 'سازگاری با قوانین',
-      },
-    },
-
-    // Forgot Password Page
-    forgotPassword: {
-      title: 'فراموشی رمز عبور',
-      subtitle: 'ایمیل یا شماره موبایل خود را برای بازنشانی رمز عبور وارد کنید',
-      emailOrMobile: 'ایمیل یا شماره موبایل',
-      emailOrMobilePlaceholder: 'ایمیل یا شماره موبایل خود را وارد کنید',
-      sendResetLink: 'ارسال لینک بازنشانی',
-      backToLogin: 'بازگشت به ورود',
-      helpText:
-        'کد تأیید بازنشانی رمز عبور را به شماره موبایل شما ارسال خواهیم کرد',
-      validation: {
-        identifierRequired: 'لطفاً ایمیل یا شماره موبایل خود را وارد کنید',
-      },
-      error: {
-        requestFailed:
-          'ارسال لینک بازنشانی ناموفق بود. لطفاً دوباره تلاش کنید.',
-        customerNotFound: 'مشتری یافت نشد. لطفاً اطلاعات خود را بررسی کنید.',
-        accountInactive:
-          'حساب کاربری غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.',
-        accountTypeNotFound:
-          'نوع حساب کاربری یافت نشد. لطفاً با پشتیبانی تماس بگیرید.',
-        networkError: 'خطای شبکه. لطفاً دوباره تلاش کنید.',
-      },
-      success: {
-        title: 'لینک بازنشانی ارسال شد',
-        subtitle: 'موبایل خود را برای کد تأیید بررسی کنید',
-        message: 'کد تأیید بازنشانی رمز عبور به شماره {phone} ارسال شده است',
-        expiresIn: 'کد تأیید تا {minutes} دقیقه معتبر است',
-        tryAgain: 'ایمیل/موبایل دیگری امتحان کنید',
-        resetPassword: 'بازنشانی رمز عبور',
-        backToLogin: 'بازگشت به ورود',
-      },
-    },
-
-    // Reset Password Page
-    resetPassword: {
-      title: 'بازنشانی رمز عبور',
-      subtitle: 'رمز عبور جدید و کد تأیید را وارد کنید',
-      forPhone: 'برای شماره موبایل: {phone}',
-      otpCode: 'کد تأیید',
-      otpHelp: 'کد ۶ رقمی ارسال شده به موبایل خود را وارد کنید',
-      newPassword: 'رمز عبور جدید',
-      newPasswordPlaceholder: 'رمز عبور جدید خود را وارد کنید',
-      confirmPassword: 'تکرار رمز عبور',
-      confirmPasswordPlaceholder: 'رمز عبور جدید را تکرار کنید',
-      resetPassword: 'بازنشانی رمز عبور',
-      backToLogin: 'بازگشت به ورود',
-      requirements: {
-        title: 'نیازمندی‌های رمز عبور',
-        minLength: 'حداقل ۸ کاراکتر',
-        letterAndDigit: 'حداقل ۱ حرف و ۱ رقم',
-      },
-      validation: {
-        newPasswordRequired: 'لطفاً رمز عبور جدید را وارد کنید',
-        passwordMin: 'رمز عبور باید حداقل ۸ کاراکتر باشد',
-        passwordUppercase: 'رمز عبور باید حداقل ۱ حرف بزرگ داشته باشد',
-        passwordNumber: 'رمز عبور باید حداقل ۱ رقم داشته باشد',
-        passwordStrength: 'رمز عبور باید حداقل ۱ حرف و ۱ رقم داشته باشد',
-        passwordMismatch: 'رمزهای عبور مطابقت ندارند',
-        otpRequired: 'لطفاً کد تأیید ۶ رقمی را وارد کنید',
-      },
-      error: {
-        resetFailed: 'بازنشانی رمز عبور ناموفق بود. لطفاً دوباره تلاش کنید.',
-        customerNotFound: 'مشتری یافت نشد. لطفاً اطلاعات خود را بررسی کنید.',
-        accountInactive:
-          'حساب کاربری غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.',
-        accountTypeNotFound:
-          'نوع حساب کاربری یافت نشد. لطفاً با پشتیبانی تماس بگیرید.',
-        noValidOtp: 'کد تأیید معتبری یافت نشد. لطفاً کد جدیدی درخواست کنید.',
-        invalidOtpCode: 'کد تأیید نامعتبر است. لطفاً دوباره تلاش کنید.',
-        invalidOtpType: 'نوع کد تأیید نامعتبر است. لطفاً دوباره تلاش کنید.',
-        otpExpired: 'کد تأیید منقضی شده است. لطفاً کد جدیدی درخواست کنید.',
-        networkError: 'خطای شبکه. لطفاً دوباره تلاش کنید.',
-        noCustomerId: 'لینک بازنشانی نامعتبر است. لطفاً دوباره تلاش کنید.',
-      },
-      success: {
-        title: 'بازنشانی رمز عبور موفقیت‌آمیز',
-        subtitle: 'رمز عبور شما به‌روزرسانی شده و اکنون وارد شده‌اید',
-        message: 'شما با رمز عبور جدید به طور خودکار وارد شده‌اید',
-        backToLogin: 'رفتن به داشبورد',
-      },
-    },
-
-    // Signup Page
-    signup: {
-      title: 'حساب کاربری خود را بسازید',
-      subtitle:
-        'به پلتفرم هوشمند و داده‌محور بپیوندید و سفر بازاریابی هوشمند و داده‌محور خود را شروع کنید',
-      accountType: 'نوع حساب کاربری',
-      selectAccountType: 'نوع حساب را انتخاب کنید',
-      individual: 'شخصی',
-      independentCompany: 'شرکت مستقل',
-      marketingAgency: 'آژانس بازاریابی',
-
-      companyInfo: 'اطلاعات شرکت',
-      companyName: 'نام شرکت',
-      companyNamePlaceholder: 'نام شرکت را وارد کنید',
-      nationalId: 'شناسه ملی',
-      nationalIdPlaceholder: 'شناسه ملی ۱۱ رقمی',
-      companyPhone: 'تلفن شرکت',
-      companyPhonePlaceholder: 'شماره تلفن شرکت',
-      postalCode: 'کد پستی',
-      postalCodePlaceholder: 'کد پستی ۱۰ رقمی',
-      companyAddress: 'آدرس شرکت',
-      companyAddressPlaceholder: 'آدرس کامل شرکت را وارد کنید',
-
-      personalInfo: 'اطلاعات شخصی',
-      representativeInfo: 'اطلاعات نماینده',
-      firstName: 'نام',
-      firstNamePlaceholder: 'نام خود را وارد کنید',
-      lastName: 'نام خانوادگی',
-      lastNamePlaceholder: 'نام خانوادگی خود را وارد کنید',
-      mobileNumber: 'شماره موبایل',
-      mobilePlaceholder: '۰۹xxxxxxxxx',
-
-      credentials: 'اطلاعات حساب کاربری',
-      sheba: 'شماره شبا',
-      shebaPlaceholder: '۲۴ رقم انگلیسی (بدون IR)',
-      email: 'آدرس ایمیل',
-      password: 'رمز عبور',
-      passwordPlaceholder: 'رمز عبور را وارد کنید',
-      confirmPassword: 'تکرار رمز عبور',
-      confirmPasswordPlaceholder: 'رمز عبور را تکرار کنید',
-
-      agencyCode: 'کد معرف آژانس (اختیاری)',
-      agencyCodePlaceholder: 'در صورت داشتن کد آژانس وارد کنید',
-      agencyCodeHelp: 'اگر توسط آژانسی معرفی شده‌اید، کد آن را اینجا وارد کنید',
-
-      createAccount: 'ایجاد حساب کاربری',
-      haveAccount: 'قبلاً حساب کاربری دارید؟',
-      signInHere: 'اینجا وارد شوید',
-      passwordRequirements: 'نیازمندی‌های رمز عبور',
-
-      // OTP Modal
-      verifyMobile: 'تأیید شماره موبایل شما',
-      otpSent: 'کد تأیید ۶ رقمی به شماره زیر ارسال شده است',
-      enterVerificationCode: 'کد تأیید را وارد کنید',
-      verifyCode: 'تأیید کد',
-      attemptsRemaining: 'تلاش باقی‌مانده:',
-      maxAttemptsReached: 'حداکثر تلاش انجام شده است',
-      resendIn: 'ارسال مجدد در',
-
-      // Validation Messages
-      validation: {
-        required: 'این فیلد الزامی است',
-        accountTypeRequired: 'لطفاً نوع حساب را انتخاب کنید',
-        companyNameRequired: 'نام شرکت الزامی است',
-        companyNameMax: 'نام شرکت باید حداکثر ۶۰ کاراکتر باشد',
-        nationalIdRequired: 'شناسه ملی الزامی است',
-        nationalIdFormat: 'شناسه ملی باید ۱۰ تا ۲۰ رقم باشد',
-        companyPhoneRequired: 'تلفن شرکت الزامی است',
-        companyPhoneMin: 'شماره تلفن باید حداقل ۱۰ رقم باشد',
-        companyAddressRequired: 'آدرس شرکت الزامی است',
-        companyAddressMax: 'آدرس باید حداکثر ۲۵۵ کاراکتر باشد',
-        postalCodeRequired: 'کد پستی الزامی است',
-        postalCodeFormat: 'کد پستی باید حداقل ۱۰ رقم باشد',
-        firstNameRequired: 'نام الزامی است',
-        lastNameRequired: 'نام خانوادگی الزامی است',
-        mobileRequired: 'شماره موبایل الزامی است',
-        mobileFormat: 'شماره موبایل باید به فرمت ۰۹xxxxxxxxx باشد',
-        emailRequired: 'ایمیل الزامی است',
-        emailFormat: 'لطفاً یک آدرس ایمیل معتبر وارد کنید',
-        passwordRequired: 'رمز عبور الزامی است',
-        passwordMin: 'رمز عبور باید حداقل ۸ کاراکتر باشد',
-        passwordUppercase: 'رمز عبور باید حداقل ۱ حرف بزرگ داشته باشد',
-        passwordNumber: 'رمز عبور باید حداقل ۱ رقم داشته باشد',
-        passwordStrength: 'رمز عبور باید حداقل ۱ حرف و ۱ رقم داشته باشد',
-        confirmPasswordRequired: 'لطفاً رمز عبور را تأیید کنید',
-        passwordMismatch: 'رمزهای عبور مطابقت ندارند',
-        agencyCodeFormat: 'کد آژانس باید یک عدد معتبر باشد',
-        invalidOtp: 'لطفاً یک کد تأیید ۶ رقمی معتبر وارد کنید',
-        maxOtpAttempts: 'حداکثر تلاش انجام شده. لطفاً بعداً دوباره تلاش کنید.',
-        shebaRequiredAgency: 'شماره شبا برای آژانس الزامی است',
-        shebaDigits: 'شماره شبا باید فقط شامل ارقام انگلیسی باشد',
-        shebaLength: 'شماره شبا باید دقیقاً ۲۴ رقم باشد (بدون IR)',
-        shebaNotAllowed: 'برای این نوع حساب، شماره شبا نباید وارد شود',
-      },
-      success: 'حساب کاربری با موفقیت ایجاد شد! به پلتفرم هوشمند و داده‌محور خوش آمدید!',
-      otpResent: 'کد تأیید جدید به شماره موبایل شما ارسال شد',
-      error: {
-        signupFailed: 'ایجاد حساب کاربری ناموفق بود. لطفاً دوباره تلاش کنید.',
-        invalidOtp: 'کد تأیید نامعتبر. لطفاً دوباره تلاش کنید.',
-        resendFailed: 'ارسال مجدد کد تأیید ناموفق بود. لطفاً دوباره تلاش کنید.',
-        customerNotFound: 'مشتری یافت نشد. لطفاً اطلاعات خود را بررسی کنید.',
-        accountInactive:
-          'حساب کاربری غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.',
-        accountAlreadyVerified:
-          'حساب کاربری قبلاً تأیید شده است. لطفاً وارد شوید.',
-        emailExists:
-          'آدرس ایمیل قبلاً وجود دارد. لطفاً از ایمیل دیگری استفاده کنید.',
-        mobileExists:
-          'شماره موبایل قبلاً وجود دارد. لطفاً از شماره دیگری استفاده کنید.',
-        nationalIdExists:
-          'کد ملی قبلاً وجود دارد. لطفاً اطلاعات خود را بررسی کنید.',
-        accountTypeNotFound:
-          'نوع حساب کاربری یافت نشد. لطفاً نوع حساب معتبری انتخاب کنید.',
-        companyFieldsRequired: 'فیلدهای شرکت برای حساب‌های تجاری الزامی است.',
-        referrerAgencyNotFound:
-          'آژانس معرف یافت نشد. لطفاً کد آژانس را بررسی کنید.',
-        referrerMustBeAgency: 'معرف باید یک آژانس بازاریابی باشد.',
-        referrerAgencyInactive:
-          'آژانس معرف غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.',
-        noValidOtp: 'کد تأیید معتبری یافت نشد. لطفاً کد جدیدی درخواست کنید.',
-        invalidOtpType: 'نوع کد تأیید نامعتبر است. لطفاً دوباره تلاش کنید.',
-        otpExpired: 'کد تأیید منقضی شده است. لطفاً کد جدیدی درخواست کنید.',
-        networkError: 'خطای شبکه. لطفاً دوباره تلاش کنید.',
-        noCustomerId: 'شناسه مشتری یافت نشد. لطفاً دوباره تلاش کنید.',
-      },
-    },
-
     // Dashboard
     dashboard: {
       title: 'داشبورد',
@@ -1871,7 +1313,7 @@ export const translations = {
 
       // Filters
       filterTitlePlaceholder: 'فیلتر بر اساس عنوان...'
-,
+      ,
       // Sort controls
       sortBy: 'مرتب‌سازی بر اساس',
       sortNewest: 'جدیدترین',
@@ -1931,13 +1373,13 @@ export const translations = {
     campaign: {
       title: 'ایجاد کمپین هوشمند و داده‌محور',
       subtitle: 'کمپین هوشمند و داده‌محور هدفمند را در ۴ مرحله ساده ایجاد کنید',
-      
+
       // Steps
       step1: 'بخش‌بندی',
       step2: 'محتوای پیام',
       step3: 'بودجه',
       step4: 'پرداخت',
-      
+
       // Steps structure for StepHeader components
       steps: {
         segment: {
@@ -1957,62 +1399,62 @@ export const translations = {
           subtitle: 'جزئیات کمپین خود را بررسی و تأیید کنید',
         },
       },
-      
+
       // Navigation
       nextPage: 'صفحه بعدی',
       previousPage: 'صفحه قبلی',
       finish: 'پایان',
-      
+
       // Confirmation Modal
       confirmTitle: 'آیا مطمئن هستید؟',
       confirmMessage: 'آیا می‌خواهید ایجاد این کمپین را تمام کنید؟',
       yes: 'بله',
       no: 'خیر',
-      
+
       // Loading
       creating: 'در حال ایجاد کمپین...',
       pleaseWait: 'لطفاً منتظر بمانید تا کمپین شما ایجاد شود.',
-      
+
       // Success
       success: 'کمپین با موفقیت ایجاد شد!',
       redirecting: 'در حال بازگشت به داشبورد...',
-      
+
       // Errors
       error: 'ایجاد کمپین ناموفق بود',
       tryAgain: 'لطفاً دوباره تلاش کنید.',
-      
+
       // Step 1: Segment
       segment: {
         title: 'بخش هدف خود را تعریف کنید',
         subtitle: 'معیارهای مخاطب هدف خود را انتخاب کنید',
-        
+
         // Campaign Title
         campaignTitle: 'عنوان کمپین',
         campaignTitlePlaceholder: 'عنوان کمپین را وارد کنید (حداکثر ۲۵۵ کاراکتر)',
         campaignTitleValidation: 'عنوان کمپین باید حداکثر ۲۵۵ کاراکتر باشد',
-        
+
         // Segment Selection
         segment: 'بخش',
         segmentPlaceholder: 'یک بخش را انتخاب کنید',
         selectSegment: 'انتخاب بخش',
-        
+
         // Subsegments
         subsegments: 'زیربخش‌ها',
         subsegmentsFor: 'زیربخش‌ها برای {segment}',
         subsegmentsHelp: 'حداقل یک زیربخش را انتخاب کنید (انتخاب چندگانه مجاز است)',
         subsegmentsValidation: 'لطفاً حداقل یک زیربخش را انتخاب کنید',
-        
+
         // Sex Selection
         sex: 'جنسیت',
         sexPlaceholder: 'ترجیح جنسیت را انتخاب کنید',
         selectSex: 'انتخاب جنسیت',
-        
+
         // City Selection
         cities: 'شهرها',
         citiesHelp: 'حداقل یک شهر را انتخاب کنید (انتخاب چندگانه مجاز است)',
         citiesPlaceholder: 'حداقل یک شهر را انتخاب کنید',
         citiesValidation: 'لطفاً حداقل یک شهر را انتخاب کنید',
-        
+
         // Summary Section
         campaignSummary: 'خلاصه کمپین',
         campaignTitleLabel: 'عنوان کمپین:',
@@ -2021,7 +1463,7 @@ export const translations = {
         sexLabel: 'جنسیت:',
         citiesLabel: 'شهرها:',
         notSet: 'تنظیم نشده',
-        
+
         // Campaign Capacity Section
         campaignCapacity: 'ظرفیت کمپین',
         capacityDescription: 'تعداد افرادی که بر اساس فیلترهای انتخاب شده پیام پیامکی شما را دریافت خواهند کرد',
@@ -2031,10 +1473,10 @@ export const translations = {
         capacityHelp: 'ظرفیت به طور خودکار با تنظیم فیلترهای کمپین شما محاسبه می‌شود.',
         campaignCapacityHelp: 'ظرفیت به طور خودکار با تنظیم فیلترهای کمپین شما محاسبه می‌شود.',
         capacityTooLow: 'ظرفیت بسیار کم است (کمتر از ۵۰۰). چند فیلتر را حذف کنید تا ظرفیت افزایش یابد.',
-         estimatedCapacity: 'ظرفیت تخمینی',
+        estimatedCapacity: 'ظرفیت تخمینی',
         calculating: 'در حال محاسبه...',
         users: 'کاربر',
-        
+
         // Legacy fields (keeping for backward compatibility)
         customerType: 'نوع مشتری',
         customerTypePlaceholder: 'نوع مشتری را انتخاب کنید',
@@ -2050,22 +1492,22 @@ export const translations = {
         filterField: 'فیلد',
         filterOperator: 'عملگر',
         filterValue: 'مقدار',
-        
+
         searchPlaceholder: 'جستجو کنید.',
       },
-      
+
       // Step 2: Content
       content: {
         title: 'پیام خود را طراحی کنید',
         subtitle: 'محتوای جذاب برای کمپین پیامکی خود ایجاد کنید',
-        
+
         // Insert Link Section
         insertLink: 'افزودن لینک',
         linkInsertionEnabled: 'افزودن لینک فعال است',
         linkInsertionDisabled: 'افزودن لینک غیرفعال است',
         on: 'فعال',
         off: 'غیرفعال',
-        
+
         // Link Input Section
         link: 'لینک',
         campaignLink: 'لینک کمپین',
@@ -2076,27 +1518,27 @@ export const translations = {
         linkCharacterInserted: 'موقعیت لینک شناسایی شده',
         linkCharacterInsertedMessage: 'لینک در موقعیت شناسایی شده (🔗) قرار خواهد گرفت',
         characters: 'کاراکتر',
-        
+
         // Text Content Section
         text: 'متن',
         campaignText: 'متن کمپین',
         textPlaceholder: 'متن پیام کمپین خود را وارد کنید',
-        
+
         // Character Counter Section
         charactersLabel: 'کاراکترها: {count} (ورودی کاربر)',
         totalLabel: 'مجموع: {count} / {max}',
         partsLabel: 'تعداد پیام: {count}',
         partsCount: '{total}/{parts}',
-        
+
         // Parts Explanation
         partsBreakdown: 'تجزیه تعداد پیام:',
         partsExplanation: '≤۷۰ کاراکتر = ۱ پیام، ≤۱۳۲ = ۲ پیام، ≤۱۹۸ = ۳ پیام، ≤۲۶۴ = ۴ پیام، ≤۳۳۰ = ۵ پیام',
         withLinkExplanation: 'با لینک: از ۲۰ کاراکتر شروع می‌شود (۶ لغو + ۱۴ لینک کوتاه)',
         withoutLinkExplanation: 'بدون لینک: از ۶ کاراکتر شروع می‌شود (اضافه کردن لغو)',
-        
+
         // Warning Messages
         textExceedsLimit: '⚠️ متن از حداکثر طول مجاز فراتر رفته است. لطفاً پیام خود را کوتاه کنید.',
-        
+
         // Schedule Section
         scheduleAt: 'زمان‌بندی (اختیاری)',
         enableSchedule: 'فعال کردن زمان‌بندی',
@@ -2107,7 +1549,7 @@ export const translations = {
         schedulePlaceholder: 'تاریخ و زمان را انتخاب کنید',
         scheduledFor: 'زمان‌بندی شده برای: {datetime}',
         scheduleTooSoon: 'لطفاً زمانی حداقل ۲۰ دقیقه بعد از اکنون انتخاب کنید',
-        
+
         // Content Summary Section
         contentSummary: 'خلاصه محتوا',
         linkInsertionLabel: 'افزودن لینک:',
@@ -2119,19 +1561,19 @@ export const translations = {
         immediate: 'فوری',
         notSet: 'تنظیم نشده',
       },
-      
+
       // Step 3: Budget
       budget: {
         title: 'بودجه خود را تنظیم کنید',
         subtitle: 'پارامترهای مالی کمپین خود را تعریف کنید',
-        
+
         // Line Number Selection
         lineNumber: 'شماره خط',
         selectLineNumber: 'انتخاب شماره خط',
         lineNumberPlaceholder: 'شماره خط کمپین خود را انتخاب کنید',
         lineNumberHelp: 'شماره خط تلفنی که برای ارسال پیام‌های پیامکی این کمپین استفاده خواهد شد را انتخاب کنید.',
         selectedLine: 'خط انتخاب شده',
-        
+
         // Total Budget
         totalBudget: 'کل بودجه',
         campaignBudget: 'بودجه کمپین',
@@ -2139,7 +1581,7 @@ export const translations = {
         budgetValidation: 'بودجه باید بین ۱ تا ۱۰۰,۰۰۰,۰۰۰,۰۰۰ تومان باشد',
         budget: 'بودجه',
         budgetHelp: 'کل بودجه کمپین خود را تنظیم کنید. سیستم محاسبه خواهد کرد که با این بودجه چند پیام می‌توان ارسال کرد.',
-        
+
         // Estimated Messages
         estimatedMessages: 'تعداد پیام‌هایی که می‌توان ارسال کرد',
         calculatingMessages: 'در حال محاسبه پیام‌ها...',
@@ -2151,7 +1593,7 @@ export const translations = {
         estimatedMessagesHelp: 'این فیلد به طور خودکار توسط سیستم بر اساس بودجه شما و هزینه‌های فعلی پیام محاسبه می‌شود.',
         note: 'توجه:',
         notStored: 'این مقدار در داده‌های کمپین شما ذخیره نمی‌شود و در صورت نیاز مجدداً محاسبه خواهد شد.',
-        
+
         // Budget Summary
         budgetSummary: 'خلاصه بودجه',
         lineNumberLabel: 'شماره خط:',
@@ -2167,14 +1609,14 @@ export const translations = {
         estimatedReach: 'دسترسی تخمینی',
         estimatedReachMessage: 'این نشان می‌دهد که کمپین شما بر اساس بودجه و معیارهای هدف‌گذاری می‌تواند به چند نفر برسد.',
         budgetSummaryHelp: 'قبل از ادامه به پرداخت، تخصیص بودجه و دسترسی تخمینی کمپین خود را بررسی کنید.',
-        
+
         // Line number options
         line1: 'خط ۱ - خط اصلی کمپین',
         line2: 'خط ۲ - خط ثانویه',
         line3: 'خط ۳ - خط پشتیبانی',
         line4: 'خط ۴ - خط بازاریابی',
         line5: 'خط ۵ - خدمات مشتریان',
-        
+
         // Wallet Balance Section
         walletBalance: 'موجودی کیف پول',
         checkingBalance: 'در حال بررسی موجودی کیف پول...',
@@ -2190,12 +1632,12 @@ export const translations = {
         enterBudgetToCheck: 'بودجه را وارد کنید تا موجودی بررسی شود',
         balanceHelp: 'موجودی کیف پول شما در برابر هزینه کمپین بررسی می‌شود.',
       },
-      
+
       // Step 4: Payment
       payment: {
         title: 'پرداخت و تأیید',
         subtitle: 'جزئیات کمپین خود را بررسی و تأیید کنید',
-        
+
         // Campaign Summary Section
         campaignSummary: 'خلاصه کمپین',
         campaignTitle: 'عنوان کمپین:',
@@ -2213,7 +1655,7 @@ export const translations = {
         budget: 'بودجه:',
         lineNumber: 'شماره خط:',
         notSet: 'تنظیم نشده',
-        
+
         // Cost Breakdown Section
         costBreakdown: 'تجزیه هزینه',
         calculatingCosts: 'در حال محاسبه هزینه‌ها...',
@@ -2228,7 +1670,7 @@ export const translations = {
         messages: 'پیام',
         costCalculationError: 'خطا در محاسبه هزینه‌ها',
         retryCalculation: 'تلاش مجدد',
-        
+
         // Payment Method Section
         paymentMethod: 'روش پرداخت',
         creditCard: 'کارت اعتباری',
@@ -2237,18 +1679,18 @@ export const translations = {
         walletDesc: 'از موجودی کیف پول خود برای پرداخت استفاده کنید',
         bankTransfer: 'انتقال بانکی',
         bankTransferDesc: 'مستقیماً از حساب بانکی خود انتقال وجه انجام دهید',
-        
+
         // Terms and Conditions Section
         termsAndConditions: 'شرایط و ضوابط',
         acceptTerms: 'من با شرایط و ضوابط موافقت می‌کنم',
         termsHelp: 'با پذیرش این شرایط، شما با سیاست‌های کمپین و شرایط پرداخت ما موافقت می‌کنید. مبلغ کل نمایش داده شده در بالا پس از تکمیل کمپین از شما دریافت خواهد شد.',
-        
+
         // Final Summary Section
         finalSummary: 'خلاصه نهایی',
         readyForPayment: 'کمپین شما آماده پرداخت است',
         totalLabel: 'مجموع',
         clickFinish: 'برای تکمیل کمپین خود روی "پایان" کلیک کنید',
-        
+
         // Wallet Balance Section
         walletBalance: 'موجودی کیف پول',
         checkingBalance: 'در حال بررسی موجودی کیف پول...',

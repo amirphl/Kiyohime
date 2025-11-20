@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
-import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import apiService from '../services/api';
 import { getApiErrorMessage } from '../utils/errorHandler';
+import { forgotPasswordI18n } from '../locales/forgotPassword';
 
 interface ForgotPasswordPageProps {
   onNavigateToLogin?: () => void;
@@ -14,8 +14,12 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
   onNavigateToLogin,
   onNavigateToResetPassword,
 }) => {
-  const { t } = useTranslation();
-  const { isRTL, language } = useLanguage();
+  const { language } = useLanguage();
+  const { isRTL } = useLanguage();
+  const forgotPasswordT = forgotPasswordI18n[language as keyof typeof forgotPasswordI18n] || forgotPasswordI18n.en;
+
+  const formatMessage = (template: string, params: Record<string, any>) =>
+    template.replace(/\{(\w+)\}/g, (_, key) => String(params[key] ?? ''));
 
   const [identifier, setIdentifier] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -28,7 +32,7 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
     e.preventDefault();
 
     if (!identifier.trim()) {
-      setError(t('forgotPassword.validation.identifierRequired'));
+      setError(forgotPasswordT.validation.identifierRequired);
       return;
     }
 
@@ -49,7 +53,7 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
         const errorMessage = getApiErrorMessage(
           response,
           language,
-          t('forgotPassword.error.requestFailed')
+          forgotPasswordT.error.requestFailed
         );
         setError(errorMessage);
       }
@@ -57,7 +61,7 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
       setError(getApiErrorMessage(
         { success: false, error: { code: 'NETWORK_ERROR' } },
         language,
-        t('forgotPassword.error.networkError')
+        forgotPasswordT.error.networkError
       ));
     } finally {
       setIsLoading(false);
@@ -74,10 +78,10 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
               <CheckCircle className='h-6 w-6 text-white' />
             </div>
             <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
-              {t('forgotPassword.success.title')}
+              {forgotPasswordT.success.title}
             </h2>
             <p className='mt-2 text-sm text-gray-600'>
-              {t('forgotPassword.success.subtitle')}
+              {forgotPasswordT.success.subtitle}
             </p>
           </div>
 
@@ -85,10 +89,10 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
           <div className='bg-green-50 border border-green-200 rounded-md p-6'>
             <div className='text-center'>
               <p className='text-sm text-green-800 mb-4'>
-                {t('forgotPassword.success.message', { phone: maskedPhone })}
+                {formatMessage(forgotPasswordT.success.message, { phone: maskedPhone })}
               </p>
               <p className='text-xs text-green-600'>
-                {t('forgotPassword.success.expiresIn', { minutes: 5 })}
+                {formatMessage(forgotPasswordT.success.expiresIn, { minutes: 5 })}
               </p>
             </div>
           </div>
@@ -104,7 +108,7 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
               }}
               className={`w-full btn-primary flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
             >
-              <span>{t('forgotPassword.success.resetPassword')}</span>
+              <span>{forgotPasswordT.success.resetPassword}</span>
               <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
             </button>
 
@@ -118,7 +122,7 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
               }}
               className={`w-full btn-secondary flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
             >
-              <span>{t('forgotPassword.success.tryAgain')}</span>
+              <span>{forgotPasswordT.success.tryAgain}</span>
               <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
             </button>
 
@@ -128,7 +132,7 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
               className={`w-full btn-secondary flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
             >
               <ArrowLeft className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
-              <span>{t('forgotPassword.success.backToLogin')}</span>
+              <span>{forgotPasswordT.success.backToLogin}</span>
             </button>
           </div>
         </div>
@@ -145,10 +149,10 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
             <Mail className='h-6 w-6 text-white' />
           </div>
           <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
-            {t('forgotPassword.title')}
+            {forgotPasswordT.title}
           </h2>
           <p className='mt-2 text-sm text-gray-600'>
-            {t('forgotPassword.subtitle')}
+            {forgotPasswordT.subtitle}
           </p>
         </div>
 
@@ -166,7 +170,7 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
                 htmlFor='identifier'
                 className='block text-sm font-medium text-gray-700 mb-2'
               >
-                {t('forgotPassword.emailOrMobile')}
+                {forgotPasswordT.emailOrMobile}
               </label>
               <input
                 type='text'
@@ -174,11 +178,11 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
                 value={identifier}
                 onChange={e => setIdentifier(e.target.value)}
                 className='input-field'
-                placeholder={t('forgotPassword.emailOrMobilePlaceholder')}
+                placeholder={forgotPasswordT.emailOrMobilePlaceholder}
                 required
               />
               <p className='mt-1 text-xs text-gray-500'>
-                {t('forgotPassword.helpText')}
+                {forgotPasswordT.helpText}
               </p>
             </div>
 
@@ -191,7 +195,7 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
                 <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-white'></div>
               ) : (
                 <>
-                  <span>{t('forgotPassword.sendResetLink')}</span>
+                  <span>{forgotPasswordT.sendResetLink}</span>
                   <ArrowRight
                     className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`}
                   />
@@ -209,7 +213,7 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
             className={`text-sm text-primary-600 hover:text-primary-700 flex items-center justify-center mx-auto ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
           >
             <ArrowLeft className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
-            <span>{t('forgotPassword.backToLogin')}</span>
+            <span>{forgotPasswordT.backToLogin}</span>
           </button>
         </div>
       </div>

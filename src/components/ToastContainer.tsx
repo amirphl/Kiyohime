@@ -16,7 +16,7 @@ interface ToastContainerProps {
 export const ToastContext = React.createContext<{
   showToast: (type: ToastType, message: string, duration?: number) => void;
 }>({
-  showToast: () => {},
+  showToast: () => { },
 });
 
 export const ToastProvider: React.FC<ToastContainerProps> = ({ children }) => {
@@ -46,9 +46,8 @@ export const ToastProvider: React.FC<ToastContainerProps> = ({ children }) => {
     <ToastContext.Provider value={{ showToast }}>
       {children}
       <div
-        className={`fixed top-4 z-50 flex flex-col gap-2 ${
-          isRTL ? 'left-4' : 'right-4'
-        }`}
+        className={`fixed top-4 z-50 flex flex-col gap-2 ${isRTL ? 'left-4' : 'right-4'
+          }`}
       >
         {toasts.map(toast => (
           <Toast

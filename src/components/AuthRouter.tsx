@@ -57,7 +57,7 @@ const AuthRouter: React.FC = () => {
     };
 
     window.addEventListener('navigation', handleNavigation as EventListener);
-    
+
     return () => {
       window.removeEventListener('navigation', handleNavigation as EventListener);
     };

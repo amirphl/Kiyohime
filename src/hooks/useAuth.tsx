@@ -130,31 +130,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = useCallback((redirectToLogin: boolean = false) => {
     console.log('🔄 Starting comprehensive logout - clearing all localStorage data...');
-    
+
     // Clear campaign data first (this will clear localStorage items)
     clearCampaignData();
-    
+
     // Clear campaign context data if available
     if (campaignContextClearFunction) {
       console.log('🧹 Clearing campaign context data...');
       campaignContextClearFunction();
     }
-    
+
     // Use the utility function to clear all other user data (but not campaign data)
     clearAllUserData();
-    
+
     // Clear all state
     setAccessToken(null);
     setRefreshToken(null);
     setUser(null);
     setIsAuthenticated(false);
-    
+
     // Clear API service token
     apiService.setAccessToken(null);
-    
+
     console.log('✅ Logout completed - all localStorage data cleared');
     console.log('🧹 localStorage items remaining:', Object.keys(localStorage));
-    
+
     // If redirect is requested, handle it after state is cleared
     if (redirectToLogin) {
       console.log('🔄 Manual logout - redirecting to login page...');
@@ -181,7 +181,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const docLang = (document?.documentElement?.lang || '').toLowerCase();
       const storedLang = (localStorage.getItem('language') || '').toLowerCase();
       if (docLang === 'fa' || storedLang === 'fa') lang = 'fa';
-    } catch {}
+    } catch { }
 
     // Show alert to user before redirecting
     try {
@@ -190,12 +190,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       } else {
         alert('Session expired. Redirecting to login page...');
       }
-    } catch {}
+    } catch { }
 
     // Ensure all local storage is cleared before redirecting
     try {
       localStorage.clear();
-    } catch {}
+    } catch { }
 
     // Redirect after a short delay
     setTimeout(() => {
@@ -207,7 +207,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     console.log('Setting up unauthorized handler for API service...');
     apiService.setUnauthorizedHandler(logoutAndRedirect);
-    
+
     // Verify the handler was set up correctly
     if (apiService.isUnauthorizedHandlerConfigured()) {
       console.log('✅ Unauthorized handler configured successfully');

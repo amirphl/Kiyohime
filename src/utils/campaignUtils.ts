@@ -9,10 +9,10 @@
  */
 export const countCharacters = (text: string): number => {
 	if (!text) return 0;
-	
+
 	// Remove the link character (🔗) before counting
 	const textWithoutLinkChar = text.replace(/🔗/g, '');
-	
+
 	let count = 0;
 	for (let i = 0; i < textWithoutLinkChar.length; i++) {
 		const char = textWithoutLinkChar.charCodeAt(i);
@@ -36,10 +36,10 @@ export const calculateTotalCharacterCount = (userText: string, insertLink: boole
 	const backendAppendChars = 6; // Backend appends 6 characters
 	const shortenedLinkChars = 14; // Shortened link takes 14 characters
 	const maxCharacters = 330; // Maximum total characters allowed
-	
+
 	const characterCount = countCharacters(userText);
 	let startCount: number;
-	
+
 	if (insertLink) {
 		// Check if link character is present in text
 		if (userText && userText.includes('🔗')) {
@@ -53,10 +53,10 @@ export const calculateTotalCharacterCount = (userText: string, insertLink: boole
 		// No link insertion, only backend append
 		startCount = backendAppendChars; // 6 chars
 	}
-	
+
 	const totalCharacterCount = startCount + characterCount;
 	const isOverLimit = totalCharacterCount > maxCharacters;
-	
+
 	return {
 		characterCount,
 		startCount,
@@ -96,7 +96,7 @@ export const validateCampaignContent = (content: {
 	if (!content.text?.trim()) {
 		return { isValid: false, error: 'Please enter text content' };
 	}
-	
+
 	// Check if link is provided when link insertion is enabled
 	if (content.insertLink && !content.link?.trim()) {
 		return { isValid: false, error: 'Please provide a link when link insertion is enabled' };
@@ -116,16 +116,16 @@ export const validateCampaignContent = (content: {
 			return { isValid: false, error: 'Please select a schedule at least 20 minutes from now' };
 		}
 	}
-	
+
 	// Check character limit
 	const charCount = calculateTotalCharacterCount(content.text, content.insertLink);
-	
+
 	if (charCount.isOverLimit) {
-		return { 
-			isValid: false, 
-			error: `Text exceeds maximum length. Available: ${charCount.availableForUser} characters` 
+		return {
+			isValid: false,
+			error: `Text exceeds maximum length. Available: ${charCount.availableForUser} characters`
 		};
 	}
-	
+
 	return { isValid: true, error: null };
 }; 

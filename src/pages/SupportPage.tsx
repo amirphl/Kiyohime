@@ -156,7 +156,7 @@ const SupportPage: React.FC = () => {
   const handleReply = async () => {
     if (replyGuardRef.current || replySubmitting) return;
     if (!validateReply()) return;
-    
+
     const ticketId = selectedGroup?.items?.[0]?.id;
     if (!ticketId) {
       setReplyError('Ticket ID not found');

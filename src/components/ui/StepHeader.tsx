@@ -22,11 +22,11 @@ const StepHeader: React.FC<StepHeaderProps> = ({
           </div>
         </div>
       )}
-      
+
       <h2 className="text-2xl font-bold text-gray-900">
         {title}
       </h2>
-      
+
       <p className="text-gray-600 max-w-md mx-auto">
         {subtitle}
       </p>

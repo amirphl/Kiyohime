@@ -6,28 +6,28 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
   const stepValidation = useMemo(() => ({
     step1: (): boolean => {
       const { segment } = campaignData;
-      
+
       return !!(
-        segment.campaignTitle && 
-        segment.segment && 
+        segment.campaignTitle &&
+        segment.segment &&
         segment.subsegments && segment.subsegments.length > 0 &&
         // sex and city are optional for now
         segment.capacityTooLow !== true
       );
     },
-    
+
     step2: (): boolean => {
       const { content } = campaignData;
-      
+
       // Use centralized validation function
       const validation = validateCampaignContent(content);
       return validation.isValid;
     },
-    
+
     step3: (): boolean => {
       return !!campaignData.budget.lineNumber && campaignData.budget.totalBudget > 0;
     },
-    
+
     step4: (): boolean => {
       return campaignData.payment.hasEnoughBalance === true;
     },
@@ -62,7 +62,7 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
 
   const getStepErrors = (step: number): string[] => {
     const errors: string[] = [];
-    
+
     switch (step) {
       case 1:
         if (!stepValidation.step1()) {
@@ -72,7 +72,7 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
       case 2:
         if (!stepValidation.step2()) {
           const { content } = campaignData;
-          
+
           // Use centralized validation for consistent error messages
           const validation = validateCampaignContent(content);
           if (!validation.isValid && validation.error) {
@@ -95,7 +95,7 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
         }
         break;
     }
-    
+
     return errors;
   };
 

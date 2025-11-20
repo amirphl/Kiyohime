@@ -19,7 +19,6 @@ import {
   Ticket,
   UserCog,
   LogOut,
-  ChevronLeft,
 } from 'lucide-react';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { useToast } from '../hooks/useToast';
@@ -51,7 +50,6 @@ const DashboardPage: React.FC = () => {
   const [ticketFile, setTicketFile] = useState<File | null>(null);
   const [ticketSubmitting, setTicketSubmitting] = useState(false);
   const [ticketErrors, setTicketErrors] = useState<{ title?: string; description?: string; file?: string }>({});
-  const [enamadImageOk, setEnamadImageOk] = useState(true);
   const [showCalcModal, setShowCalcModal] = useState(false);
   const [calcAmount, setCalcAmount] = useState<number>(100000);
   const [calcDiscount, setCalcDiscount] = useState<number>(20);
@@ -116,12 +114,12 @@ const DashboardPage: React.FC = () => {
   const handleTargetedSend = () => {
     // Check if there's existing campaign data
     const existingData = localStorage.getItem('campaign_creation_data');
-    
+
     if (existingData) {
       try {
         const parsedData = JSON.parse(existingData);
         console.log('🔄 Found existing campaign data, preserving it:', parsedData);
-        
+
         // Navigate to campaign creation with existing data
         navigate('/campaign-creation');
         return;
@@ -129,11 +127,11 @@ const DashboardPage: React.FC = () => {
         console.warn('Failed to parse existing campaign data, will create new campaign');
       }
     }
-    
+
     // Only reset if no existing data found
     console.log('🆕 No existing campaign data found, creating fresh campaign');
     resetCampaign();
-    
+
     // Initialize campaign data in localStorage
     const initialCampaignData = {
       uuid: '',
@@ -160,10 +158,10 @@ const DashboardPage: React.FC = () => {
         termsAccepted: false,
       },
     };
-    
+
     localStorage.setItem('campaign_creation_data', JSON.stringify(initialCampaignData));
     localStorage.setItem('campaign_creation_step', '1');
-    
+
     // Navigate to campaign creation
     navigate('/campaign-creation');
   };
@@ -322,18 +320,16 @@ const DashboardPage: React.FC = () => {
               }
 
               const isActive = window.location.pathname === item.href;
-              
+
               return (
                 <button
                   key={item.id}
                   onClick={item.onClick}
-                  className={`flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                    isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'
-                  } ${
-                    isActive
+                  className={`flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'
+                    } ${isActive
                       ? 'bg-primary-100 text-primary-700'
                       : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   {item.icon}
                   <span>{t(item.translationKey)}</span>
@@ -356,9 +352,8 @@ const DashboardPage: React.FC = () => {
           <div className='mt-6 pt-6 border-t border-gray-200'>
             <button
               onClick={handleLogout}
-              className={`flex items-center w-full px-4 py-3 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors ${
-                isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'
-              }`}
+              className={`flex items-center w-full px-4 py-3 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'
+                }`}
             >
               <LogOut className='h-5 w-5' />
               <span>{t('dashboard.logout')}</span>
@@ -646,10 +641,10 @@ const DashboardPage: React.FC = () => {
                     className='input-field max-w-[120px]'
                   />
                   <div className='flex flex-wrap gap-2'>
-                    {[0,20,40,60,80,90,100].map((d, idx) => (
+                    {[0, 20, 40, 60, 80, 90, 100].map((d, idx) => (
                       <button
                         key={d}
-                        className={`px-3 py-1 rounded-full text-xs border ${calcDiscount===d ? 'border-primary-600 text-primary-700 bg-primary-50' : 'border-gray-300 text-gray-600 bg-white'}`}
+                        className={`px-3 py-1 rounded-full text-xs border ${calcDiscount === d ? 'border-primary-600 text-primary-700 bg-primary-50' : 'border-gray-300 text-gray-600 bg-white'}`}
                         onClick={() => setCalcDiscount(d)}
                       >
                         {calcT.chips[idx] || `${d}%`}

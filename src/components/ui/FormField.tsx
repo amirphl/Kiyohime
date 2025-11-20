@@ -23,13 +23,13 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
 }, ref) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     let newValue: any = e.target.value;
-    
+
     if (type === 'number') {
       newValue = Number(newValue) || 0;
     } else if (type === 'checkbox') {
       newValue = (e.target as HTMLInputElement).checked;
     }
-    
+
     onChange(newValue);
   };
 
@@ -44,9 +44,8 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             onChange={handleChange}
             placeholder={placeholder}
             required={required}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none ${
-              error ? 'border-red-300' : 'border-gray-300'
-            }`}
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none ${error ? 'border-red-300' : 'border-gray-300'
+              }`}
             ref={ref}
           />
         );
@@ -58,9 +57,8 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             value={value || ''}
             onChange={handleChange}
             required={required}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-              error ? 'border-red-300' : 'border-gray-300'
-            }`}
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${error ? 'border-red-300' : 'border-gray-300'
+              }`}
           >
             <option value="">{placeholder || 'Select an option'}</option>
             {options.map((option) => (
@@ -113,9 +111,8 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             required={required}
             min={validation?.min}
             max={validation?.max}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-              error ? 'border-red-300' : 'border-gray-300'
-            }`}
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${error ? 'border-red-300' : 'border-gray-300'
+              }`}
           />
         );
     }
@@ -127,13 +124,13 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
-      
+
       {renderInput()}
-      
+
       {error && (
         <p className="text-sm text-red-600">{error}</p>
       )}
-      
+
       {validation?.message && !error && (
         <p className="text-sm text-gray-500">{validation.message}</p>
       )}

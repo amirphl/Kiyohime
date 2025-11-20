@@ -40,13 +40,13 @@ const CampaignCreationPage: React.FC = () => {
 
   // Campaign data is now retained when navigating away and returning
   // Only reset when campaign is actually finished (see handleFinish function)
-  
+
   // Log when component mounts to track data persistence
   useEffect(() => {
     console.log('🏗️ CampaignCreationPage mounted');
     console.log('📊 Current campaign data:', campaignData);
     console.log('📍 Current step:', currentStep);
-    
+
     // Check localStorage for existing data
     const savedData = localStorage.getItem('campaign_creation_data');
     const savedStep = localStorage.getItem('campaign_creation_step');
@@ -55,7 +55,7 @@ const CampaignCreationPage: React.FC = () => {
       savedStep: savedStep,
       dataSize: savedData ? savedData.length : 0
     });
-    
+
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData);
@@ -71,7 +71,7 @@ const CampaignCreationPage: React.FC = () => {
         console.error('❌ Failed to parse saved data:', error);
       }
     }
-    
+
     return () => {
       console.log('🏗️ CampaignCreationPage unmounting - data will be retained');
     };
@@ -95,7 +95,7 @@ const CampaignCreationPage: React.FC = () => {
   }, [accessToken]);
 
   const handleNextStep = async () => {
-    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
     // Check if we're on step 1 (segment page)
     if (currentStep === 1) {
       // Check if campaign spec exists in localStorage (existing campaign)
@@ -120,30 +120,30 @@ const CampaignCreationPage: React.FC = () => {
           console.log('=== CREATING NEW CAMPAIGN ON SEGMENT PAGE NEXT ===');
           console.log('Current step:', currentStep);
           console.log('Campaign data:', campaignData);
-          
+
           // Set the access token for the API call
           apiService.setAccessToken(accessToken);
           console.log('Access token set, calling createCampaign API...');
-          
+
           // Create payload with segment data
           const payload: CreateCampaignPayload = {
             title: campaignData.segment.campaignTitle || undefined,
             segment: campaignData.segment.segment || undefined,
-            subsegment: campaignData.segment.subsegments && campaignData.segment.subsegments.length > 0 
-              ? campaignData.segment.subsegments 
+            subsegment: campaignData.segment.subsegments && campaignData.segment.subsegments.length > 0
+              ? campaignData.segment.subsegments
               : undefined,
             sex: campaignData.segment.sex || undefined,
-            city: campaignData.segment.city && campaignData.segment.city.length > 0 
-              ? campaignData.segment.city 
+            city: campaignData.segment.city && campaignData.segment.city.length > 0
+              ? campaignData.segment.city
               : undefined,
           };
-          
+
           console.log('Campaign creation payload:', payload);
-          
+
           // Call the API to create a new SMS campaign with segment data
           const response = await apiService.createCampaign(payload);
           console.log('Create campaign API response:', response);
-          
+
           if (response.success && response.data && response.data.uuid) {
             console.log('Campaign created successfully with UUID:', response.data.uuid);
             // Store the UUID in campaign context
@@ -174,13 +174,13 @@ const CampaignCreationPage: React.FC = () => {
   };
 
   const handlePreviousStep = () => {
-    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
     previousStep();
   };
 
   const handleStepClick = async (step: number) => {
     if (step !== currentStep) {
-      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
     }
     if (step < currentStep) {
       // Going back to previous step - no need to save
@@ -201,15 +201,15 @@ const CampaignCreationPage: React.FC = () => {
       console.log('Campaign data:', campaignData);
       console.log('Is step 4 completed?', validation.isStepCompleted(4));
       console.log('Handling finish action...');
-      
+
       // Call API to update campaign
       if (!campaignData.uuid) {
         throw new Error('Campaign UUID not found');
       }
-      
+
       apiService.setAccessToken(accessToken);
       console.log('🔑 Access token set for API call');
-      
+
       const updateData: UpdateSMSCampaignRequest = {
         title: campaignData.segment.campaignTitle,
         segment: campaignData.segment.segment,
@@ -224,40 +224,40 @@ const CampaignCreationPage: React.FC = () => {
         finalize: true,
         tags: campaignData.segment.tags,
       };
-      
+
       console.log('🔄 Calling update campaign API with data:', updateData);
       const response = await apiService.updateCampaign(campaignData.uuid, updateData);
-      
+
       if (!response.success) {
         throw new Error(response.message || 'Failed to update campaign');
       }
-      
+
       console.log('✅ Campaign updated successfully:', response.data);
-      
+
       console.log('🎯 Campaign finalized successfully, cleaning up localStorage...');
-      
+
       // Clear campaign data from localStorage completely
       localStorage.removeItem('campaign_creation_data');
       localStorage.removeItem('campaign_creation_step');
-      
+
       console.log('🗑️ Campaign specification completely deleted from localStorage');
       console.log('🆕 User will start fresh like a new user for next campaign');
-      
+
       // Reset campaign state in React context as well
       resetCampaign();
       console.log('🔄 Campaign state reset in React context');
-      
+
       // Show success message and navigate to dashboard
       showSuccess('Campaign completed successfully!');
       navigate('/dashboard');
-      
+
     } catch (error) {
       console.error('Error finishing campaign:', error);
-      
+
       // Show error message but DO NOT redirect to dashboard
       // This prevents infinite loops and allows user to see the error
       showError(`Failed to complete campaign: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      
+
       // DO NOT redirect to dashboard on error
       // User stays on payment page to see the error message
       console.log('❌ Campaign update failed, user remains on payment page');
@@ -337,15 +337,14 @@ const CampaignCreationPage: React.FC = () => {
               <Button
                 variant="ghost"
                 onClick={() => window.location.href = '/dashboard'}
-                className={`flex items-center text-gray-600 hover:text-gray-900 transition-colors ${
-                  isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
-                }`}
+                className={`flex items-center text-gray-600 hover:text-gray-900 transition-colors ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
+                  }`}
               >
                 <ChevronLeft className="h-5 w-5" />
                 <span>{t('dashboard.title')}</span>
               </Button>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <h1 className="text-xl font-semibold text-gray-900">
                 {t('campaign.title')}
@@ -387,9 +386,8 @@ const CampaignCreationPage: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={handlePreviousStep}
-                className={`flex items-center ${
-                  isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
-                }`}
+                className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
+                  }`}
               >
                 <ChevronLeft className="h-4 w-4" />
                 {t('common.previous')}
@@ -402,9 +400,8 @@ const CampaignCreationPage: React.FC = () => {
               <Button
                 onClick={handleNextStep}
                 disabled={!validation.canProceedToNextStep(currentStep)}
-                className={`flex items-center ${
-                  isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
-                }`}
+                className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
+                  }`}
               >
                 {t('common.next')}
                 <ChevronRight className="h-4 w-4" />
@@ -413,9 +410,8 @@ const CampaignCreationPage: React.FC = () => {
               <Button
                 onClick={handleFinish}
                 disabled={!validation.canFinishCampaign() || isFinishing}
-                className={`flex items-center ${
-                  isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
-                }`}
+                className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
+                  }`}
               >
                 <Check className="h-4 w-4" />
                 {isFinishing ? t('common.loading') : t('common.finish')}

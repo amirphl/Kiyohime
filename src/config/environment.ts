@@ -183,7 +183,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
         theme: 'light',
       },
     };
-    
+
     // Log the production configuration for debugging
     console.log('Production domain detected:', {
       domain: currentDomain,

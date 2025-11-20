@@ -41,7 +41,7 @@ class AdminApiService {
 
     try {
       window.dispatchEvent(new CustomEvent('admin-session-expired'));
-    } catch {}
+    } catch { }
 
     // Show a blocking alert as a fallback if modal listener not mounted
     const currentLang = document.documentElement.lang || 'en';
@@ -53,7 +53,7 @@ class AdminApiService {
         if (!document.getElementById('admin-session-modal-mounted')) {
           alert(msg);
         }
-      } catch {}
+      } catch { }
       // Redirect to Sardis (admin login hub)
       window.location.replace('/satrap');
     }, 1500);
@@ -103,15 +103,15 @@ class AdminApiService {
       const responseData: AdminLoginResponse = sessionFromResponse
         ? (d as AdminLoginResponse)
         : {
-            admin: d?.admin,
-            session: {
-              access_token: accessToken || '',
-              refresh_token: refreshToken || '',
-              expires_in: d?.expires_in ?? 0,
-              token_type: d?.token_type ?? 'Bearer',
-              created_at: new Date().toISOString(),
-            },
-          };
+          admin: d?.admin,
+          session: {
+            access_token: accessToken || '',
+            refresh_token: refreshToken || '',
+            expires_in: d?.expires_in ?? 0,
+            token_type: d?.token_type ?? 'Bearer',
+            created_at: new Date().toISOString(),
+          },
+        };
       return { success: true, message: data?.message || 'OK', data: responseData };
     } catch (e) {
       return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } };

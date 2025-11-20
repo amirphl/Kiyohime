@@ -1,15 +1,18 @@
 import React from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
-import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useNavigation } from '../contexts/NavigationContext';
 import { ROUTES } from '../config/routes';
 import DynamicBrand from './DynamicBrand';
+import { footerI18n } from '../locales/footer';
+import { headerI18n } from '../locales/header';
 
 const Footer: React.FC = () => {
-  const { t } = useTranslation();
   const { isRTL } = useLanguage();
   const { navigate } = useNavigation();
+  const { language } = useLanguage();
+  const footerT = footerI18n[language as keyof typeof footerI18n] || footerI18n.en;
+  const headerT = headerI18n[language as keyof typeof headerI18n] || headerI18n.en;
 
   return (
     <footer className='bg-gray-900 text-white'>
@@ -21,7 +24,7 @@ const Footer: React.FC = () => {
               <DynamicBrand showSubtitle={true} />
             </div>
             <p className='text-gray-400 mb-4 max-w-md'>
-              {t('footer.description')}
+              {footerT.description}
             </p>
             <div
               className={`flex ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'}`}
@@ -41,27 +44,27 @@ const Footer: React.FC = () => {
           {/* Quick Links */}
           <div>
             <h4 className='text-lg font-semibold mb-4'>
-              {t('footer.quickLinks')}
+              {footerT.quickLinks}
             </h4>
             <ul className='space-y-2'>
               <li>
                 <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                  {t('header.dashboard')}
+                  {headerT.dashboard}
                 </button>
               </li>
               <li>
                 <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                  {t('header.campaigns')}
+                  {headerT.campaigns}
                 </button>
               </li>
               <li>
                 <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                  {t('header.analytics')}
+                  {headerT.analytics}
                 </button>
               </li>
               <li>
                 <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                  {t('header.support')}
+                  {headerT.support}
                 </button>
               </li>
             </ul>
@@ -70,27 +73,27 @@ const Footer: React.FC = () => {
           {/* Support */}
           <div>
             <h4 className='text-lg font-semibold mb-4'>
-              {t('footer.support')}
+              {footerT.support}
             </h4>
             <ul className='space-y-2'>
               <li>
                 <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                  {t('footer.helpCenter')}
+                  {footerT.helpCenter}
                 </button>
               </li>
               <li>
                 <button onClick={() => navigate(ROUTES.CONTACT_US.path)} className='text-gray-400 hover:text-white transition-colors duration-200'>
-                  {t('footer.contactUs')}
+                  {footerT.contactUs}
                 </button>
               </li>
               <li>
                 <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                  {t('footer.privacyPolicy')}
+                  {footerT.privacyPolicy}
                 </button>
               </li>
               <li>
                 <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                  {t('footer.termsOfService')}
+                  {footerT.termsOfService}
                 </button>
               </li>
             </ul>
@@ -100,7 +103,7 @@ const Footer: React.FC = () => {
         <div className='border-t border-gray-800 mt-8 pt-8 text-center relative'>
           {/* Enamad trust seal - left side */}
           <div className='absolute left-0 top-1/2 -translate-y-1/2'>
-            <a referrerPolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'>
+            <a referrerPolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP' rel="noreferrer">
               <img
                 referrerPolicy='origin'
                 src='https://trustseal.enamad.ir/logo.aspx?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'
@@ -111,7 +114,7 @@ const Footer: React.FC = () => {
               />
             </a>
           </div>
-          <p className='text-gray-400'>{t('footer.copyright')}</p>
+          <p className='text-gray-400'>{footerT.copyright}</p>
         </div>
       </div>
     </footer>

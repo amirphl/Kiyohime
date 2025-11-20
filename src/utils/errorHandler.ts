@@ -273,10 +273,10 @@ export function getApiErrorMessage(
 ): string {
   // If response has a message, use it as fallback
   const responseMessage = response.message;
-  
+
   // Get error code from response
   const errorCode = response.error?.code;
-  
+
   // Get the user-friendly message
   return getErrorMessage(errorCode, language, responseMessage || fallbackMessage);
 }
@@ -324,10 +324,10 @@ export function isAuthenticationError(errorCode: string | undefined): boolean {
  */
 export function clearAllUserData(): void {
   console.log('🧹 Starting comprehensive user data cleanup...');
-  
+
   // Get all localStorage keys
   const allKeys = Object.keys(localStorage);
-  
+
   // Clear all items except user preferences
   allKeys.forEach(key => {
     if (!key.includes('language') && !key.includes('theme') && !key.includes('ui_')) {
@@ -337,7 +337,7 @@ export function clearAllUserData(): void {
       console.log(`💾 Preserved (user preference): ${key}`);
     }
   });
-  
+
   console.log('✅ User data cleanup completed');
 }
 
@@ -347,11 +347,11 @@ export function clearAllUserData(): void {
  */
 export function clearCampaignData(): void {
   console.log('🧹 Clearing campaign data from localStorage...');
-  
+
   // Clear campaign-specific items
   localStorage.removeItem('campaign_creation_data');
   localStorage.removeItem('campaign_creation_step');
-  
+
   console.log('✅ Campaign data cleared');
 }
 
@@ -362,7 +362,7 @@ export function clearCampaignData(): void {
  */
 export function requiresLogout(errorCode: string | undefined): boolean {
   if (!errorCode) return false;
-  
+
   const logoutErrors = [
     'UNAUTHORIZED',
     'FORBIDDEN',
@@ -371,6 +371,6 @@ export function requiresLogout(errorCode: string | undefined): boolean {
     'ACCOUNT_INACTIVE',
     'SESSION_EXPIRED'
   ];
-  
+
   return logoutErrors.some(error => errorCode.includes(error));
 } 

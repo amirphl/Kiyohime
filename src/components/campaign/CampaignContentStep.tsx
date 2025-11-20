@@ -46,7 +46,7 @@ const CampaignContentStep: React.FC = () => {
     if (campaignData.content.link && campaignData.content.insertLink) {
       // Clear previous error first
       setLinkError('');
-      
+
       // Validate the loaded link
       if (!validateUrl(campaignData.content.link)) {
         setLinkError(t('campaign.content.linkInvalidUrl'));
@@ -57,7 +57,7 @@ const CampaignContentStep: React.FC = () => {
   // URL validation function
   const validateUrl = (url: string) => {
     if (!url.trim()) return true; // Empty is valid (not required)
-    
+
     try {
       // Check if it's a valid URL
       const urlObj = new URL(url);
@@ -70,7 +70,7 @@ const CampaignContentStep: React.FC = () => {
 
   const handleInsertLinkToggle = () => {
     const newInsertLink = !campaignData.content.insertLink;
-    updateContent({ 
+    updateContent({
       insertLink: newInsertLink,
       // Clear link if turning off
       link: newInsertLink ? campaignData.content.link : ''
@@ -86,12 +86,12 @@ const CampaignContentStep: React.FC = () => {
   const handleLinkChange = (value: string) => {
     // Clear previous error
     setLinkError('');
-    
+
     // Validate URL if not empty
     if (value.trim() && !validateUrl(value)) {
       setLinkError(t('campaign.content.linkInvalidUrl'));
     }
-    
+
     updateContent({ link: value });
   };
 
@@ -101,27 +101,23 @@ const CampaignContentStep: React.FC = () => {
 
   const handleInsertLinkCharacter = () => {
     if (linkCharacterInserted || !textAreaRef.current) return;
-    
+
     const textarea = textAreaRef.current;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const text = campaignData.content.text || '';
-    
+
     // Insert the link character at cursor position
     const newText = text.substring(0, start) + '🔗' + text.substring(end);
-    
+
     updateContent({ text: newText });
     setLinkCharacterInserted(true);
-    
+
     // Set cursor position after the inserted character
     setTimeout(() => {
       textarea.focus();
       textarea.setSelectionRange(start + 1, start + 1);
     }, 0);
-  };
-
-  const handleScheduleAtChange = (value: string) => {
-    updateContent({ scheduleAt: value });
   };
 
   const handleDateTimeToggle = () => {
@@ -137,31 +133,16 @@ const CampaignContentStep: React.FC = () => {
     }
   };
 
-  const formatTehranDateTime = (isoString: string) => {
-    if (!isoString) return '';
-    const date = new Date(isoString);
-    return date.toLocaleString('en-US', {
-      timeZone: 'Asia/Tehran',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
-  };
-
   // Character counting logic with Farsi support (excluding link character)
   const characterCount = countCharacters(campaignData.content.text || '');
-  
+
   // Calculate total character count using utility function
   const charCountResult = calculateTotalCharacterCount(campaignData.content.text || '', campaignData.content.insertLink);
-  
+
   const totalCharacterCount = charCountResult.totalCharacterCount;
   const isOverLimit = charCountResult.isOverLimit;
   const maxCharacters = charCountResult.maxCharacters;
-  
+
   // Calculate number of parts
   const numberOfParts = calculateSMSParts(totalCharacterCount);
 
@@ -197,7 +178,7 @@ const CampaignContentStep: React.FC = () => {
                 <span className="text-sm text-gray-600">
                   {campaignData.content.insertLink ? t('campaign.content.linkInsertionEnabled') : t('campaign.content.linkInsertionDisabled')}
                 </span>
-      </div>
+              </div>
 
               {campaignData.content.insertLink && (
                 <>
@@ -222,14 +203,14 @@ const CampaignContentStep: React.FC = () => {
                   </div>
                 </>
               )}
-          </div>
+            </div>
           </Card>
         </div>
 
         {/* Row 1 - Col 2: DateTime Picker */}
         <div className="flex flex-col">
           <Card className="h-full">
-        <div className="space-y-4">
+            <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
                 <Calendar className="h-5 w-5 mr-2 text-primary-600" />
                 {t('campaign.content.scheduleAt')}
@@ -287,7 +268,7 @@ const CampaignContentStep: React.FC = () => {
               )}
             </div>
           </Card>
-              </div>
+        </div>
 
         {/* Row 2: Text Box (Full Width) */}
         <div className="md:col-span-2">
@@ -343,17 +324,17 @@ const CampaignContentStep: React.FC = () => {
                   <div>{t('campaign.content.partsExplanation')}</div>
                   <div className="mt-1">
                     {campaignData.content.insertLink ? t('campaign.content.withLinkExplanation') : t('campaign.content.withoutLinkExplanation')}
-              </div>
-              </div>
+                  </div>
+                </div>
                 {isOverLimit && (
                   <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
                     {t('campaign.content.textExceedsLimit')}
-              </div>
+                  </div>
                 )}
               </div>
-          </div>
+            </div>
           </Card>
-        </div> 
+        </div>
       </div>
     </div>
   );

@@ -7,11 +7,11 @@ import {
   CheckCircle,
   ArrowLeft,
 } from 'lucide-react';
-import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import apiService from '../services/api';
 import { getApiErrorMessage } from '../utils/errorHandler';
+import { resetPasswordI18n } from '../locales/resetPassword';
 
 interface ResetPasswordPageProps {
   onNavigateToLogin?: () => void;
@@ -24,8 +24,12 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
   customerId: propCustomerId,
   maskedPhone: propMaskedPhone,
 }) => {
-  const { t } = useTranslation();
   const { isRTL, language } = useLanguage();
+  const resetPasswordT = resetPasswordI18n[language as keyof typeof resetPasswordI18n] || resetPasswordI18n.en;
+
+  const formatMessage = (template: string, params: Record<string, any>) =>
+    template.replace(/\{(\w+)\}/g, (_, key) => String(params[key] ?? ''));
+
   const { login } = useAuth();
 
   const [newPassword, setNewPassword] = useState<string>('');
@@ -60,20 +64,20 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
 
   const validatePassword = (password: string): string => {
     if (password.length < 8) {
-      return t('resetPassword.validation.passwordMin');
+      return resetPasswordT.validation.passwordMin;
     }
     if (!/[A-Z]/.test(password)) {
-      return t('resetPassword.validation.passwordUppercase');
+      return resetPasswordT.validation.passwordUppercase;
     }
     if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
-      return t('resetPassword.validation.passwordStrength');
+      return resetPasswordT.validation.passwordStrength;
     }
     return '';
   };
 
   const validateForm = (): boolean => {
     if (!newPassword.trim()) {
-      setError(t('resetPassword.validation.newPasswordRequired'));
+      setError(resetPasswordT.validation.newPasswordRequired);
       return false;
     }
 
@@ -84,17 +88,17 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
     }
 
     if (newPassword !== confirmPassword) {
-      setError(t('resetPassword.validation.passwordMismatch'));
+      setError(resetPasswordT.validation.passwordMismatch);
       return false;
     }
 
     if (otpCode.length !== 6) {
-      setError(t('resetPassword.validation.otpRequired'));
+      setError(resetPasswordT.validation.otpRequired);
       return false;
     }
 
     if (!customerId) {
-      setError(t('resetPassword.error.noCustomerId'));
+      setError(resetPasswordT.error.noCustomerId);
       return false;
     }
 
@@ -144,14 +148,14 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
             'Missing required data in reset password response:',
             responseData
           );
-          setError(t('resetPassword.error.resetFailed'));
+          setError(resetPasswordT.error.resetFailed);
         }
       } else {
         // Use the new error handling utility
         const errorMessage = getApiErrorMessage(
           response,
           language,
-          t('resetPassword.error.resetFailed')
+          resetPasswordT.error.resetFailed
         );
         setError(errorMessage);
       }
@@ -159,7 +163,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
       setError(getApiErrorMessage(
         { success: false, error: { code: 'NETWORK_ERROR' } },
         language,
-        t('resetPassword.error.networkError')
+        resetPasswordT.error.networkError
       ));
     } finally {
       setIsLoading(false);
@@ -176,10 +180,10 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
               <CheckCircle className='h-6 w-6 text-white' />
             </div>
             <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
-              {t('resetPassword.success.title')}
+              {resetPasswordT.success.title}
             </h2>
             <p className='mt-2 text-sm text-gray-600'>
-              {t('resetPassword.success.subtitle')}
+              {resetPasswordT.success.subtitle}
             </p>
           </div>
 
@@ -187,7 +191,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
           <div className='bg-green-50 border border-green-200 rounded-md p-6'>
             <div className='text-center'>
               <p className='text-sm text-green-800'>
-                {t('resetPassword.success.message')}
+                {resetPasswordT.success.message}
               </p>
             </div>
           </div>
@@ -199,7 +203,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
             className={`w-full btn-primary flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
           >
             <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
-            <span>{t('resetPassword.success.backToLogin')}</span>
+            <span>{resetPasswordT.success.backToLogin}</span>
           </button>
         </div>
       </div>
@@ -215,14 +219,14 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
             <Lock className='h-6 w-6 text-white' />
           </div>
           <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
-            {t('resetPassword.title')}
+            {resetPasswordT.title}
           </h2>
           <p className='mt-2 text-sm text-gray-600'>
-            {t('resetPassword.subtitle')}
+            {resetPasswordT.subtitle}
           </p>
           {maskedPhone && (
             <p className='mt-1 text-xs text-gray-500'>
-              {t('resetPassword.forPhone', { phone: maskedPhone })}
+              {formatMessage(resetPasswordT.forPhone, { phone: maskedPhone })}
             </p>
           )}
         </div>
@@ -242,7 +246,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
                 htmlFor='otpCode'
                 className='block text-sm font-medium text-gray-700 mb-2'
               >
-                {t('resetPassword.otpCode')}
+                {resetPasswordT.otpCode}
               </label>
               <input
                 type='text'
@@ -257,7 +261,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
                 required
               />
               <p className='mt-1 text-xs text-gray-500'>
-                {t('resetPassword.otpHelp')}
+                {resetPasswordT.otpHelp}
               </p>
             </div>
 
@@ -267,7 +271,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
                 htmlFor='newPassword'
                 className='block text-sm font-medium text-gray-700 mb-2'
               >
-                {t('resetPassword.newPassword')}
+                {resetPasswordT.newPassword}
               </label>
               <div className='relative'>
                 <input
@@ -276,7 +280,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   className={`input-field ${isRTL ? 'pl-10' : 'pr-10'}`}
-                  placeholder={t('resetPassword.newPasswordPlaceholder')}
+                  placeholder={resetPasswordT.newPasswordPlaceholder}
                   required
                 />
                 <button
@@ -299,7 +303,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
                 htmlFor='confirmPassword'
                 className='block text-sm font-medium text-gray-700 mb-2'
               >
-                {t('resetPassword.confirmPassword')}
+                {resetPasswordT.confirmPassword}
               </label>
               <div className='relative'>
                 <input
@@ -308,7 +312,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
                   className={`input-field ${isRTL ? 'pl-10' : 'pr-10'}`}
-                  placeholder={t('resetPassword.confirmPasswordPlaceholder')}
+                  placeholder={resetPasswordT.confirmPasswordPlaceholder}
                   required
                 />
                 <button
@@ -328,11 +332,11 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
             {/* Password Requirements */}
             <div className='bg-blue-50 border border-blue-200 rounded-md p-4'>
               <h4 className='text-sm font-medium text-blue-900 mb-2'>
-                {t('resetPassword.requirements.title')}
+                {resetPasswordT.requirements.title}
               </h4>
               <ul className='text-xs text-blue-800 space-y-1'>
-                <li>• {t('resetPassword.requirements.minLength')}</li>
-                <li>• {t('resetPassword.requirements.letterAndDigit')}</li>
+                <li>• {resetPasswordT.requirements.minLength}</li>
+                <li>• {resetPasswordT.requirements.letterAndDigit}</li>
               </ul>
             </div>
 
@@ -345,7 +349,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
                 <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-white'></div>
               ) : (
                 <>
-                  <span>{t('resetPassword.resetPassword')}</span>
+                  <span>{resetPasswordT.resetPassword}</span>
                   <ArrowRight
                     className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`}
                   />
@@ -363,7 +367,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
             className={`text-sm text-primary-600 hover:text-primary-700 flex items-center justify-center mx-auto ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
           >
             <ArrowLeft className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
-            <span>{t('resetPassword.backToLogin')}</span>
+            <span>{resetPasswordT.backToLogin}</span>
           </button>
         </div>
       </div>

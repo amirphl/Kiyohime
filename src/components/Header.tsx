@@ -1,14 +1,16 @@
 import React from 'react';
-import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import DynamicBrand from './DynamicBrand';
 import LanguageSwitcher from './LanguageSwitcher';
+import { headerI18n } from '../locales/header';
 
 const Header: React.FC = () => {
-  const { t } = useTranslation();
   const { isRTL } = useLanguage();
   const { isAuthenticated, manualLogout } = useAuth();
+  const { language } = useLanguage();
+  const headerT = headerI18n[language as keyof typeof headerI18n] || headerI18n.en;
+
 
   const handleLogout = () => {
     manualLogout();
@@ -47,19 +49,19 @@ const Header: React.FC = () => {
                 href='#features'
                 className='text-gray-700 hover:text-primary-600 transition-colors'
               >
-                {t('header.features')}
+                {headerT.features}
               </a>
               <a
                 href='#how-it-works'
                 className='text-gray-700 hover:text-primary-600 transition-colors'
               >
-                {t('header.howItWorks')}
+                {headerT.howItWorks}
               </a>
               <a
                 href='/pricing'
                 className='text-gray-700 hover:text-primary-600 transition-colors'
               >
-                {t('header.pricing')}
+                {headerT.pricing}
               </a>
             </nav>
           )}
@@ -78,10 +80,10 @@ const Header: React.FC = () => {
                   onClick={handleDashboard}
                   className='text-gray-700 hover:text-primary-600 transition-colors font-medium'
                 >
-                  {t('header.dashboard')}
+                  {headerT.dashboard}
                 </button>
                 <button onClick={handleLogout} className='btn-secondary'>
-                  {t('header.logout')}
+                  {headerT.logout}
                 </button>
               </div>
             ) : (
@@ -92,13 +94,13 @@ const Header: React.FC = () => {
                   onClick={handleSignIn}
                   className='text-gray-700 hover:text-primary-600 transition-colors font-medium'
                 >
-                  {t('header.signin')}
+                  {headerT.signin}
                 </button>
                 <button
                   onClick={() => (window.location.href = '/signup')}
                   className='btn-primary'
                 >
-                  {t('header.signup')}
+                  {headerT.signup}
                 </button>
               </div>
             )}

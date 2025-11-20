@@ -3,17 +3,8 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { DollarSign, TrendingUp, Users, Zap } from 'lucide-react';
+import { DollarSign } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
-
-interface PricingPlan {
-  name: string;
-  description: string;
-  discount: string;
-  icon: React.ReactNode;
-  featured?: boolean;
-  features: string[];
-}
 
 const PricingPage: React.FC = () => {
   const { t } = useTranslation();
@@ -21,49 +12,6 @@ const PricingPage: React.FC = () => {
   const { navigate } = useNavigation();
 
   const isRTL = language === 'fa';
-
-  const pricingPlans: PricingPlan[] = [
-    {
-      name: t('pricing.plans.basic.name') || 'Basic',
-      description: t('pricing.plans.basic.description') || 'Perfect for small businesses getting started',
-      discount: t('pricing.plans.basic.discount') || '5% discount',
-      icon: <Zap className="h-8 w-8 text-blue-600" />,
-      features: [
-        t('pricing.plans.basic.features.campaigns') || 'Up to 10 active campaigns',
-        t('pricing.plans.basic.features.segments') || 'Basic segmentation',
-        t('pricing.plans.basic.features.analytics') || 'Standard analytics',
-        t('pricing.plans.basic.features.support') || 'Email support',
-      ]
-    },
-    {
-      name: t('pricing.plans.pro.name') || 'Pro',
-      description: t('pricing.plans.pro.description') || 'For growing businesses with advanced needs',
-      discount: t('pricing.plans.pro.discount') || '10% discount',
-      icon: <TrendingUp className="h-8 w-8 text-green-600" />,
-      featured: true,
-      features: [
-        t('pricing.plans.pro.features.campaigns') || 'Up to 50 active campaigns',
-        t('pricing.plans.pro.features.segments') || 'Advanced segmentation',
-        t('pricing.plans.pro.features.analytics') || 'Advanced analytics & tracking',
-        t('pricing.plans.pro.features.automation') || 'Marketing automation',
-        t('pricing.plans.pro.features.support') || 'Priority support',
-      ]
-    },
-    {
-      name: t('pricing.plans.enterprise.name') || 'Enterprise',
-      description: t('pricing.plans.enterprise.description') || 'Custom solutions for large organizations',
-      discount: t('pricing.plans.enterprise.discount') || '15% discount',
-      icon: <Users className="h-8 w-8 text-purple-600" />,
-      features: [
-        t('pricing.plans.enterprise.features.campaigns') || 'Unlimited campaigns',
-        t('pricing.plans.enterprise.features.segments') || 'Custom segmentation',
-        t('pricing.plans.enterprise.features.analytics') || 'Enterprise analytics',
-        t('pricing.plans.enterprise.features.automation') || 'Full automation suite',
-        t('pricing.plans.enterprise.features.support') || 'Dedicated account manager',
-        t('pricing.plans.enterprise.features.custom') || 'Custom integrations',
-      ]
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50">

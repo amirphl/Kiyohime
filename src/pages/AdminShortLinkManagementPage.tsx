@@ -105,7 +105,7 @@ const AdminShortLinkManagementPage: React.FC = () => {
         try {
           const data = await resp.json();
           errorText = data?.message || data?.error?.code || errorText;
-        } catch {}
+        } catch { }
         setDownloadMessage(errorText);
         setDownloadType('error');
       }
@@ -164,7 +164,7 @@ const AdminShortLinkManagementPage: React.FC = () => {
         try {
           const data = await resp.json();
           errorText = data?.message || data?.error?.code || errorText;
-        } catch {}
+        } catch { }
         setDownloadMessageClicks(errorText);
         setDownloadTypeClicks('error');
       }

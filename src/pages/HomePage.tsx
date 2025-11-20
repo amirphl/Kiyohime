@@ -39,13 +39,6 @@ const HomePage: React.FC = () => {
     },
   ];
 
-  const stats = [
-    { number: '10K+', label: t('home.stats.customers') },
-    { number: '1M+', label: t('home.stats.messages') },
-    { number: '99.9%', label: t('home.stats.delivery') },
-    { number: '24/7', label: t('home.stats.support') },
-  ];
-
   const handleGetStarted = () => {
     if (isAuthenticated) {
       window.location.href = '/dashboard';

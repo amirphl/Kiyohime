@@ -25,7 +25,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
 
     // Update the URL
     window.history.pushState({}, '', path);
-    
+
     // Dispatch a custom navigation event that the AuthRouter can listen to
     window.dispatchEvent(new CustomEvent('navigation', { detail: { path } }));
   }, []);

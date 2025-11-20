@@ -21,16 +21,30 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@/components/*": ["src/components/*"],
-      "@/pages/*": ["src/pages/*"],
-      "@/services/*": ["src/services/*"],
-      "@/hooks/*": ["src/hooks/*"],
-      "@/config/*": ["src/config/*"],
-      "@/locales/*": ["src/locales/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@/components/*": [
+        "src/components/*"
+      ],
+      "@/pages/*": [
+        "src/pages/*"
+      ],
+      "@/services/*": [
+        "src/services/*"
+      ],
+      "@/hooks/*": [
+        "src/hooks/*"
+      ],
+      "@/config/*": [
+        "src/config/*"
+      ],
+      "@/locales/*": [
+        "src/locales/*"
+      ]
     }
   },
   "include": [
     "src"
   ]
-} 
+}

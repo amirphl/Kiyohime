@@ -122,11 +122,11 @@ class ApiService {
       } else if (response.status === 401) {
         // Unauthorized - check if this is an auth endpoint
         const isAuthEndpoint = endpoint.includes('/auth/login') ||
-                              endpoint.includes('/auth/signup') ||
-                              endpoint.includes('/auth/verify') ||
-                              endpoint.includes('/auth/resend-otp') ||
-                              endpoint.includes('/auth/forgot-password') ||
-                              endpoint.includes('/auth/reset');
+          endpoint.includes('/auth/signup') ||
+          endpoint.includes('/auth/verify') ||
+          endpoint.includes('/auth/resend-otp') ||
+          endpoint.includes('/auth/forgot-password') ||
+          endpoint.includes('/auth/reset');
 
         if (isAuthEndpoint) {
           // Extract error message from the response data
@@ -147,20 +147,20 @@ class ApiService {
           };
         } else {
           // For non-auth endpoints, trigger logout and redirect
-        if (this.unauthorizedHandler) {
-          this.unauthorizedHandler();
-        } else {
-          console.warn('No unauthorized handler set - cannot handle 401 automatically');
-        }
-        
-        return {
-          success: false,
+          if (this.unauthorizedHandler) {
+            this.unauthorizedHandler();
+          } else {
+            console.warn('No unauthorized handler set - cannot handle 401 automatically');
+          }
+
+          return {
+            success: false,
             message: 'Unauthorized - Please log in again',
             error: {
               code: 'Unauthorized - Please log in again',
               details: null
             },
-        };
+          };
         }
       } else if (!response.ok) {
         // Handle other error responses

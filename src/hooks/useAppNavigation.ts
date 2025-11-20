@@ -23,10 +23,10 @@ export const useAppNavigation = () => {
     goToForgotPassword,
     goToResetPassword,
     goBack,
-    
+
     // Route checking
     isCurrentRoute,
-    
+
     // Route constants
     ROUTES,
   };

@@ -15,6 +15,7 @@ import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 import apiService from '../services/api';
 import { getApiErrorMessage } from '../utils/errorHandler';
+import { signupI18n } from '../locales/signup';
 
 interface SignupFormData {
   accountType: 'individual' | 'independent_company' | 'marketing_agency' | '';
@@ -58,6 +59,8 @@ const toEnglishDigits = (input: string): string => {
 const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
   const { t } = useTranslation();
   const { isRTL, language } = useLanguage();
+  const signupT = signupI18n[language as keyof typeof signupI18n] || signupI18n.en;
+
   const { showError, showSuccess, showInfo } = useToast();
   const { login } = useAuth();
 
@@ -95,103 +98,103 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
     switch (name) {
       case 'companyName':
         if (formData.accountType !== 'individual' && !value.trim()) {
-          return t('signup.validation.companyNameRequired');
+          return signupT.validation.companyNameRequired;
         }
         if (value.length > 60) {
-          return t('signup.validation.companyNameMax');
+          return signupT.validation.companyNameMax;
         }
         return '';
 
       case 'nationalId':
         if (formData.accountType !== 'individual' && !value.trim()) {
-          return t('signup.validation.nationalIdRequired');
+          return signupT.validation.nationalIdRequired;
         }
         if (
           value &&
           (value.length < 10 || value.length > 20 || !/^\d+$/.test(value))
         ) {
-          return t('signup.validation.nationalIdFormat');
+          return signupT.validation.nationalIdFormat;
         }
         return '';
 
       case 'companyPhone':
         if (formData.accountType !== 'individual' && !value.trim()) {
-          return t('signup.validation.companyPhoneRequired');
+          return signupT.validation.companyPhoneRequired;
         }
         if (value && !/^09\d{9}$/.test(value)) {
-          return t('signup.validation.mobileFormat');
+          return signupT.validation.mobileFormat;
         }
         return '';
 
       case 'companyAddress':
         if (formData.accountType !== 'individual' && !value.trim()) {
-          return t('signup.validation.companyAddressRequired');
+          return signupT.validation.companyAddressRequired;
         }
         if (value.length > 255) {
-          return t('signup.validation.companyAddressMax');
+          return signupT.validation.companyAddressMax;
         }
         return '';
 
       case 'postalCode':
         if (formData.accountType !== 'individual' && !value.trim()) {
-          return t('signup.validation.postalCodeRequired');
+          return signupT.validation.postalCodeRequired;
         }
         if (value && (value.length < 10 || !/^\d+$/.test(value))) {
-          return t('signup.validation.postalCodeFormat');
+          return signupT.validation.postalCodeFormat;
         }
         return '';
 
       case 'representativeFirstName':
         if (!value.trim()) {
-          return t('signup.validation.firstNameRequired');
+          return signupT.validation.firstNameRequired;
         }
         return '';
 
       case 'representativeLastName':
         if (!value.trim()) {
-          return t('signup.validation.lastNameRequired');
+          return signupT.validation.lastNameRequired;
         }
         return '';
 
       case 'representativeMobile':
         if (!value.trim()) {
-          return t('signup.validation.mobileRequired');
+          return signupT.validation.mobileRequired;
         }
         if (!/^09\d{9}$/.test(value)) {
-          return t('signup.validation.mobileFormat');
+          return signupT.validation.mobileFormat;
         }
         return '';
 
       case 'email':
         if (!value.trim()) {
-          return t('signup.validation.emailRequired');
+          return signupT.validation.emailRequired;
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          return t('signup.validation.emailFormat');
+          return signupT.validation.emailFormat;
         }
         return '';
 
       case 'password':
         if (!value) {
-          return t('signup.validation.passwordRequired');
+          return signupT.validation.passwordRequired;
         }
         if (value.length < 8) {
-          return t('signup.validation.passwordMin');
+          return signupT.validation.passwordMin;
         }
         if (!/[A-Z]/.test(value)) {
-          return t('signup.validation.passwordUppercase');
+          return signupT.validation.passwordUppercase;
         }
         if (!/\d/.test(value)) {
-          return t('signup.validation.passwordNumber');
+          return signupT.validation.passwordNumber;
         }
         return '';
 
       case 'confirmPassword':
         if (!value) {
-          return t('signup.validation.confirmPasswordRequired');
+          return signupT.validation.confirmPasswordRequired;
         }
         if (value !== formData.password) {
-          return t('signup.validation.passwordMismatch');
+          return signupT.validation.passwordMismatch;
         }
         return '';
 
@@ -202,18 +205,18 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
       case 'shebaNumber':
         if (formData.accountType === 'marketing_agency') {
           if (!value.trim()) {
-            return t('signup.validation.shebaRequiredAgency');
+            return signupT.validation.shebaRequiredAgency;
           }
           if (!/^\d+$/.test(value)) {
-            return t('signup.validation.shebaDigits');
+            return signupT.validation.shebaDigits;
           }
           if (value.length !== 24) {
-            return t('signup.validation.shebaLength');
+            return signupT.validation.shebaLength;
           }
           return '';
         } else {
           if (value && value.trim().length > 0) {
-            return t('signup.validation.shebaNotAllowed');
+            return signupT.validation.shebaNotAllowed;
           }
           return '';
         }
@@ -256,7 +259,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
     // Validate account type
     if (!formData.accountType) {
-      newErrors.accountType = t('signup.validation.accountTypeRequired');
+      newErrors.accountType = signupT.validation.accountTypeRequired;
     }
 
     // Validate all fields
@@ -375,20 +378,20 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
           setShowOtpModal(true);
           startResendCountdown();
         } else {
-          showError(t('signup.error.noCustomerId'));
+          showError(signupT.error.noCustomerId);
         }
       } else {
         // Use the new error handling utility
         const errorMessage = getApiErrorMessage(
           response,
           language,
-          t('signup.error.signupFailed')
+          signupT.error.signupFailed
         );
         showError(errorMessage);
       }
     } catch (error) {
       console.error('Signup error:', error);
-      showError(t('signup.error.networkError'));
+      showError(signupT.error.networkError);
     } finally {
       setIsLoading(false);
     }
@@ -412,12 +415,12 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
   const handleOtpVerification = async () => {
     if (otpCode.length !== 6) {
-      showError(t('signup.validation.invalidOtp'));
+      showError(signupT.validation.invalidOtp);
       return;
     }
 
     if (!customerId) {
-      showError(t('signup.error.noCustomerId'));
+      showError(signupT.error.noCustomerId);
       return;
     }
 
@@ -448,27 +451,27 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
             responseData.customer
           );
 
-          showSuccess(t('signup.success'));
+          showSuccess(signupT.success);
           setShowOtpModal(false);
 
           // Redirect to dashboard
           window.location.href = '/dashboard';
         } else {
           console.error('Missing required data in OTP response:', responseData);
-          showError(t('signup.error.invalidOtp'));
+          showError(signupT.error.invalidOtp);
         }
       } else {
         // Use the new error handling utility
         const errorMessage = getApiErrorMessage(
           response,
           language,
-          t('signup.error.invalidOtp')
+          signupT.error.invalidOtp
         );
         showError(errorMessage);
       }
     } catch (error) {
       console.error('OTP verification error:', error);
-      showError(t('signup.error.networkError'));
+      showError(signupT.error.networkError);
     } finally {
       setIsLoading(false);
     }
@@ -487,22 +490,22 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
         // Check if OTP was sent successfully
         if (responseData.otp_sent) {
-          showInfo(t('signup.otpResent'));
+          showInfo(signupT.otpResent);
           startResendCountdown();
         } else {
-          showError(t('signup.error.resendFailed'));
+          showError(signupT.error.resendFailed);
         }
       } else {
         // Use the new error handling utility
         const errorMessage = getApiErrorMessage(
           response,
           language,
-          t('signup.error.resendFailed')
+          signupT.error.resendFailed
         );
         showError(errorMessage);
       }
     } catch (error) {
-      showError(t('signup.error.networkError'));
+      showError(signupT.error.networkError);
     } finally {
       setIsLoading(false);
     }
@@ -521,9 +524,9 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
             <User className='h-6 w-6 text-white' />
           </div>
           <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
-            {t('signup.title')}
+            {signupT.title}
           </h2>
-          <p className='mt-2 text-sm text-gray-600'>{t('signup.subtitle')}</p>
+          <p className='mt-2 text-sm text-gray-600'>{signupT.subtitle}</p>
         </div>
 
         {/* Signup Form */}
@@ -532,7 +535,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
             {/* Account Type */}
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
-                {t('signup.accountType')}{' '}
+                {signupT.accountType}{' '}
                 <span className='text-red-500'>
                   {t('common.required')}
                 </span>
@@ -543,10 +546,10 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 onChange={handleInputChange}
                 className='input-field'
               >
-                <option value=''>{t('signup.selectAccountType')}</option>
-                <option value='individual'>{t('signup.individual')}</option>
+                <option value=''>{signupT.selectAccountType}</option>
+                <option value='individual'>{signupT.individual}</option>
                 <option value='independent_company'>
-                  {t('signup.independentCompany')}
+                  {signupT.independentCompany}
                 </option>
                 <option value='marketing_agency'>
                   {t('signup.marketingAgency')}
@@ -566,13 +569,13 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   className={`text-lg font-medium text-gray-900 flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
                 >
                   <Building2 className='h-5 w-5' />
-                  <span>{t('signup.companyInfo')}</span>
+                  <span>{signupT.companyInfo}</span>
                 </h3>
 
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-2'>
-                      {t('signup.companyName')}{' '}
+                      {signupT.companyName}{' '}
                       <span className='text-red-500'>
                         {t('common.required')}
                       </span>
@@ -595,7 +598,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-2'>
-                      {t('signup.nationalId')}{' '}
+                      {signupT.nationalId}{' '}
                       <span className='text-red-500'>
                         {t('common.required')}
                       </span>
@@ -618,7 +621,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-2'>
-                      {t('signup.companyPhone')}{' '}
+                      {signupT.companyPhone}{' '}
                       <span className='text-red-500'>
                         {t('common.required')}
                       </span>
@@ -641,7 +644,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-2'>
-                      {t('signup.postalCode')}{' '}
+                      {signupT.postalCode}{' '}
                       <span className='text-red-500'>
                         {t('common.required')}
                       </span>
@@ -665,7 +668,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    {t('signup.companyAddress')}{' '}
+                    {signupT.companyAddress}{' '}
                     <span className='text-red-500'>
                       {t('common.required')}
                     </span>
@@ -696,15 +699,15 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 <User className='h-5 w-5' />
                 <span>
                   {isCompanyAccount
-                    ? t('signup.representativeInfo')
-                    : t('signup.personalInfo')}
+                    ? signupT.representativeInfo
+                    : signupT.personalInfo}
                 </span>
               </h3>
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    {t('signup.firstName')}{' '}
+                    {signupT.firstName}{' '}
                     <span className='text-red-500'>
                       {t('common.required')}
                     </span>
@@ -715,7 +718,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                     value={formData.representativeFirstName}
                     onChange={handleInputChange}
                     className='input-field'
-                    placeholder={t('signup.firstNamePlaceholder')}
+                    placeholder={signupT.firstNamePlaceholder}
                   />
                   {errors.representativeFirstName && (
                     <p className='mt-1 text-sm text-red-600'>
@@ -726,7 +729,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    {t('signup.lastName')}{' '}
+                    {signupT.lastName}{' '}
                     <span className='text-red-500'>
                       {t('common.required')}
                     </span>
@@ -737,7 +740,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                     value={formData.representativeLastName}
                     onChange={handleInputChange}
                     className='input-field'
-                    placeholder={t('signup.lastNamePlaceholder')}
+                    placeholder={signupT.lastNamePlaceholder}
                   />
                   {errors.representativeLastName && (
                     <p className='mt-1 text-sm text-red-600'>
@@ -749,7 +752,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  {t('signup.mobileNumber')}{' '}
+                  {signupT.mobileNumber}{' '}
                   <span className='text-red-500'>
                     {t('common.required')}
                   </span>
@@ -760,7 +763,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   value={formData.representativeMobile}
                   onChange={handleInputChange}
                   className='input-field'
-                  placeholder={t('signup.mobilePlaceholder')}
+                  placeholder={signupT.mobilePlaceholder}
                   maxLength={11}
                 />
                 {errors.representativeMobile && (
@@ -777,12 +780,12 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 className={`text-lg font-medium text-gray-900 flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
               >
                 <Lock className='h-5 w-5' />
-                <span>{t('signup.credentials')}</span>
+                <span>{signupT.credentials}</span>
               </h3>
 
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  {t('signup.email')}{' '}
+                  {signupT.email}{' '}
                   <span className='text-red-500'>
                     {t('common.required')}
                   </span>
@@ -793,7 +796,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   value={formData.email}
                   onChange={handleInputChange}
                   className='input-field'
-                  placeholder={t('signup.emailPlaceholder')}
+                  placeholder={signupT.emailPlaceholder}
                 />
                 {errors.email && (
                   <p className='mt-1 text-sm text-red-600'>{errors.email}</p>
@@ -803,7 +806,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
               {formData.accountType === 'marketing_agency' && (
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    {t('signup.sheba')}{' '}
+                    {signupT.sheba}{' '}
                     <span className='text-red-500'>
                       {t('common.required')}
                     </span>
@@ -846,7 +849,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                       value={formData.password}
                       onChange={handleInputChange}
                       className={`input-field ${isRTL ? 'pl-10' : 'pr-10'}`}
-                      placeholder={t('signup.passwordPlaceholder')}
+                      placeholder={signupT.passwordPlaceholder}
                     />
                     <button
                       type='button'
@@ -869,12 +872,12 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   {/* Password Requirements */}
                   <div className='mt-2 text-xs text-gray-500'>
                     <p className='font-medium mb-1'>
-                      {t('signup.passwordRequirements')}:
+                      {signupT.passwordRequirements}:
                     </p>
                     <ul className='space-y-1'>
-                      <li>• {t('signup.validation.passwordMin')}</li>
-                      <li>• {t('signup.validation.passwordUppercase')}</li>
-                      <li>• {t('signup.validation.passwordNumber')}</li>
+                      <li>• {signupT.validation.passwordMin}</li>
+                      <li>• {signupT.validation.passwordUppercase}</li>
+                      <li>• {signupT.validation.passwordNumber}</li>
                     </ul>
                   </div>
                 </div>
@@ -893,7 +896,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
                       className={`input-field ${isRTL ? 'pl-10' : 'pr-10'}`}
-                      placeholder={t('signup.confirmPasswordPlaceholder')}
+                      placeholder={signupT.confirmPasswordPlaceholder}
                     />
                     <button
                       type='button'
@@ -920,28 +923,28 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
             {/* Optional Agency Code */}
             {formData.accountType !== 'marketing_agency' && (
-            <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
-                {t('signup.agencyCode')}
-              </label>
-              <input
-                type='text'
-                name='referrerAgencyCode'
-                value={formData.referrerAgencyCode}
-                onChange={handleInputChange}
-                className='input-field'
-                placeholder={t('signup.agencyCodePlaceholder')}
-                maxLength={255}
-              />
-              {errors.referrerAgencyCode && (
-                <p className='mt-1 text-sm text-red-600'>
-                  {errors.referrerAgencyCode}
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  {t('signup.agencyCode')}
+                </label>
+                <input
+                  type='text'
+                  name='referrerAgencyCode'
+                  value={formData.referrerAgencyCode}
+                  onChange={handleInputChange}
+                  className='input-field'
+                  placeholder={t('signup.agencyCodePlaceholder')}
+                  maxLength={255}
+                />
+                {errors.referrerAgencyCode && (
+                  <p className='mt-1 text-sm text-red-600'>
+                    {errors.referrerAgencyCode}
+                  </p>
+                )}
+                <p className='mt-1 text-xs text-gray-500'>
+                  {t('signup.agencyCodeHelp')}
                 </p>
-              )}
-              <p className='mt-1 text-xs text-gray-500'>
-                {t('signup.agencyCodeHelp')}
-              </p>
-            </div>
+              </div>
             )}
 
             {/* Terms & Conditions */}
@@ -982,13 +985,13 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
             {/* Login Link */}
             <div className='text-center'>
               <p className='text-sm text-gray-600'>
-                {t('signup.haveAccount')}{' '}
+                {signupT.haveAccount}{' '}
                 <button
                   type='button'
                   onClick={onNavigateToLogin}
                   className='text-primary-600 hover:text-primary-700 font-medium'
                 >
-                  {t('signup.signInHere')}
+                  {signupT.signInHere}
                 </button>
               </p>
             </div>
@@ -1003,7 +1006,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 className={`flex justify-between items-center mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}
               >
                 <h3 className='text-lg font-medium text-gray-900'>
-                  {t('signup.verifyMobile')}
+                  {signupT.verifyMobile}
                 </h3>
                 <button
                   onClick={() => setShowOtpModal(false)}
@@ -1024,7 +1027,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
               <div className='space-y-4'>
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    {t('signup.enterVerificationCode')}
+                    {signupT.enterVerificationCode}
                   </label>
                   <input
                     type='text'
@@ -1046,7 +1049,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   {isLoading ? (
                     <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-white mx-auto'></div>
                   ) : (
-                    t('signup.verifyCode')
+                    signupT.verifyCode
                   )}
                 </button>
 
@@ -1061,7 +1064,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                     </button>
                   ) : (
                     <p className='text-sm text-gray-600'>
-                      {t('signup.resendIn')} {resendCountdown}
+                      {signupT.resendIn} {resendCountdown}
                       {t('common.seconds')}
                     </p>
                   )}

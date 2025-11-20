@@ -538,10 +538,10 @@ const CustomerManagementPage: React.FC = () => {
                             className="input-field max-w-[120px]"
                           />
                           <div className="flex flex-wrap gap-2">
-                            {[0,20,40,60,80,90,100].map((d, idx) => (
+                            {[0, 20, 40, 60, 80, 90, 100].map((d, idx) => (
                               <button
                                 key={d}
-                                className={`px-3 py-1 rounded-full text-xs border ${calcDiscount===d ? 'border-primary-600 text-primary-700 bg-primary-50' : 'border-gray-300 text-gray-600 bg-white'}`}
+                                className={`px-3 py-1 rounded-full text-xs border ${calcDiscount === d ? 'border-primary-600 text-primary-700 bg-primary-50' : 'border-gray-300 text-gray-600 bg-white'}`}
                                 onClick={() => setCalcDiscount(d)}
                               >
                                 {calcT.chips[idx] || `${d}%`}
