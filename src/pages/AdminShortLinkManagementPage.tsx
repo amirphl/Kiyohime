@@ -13,6 +13,7 @@ const AdminShortLinkManagementPage: React.FC = () => {
 
   const [selectedDomain, setSelectedDomain] = useState<string>('https://jo1n.ir');
   const [file, setFile] = useState<File | null>(null);
+  const [scenarioName, setScenarioName] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [statusType, setStatusType] = useState<'idle' | 'success' | 'error'>('idle');
@@ -25,6 +26,10 @@ const AdminShortLinkManagementPage: React.FC = () => {
   const [downloadingClicks, setDownloadingClicks] = useState<boolean>(false);
   const [downloadMessageClicks, setDownloadMessageClicks] = useState<string>('');
   const [downloadTypeClicks, setDownloadTypeClicks] = useState<'idle' | 'success' | 'error'>('idle');
+  const [scenarioNameRegex, setScenarioNameRegex] = useState<string>('');
+  const [downloadingByName, setDownloadingByName] = useState<boolean>(false);
+  const [downloadByNameMessage, setDownloadByNameMessage] = useState<string>('');
+  const [downloadByNameType, setDownloadByNameType] = useState<'idle' | 'success' | 'error'>('idle');
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -38,9 +43,15 @@ const AdminShortLinkManagementPage: React.FC = () => {
       return;
     }
 
+    if (!scenarioName.trim()) {
+      setStatusMessage(t('adminShortLinks.messages.validationScenarioNameRequired'));
+      setStatusType('error');
+      return;
+    }
+
     try {
       setSubmitting(true);
-      const resp = await adminApi.uploadShortLinksCSV(file, selectedDomain);
+      const resp = await adminApi.uploadShortLinksCSV(file, selectedDomain, scenarioName);
       if (resp.success) {
         const id = typeof resp.data?.scenario_id === 'number' ? resp.data.scenario_id : parseInt(String(resp.data?.scenario_id || ''), 10);
         if (!isNaN(id)) setUploadedScenarioId(id);
@@ -176,6 +187,65 @@ const AdminShortLinkManagementPage: React.FC = () => {
     }
   };
 
+  const onDownloadWithClicksByScenarioName = async () => {
+    setDownloadByNameMessage('');
+    setDownloadByNameType('idle');
+
+    const regex = scenarioNameRegex.trim();
+    if (!regex) {
+      setDownloadByNameMessage(t('adminShortLinks.downloadByName.error'));
+      setDownloadByNameType('error');
+      return;
+    }
+
+    try {
+      setDownloadingByName(true);
+      const token = adminApi.getAccessToken();
+      const url = getApiUrl('/admin/short-links/download-with-clicks-by-scenario-name');
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ scenario_name_regex: regex }),
+        signal: AbortSignal.timeout(30000),
+      });
+
+      const contentType = resp.headers.get('Content-Type') || '';
+      if (resp.ok && contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+        const blob = await resp.blob();
+        const cd = resp.headers.get('Content-Disposition') || '';
+        const match = cd.match(/filename\s*=\s*([^;]+)/i);
+        const filename = match ? match[1].replace(/"/g, '').trim() : `short-links-by-name.xlsx`;
+        const urlObj = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = urlObj;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(urlObj);
+        setDownloadByNameMessage(t('adminShortLinks.downloadByName.success'));
+        setDownloadByNameType('success');
+      } else {
+        let errorText = t('adminShortLinks.downloadByName.error');
+        try {
+          const data = await resp.json();
+          errorText = data?.message || data?.error?.code || errorText;
+        } catch { }
+        setDownloadByNameMessage(errorText);
+        setDownloadByNameType('error');
+      }
+    } catch {
+      setDownloadByNameMessage(t('adminShortLinks.downloadByName.error'));
+      setDownloadByNameType('error');
+    } finally {
+      setDownloadingByName(false);
+    }
+  };
+
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6">
       <div className="flex items-center justify-between mb-6">
@@ -204,6 +274,21 @@ const AdminShortLinkManagementPage: React.FC = () => {
             <option value="https://jo1n.ir">{t('adminShortLinks.domain.jo1n')}</option>
             <option value="https://joinsahel.ir">{t('adminShortLinks.domain.joinsahel')}</option>
           </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="scenario-name">
+            {t('adminShortLinks.form.scenarioNameLabel')}
+          </label>
+          <input
+            id="scenario-name"
+            type="text"
+            value={scenarioName}
+            onChange={(e) => setScenarioName(e.target.value)}
+            placeholder={t('adminShortLinks.form.scenarioNamePlaceholder')}
+            required
+            className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+          />
         </div>
 
         <div>
@@ -312,6 +397,43 @@ const AdminShortLinkManagementPage: React.FC = () => {
             {downloadMessageClicks && (
               <span className={`${downloadTypeClicks === 'error' ? 'text-red-600' : downloadTypeClicks === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}>
                 {downloadMessageClicks}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Download with Clicks by Scenario Name (Regex) */}
+      <div className="mt-10 max-w-xl border-t border-gray-200 pt-6">
+        <h2 className="text-lg font-semibold mb-4">{t('adminShortLinks.downloadByName.title')}</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="scenario-name-regex">
+              {t('adminShortLinks.downloadByName.scenarioNameRegexLabel')}
+            </label>
+            <input
+              id="scenario-name-regex"
+              type="text"
+              value={scenarioNameRegex}
+              onChange={(e) => setScenarioNameRegex(e.target.value)}
+              placeholder={t('adminShortLinks.downloadByName.scenarioNameRegexPlaceholder')}
+              className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+            />
+          </div>
+
+          <div className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}>
+            <button
+              type="button"
+              onClick={onDownloadWithClicksByScenarioName}
+              disabled={downloadingByName}
+              className={`px-4 py-2 rounded text-white ${downloadingByName ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+            >
+              {downloadingByName ? t('adminShortLinks.downloadByName.downloading') : t('adminShortLinks.downloadByName.download')}
+            </button>
+
+            {downloadByNameMessage && (
+              <span className={`${downloadByNameType === 'error' ? 'text-red-600' : downloadByNameType === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}>
+                {downloadByNameMessage}
               </span>
             )}
           </div>
