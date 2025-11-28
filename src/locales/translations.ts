@@ -139,6 +139,8 @@ export const translations = {
       form: {
         domainLabel: 'Short link domain',
         fileLabel: 'CSV file',
+        scenarioNameLabel: 'Scenario Name (optional)',
+        scenarioNamePlaceholder: 'Enter a scenario name (optional)',
         selectPlaceholder: 'Select a domain',
         upload: 'Upload CSV',
         uploading: 'Uploading…'
@@ -150,7 +152,8 @@ export const translations = {
       messages: {
         success: 'Short links created successfully',
         error: 'Failed to create short links',
-        validationFileRequired: 'Please choose a CSV file'
+        validationFileRequired: 'Please choose a CSV file',
+        validationScenarioNameRequired: 'Please enter a scenario name'
       },
       result: {
         scenarioId: 'Scenario ID: {id}'
@@ -172,6 +175,15 @@ export const translations = {
         downloading: 'Downloading…',
         success: 'Download started',
         error: 'Failed to generate CSV'
+      },
+      downloadByName: {
+        title: 'Download Short Links With Clicks by Scenario Name',
+        scenarioNameRegexLabel: 'Scenario Name Regex',
+        scenarioNameRegexPlaceholder: 'Enter scenario name regex (e.g., .*sahel_11.*)',
+        download: 'Download Excel',
+        downloading: 'Downloading…',
+        success: 'Download started',
+        error: 'Failed to generate Excel'
       }
     },
     adminLineNumbers: {
@@ -269,6 +281,9 @@ export const translations = {
       welcome: 'Welcome',
       subtitle:
         'Manage your SMS marketing campaigns and track your performance',
+      accountTypeLabel: 'Account Type',
+      companyNameLabel: 'Company Name',
+      emailAddressLabel: 'Email Address',
       language: 'Language',
       logout: 'Logout',
       support: 'Ticket and Support',
@@ -1146,6 +1161,8 @@ export const translations = {
       form: {
         domainLabel: 'دامنه لینک کوتاه',
         fileLabel: 'فایل CSV',
+        scenarioNameLabel: 'نام سناریو (اختیاری)',
+        scenarioNamePlaceholder: 'نام سناریو را وارد کنید (اختیاری)',
         selectPlaceholder: 'انتخاب دامنه',
         upload: 'آپلود CSV',
         uploading: 'در حال آپلود…'
@@ -1157,7 +1174,8 @@ export const translations = {
       messages: {
         success: 'لینک‌های کوتاه با موفقیت ایجاد شد',
         error: 'ایجاد لینک‌های کوتاه ناموفق بود',
-        validationFileRequired: 'لطفاً فایل CSV را انتخاب کنید'
+        validationFileRequired: 'لطفاً فایل CSV را انتخاب کنید',
+        validationScenarioNameRequired: 'لطفاً نام سناریو را وارد کنید'
       },
       result: {
         scenarioId: 'شناسه سناریو: {id}'
@@ -1179,6 +1197,15 @@ export const translations = {
         downloading: 'در حال دانلود…',
         success: 'دانلود آغاز شد',
         error: 'تولید CSV ناموفق بود'
+      },
+      downloadByName: {
+        title: 'دانلود لینک‌های کوتاه دارای کلیک بر اساس نام سناریو',
+        scenarioNameRegexLabel: 'عبارت منظم نام سناریو',
+        scenarioNameRegexPlaceholder: 'عبارت منظم نام سناریو را وارد کنید (مثلاً .*sahel_11.*)',
+        download: 'دانلود اکسل',
+        downloading: 'در حال دانلود…',
+        success: 'دانلود آغاز شد',
+        error: 'تولید فایل اکسل ناموفق بود'
       }
     },
     adminLineNumbers: {
@@ -1276,6 +1303,9 @@ export const translations = {
       welcome: 'خوش آمدید',
       subtitle:
         'کمپین‌های هوشمند و داده‌محور خود را مدیریت کنید و عملکرد خود را پیگیری کنید',
+      accountTypeLabel: 'نوع حساب کاربری',
+      companyNameLabel: 'نام شرکت',
+      emailAddressLabel: 'آدرس ایمیل',
       language: 'زبان',
       logout: 'خروج',
       support: 'تیکت و پشتیبانی',
