@@ -539,12 +539,13 @@ class AdminApiService {
   }
 
   // NEW: Upload short links CSV (no retries, single request)
-  async uploadShortLinksCSV(file: File, shortLinkDomain: string): Promise<ApiResponse<any>> {
+  async uploadShortLinksCSV(file: File, shortLinkDomain: string, scenarioName: string): Promise<ApiResponse<any>> {
     const url = getApiUrl('/admin/short-links/upload-csv');
     try {
       const form = new FormData();
       form.append('file', file);
       form.append('short_link_domain', shortLinkDomain);
+      form.append('scenario_name', scenarioName);
       const resp = await fetch(url, {
         method: 'POST',
         headers: {
