@@ -111,7 +111,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
         }
         if (
           value &&
-          (value.length < 10 || value.length > 20 || !/^\d+$/.test(value))
+          (value.length !== 10 || !/^\d+$/.test(value))
         ) {
           return signupT.validation.nationalIdFormat;
         }
@@ -121,8 +121,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
         if (formData.accountType !== 'individual' && !value.trim()) {
           return signupT.validation.companyPhoneRequired;
         }
-        if (value && !/^09\d{9}$/.test(value)) {
-          return signupT.validation.mobileFormat;
+        if (value && !/^0\d{10}$/.test(value)) {
+          return signupT.validation.phoneFormat;
         }
         return '';
 
@@ -139,7 +139,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
         if (formData.accountType !== 'individual' && !value.trim()) {
           return signupT.validation.postalCodeRequired;
         }
-        if (value && (value.length < 10 || !/^\d+$/.test(value))) {
+        if (value && (value.length !== 10 || !/^\d+$/.test(value))) {
           return signupT.validation.postalCodeFormat;
         }
         return '';
@@ -552,7 +552,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   {signupT.independentCompany}
                 </option>
                 <option value='marketing_agency'>
-                  {t('signup.marketingAgency')}
+                  {signupT.marketingAgency}
                 </option>
               </select>
               {errors.accountType && (
@@ -586,7 +586,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                       value={formData.companyName}
                       onChange={handleInputChange}
                       className='input-field'
-                      placeholder={t('signup.companyNamePlaceholder')}
+                      placeholder={signupT.companyNamePlaceholder}
                       maxLength={60}
                     />
                     {errors.companyName && (
@@ -609,8 +609,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                       value={formData.nationalId}
                       onChange={handleInputChange}
                       className='input-field'
-                      placeholder={t('signup.nationalIdPlaceholder')}
-                      maxLength={20}
+                      placeholder={signupT.nationalIdPlaceholder}
+                      maxLength={10}
                     />
                     {errors.nationalId && (
                       <p className='mt-1 text-sm text-red-600'>
@@ -632,7 +632,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                       value={formData.companyPhone}
                       onChange={handleInputChange}
                       className='input-field'
-                      placeholder={t('signup.companyPhonePlaceholder')}
+                      placeholder={signupT.companyPhonePlaceholder}
                       maxLength={11}
                     />
                     {errors.companyPhone && (
@@ -655,8 +655,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                       value={formData.postalCode}
                       onChange={handleInputChange}
                       className='input-field'
-                      placeholder={t('signup.postalCodePlaceholder')}
-                      maxLength={20}
+                      placeholder={signupT.postalCodePlaceholder}
+                      maxLength={10}
                     />
                     {errors.postalCode && (
                       <p className='mt-1 text-sm text-red-600'>
@@ -679,7 +679,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                     onChange={handleInputChange}
                     rows={3}
                     className='input-field'
-                    placeholder={t('signup.companyAddressPlaceholder')}
+                    placeholder={signupT.companyAddressPlaceholder}
                     maxLength={255}
                   />
                   {errors.companyAddress && (
@@ -812,7 +812,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                     </span>
                   </label>
                   <div className='relative'>
-                    <span className={`absolute inset-y-0 ${isRTL ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center text-gray-500 font-medium`} dir='ltr'>
+                    <span className='absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-medium' dir='ltr'>
                       IR
                     </span>
                     <input
@@ -820,9 +820,9 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                       name='shebaNumber'
                       value={formData.shebaNumber}
                       onChange={handleInputChange}
-                      className={`input-field ${isRTL ? 'pr-10' : 'pl-10'}`}
+                      className='input-field pl-10'
                       dir={isRTL ? 'ltr' : undefined}
-                      placeholder={t('signup.shebaPlaceholder')}
+                      placeholder={signupT.shebaPlaceholder}
                       maxLength={24}
                     />
                   </div>
@@ -837,7 +837,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    {t('signup.password')}{' '}
+                    {signupT.password}{' '}
                     <span className='text-red-500'>
                       {t('common.required')}
                     </span>
@@ -884,7 +884,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    {t('signup.confirmPassword')}{' '}
+                    {signupT.confirmPassword}{' '}
                     <span className='text-red-500'>
                       {t('common.required')}
                     </span>
@@ -925,7 +925,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
             {formData.accountType !== 'marketing_agency' && (
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  {t('signup.agencyCode')}
+                  {signupT.agencyCode}
                 </label>
                 <input
                   type='text'
@@ -933,7 +933,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   value={formData.referrerAgencyCode}
                   onChange={handleInputChange}
                   className='input-field'
-                  placeholder={t('signup.agencyCodePlaceholder')}
+                  placeholder={signupT.agencyCodePlaceholder}
                   maxLength={255}
                 />
                 {errors.referrerAgencyCode && (
@@ -942,7 +942,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   </p>
                 )}
                 <p className='mt-1 text-xs text-gray-500'>
-                  {t('signup.agencyCodeHelp')}
+                  {signupT.agencyCodeHelp}
                 </p>
               </div>
             )}
@@ -957,11 +957,18 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 className='mt-1'
               />
               <label htmlFor='acceptedTerms' className='text-sm text-gray-700'>
-                {language === 'fa' ? 'شرایط استفاده را می‌پذیرم' : 'I accept the Terms of Service'}
-                {' '}<a href='/terms' className='text-primary-600 hover:text-primary-700' target='_self' rel='noopener noreferrer'>
-                  {language === 'fa' ? 'مشاهده شرایط' : 'View terms'}
+                <a
+                  href='/terms'
+                  className='text-primary-600 hover:text-primary-700'
+                  target='_self'
+                  rel='noopener noreferrer'
+                >
+                  {language === 'fa'
+                    ? 'شرایط استفاده را می‌پذیرم'
+                    : 'I accept the Terms of Service'}
                 </a>
               </label>
+
             </div>
 
             {/* Submit Button */}
@@ -974,7 +981,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                 <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-white'></div>
               ) : (
                 <>
-                  <span>{t('signup.createAccount')}</span>
+                  <span>{signupT.createAccount}</span>
                   <ArrowRight
                     className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`}
                   />
@@ -1018,7 +1025,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
               <div className='text-center mb-6'>
                 <CheckCircle className='mx-auto h-12 w-12 text-green-500 mb-4' />
-                <p className='text-sm text-gray-600'>{t('signup.otpSent')}</p>
+                <p className='text-sm text-gray-600'>{signupT.otpSent}</p>
                 <p className='font-medium text-gray-900'>
                   {formData.representativeMobile}
                 </p>
