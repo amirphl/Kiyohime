@@ -24,6 +24,7 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import { useToast } from '../hooks/useToast';
 import { Plus, Upload, X, Calculator } from 'lucide-react';
 import { calcI18n } from '../locales/calc';
+import { signupI18n } from '../locales/signup';
 
 interface SidebarItem {
   id: string;
@@ -43,6 +44,8 @@ const DashboardPage: React.FC = () => {
   const { navigate } = useNavigation();
   const { resetCampaign } = useCampaign();
   const { showError, showSuccess } = useToast();
+
+  const signupT = signupI18n[language as keyof typeof signupI18n] || signupI18n.en;
 
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [ticketTitle, setTicketTitle] = useState('');
@@ -377,15 +380,24 @@ const DashboardPage: React.FC = () => {
               {user && (
                 <div className='mt-4 p-3 bg-blue-50 rounded-lg'>
                   <p className='text-sm text-blue-800'>
-                    <strong>Account Type:</strong> {user.account_type}
+                    <strong>{t('dashboard.accountTypeLabel')}:</strong>{" "}
+                    {
+                      user.account_type === 'individual'
+                        ? signupT.individual
+                        : user.account_type === 'independent_company'
+                          ? signupT.independentCompany
+                          : user.account_type === 'marketing_agency'
+                            ? signupT.marketingAgency
+                            : ""
+                    }
                   </p>
                   {user.company_name && (
                     <p className='text-sm text-blue-800 mt-1'>
-                      <strong>Company:</strong> {user.company_name}
+                      <strong>{t('dashboard.companyNameLabel')}:</strong> {user.company_name}
                     </p>
                   )}
                   <p className='text-sm text-blue-800 mt-1'>
-                    <strong>Email:</strong> {user.email}
+                    <strong>{t('dashboard.emailAddressLabel')}:</strong> {user.email}
                   </p>
                 </div>
               )}
