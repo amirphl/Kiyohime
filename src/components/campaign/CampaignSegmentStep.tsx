@@ -8,7 +8,6 @@ import StepHeader from '../ui/StepHeader';
 import Card from '../ui/Card';
 import FormField from '../ui/FormField';
 import { CalculateCampaignCapacityRequest, AudienceSpec, AudienceSpecItem } from '../../types/campaign';
-import { iranCitiesOrdered } from '../../data/iranCities';
 import { useAuth } from '../../hooks/useAuth';
 
 // Module-level cache and in-flight promise to avoid duplicate audience-spec fetches (handles Strict Mode double effects)
@@ -19,14 +18,14 @@ const CampaignSegmentStep: React.FC = () => {
   const { t } = useTranslation();
   const { campaignData, updateSegment } = useCampaign();
   const { showToast } = useToast();
-  const { isAuthenticated, accessToken } = useAuth();
+  const { accessToken } = useAuth();
   
   // Ensure API service has token to avoid race on hard refresh
   useEffect(() => {
     if (accessToken) {
       apiService.setAccessToken(accessToken);
     }
-  }, [accessToken]);
+  }, [accessToken, showToast]);
 
   // Campaign capacity state
   const [capacity, setCapacity] = useState<number | undefined>(campaignData.segment.capacity);
@@ -95,36 +94,9 @@ const CampaignSegmentStep: React.FC = () => {
         capacityRequestInFlightRef.current = false;
       }
     }, 800);
-  }, [showToast, hasCapacityError, t, updateSegment]);
+  }, [hasCapacityError, updateSegment, t, showToast]);
 
-  // Reset capacity error when user makes changes
-  useEffect(() => {
-    if (hasCapacityError) {
-      setHasCapacityError(false);
-      setCapacityError(null);
-    }
-  }, [
-    hasCapacityError,
-    campaignData.segment.campaignTitle,
-    campaignData.segment.segment,
-    campaignData.segment.subsegments,
-    campaignData.segment.sex,
-    campaignData.segment.city,
-    campaignData.segment.tags,
-  ]);
-
-  // Helper: compute all tags for current segment + subsegments
-  const computeTags = useCallback((segmentValue: string, subsegments: string[]): string[] => {
-    const tagSet = new Set<string>();
-    if (!audienceSpec || !segmentValue || !subsegments?.length) return [];
-    subsegments.forEach(s => {
-      const item = audienceSpec[segmentValue]?.[s];
-      if (item?.tags) item.tags.forEach(tg => tagSet.add(tg));
-    });
-    return Array.from(tagSet);
-  }, [audienceSpec]);
-
-  // Helper function to trigger capacity calculation
+  // Helper function to trigger capacity calculation from current selections
   const triggerCapacityCalculation = useCallback((overrides?: Partial<CalculateCampaignCapacityRequest>) => {
     const effectiveSegment = overrides?.segment ?? campaignData.segment.segment;
     const effectiveSubsegments = overrides?.subsegment ?? campaignData.segment.subsegments;
@@ -244,15 +216,17 @@ const CampaignSegmentStep: React.FC = () => {
       });
 
     return () => { canceled = true; };
-  }, [accessToken]);
+  }, [accessToken, showToast]);
 
-  // Build segments and subsegments from audience spec
+  // Build level1 options from audience spec
   const segments = useMemo(() => {
     if (!audienceSpec) return [] as Array<{ value: string; label: string }>;
     return Object.keys(audienceSpec).map(seg => ({ value: seg, label: seg.replace(/_/g, ' ') }));
   }, [audienceSpec]);
 
   // Local search for segments
+  /*
+  // Local search for segments (commented out for now - using dropdown)
   const [segmentSearch, setSegmentSearch] = useState('');
   const filteredSegments = useMemo(() => {
     const q = segmentSearch.trim().toLowerCase();
@@ -260,17 +234,20 @@ const CampaignSegmentStep: React.FC = () => {
     return segments.filter(s => s.label.toLowerCase().includes(q) || s.value.toLowerCase().includes(q));
   }, [segmentSearch, segments]);
 
-  // Build segment-subsegment pairs for search recommendations
+  // Build level1-level2-level3 triples for search recommendations
   const segmentSubPairs = useMemo(() => {
-    if (!audienceSpec) return [] as Array<{ segValue: string; segLabel: string; subValue: string; subLabel: string }>;
-    const pairs: Array<{ segValue: string; segLabel: string; subValue: string; subLabel: string }> = [];
-    Object.keys(audienceSpec).forEach(seg => {
-      const segLabel = seg.replace(/_/g, ' ');
-      Object.keys(audienceSpec[seg] || {}).forEach(sub => {
-        pairs.push({ segValue: seg, segLabel, subValue: sub, subLabel: sub.replace(/_/g, ' ') });
+    if (!audienceSpec) return [] as Array<{ l1Value: string; l1Label: string; l2Value: string; l2Label: string; l3Value: string; l3Label: string }>;
+    const triples: Array<{ l1Value: string; l1Label: string; l2Value: string; l2Label: string; l3Value: string; l3Label: string }> = [];
+    Object.keys(audienceSpec).forEach(l1 => {
+      const l1Label = l1.replace(/_/g, ' ');
+      Object.keys((audienceSpec as any)[l1] || {}).forEach(l2 => {
+        const l2Label = l2.replace(/_/g, ' ');
+        Object.keys((audienceSpec as any)[l1][l2] || {}).forEach(l3 => {
+          triples.push({ l1Value: l1, l1Label, l2Value: l2, l2Label, l3Value: l3, l3Label: l3.replace(/_/g, ' ') });
+        });
       });
     });
-    return pairs;
+    return triples;
   }, [audienceSpec]);
 
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -285,29 +262,67 @@ const CampaignSegmentStep: React.FC = () => {
     document.addEventListener('mousedown', onClickOutside);
     return () => document.removeEventListener('mousedown', onClickOutside);
   }, []);
+  */
 
-  const getSubsegmentsForSegment = useCallback((segmentValue: string): Array<{ value: string; label: string; item?: AudienceSpecItem }> => {
-    if (!audienceSpec || !segmentValue || !audienceSpec[segmentValue]) return [];
-    return Object.entries(audienceSpec[segmentValue]).map(([sub, item]) => ({ value: sub, label: sub.replace(/_/g, ' '), item }));
+  // Get level2 options for a given level1
+  const getLevel2ForLevel1 = useCallback((l1: string): Array<{ value: string; label: string }> => {
+    if (!audienceSpec || !l1 || !(audienceSpec as any)[l1]) return [];
+    return Object.keys((audienceSpec as any)[l1]).map(l2 => ({ value: l2, label: l2.replace(/_/g, ' ') }));
   }, [audienceSpec]);
+
+  // Get level3 options for a given level1 + level2
+  const getLevel3ForLevel = useCallback((l1: string, l2: string): Array<{ value: string; label: string }> => {
+    if (!audienceSpec || !l1 || !l2) return [];
+    const bucket = (audienceSpec as any)[l1]?.[l2] || {};
+    return Object.keys(bucket).map(l3 => ({ value: l3, label: l3.replace(/_/g, ' ') }));
+  }, [audienceSpec]);
+
+  // Helper: compute tags for selected path (level1, level2, level3)
+  const computeTags = useCallback((level1: string, level2: string, level3: string): string[] => {
+    const tagSet = new Set<string>();
+    if (!audienceSpec || !level1 || !level2 || !level3) return [];
+    const item = (audienceSpec as any)[level1]?.[level2]?.[level3] as AudienceSpecItem | undefined;
+    if (item?.tags) item.tags.forEach(tg => tagSet.add(tg));
+    return Array.from(tagSet);
+  }, [audienceSpec]);
+
+  // Local state for new levels (kept in sync with campaignData.segment.segment & subsegments for backwards compat)
+  const [selectedLevel1, setSelectedLevel1] = useState<string>(campaignData.segment.segment || '');
+  const [selectedLevel2, setSelectedLevel2] = useState<string>('');
+  const [selectedLevel3, setSelectedLevel3] = useState<string>((campaignData.segment.subsegments && campaignData.segment.subsegments[0]) || '');
 
   // Keep tags in sync implicitly based on current selection
   useEffect(() => {
     if (!audienceSpec) return;
-    if (!campaignData.segment.segment) return;
-    const subs = campaignData.segment.subsegments || [];
-    const newTags = computeTags(campaignData.segment.segment, subs);
+    if (!selectedLevel1 || !selectedLevel2) return;
+
+    // If level3 is selected, use it. Otherwise if there's exactly one option in level3, use it.
+    let effectiveL3 = selectedLevel3;
+    const l3Options = getLevel3ForLevel(selectedLevel1, selectedLevel2);
+    if (!effectiveL3 && l3Options.length === 1) {
+      effectiveL3 = l3Options[0].value;
+      setSelectedLevel3(effectiveL3);
+    }
+
+    if (!effectiveL3) return;
+
+    const newTags = computeTags(selectedLevel1, selectedLevel2, effectiveL3);
     const currentTags = campaignData.segment.tags || [];
     if (newTags.length !== currentTags.length || newTags.some(t => !currentTags.includes(t))) {
-      updateSegment({ tags: newTags });
+      // Persist level1 as segment and level3 as subsegment for backwards compatibility
+      updateSegment({ tags: newTags, segment: selectedLevel1, subsegments: [effectiveL3] });
     }
-  }, [audienceSpec, campaignData.segment.segment, campaignData.segment.subsegments, computeTags, updateSegment]);
+  }, [audienceSpec, selectedLevel1, selectedLevel2, selectedLevel3, getLevel3ForLevel, computeTags, campaignData.segment.tags, updateSegment]);
 
   const handleCampaignTitleChange = (value: string) => {
     updateSegment({ campaignTitle: value });
   };
 
   const handleSegmentChange = (value: string) => {
+    // set local selection and clear downstream selections
+    setSelectedLevel1(value);
+    setSelectedLevel2('');
+    setSelectedLevel3('');
     updateSegment({ 
       segment: value,
       subsegments: [],
@@ -321,50 +336,36 @@ const CampaignSegmentStep: React.FC = () => {
     triggerCapacityCalculation({ segment: value, subsegment: [], tags: [] });
   };
 
-  const handleSubsegmentsChange = (value: string) => {
-    const newSubsegments: string[] = value ? [value] : [];
-    const newTags = computeTags(campaignData.segment.segment, newSubsegments);
-    updateSegment({ subsegments: newSubsegments, tags: newTags });
-    if (!newSubsegments.length || !newTags.length) {
-      setCapacity(undefined);
-      setHasCapacityError(false);
-      setCapacityError(null);
-      updateSegment({ capacity: undefined, capacityTooLow: false });
-    }
-    triggerCapacityCalculation({ subsegment: newSubsegments, tags: newTags });
-  };
-
-  // Sex and City now optional: keep handlers but do not require in UI
-  const sexOptions = [
-    { value: 'male', label: 'Male' },
-    { value: 'female', label: 'Female' },
-    { value: 'all', label: 'All' },
-  ];
-
-  const cities = useMemo(() => {
-    const seen = new Set<string>();
-    return iranCitiesOrdered.filter(c => {
-      if (seen.has(c.value)) return false;
-      seen.add(c.value);
-      return true;
-    });
-  }, []);
-
-  const handleSexChange = (value: string) => {
-    updateSegment({ sex: value });
-  };
-
-  const handleCityChange = (value: string) => {
-    const currentCities = campaignData.segment.city || [];
-    let newCities: string[];
-    
-    if (currentCities.includes(value)) {
-      newCities = currentCities.filter(city => city !== value);
+  const handleLevel2Change = (l2: string) => {
+    setSelectedLevel2(l2);
+    // get level3 options under current level1+l2
+    const l1 = selectedLevel1 || campaignData.segment.segment;
+    const l3Options = getLevel3ForLevel(l1, l2);
+    if (l3Options.length === 1) {
+      const only = l3Options[0].value;
+      setSelectedLevel3(only);
+      const newTags = computeTags(l1, l2, only);
+      updateSegment({ subsegments: [only], tags: newTags });
+      triggerCapacityCalculation({ segment: l1, subsegment: [only], tags: newTags });
     } else {
-      newCities = [...currentCities, value];
+      setSelectedLevel3('');
+      updateSegment({ subsegments: [], tags: [] });
+      triggerCapacityCalculation({ segment: l1, subsegment: [], tags: [] });
     }
-    updateSegment({ city: newCities });
   };
+
+  const handleLevel3Change = (l3: string) => {
+    setSelectedLevel3(l3);
+    const l1 = selectedLevel1 || campaignData.segment.segment;
+    const l2 = selectedLevel2;
+    const newTags = computeTags(l1, l2, l3);
+    updateSegment({ subsegments: [l3], tags: newTags });
+    triggerCapacityCalculation({ segment: l1, subsegment: [l3], tags: newTags });
+  };
+
+  // Level3 change is handled inline where level3 selection is available (via search or auto-select)
+
+  // (Sex and city filters are optional; UI currently hidden)
 
   return (
     <div className="space-y-8">
@@ -439,7 +440,7 @@ const CampaignSegmentStep: React.FC = () => {
         </div>
 
         {/* Row 3: Segment and Subsegments */}
-        <div>
+        <div className="md:col-span-2">
           <Card>
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
@@ -452,92 +453,29 @@ const CampaignSegmentStep: React.FC = () => {
                 <div className="text-sm text-gray-600">{t('common.loading')}</div>
               ) : (
                 <>
-                  <div className="mb-2 relative" ref={searchBoxRef}>
-                    <input
-                      id="segmentSearch"
-                      type="text"
-                      value={segmentSearch}
-                      onChange={(e) => setSegmentSearch(e.target.value)}
-                      onFocus={() => setIsSearchFocused(true)}
-                      placeholder={t('campaign.segment.searchPlaceholder') || 'Search segments or subsegments...'}
-                      className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 border-gray-300"
-                    />
-                    {(isSearchFocused && (segmentSearch.trim().length === 0 || segmentSearch.trim().length >= 3)) && (
-                      <div className="absolute z-10 mt-1 w-full max-h-64 overflow-auto bg-white border border-gray-200 rounded-md shadow-lg">
-                        {segmentSearch.trim().length === 0 ? (
-                          // Recommend only segments when empty
-                          filteredSegments.length > 0 ? (
-                            filteredSegments.map(seg => (
-                              <button
-                                key={seg.value}
-                                type="button"
-                                className="w-full text-left px-3 py-2 hover:bg-gray-50"
-                                onMouseDown={() => {
-                                  setSegmentSearch(seg.label);
-                                  setIsSearchFocused(false);
-                                  handleSegmentChange(seg.value);
-                                }}
-                              >
-                                {seg.label}
-                              </button>
-                            ))
-                          ) : (
-                            <div className="px-3 py-2 text-sm text-gray-500">{t('common.noResults') || 'No results'}</div>
-                          )
-                        ) : (
-                          // Recommend segment - subsegment pairs when query length >= 3
-                          (() => {
-                            const q = segmentSearch.trim().toLowerCase();
-                            const matches = segmentSubPairs.filter(p =>
-                              p.segLabel.toLowerCase().includes(q) || p.subLabel.toLowerCase().includes(q)
-                            );
-                            return matches.length > 0 ? (
-                              matches.map(p => (
-                                <button
-                                  key={`${p.segValue}__${p.subValue}`}
-                                  type="button"
-                                  className="w-full text-left px-3 py-2 hover:bg-gray-50"
-                                  onMouseDown={() => {
-                                    setSegmentSearch(`${p.segLabel} - ${p.subLabel}`);
-                                    setIsSearchFocused(false);
-                                    // Apply selection: set segment and ensure subsegment is checked
-                                    if (campaignData.segment.segment !== p.segValue) {
-                                      const newSubs = [p.subValue];
-                                      const newTags = computeTags(p.segValue, newSubs);
-                                      updateSegment({ segment: p.segValue, subsegments: newSubs, tags: newTags, capacity: undefined, capacityTooLow: false });
-                                      setCapacity(undefined);
-                                      setHasCapacityError(false);
-                                      setCapacityError(null);
-                                      triggerCapacityCalculation({ segment: p.segValue, subsegment: newSubs, tags: newTags });
-                                    } else {
-                                      const newSubs = [p.subValue];
-                                      const newTags = computeTags(p.segValue, newSubs);
-                                      updateSegment({ subsegments: newSubs, tags: newTags, capacity: undefined, capacityTooLow: false });
-                                      setCapacity(undefined);
-                                      setHasCapacityError(false);
-                                      setCapacityError(null);
-                                      triggerCapacityCalculation({ subsegment: newSubs, tags: newTags });
-                                    }
-                                  }}
-                                >
-                                  {p.segLabel} - {p.subLabel}
-                                </button>
-                              ))
-                            ) : (
-                              <div className="px-3 py-2 text-sm text-gray-500">{t('common.noResults') || 'No results'}</div>
-                            );
-                          })()
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  {/*
+                    Search box commented out per request. Use Level-1 dropdown instead.
+                    Original search UI preserved above for re-enabling later.
+                  */}
+
+                  <FormField
+                    id="segmentSelect"
+                    label={t('campaign.segment.segment')}
+                    type="select"
+                    options={segments}
+                    value={selectedLevel1 || campaignData.segment.segment || ''}
+                    onChange={(v: string) => {
+                      handleSegmentChange(v);
+                    }}
+                    placeholder={t('campaign.segment.selectSegment')}
+                  />
                 </>
               )}
             </div>
           </Card>
         </div>
 
-        <div>
+        <div className="md:col-span-2">
           {campaignData.segment.segment && !specError && !loadingSpec && (
             <Card>
               <div className="space-y-4">
@@ -547,16 +485,47 @@ const CampaignSegmentStep: React.FC = () => {
                 </h3>
                 <p className="text-sm text-gray-600">{t('campaign.segment.subsegmentsHelp')}</p>
                 <div className="grid grid-cols-2 gap-3">
-                  {getSubsegmentsForSegment(campaignData.segment.segment).map((subsegment) => (
-                    <label key={subsegment.value} className="flex items-center space-x-3 cursor-pointer">
+                  {getLevel2ForLevel1(selectedLevel1 || campaignData.segment.segment).map((lvl2) => (
+                    <label key={lvl2.value} className="flex items-center space-x-3 cursor-pointer">
                       <input
                         type="radio"
-                        name="subsegment-single"
-                        checked={campaignData.segment.subsegments?.includes(subsegment.value) || false}
-                        onChange={() => handleSubsegmentsChange(subsegment.value)}
+                        name="level2-single"
+                        checked={selectedLevel2 === lvl2.value}
+                        onChange={() => handleLevel2Change(lvl2.value)}
                         className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
                       />
-                      <span className="text-sm text-gray-700">{subsegment.label}</span>
+                      <span className="text-sm text-gray-700">{lvl2.label}</span>
+                    </label>
+                  ))}
+                </div>
+                {(!campaignData.segment.subsegments || campaignData.segment.subsegments.length === 0) && (
+                  <p className="text-sm text-red-600">{t('campaign.segment.subsegmentsValidation')}</p>
+                )}
+              </div>
+            </Card>
+          )}
+        </div>
+
+        <div className="md:col-span-2">
+          {(selectedLevel1 && selectedLevel2 && !specError && !loadingSpec && getLevel3ForLevel(selectedLevel1 || campaignData.segment.segment, selectedLevel2).length > 1) && (
+            <Card>
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                  <Target className="h-5 w-5 mr-2 text-primary-600" />
+                  {t('campaign.segment.level3')}
+                </h3>
+                <p className="text-sm text-gray-600">{t('campaign.segment.level3Help')}</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {getLevel3ForLevel(selectedLevel1 || campaignData.segment.segment, selectedLevel2).map((l3) => (
+                    <label key={l3.value} className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="level3-single"
+                        checked={selectedLevel3 === l3.value}
+                        onChange={() => handleLevel3Change(l3.value)}
+                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">{l3.label}</span>
                     </label>
                   ))}
                 </div>
