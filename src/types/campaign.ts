@@ -235,7 +235,8 @@ export interface AudienceSpecItem {
 	available_audience: number;
 }
 
-export type AudienceSpec = Record<string, Record<string, AudienceSpecItem>>;
+// Now three levels: level1 -> level2 -> level3 -> AudienceSpecItem
+export type AudienceSpec = Record<string, Record<string, Record<string, AudienceSpecItem>>>;
 
 export interface ListAudienceSpecResponse {
 	message: string;
