@@ -194,47 +194,6 @@ const LoginPage: React.FC<LoginPageProps> = ({
           </form>
         </div>
 
-        {/* Features */}
-        <div className='bg-white p-6 rounded-lg border border-gray-200'>
-          <h3 className='text-lg font-medium text-gray-900 mb-4'>
-            {loginT.features.title}
-          </h3>
-          <div className='space-y-3'>
-            <div
-              className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}
-            >
-              <div className='w-2 h-2 bg-primary-600 rounded-full'></div>
-              <span className='text-sm text-gray-600'>
-                {loginT.features.targeted}
-              </span>
-            </div>
-            <div
-              className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}
-            >
-              <div className='w-2 h-2 bg-primary-600 rounded-full'></div>
-              <span className='text-sm text-gray-600'>
-                {loginT.features.segmentation}
-              </span>
-            </div>
-            <div
-              className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}
-            >
-              <div className='w-2 h-2 bg-primary-600 rounded-full'></div>
-              <span className='text-sm text-gray-600'>
-                {loginT.features.analytics}
-              </span>
-            </div>
-            <div
-              className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}
-            >
-              <div className='w-2 h-2 bg-primary-600 rounded-full'></div>
-              <span className='text-sm text-gray-600'>
-                {loginT.features.compliance}
-              </span>
-            </div>
-          </div>
-        </div>
-
         {/* Signup Link */}
         <div className='text-center'>
           <p className='text-sm text-gray-600'>
