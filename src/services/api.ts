@@ -316,6 +316,24 @@ class ApiService {
       }
     }
 
+    // If account_type is not marketing_agency, job_category and job are required
+    if (signupData.account_type !== 'marketing_agency') {
+      if (!signupData.job_category || typeof signupData.job_category !== 'string') {
+        return {
+          success: false,
+          message: 'Missing required field: job_category',
+          error: { code: 'Missing required field: job_category', details: null },
+        };
+      }
+      if (!signupData.job || typeof signupData.job !== 'string') {
+        return {
+          success: false,
+          message: 'Missing required field: job',
+          error: { code: 'Missing required field: job', details: null },
+        };
+      }
+    }
+
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(signupData.email)) {
@@ -373,6 +391,9 @@ class ApiService {
       company_phone: signupData.company_phone
         ? this.formatPhoneNumber(signupData.company_phone)
         : undefined,
+      // Include job/category fields if present
+      category: signupData.job_category ? String(signupData.job_category) : undefined,
+      job: signupData.job ? String(signupData.job) : undefined,
     };
 
     const response = await this.request('/auth/signup', {
