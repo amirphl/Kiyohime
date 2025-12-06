@@ -372,8 +372,8 @@ const DashboardPage: React.FC = () => {
             <div className='mb-8'>
               <h2 className='text-2xl font-bold text-gray-900'>
                 {isReportsView ? t('dashboard.reports') : (<>
-                  {t('dashboard.welcome')},{' '}
                   {user?.representative_first_name || user?.email?.split('@')[0] || 'User'}!
+                  ,{' '}{t('dashboard.welcome')}
                 </>)}
               </h2>
               {!isReportsView && <p className='text-gray-600 mt-2'>{t('dashboard.subtitle')}</p>}
