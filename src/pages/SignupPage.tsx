@@ -16,6 +16,7 @@ import { useAuth } from '../hooks/useAuth';
 import apiService from '../services/api';
 import { getApiErrorMessage } from '../utils/errorHandler';
 import { signupI18n } from '../locales/signup';
+import { jobCategoryI18n, JobCategoryLocale } from '../locales/jobCategory';
 
 interface SignupFormData {
   accountType: 'individual' | 'independent_company' | 'marketing_agency' | '';
@@ -36,6 +37,9 @@ interface SignupFormData {
   confirmPassword: string;
   // Optional agency referral
   referrerAgencyCode: string;
+  // Job/category fields
+  jobCategory: string;
+  job: string;
 }
 
 interface FormErrors {
@@ -79,6 +83,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
     password: '',
     confirmPassword: '',
     referrerAgencyCode: '',
+    jobCategory: '',
+    job: '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -96,6 +102,18 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
   const validateField = (name: string, value: string): string => {
     switch (name) {
+      case 'jobCategory':
+        if (formData.accountType !== 'marketing_agency' && !value.trim()) {
+          return signupT.validation.required;
+        }
+        return '';
+
+      case 'job':
+        if (formData.accountType !== 'marketing_agency' && !value.trim()) {
+          return signupT.validation.required;
+        }
+        return '';
+
       case 'companyName':
         if (formData.accountType !== 'individual' && !value.trim()) {
           return signupT.validation.companyNameRequired;
@@ -245,7 +263,12 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
         ...(newType === 'marketing_agency' ? { referrerAgencyCode: '' } : {}),
       }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
+      // If category changes, clear selected job
+      if (name === 'jobCategory') {
+        setFormData(prev => ({ ...prev, [name]: sanitizedValue, job: '' }));
+      } else {
+        setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
+      }
     }
 
     // Clear error when user starts typing
@@ -316,7 +339,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
     e.preventDefault();
 
     if (!acceptedTerms) {
-      showError(language === 'fa' ? 'برای ثبت‌نام باید شرایط را بپذیرید.' : 'Please accept the terms to continue.');
+      showError(signupT.mustAcceptTerms);
       return;
     }
 
@@ -364,6 +387,10 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
           formData.accountType !== 'marketing_agency' && formData.referrerAgencyCode
             ? formData.referrerAgencyCode
             : undefined,
+        job_category:
+          formData.accountType !== 'marketing_agency' ? formData.jobCategory : undefined,
+        job:
+          formData.accountType !== 'marketing_agency' ? formData.job : undefined,
       };
 
       const response = await apiService.signup(signupData);
@@ -514,6 +541,10 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
   const isCompanyAccount =
     formData.accountType === 'independent_company' ||
     formData.accountType === 'marketing_agency';
+
+  const categoriesObject = (jobCategoryI18n[language as JobCategoryLocale] || jobCategoryI18n.en) as Record<string, readonly string[]>;
+  const categoryLabel = signupT.category;
+  const jobLabel = signupT.job;
 
   return (
     <div className='min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
@@ -666,6 +697,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   </div>
                 </div>
 
+              
+
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
                     {signupT.companyAddress}{' '}
@@ -692,6 +725,57 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
             )}
 
             {/* Representative/Individual Information */}
+            {/* Category & Job - required for non-agency customers */}
+            {formData.accountType !== 'marketing_agency' && (
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    {categoryLabel}{' '}
+                    <span className='text-red-500'>{t('common.required')}</span>
+                  </label>
+                  <select
+                    name='jobCategory'
+                    value={formData.jobCategory}
+                    onChange={handleInputChange}
+                    className='input-field'
+                  >
+                    <option value=''>
+                      {signupT.selectAccountType}
+                    </option>
+                    {Object.keys(categoriesObject).map((cat: string) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  {errors.jobCategory && (
+                    <p className='mt-1 text-sm text-red-600'>{errors.jobCategory}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    {jobLabel}{' '}
+                    <span className='text-red-500'>{t('common.required')}</span>
+                  </label>
+                  <select
+                    name='job'
+                    value={formData.job}
+                    onChange={handleInputChange}
+                    className='input-field'
+                    disabled={!formData.jobCategory}
+                  >
+                    <option value=''>
+                      {signupT.selectJob}
+                    </option>
+                    {(categoriesObject[formData.jobCategory] || []).map((j: string) => (
+                      <option key={j} value={j}>{j}</option>
+                    ))}
+                  </select>
+                  {errors.job && (
+                    <p className='mt-1 text-sm text-red-600'>{errors.job}</p>
+                  )}
+                </div>
+              </div>
+            )}
             <div className='space-y-6 border-t pt-6'>
               <h3
                 className={`text-lg font-medium text-gray-900 flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
@@ -963,9 +1047,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   target='_self'
                   rel='noopener noreferrer'
                 >
-                  {language === 'fa'
-                    ? 'شرایط استفاده را می‌پذیرم'
-                    : 'I accept the Terms of Service'}
+                  {signupT.acceptTerms}
                 </a>
               </label>
 
