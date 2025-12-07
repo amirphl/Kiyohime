@@ -22,17 +22,10 @@ export const loginI18n = {
             incorrectPassword: 'Incorrect password. Please try again.',
             networkError: 'Network error. Please try again.',
         },
-        features: {
-            title: 'Why Choose SMS Platform?',
-            targeted: 'Targeted SMS campaigns',
-            segmentation: 'Advanced customer segmentation',
-            analytics: 'Real-time analytics and reporting',
-            compliance: 'Compliance with regulations',
-        },
     },
     fa: {
         title: 'به پلتفرم هوشمند و داده‌محور خوش آمدید',
-        subtitle: 'برای دسترسی به داشبورد بازاریابی هوشمند و داده‌محور وارد شوید',
+        subtitle: 'برای دسترسی به پیشخوان بازاریابی هوشمند و داده‌محور وارد شوید',
         emailOrMobile: 'ایمیل یا شماره موبایل',
         emailOrMobilePlaceholder: '',
         password: 'رمز عبور',
@@ -54,13 +47,6 @@ export const loginI18n = {
                 'نوع حساب کاربری یافت نشد. لطفاً با پشتیبانی تماس بگیرید.',
             incorrectPassword: 'رمز عبور نادرست است. لطفاً دوباره تلاش کنید.',
             networkError: 'خطای شبکه. لطفاً دوباره تلاش کنید.',
-        },
-        features: {
-            title: 'چرا پلتفرم هوشمند و داده‌محور را انتخاب کنیم؟',
-            targeted: 'کمپین‌های هوشمند و داده‌محور هدفمند',
-            segmentation: 'بخش‌بندی پیشرفته مشتریان',
-            analytics: 'تحلیلات و گزارش‌گیری بلادرنگ',
-            compliance: 'سازگاری با قوانین',
         },
     },
 } as const;
