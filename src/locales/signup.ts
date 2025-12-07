@@ -58,6 +58,14 @@ export const signupI18n = {
         maxAttemptsReached: 'Maximum attempts reached',
         resendIn: 'Resend in',
 
+        acceptTerms: 'I agree to the terms and conditions',
+        mustAcceptTerms: 'You must accept the terms and conditions to continue',
+
+        category: 'Category',
+        job: 'Job',
+        selectCategory: 'Select category',
+        selectJob: 'Select job',
+
         // Validation Messages
         validation: {
             required: 'This field is required',
@@ -182,6 +190,14 @@ export const signupI18n = {
         attemptsRemaining: 'تلاش باقی‌مانده:',
         maxAttemptsReached: 'حداکثر تلاش انجام شده است',
         resendIn: 'ارسال مجدد در',
+
+        acceptTerms: 'با شرایط و ضوابط موافقت می‌کنم',
+        mustAcceptTerms: 'برای ادامه باید با شرایط و ضوابط موافقت کنید',
+
+        category: 'دسته‌بندی',
+        job: 'شغل',
+        selectCategory: 'دسته‌بندی را انتخاب کنید',
+        selectJob: 'شغل را انتخاب کنید',
 
         // Validation Messages
         validation: {
