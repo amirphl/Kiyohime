@@ -16,7 +16,7 @@ export const headerI18n = {
   fa: {
     brand: 'پلتفرم هوشمند و داده‌محور',
     subtitle: 'پلتفرم بازاریابی هوشمند و داده‌محور',
-    dashboard: 'داشبورد',
+    dashboard: 'پیشخوان',
     campaigns: 'کمپین‌ها',
     analytics: 'تحلیلات',
     support: 'پشتیبانی',
