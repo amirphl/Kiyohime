@@ -452,6 +452,9 @@ export const translations = {
         subsegmentsHelp: 'Select at least one subsegment (multiple selection allowed)',
         subsegmentsValidation: 'Please select at least one subsegment',
 
+        level3: 'Level 3',
+        level3Help: 'Select at least one Level 3 subsegment (multiple selection allowed)',
+
         // Sex Selection
         sex: 'Sex',
         sexPlaceholder: 'Choose sex preference',
@@ -804,7 +807,6 @@ export const translations = {
     wallet: {
       title: 'Wallet & Charge',
       comingSoon: 'Coming Soon',
-      comingSoonMessage: 'The wallet and charge functionality is under development. You will be able to manage your balance and add funds here soon.',
       backToDashboard: 'Back to Dashboard',
       currency: 'Toman',
       currentBalance: 'Current Balance',
@@ -1047,7 +1049,7 @@ export const translations = {
           description: 'آپلود CSV برای ساخت لینک‌های کوتاه'
         },
         support: {
-          title: 'تیکت‌ها و پشتیبانی',
+          title: 'پشتیبانی',
           description: 'مدیریت و پاسخ به تیکت‌های مشتریان'
         },
       },
@@ -1299,8 +1301,8 @@ export const translations = {
     },
     // Dashboard
     dashboard: {
-      title: 'داشبورد',
-      welcome: 'خوش آمدید',
+      title: 'پیشخوان',
+      welcome: 'به جاذبه خوش‌آمدید',
       subtitle:
         'کمپین‌های هوشمند و داده‌محور خود را مدیریت کنید و عملکرد خود را پیگیری کنید',
       accountTypeLabel: 'نوع حساب کاربری',
@@ -1350,11 +1352,11 @@ export const translations = {
       sortOldest: 'قدیمی‌ترین',
 
       // Sidebar Navigation
-      dashboard: 'داشبورد',
-      targetedSend: 'ارسال هدفمند',
-      reports: 'گزارشگیری',
+      dashboard: 'پیشخوان',
+      targetedSend: 'مدیریت کمپین‌ها',
+      reports: 'گزارش و تحلیل',
       campaigns: 'کمپین و مشتریان',
-      wallet: 'کیف پول و شارژ',
+      wallet: 'مدیریت مالی',
       customerManagement: 'مدیریت مشتریان',
       discountManagement: 'مدیریت تخفیف',
       customerDiscountManagement: 'مدیریت مشتری و تخفیف',
@@ -1447,7 +1449,7 @@ export const translations = {
 
       // Success
       success: 'کمپین با موفقیت ایجاد شد!',
-      redirecting: 'در حال بازگشت به داشبورد...',
+      redirecting: 'در حال بازگشت به پیشخوان...',
 
       // Errors
       error: 'ایجاد کمپین ناموفق بود',
@@ -1471,8 +1473,11 @@ export const translations = {
         // Subsegments
         subsegments: 'زیربخش‌ها',
         subsegmentsFor: 'زیربخش‌ها برای {segment}',
-        subsegmentsHelp: 'حداقل یک زیربخش را انتخاب کنید (انتخاب چندگانه مجاز است)',
+        subsegmentsHelp: 'یک زیربخش را انتخاب کنید',
         subsegmentsValidation: 'لطفاً حداقل یک زیربخش را انتخاب کنید',
+
+        level3: 'سطح ۳',
+        level3Help: 'یک مورد سطح ۳ را انتخاب کنید',
 
         // Sex Selection
         sex: 'جنسیت',
@@ -1807,10 +1812,9 @@ export const translations = {
 
     // Wallet Page
     wallet: {
-      title: 'کیف پول و شارژ',
+      title: 'مدیریت مالی',
       comingSoon: 'به زودی',
-      comingSoonMessage: 'عملکرد کیف پول و شارژ در حال توسعه است. به زودی می‌توانید موجودی خود را مدیریت کرده و وجوه اضافه کنید.',
-      backToDashboard: 'بازگشت به داشبورد',
+      backToDashboard: 'بازگشت به پیشخوان',
       currency: 'تومن',
       currentBalance: 'موجودی فعلی',
       free: 'آزاد',
