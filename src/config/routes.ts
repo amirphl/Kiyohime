@@ -22,7 +22,7 @@ export const ROUTES: Record<string, RouteConfig> = {
     description: 'Sign in to your account',
   },
   LOGIN_ALT: {
-    path: '/login',
+    path: '/signin',
     page: 'login',
     requiresAuth: false,
     title: 'Sign In',
