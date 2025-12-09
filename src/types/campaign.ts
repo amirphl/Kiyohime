@@ -1,14 +1,13 @@
 // Campaign Types and Interfaces
 
-export interface CustomerSegment {
+export interface CustomerLevel {
 	campaignTitle: string;
-	segment: string;
-	subsegments: string[];
-	sex: string;
-	city: string[];
-	tags?: string[]; // Optional campaign tags derived from audience spec
+	level1: string;       // Level 1 selection (single)
+	level2s: string[];    // Level 2 selections (multiple)
+	level3s: string[];    // Level 3 selections (multiple)
+	tags?: string[];      // Union of tags from selected level3s
 	capacityTooLow?: boolean;
-	capacity?: number; // Persist last calculated capacity
+	capacity?: number;    // Total audience capacity
 }
 
 export interface CustomFilter {
@@ -40,7 +39,7 @@ export interface CampaignPayment {
 
 export interface CampaignData {
 	uuid: string;
-	segment: CustomerSegment;
+	level: CustomerLevel;
 	content: CampaignContent;
 	budget: CampaignBudget;
 	payment: CampaignPayment;
@@ -49,10 +48,10 @@ export interface CampaignData {
 // API payload interface matching Go backend structure
 export interface CreateCampaignPayload {
 	title?: string;
-	segment?: string;
-	subsegment?: string[];
-	sex?: string;
-	city?: string[];
+	level1?: string;      // Level 1 selection (single)
+	level2s?: string[];   // Level 2 selections (multiple)
+	level3s?: string[];   // Level 3 selections (multiple)
+	tags?: string[];      // Union of tags from selected level3s
 	adlink?: string;
 	content?: string;
 	scheduleat?: string;
@@ -79,16 +78,15 @@ export interface CreateCampaignResponse {
 // Campaign capacity calculation request interface
 export interface CalculateCampaignCapacityRequest {
 	title?: string;
-	segment?: string;
-	subsegment?: string[];
-	sex?: string;
-	city?: string[];
+	level1?: string;      // Level 1 selection (single)
+	level2s?: string[];   // Level 2 selections (multiple)
+	level3s?: string[];   // Level 3 selections (multiple)
+	tags?: string[];      // Union of tags from selected level3s
 	adlink?: string;
 	content?: string;
 	scheduleat?: string;
 	line_number?: string;
 	budget?: number;
-	tags?: string[]; // Added: send selected/implied tags for capacity calc
 }
 
 // Campaign capacity calculation response interface
@@ -100,16 +98,15 @@ export interface CalculateCampaignCapacityResponse {
 // Campaign cost calculation request interface
 export interface CalculateCampaignCostRequest {
 	title?: string;
-	segment?: string;
-	subsegment?: string[];
-	sex?: string;
-	city?: string[];
+	level1?: string;      // Level 1 selection (single)
+	level2s?: string[];   // Level 2 selections (multiple)
+	level3s?: string[];   // Level 3 selections (multiple)
+	tags?: string[];      // Union of tags from selected level3s
 	adlink?: string;
 	content?: string;
 	scheduleat?: string;
 	line_number?: string;
 	budget?: number;
-	tags?: string[]; // Added tags support for cost calc
 }
 
 // Campaign cost calculation response interface
@@ -138,17 +135,16 @@ export interface GetWalletBalanceResponse {
 // Update campaign request interface
 export interface UpdateSMSCampaignRequest {
 	title?: string;
-	segment?: string;
-	subsegment?: string[];
-	sex?: string;
-	city?: string[];
+	level1?: string;      // Level 1 selection (single)
+	level2s?: string[];   // Level 2 selections (multiple)
+	level3s?: string[];   // Level 3 selections (multiple)
+	tags?: string[];      // Union of tags from selected level3s
 	adlink?: string;
 	content?: string;
 	scheduleat?: string;
 	line_number?: string;
 	budget?: number;
 	finalize?: boolean;
-	tags?: string[]; // Added: include tags in update request
 }
 
 // Update campaign response interface
@@ -195,8 +191,10 @@ export interface GetSMSCampaignResponse {
 	created_at: string;
 	updated_at?: string;
 	title?: string;
-	segment?: string;
-	subsegment?: string[];
+	level1?: string;
+	level2s?: string[];
+	level3s?: string[];
+	tags?: string[];
 	sex?: string;
 	city?: string[];
 	adlink?: string;
@@ -229,14 +227,19 @@ export interface ListSMSCampaignsParams {
 	status?: 'initiated' | 'in-progress' | 'waiting-for-approval' | 'approved' | 'rejected';
 }
 
-// Audience Spec types (segments, subsegments, tags)
+// Audience Spec types
 export interface AudienceSpecItem {
 	tags: string[];
 	available_audience: number;
 }
 
+export interface AudienceSpecLevel2 {
+	metadata: Record<string, any>;
+	items: Record<string, AudienceSpecItem>;
+}
+
 // Now three levels: level1 -> level2 -> level3 -> AudienceSpecItem
-export type AudienceSpec = Record<string, Record<string, Record<string, AudienceSpecItem>>>;
+export type AudienceSpec = Record<string, Record<string, AudienceSpecLevel2>>;
 
 export interface ListAudienceSpecResponse {
 	message: string;
