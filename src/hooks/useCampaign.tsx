@@ -1,9 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
-import { CustomerSegment, CampaignContent, CampaignBudget, CampaignPayment, CampaignData } from '../types/campaign';
+import { CustomerLevel, CampaignContent, CampaignBudget, CampaignPayment, CampaignData } from '../types/campaign';
 import { registerCampaignClearFunction } from './useAuth';
-
-// Use CustomerSegment from types file
-export type CampaignSegment = CustomerSegment;
+import { clearLevelSelection } from '../types/segment';
 
 interface CampaignContextType {
   currentStep: number;
@@ -16,7 +14,7 @@ interface CampaignContextType {
   goToStep: (step: number) => void;
 
   // Data management
-  updateSegment: (data: Partial<CampaignSegment>) => void;
+  updateLevel: (data: Partial<CustomerLevel>) => void;
   updateContent: (data: Partial<CampaignContent>) => void;
   updateBudget: (data: Partial<CampaignBudget>) => void;
   updatePayment: (data: Partial<CampaignPayment>) => void;
@@ -63,15 +61,6 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
-        console.log('📂 Loading existing campaign data from localStorage:', parsedData);
-        console.log('🔍 Campaign data details:', {
-          hasUUID: !!parsedData.uuid,
-          hasSegmentData: !!parsedData.segment,
-          segmentFields: parsedData.segment ? Object.keys(parsedData.segment) : [],
-          hasContentData: !!parsedData.content,
-          hasBudgetData: !!parsedData.budget,
-          hasPaymentData: !!parsedData.payment,
-        });
         return parsedData;
       } catch (error) {
         console.warn('Failed to parse saved campaign data:', error);
@@ -81,12 +70,12 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
     // Default campaign data
     const defaultData = {
       uuid: '',
-      segment: {
+      level: {
         campaignTitle: '',
-        segment: '',
-        subsegments: [],
-        sex: 'all',
-        city: [],
+        level1: '',
+        level2s: [],
+        level3s: [],
+        tags: [],
         capacityTooLow: false,
         capacity: undefined,
       },
@@ -107,7 +96,6 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
       },
     };
 
-    console.log('🆕 Using default campaign data (no saved data found)');
     return defaultData;
   });
 
@@ -116,38 +104,16 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
   // Auto-save campaign data to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('campaign_creation_data', JSON.stringify(campaignData));
-    console.log('💾 Campaign data automatically saved to localStorage:', {
-      uuid: campaignData.uuid,
-      currentStep,
-      hasSegmentData: Object.keys(campaignData.segment).length > 0,
-      hasContentData: Object.keys(campaignData.content).length > 0,
-      hasBudgetData: Object.keys(campaignData.budget).length > 0,
-      hasPaymentData: Object.keys(campaignData.payment).length > 0,
-    });
-
-    // Additional debug info for segment data
-    if (campaignData.segment.campaignTitle || campaignData.segment.segment || campaignData.segment.subsegments.length > 0) {
-      console.log('📝 Segment data being saved:', {
-        title: campaignData.segment.campaignTitle,
-        segment: campaignData.segment.segment,
-        subsegments: campaignData.segment.subsegments,
-        sex: campaignData.segment.sex,
-        city: campaignData.segment.city,
-        capacity: campaignData.segment.capacity,
-      });
-    }
-  }, [campaignData, currentStep]);
+  }, [campaignData]);
 
   // Auto-save current step to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('campaign_creation_step', currentStep.toString());
-    console.log('📍 Current step saved to localStorage:', currentStep);
   }, [currentStep]);
 
   const nextStep = useCallback(() => {
     if (currentStep < 4) {
       const newStep = currentStep + 1;
-      console.log(`🔄 Navigating from step ${currentStep} to step ${newStep}`);
       setCurrentStep(newStep);
     }
   }, [currentStep]);
@@ -155,35 +121,30 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
   const previousStep = useCallback(() => {
     if (currentStep > 1) {
       const newStep = currentStep - 1;
-      console.log(`🔄 Navigating from step ${currentStep} to step ${newStep}`);
       setCurrentStep(newStep);
     }
   }, [currentStep]);
 
   const goToStep = useCallback((step: number) => {
     if (step >= 1 && step <= 4) {
-      console.log(`🔄 Navigating directly to step ${step} from step ${currentStep}`);
       setCurrentStep(step);
     }
-  }, [currentStep]);
+  }, []);
 
-  const updateSegment = useCallback((data: Partial<CampaignSegment>) => {
-    console.log('📝 Updating segment data:', data);
+  const updateLevel = useCallback((data: Partial<CustomerLevel>) => {
     setCampaignData(prev => {
       const updatedData = {
         ...prev,
-        segment: {
-          ...prev.segment,
+        level: {
+          ...prev.level,
           ...data,
         },
       };
-      console.log('✅ Segment data updated, new state:', updatedData);
       return updatedData;
     });
   }, []);
 
   const updateContent = useCallback((data: Partial<CampaignContent>) => {
-    console.log('📝 Updating content data:', data);
     setCampaignData(prev => {
       const updatedData = {
         ...prev,
@@ -192,13 +153,11 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
           ...data,
         },
       };
-      console.log('✅ Content data updated, new state:', updatedData);
       return updatedData;
     });
   }, []);
 
   const updateBudget = useCallback((data: Partial<CampaignBudget>) => {
-    console.log('📝 Updating budget data:', data);
     setCampaignData(prev => {
       const updatedData = {
         ...prev,
@@ -207,13 +166,11 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
           ...data,
         },
       };
-      console.log('✅ Budget data updated, new state:', updatedData);
       return updatedData;
     });
   }, []);
 
   const updatePayment = useCallback((data: Partial<CampaignPayment>) => {
-    console.log('📝 Updating payment data:', data);
     setCampaignData(prev => {
       const updatedData = {
         ...prev,
@@ -222,19 +179,16 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
           ...data,
         },
       };
-      console.log('✅ Payment data updated, new state:', updatedData);
       return updatedData;
     });
   }, []);
 
   const setCampaignUuid = useCallback((uuid: string) => {
-    console.log('🆔 Setting campaign UUID:', uuid);
     setCampaignData(prev => {
       const updatedData = {
         ...prev,
         uuid,
       };
-      console.log('✅ Campaign UUID updated, new state:', updatedData);
       return updatedData;
     });
   }, []);
@@ -243,12 +197,12 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
     setCurrentStep(1);
     setCampaignData({
       uuid: '', // Reset UUID
-      segment: {
+      level: {
         campaignTitle: '',
-        segment: '',
-        subsegments: [],
-        sex: 'all',
-        city: [],
+        level1: '',       // Level 1
+        level2s: [],      // Level 2s
+        level3s: [],      // Level 3s
+        tags: [],         // Union of tags from selected level3s
         capacityTooLow: false,
         capacity: undefined,
       },
@@ -273,6 +227,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
     // Clear localStorage
     localStorage.removeItem('campaign_creation_data');
     localStorage.removeItem('campaign_creation_step');
+    clearLevelSelection(); // Clear dedicated level selection storage
   }, []);
 
   const saveCampaignData = useCallback(() => {
@@ -281,29 +236,26 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
   }, [campaignData, currentStep]);
 
   const clearCampaignData = useCallback(() => {
-    console.log('🧹 Clearing campaign data from localStorage...');
     localStorage.removeItem('campaign_creation_data');
     localStorage.removeItem('campaign_creation_step');
-    console.log('✅ Campaign data cleared');
+    clearLevelSelection(); // Clear dedicated level selection storage
   }, []);
 
   // Comprehensive cleanup function for logout scenarios
   const clearAllCampaignData = useCallback(() => {
-    console.log('🚨 Performing comprehensive campaign data cleanup...');
-
-    // Clear localStorage
+    // Clear localStorage (includes level selection storage)
     clearCampaignData();
 
     // Reset state
     setCurrentStep(1);
     setCampaignData({
       uuid: '',
-      segment: {
+      level: {
         campaignTitle: '',
-        segment: '',
-        subsegments: [],
-        sex: 'all',
-        city: [],
+        level1: '',       // Level 1
+        level2s: [],      // Level 2s
+        level3s: [],      // Level 3s
+        tags: [],         // Union of tags from selected level3s
         capacityTooLow: false,
         capacity: undefined,
       },
@@ -325,13 +277,11 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
     });
     setError(null);
 
-    console.log('✅ All campaign data cleared and state reset');
   }, [clearCampaignData]);
 
   // Register the clear function with auth context for logout scenarios
   useEffect(() => {
     registerCampaignClearFunction(clearAllCampaignData);
-    console.log('🔗 Campaign clear function registered with auth context');
 
     // Cleanup function
     return () => {
@@ -348,7 +298,8 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
     let completedSteps = 0;
 
     // Check each step for completion
-    if (campaignData.segment.campaignTitle && campaignData.segment.segment && campaignData.segment.subsegments.length > 0 && campaignData.segment.sex && campaignData.segment.city.length > 0) {
+    // Step 1: Campaign title, level1, and level3s required
+    if (campaignData.level.campaignTitle && campaignData.level.level1 && campaignData.level.level3s.length > 0) {
       completedSteps++;
     }
     if (campaignData.content.text && (!campaignData.content.insertLink || (campaignData.content.insertLink && campaignData.content.link))) {
@@ -377,7 +328,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
     nextStep,
     previousStep,
     goToStep,
-    updateSegment,
+    updateLevel,
     updateContent,
     updateBudget,
     updatePayment,
