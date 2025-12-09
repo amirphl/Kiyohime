@@ -1,7 +1,7 @@
 import {
   CreateCampaignPayload, CreateSMSCampaignResponse,
   CalculateCampaignCapacityRequest, CalculateCampaignCapacityResponse,
-  CalculateCampaignCostResponse, GetWalletBalanceResponse,
+  CalculateCampaignCostRequest, CalculateCampaignCostResponse, GetWalletBalanceResponse,
   UpdateSMSCampaignRequest, UpdateSMSCampaignResponse,
   ListSMSCampaignsParams, ListSMSCampaignsResponse,
 } from '../types/campaign';
@@ -432,6 +432,11 @@ class ApiService {
     });
   }
 
+  // Get authenticated user's profile
+  async getProfile(): Promise<ApiResponse<{ customer: any; parent_agency?: any; parentAgency?: any }>> {
+    return this.request<{ customer: any; parent_agency?: any; parentAgency?: any }>('/profile', { method: 'GET' });
+  }
+
   async forgotPassword(identifier: string): Promise<ApiResponse> {
     // Input validation
     if (
@@ -523,19 +528,7 @@ class ApiService {
   }
 
   // New campaign cost calculation endpoint for message count
-  async calculateCampaignCost(costData: {
-    title?: string;
-    segment?: string;
-    subsegment?: string[];
-    sex?: string;
-    city?: string[];
-    adlink?: string;
-    content?: string;
-    scheduleat?: string;
-    line_number?: string;
-    budget?: number;
-    tags?: string[];
-  }): Promise<ApiResponse<CalculateCampaignCostResponse>> {
+  async calculateCampaignCost(costData: CalculateCampaignCostRequest): Promise<ApiResponse<CalculateCampaignCostResponse>> {
     return this.request<CalculateCampaignCostResponse>(config.endpoints.campaigns.calculateCost, {
       method: 'POST',
       body: JSON.stringify(costData),
@@ -728,6 +721,11 @@ class ApiService {
     return this.request(config.endpoints.analytics.dashboard, {
       method: 'GET',
     });
+  }
+
+  // Campaigns summary endpoint
+  async getCampaignsSummary(): Promise<ApiResponse<{ approved_count: number; running_count: number; total: number }>> {
+    return this.request<{ approved_count: number; running_count: number; total: number }>('/campaigns/summary', { method: 'GET' });
   }
 
   async getReports(): Promise<ApiResponse> {
