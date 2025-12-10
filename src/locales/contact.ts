@@ -5,7 +5,7 @@ export const contactI18n = {
         address: 'Address: Tehran, Molla Sadra Street, North Shirazi Street, Hakim Azam Street, No. 19, Monstrect',
         postalCode: 'Postal Code: 1991647419',
         email: 'info@jazebeh.ir',
-        phone: 'Phone: +98 21 8967 7330'
+        phone: 'Phone: +982189677330 - +982189670000'
     },
     fa: {
         title: 'تماس با ما',
