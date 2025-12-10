@@ -61,6 +61,7 @@ export const signupI18n = {
         acceptTerms: 'I agree to the terms and conditions',
         mustAcceptTerms: 'You must accept the terms and conditions to continue',
 
+        categoryHeader: 'Please select the category and subcategory that best describes your business',
         category: 'Category',
         job: 'Job',
         selectCategory: 'Select category',
@@ -138,8 +139,8 @@ export const signupI18n = {
         subtitle: '',
         accountType: 'نوع حساب کاربری',
         selectAccountType: 'نوع حساب را انتخاب کنید',
-        individual: 'شخصی',
-        independentCompany: 'شرکت مستقل',
+        individual: 'انفرادی',
+        independentCompany: 'شرکتی/سازمانی',
         marketingAgency: 'آژانس بازاریابی',
 
         companyInfo: 'اطلاعات شرکت',
@@ -194,10 +195,11 @@ export const signupI18n = {
         acceptTerms: 'با شرایط و ضوابط موافقت می‌کنم',
         mustAcceptTerms: 'برای ادامه باید با شرایط و ضوابط موافقت کنید',
 
-        category: 'دسته‌بندی',
-        job: 'شغل',
-        selectCategory: 'دسته‌بندی را انتخاب کنید',
-        selectJob: 'شغل را انتخاب کنید',
+        categoryHeader: 'لطفا با انتخاب دسته‌ و زیردسته نوع کسب‌وکار خود را به صورت دقیق انتخاب کنید',
+        category: 'دسته‌بندی اصلی کسب و کار شما',
+        job: 'زیردسته دقیق‌تر کسب و کار شما',
+        selectCategory: 'انتخاب دسته‌بندی اصلی کسب و کار',
+        selectJob: 'انتخاب زیردسته دقیق‌تر',
 
         // Validation Messages
         validation: {
