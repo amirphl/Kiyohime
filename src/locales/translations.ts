@@ -1,3 +1,5 @@
+import { campaignLevelI18n } from '../components/campaign/segment/campaignSegment';
+
 export const translations = {
   en: {
     // --- Admin (new) ---
@@ -375,6 +377,26 @@ export const translations = {
       },
       fixAndRestart: 'Fix and restart the campaign?',
       supportHistory: 'Tickets History',
+      profile: {
+        profile: 'Profile',
+        fields: {
+          email: 'Email',
+          name: 'Name',
+          accountType: 'Account Type',
+          companyName: 'Company Name',
+          status: 'Status',
+          category: 'Category',
+          job: 'Job',
+          agencyRefererCode: 'Agency Referrer Code',
+          parentAgency: 'Parent Agency',
+        },
+      },
+      campaignStats: {
+        campaignsSummary: 'Campaigns Summary',
+        approved: 'Approved',
+        running: 'Running',
+        total: 'Total',
+      }
     },
 
     // Campaign Creation
@@ -431,81 +453,8 @@ export const translations = {
       error: 'Failed to create campaign',
       tryAgain: 'Please try again.',
 
-      // Step 1: Segment
-      segment: {
-        title: 'Define Your Target Segment',
-        subtitle: 'Select the criteria for your target audience',
-
-        // Campaign Title
-        campaignTitle: 'Campaign Title',
-        campaignTitlePlaceholder: 'Enter campaign title (max 255 characters)',
-        campaignTitleValidation: 'Campaign title must be at most 255 characters',
-
-        // Segment Selection
-        segment: 'Segment',
-        segmentPlaceholder: 'Choose a segment',
-        selectSegment: 'Select Segment',
-
-        // Subsegments
-        subsegments: 'Subsegments',
-        subsegmentsFor: 'Subsegments for {segment}',
-        subsegmentsHelp: 'Select at least one subsegment (multiple selection allowed)',
-        subsegmentsValidation: 'Please select at least one subsegment',
-
-        level3: 'Level 3',
-        level3Help: 'Select at least one Level 3 subsegment (multiple selection allowed)',
-
-        // Sex Selection
-        sex: 'Sex',
-        sexPlaceholder: 'Choose sex preference',
-        selectSex: 'Select Sex',
-
-        // City Selection
-        cities: 'Cities',
-        citiesHelp: 'Select at least one city (multiple selection allowed)',
-        citiesPlaceholder: 'Select a city',
-        citiesValidation: 'Please select at least one city',
-
-        // Summary Section
-        campaignSummary: 'Campaign Summary',
-        campaignTitleLabel: 'Campaign Title:',
-        segmentLabel: 'Segment:',
-        subsegmentsLabel: 'Subsegments:',
-        sexLabel: 'Sex:',
-        citiesLabel: 'Cities:',
-        notSet: 'Not set',
-
-        // Campaign Capacity Section
-        campaignCapacity: 'Campaign Capacity',
-        capacityDescription: 'Number of people who will receive your SMS based on selected filters',
-        calculatingCapacity: 'Calculating capacity...',
-        capacityResult: '{count} people will receive your SMS',
-        capacityError: 'Unable to calculate capacity. Please check your selections.',
-        capacityHelp: 'Capacity is calculated automatically as you adjust your campaign filters.',
-        campaignCapacityHelp: 'Capacity is calculated automatically as you adjust your campaign filters.',
-        capacityTooLow: 'Capacity too low (< 500). Remove some filters to increase campaign capacity.',
-        estimatedCapacity: 'Estimated Capacity',
-        calculating: 'Calculating...',
-        users: 'users',
-
-        // Legacy fields (keeping for backward compatibility)
-        customerType: 'Customer Type',
-        customerTypePlaceholder: 'Select customer type',
-        ageRange: 'Age Range',
-        ageRangePlaceholder: 'Select age range',
-        location: 'Location',
-        locationPlaceholder: 'Enter city or province',
-        interests: 'Interests',
-        interestsPlaceholder: 'Select interests',
-        customFilters: 'Custom Filters',
-        addFilter: 'Add Filter',
-        removeFilter: 'Remove',
-        filterField: 'Field',
-        filterOperator: 'Operator',
-        filterValue: 'Value',
-
-        searchPlaceholder: 'Search ...',
-      },
+      // Step 1: level
+      level: campaignLevelI18n.en,
 
       // Step 2: Content
       content: {
@@ -883,6 +832,8 @@ export const translations = {
       comingSoon: 'Coming soon',
       details: 'Details',
       reply: 'Reply',
+      active: 'Active',
+      inactive: 'Inactive',
     },
 
     // Agency Customer Report
@@ -1310,7 +1261,7 @@ export const translations = {
       emailAddressLabel: 'آدرس ایمیل',
       language: 'زبان',
       logout: 'خروج',
-      support: 'تیکت و پشتیبانی',
+      support: 'پشتیبانی',
       supportIntro: 'برای ارتباط با پشتیبانی، یک تیکت ثبت کنید.',
       supportModal: {
         newTicket: 'تیکت جدید',
@@ -1399,6 +1350,26 @@ export const translations = {
       },
       fixAndRestart: 'اصلاح و شروع مجدد کمپین؟',
       supportHistory: 'تاریخچه تیکت‌ها',
+      profile: {
+        profile: 'پروفایل',
+        fields: {
+          email: 'ایمیل',
+          name: 'نام',
+          accountType: 'نوع حساب',
+          companyName: 'نام شرکت',
+          status: 'وضعیت',
+          category: 'دسته‌بندی',
+          job: 'شغل',
+          agencyRefererCode: 'کد معرف شما',
+          parentAgency: 'آژانس والد',
+        }
+      },
+      campaignStats: {
+        campaignsSummary: 'خلاصه کمپین‌ها',
+        approved: 'تأیید شده',
+        running: 'در حال اجرا',
+        total: 'در انتظار ارسال',
+      },
     },
 
     // Campaign Creation
@@ -1455,81 +1426,8 @@ export const translations = {
       error: 'ایجاد کمپین ناموفق بود',
       tryAgain: 'لطفاً دوباره تلاش کنید.',
 
-      // Step 1: Segment
-      segment: {
-        title: 'بخش هدف خود را تعریف کنید',
-        subtitle: 'معیارهای مخاطب هدف خود را انتخاب کنید',
-
-        // Campaign Title
-        campaignTitle: 'عنوان کمپین',
-        campaignTitlePlaceholder: 'عنوان کمپین را وارد کنید (حداکثر ۲۵۵ کاراکتر)',
-        campaignTitleValidation: 'عنوان کمپین باید حداکثر ۲۵۵ کاراکتر باشد',
-
-        // Segment Selection
-        segment: 'بخش',
-        segmentPlaceholder: 'یک بخش را انتخاب کنید',
-        selectSegment: 'انتخاب بخش',
-
-        // Subsegments
-        subsegments: 'زیربخش‌ها',
-        subsegmentsFor: 'زیربخش‌ها برای {segment}',
-        subsegmentsHelp: 'یک زیربخش را انتخاب کنید',
-        subsegmentsValidation: 'لطفاً حداقل یک زیربخش را انتخاب کنید',
-
-        level3: 'سطح ۳',
-        level3Help: 'یک مورد سطح ۳ را انتخاب کنید',
-
-        // Sex Selection
-        sex: 'جنسیت',
-        sexPlaceholder: 'ترجیح جنسیت را انتخاب کنید',
-        selectSex: 'انتخاب جنسیت',
-
-        // City Selection
-        cities: 'شهرها',
-        citiesHelp: 'حداقل یک شهر را انتخاب کنید (انتخاب چندگانه مجاز است)',
-        citiesPlaceholder: 'حداقل یک شهر را انتخاب کنید',
-        citiesValidation: 'لطفاً حداقل یک شهر را انتخاب کنید',
-
-        // Summary Section
-        campaignSummary: 'خلاصه کمپین',
-        campaignTitleLabel: 'عنوان کمپین:',
-        segmentLabel: 'بخش:',
-        subsegmentsLabel: 'زیربخش‌ها:',
-        sexLabel: 'جنسیت:',
-        citiesLabel: 'شهرها:',
-        notSet: 'تنظیم نشده',
-
-        // Campaign Capacity Section
-        campaignCapacity: 'ظرفیت کمپین',
-        capacityDescription: 'تعداد افرادی که بر اساس فیلترهای انتخاب شده پیام پیامکی شما را دریافت خواهند کرد',
-        calculatingCapacity: 'در حال محاسبه ظرفیت...',
-        capacityResult: '{count} نفر پیام پیامکی شما را دریافت خواهند کرد',
-        capacityError: 'قادر به محاسبه ظرفیت نیست. لطفاً انتخاب‌های خود را بررسی کنید.',
-        capacityHelp: 'ظرفیت به طور خودکار با تنظیم فیلترهای کمپین شما محاسبه می‌شود.',
-        campaignCapacityHelp: 'ظرفیت به طور خودکار با تنظیم فیلترهای کمپین شما محاسبه می‌شود.',
-        capacityTooLow: 'ظرفیت بسیار کم است (کمتر از ۵۰۰). چند فیلتر را حذف کنید تا ظرفیت افزایش یابد.',
-        estimatedCapacity: 'ظرفیت تخمینی',
-        calculating: 'در حال محاسبه...',
-        users: 'کاربر',
-
-        // Legacy fields (keeping for backward compatibility)
-        customerType: 'نوع مشتری',
-        customerTypePlaceholder: 'نوع مشتری را انتخاب کنید',
-        ageRange: 'محدوده سنی',
-        ageRangePlaceholder: 'محدوده سنی را انتخاب کنید',
-        location: 'مکان',
-        locationPlaceholder: 'شهر یا استان را وارد کنید',
-        interests: 'علایق',
-        interestsPlaceholder: 'علایق را انتخاب کنید',
-        customFilters: 'فیلترهای سفارشی',
-        addFilter: 'افزودن فیلتر',
-        removeFilter: 'حذف',
-        filterField: 'فیلد',
-        filterOperator: 'عملگر',
-        filterValue: 'مقدار',
-
-        searchPlaceholder: 'جستجو کنید.',
-      },
+      // Step 1: level
+      level: campaignLevelI18n.fa,
 
       // Step 2: Content
       content: {
@@ -1890,6 +1788,8 @@ export const translations = {
       comingSoon: 'به زودی',
       details: 'جزئیات',
       reply: 'پاسخ دادن',
+      active: 'فعال',
+      inactive: 'غیرفعال',
     },
 
     // Agency Customer Report
