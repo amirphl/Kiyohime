@@ -8,17 +8,17 @@ export const footerI18n = {
     contactUs: 'Contact Us',
     privacyPolicy: 'Privacy Policy',
     termsOfService: 'Terms of Service',
-    copyright: '© 2024 SMS Platform. All rights reserved.',
+    copyright: '© 2025 SMS Platform. All rights reserved.',
   },
   fa: {
-    description: 'بازاریابی خود را با جاذبه علمی و شخصی‌سازی‌شده کنید. از ابزارهای تحلیل داده و اتومیشن ما برای بهینه‌سازی تجربهٔ مشتری و افزایش نرخ تبدیل بهره ببرید',
+    description: 'با جاذبه، پیام شما سرگردان نیست',
     quickLinks: 'لینک‌های سریع',
     support: 'پشتیبانی',
     helpCenter: 'مرکز راهنمایی',
     contactUs: 'تماس با ما',
     privacyPolicy: 'حریم خصوصی',
     termsOfService: 'شرایط خدمات',
-    copyright: 'صاحب امتیاز تمامی حقوق وب‌سایت، شرکت راه‌کارهای هدفمند خلاق می‌باشد',
+    copyright: 'کلیه حقوق این سامانه برای شرکت راه‌کارهای هدفمند خلاق محفوظ است.',
   },
 } as const;
 
