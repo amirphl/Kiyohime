@@ -3,35 +3,38 @@ import { CampaignData } from '../types/campaign';
 import { validateCampaignContent } from '../utils/campaignUtils';
 
 export const useCampaignValidation = (campaignData: CampaignData, currentStep: number) => {
+  // Precompute step validation booleans with memoization
+  const step1Valid = useMemo(() => {
+    const { level } = campaignData;
+    return !!(
+      level.campaignTitle &&
+      level.level1 &&
+      level.level3s && level.level3s.length > 0 &&
+      level.capacityTooLow !== true
+    );
+  }, [campaignData]);
+
+  const step2Valid = useMemo(() => {
+    const { content } = campaignData;
+    return validateCampaignContent(content).isValid;
+  }, [campaignData]);
+
+  const step3Valid = useMemo(() => {
+    const { budget } = campaignData;
+    return !!budget.lineNumber && budget.totalBudget > 0;
+  }, [campaignData]);
+
+  const step4Valid = useMemo(() => {
+    const { payment } = campaignData;
+    return payment.hasEnoughBalance === true;
+  }, [campaignData]);
+
   const stepValidation = useMemo(() => ({
-    step1: (): boolean => {
-      const { segment } = campaignData;
-
-      return !!(
-        segment.campaignTitle &&
-        segment.segment &&
-        segment.subsegments && segment.subsegments.length > 0 &&
-        // sex and city are optional for now
-        segment.capacityTooLow !== true
-      );
-    },
-
-    step2: (): boolean => {
-      const { content } = campaignData;
-
-      // Use centralized validation function
-      const validation = validateCampaignContent(content);
-      return validation.isValid;
-    },
-
-    step3: (): boolean => {
-      return !!campaignData.budget.lineNumber && campaignData.budget.totalBudget > 0;
-    },
-
-    step4: (): boolean => {
-      return campaignData.payment.hasEnoughBalance === true;
-    },
-  }), [campaignData]);
+    step1: (): boolean => step1Valid,
+    step2: (): boolean => step2Valid,
+    step3: (): boolean => step3Valid,
+    step4: (): boolean => step4Valid,
+  }), [step1Valid, step2Valid, step3Valid, step4Valid]);
 
   const isStepCompleted = (step: number): boolean => {
     switch (step) {
@@ -65,15 +68,13 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
 
     switch (step) {
       case 1:
-        if (!stepValidation.step1()) {
-          errors.push('Please configure at least one segment criteria');
+        if (!step1Valid) {
+          errors.push('Please configure campaign title and select audience criteria');
         }
         break;
       case 2:
-        if (!stepValidation.step2()) {
+        if (!step2Valid) {
           const { content } = campaignData;
-
-          // Use centralized validation for consistent error messages
           const validation = validateCampaignContent(content);
           if (!validation.isValid && validation.error) {
             errors.push(validation.error);
@@ -81,7 +82,7 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
         }
         break;
       case 3:
-        if (!stepValidation.step3()) {
+        if (!step3Valid) {
           if (!campaignData.budget.lineNumber) {
             errors.push('Please select a line number');
           } else if (campaignData.budget.totalBudget <= 0) {
