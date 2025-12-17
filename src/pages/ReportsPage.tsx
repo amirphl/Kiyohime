@@ -14,7 +14,7 @@ const ReportsPage: React.FC = () => {
   const { t } = useTranslation();
   const { accessToken } = useAuth();
   const { language } = useLanguage();
-  const { updateSegment, updateContent, updateBudget, updatePayment, setCampaignUuid, goToStep, saveCampaignData } = useCampaign();
+  const { updateLevel, updateContent, updateBudget, updatePayment, setCampaignUuid, goToStep, saveCampaignData } = useCampaign();
   const { navigate } = useNavigation();
   const [items, setItems] = useState<GetSMSCampaignResponse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -150,12 +150,11 @@ const ReportsPage: React.FC = () => {
     if (!selected) return;
     // Prefill campaign creation data from selected campaign, but clear UUID to create a new one later
     setCampaignUuid('');
-    updateSegment({
+    updateLevel({
       campaignTitle: selected.title || '',
-      segment: selected.segment || '',
-      subsegments: selected.subsegment || [],
-      sex: selected.sex || '',
-      city: selected.city || [],
+      level1: (selected as any).level1 || (selected as any).segment || '',
+      level3s: (selected as any).level3s || (selected as any).subsegment || [],
+      tags: (selected as any).tags || [],
     });
     updateContent({
       insertLink: false,
@@ -259,7 +258,7 @@ const ReportsPage: React.FC = () => {
                       <td className="px-4 py-2 text-sm text-gray-900">{truncateText(c.title || '')}</td>
                       <td className="px-4 py-2 text-sm text-gray-700 max-w-xs">{truncateText(c.content || '')}</td>
                       <td className="px-4 py-2 text-sm text-gray-900 text-center">{c.line_number || '-'}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900 text-center">{c.segment || '-'}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900 text-center">{(c as any).level1 || (c as any).segment || '-'}</td>
                       <td className="px-4 py-2 text-sm text-gray-500 text-center">-</td>
                       <td className="px-4 py-2 text-sm text-gray-900 text-center">{t(`dashboard.reportsStatus.${c.status}`) || c.status}</td>
                       <td className="px-4 py-2 text-sm text-gray-500 text-center">-</td>
@@ -316,11 +315,11 @@ const ReportsPage: React.FC = () => {
                 </div>
                 <div>
                   <div className="text-xs text-gray-500">{t('dashboard.reportsTable.segment')}</div>
-                  <div className="text-sm text-gray-900 break-words">{selected.segment || '-'}</div>
+                  <div className="text-sm text-gray-900 break-words">{(selected as any).level1 || (selected as any).segment || '-'}</div>
                 </div>
                 <div>
                   <div className="text-xs text-gray-500">{t('dashboard.reportsTable.subsegments')}</div>
-                  <div className="text-sm text-gray-900 break-words">{selected.subsegment && selected.subsegment.length ? selected.subsegment.join(', ') : '-'}</div>
+                  <div className="text-sm text-gray-900 break-words">{((selected as any).level3s || (selected as any).subsegment || []).length ? ((selected as any).level3s || (selected as any).subsegment).join(', ') : '-'}</div>
                 </div>
                 <div>
                   <div className="text-xs text-gray-500">{t('dashboard.reportsTable.sex')}</div>
