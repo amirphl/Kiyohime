@@ -9,7 +9,7 @@ const Header: React.FC = () => {
   const { isRTL } = useLanguage();
   const { isAuthenticated, manualLogout } = useAuth();
   const { language } = useLanguage();
-  const headerT = headerI18n[language as keyof typeof headerI18n] || headerI18n.en;
+  const t = headerI18n[language as keyof typeof headerI18n] || headerI18n.en;
 
 
   const handleLogout = () => {
@@ -42,26 +42,26 @@ const Header: React.FC = () => {
             </button>
           </div>
 
-          {/* Navigation Links - Only show on homepage */}
-          {window.location.pathname === '/' && (
+          {/* Navigation Links - Only show on homepage when not authenticated */}
+          {window.location.pathname === '/' && !isAuthenticated && (
             <nav className='hidden md:flex items-center space-x-8'>
               <a
                 href='#features'
                 className='text-gray-700 hover:text-primary-600 transition-colors'
               >
-                {headerT.features}
+                {t.features}
               </a>
               <a
                 href='#how-it-works'
                 className='text-gray-700 hover:text-primary-600 transition-colors'
               >
-                {headerT.howItWorks}
+                {t.howItWorks}
               </a>
               <a
                 href='/pricing'
                 className='text-gray-700 hover:text-primary-600 transition-colors'
               >
-                {headerT.pricing}
+                {t.pricing}
               </a>
             </nav>
           )}
@@ -80,10 +80,10 @@ const Header: React.FC = () => {
                   onClick={handleDashboard}
                   className='text-gray-700 hover:text-primary-600 transition-colors font-medium'
                 >
-                  {headerT.dashboard}
+                  {t.dashboard}
                 </button>
                 <button onClick={handleLogout} className='btn-secondary'>
-                  {headerT.logout}
+                  {t.logout}
                 </button>
               </div>
             ) : (
@@ -94,13 +94,13 @@ const Header: React.FC = () => {
                   onClick={handleSignIn}
                   className='text-gray-700 hover:text-primary-600 transition-colors font-medium'
                 >
-                  {headerT.signin}
+                  {t.signin}
                 </button>
                 <button
                   onClick={() => (window.location.href = '/signup')}
                   className='btn-primary'
                 >
-                  {headerT.signup}
+                  {t.signup}
                 </button>
               </div>
             )}
