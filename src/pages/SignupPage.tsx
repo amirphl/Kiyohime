@@ -697,7 +697,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   </div>
                 </div>
 
-              
+
 
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
@@ -728,6 +728,11 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
             {/* Category & Job - required for non-agency customers */}
             {formData.accountType !== 'marketing_agency' && (
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div className='md:col-span-2 mb-2'>
+                  <p className='text-sm text-gray-600'>
+                    {signupT.categoryHeader}
+                  </p>
+                </div>
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
                     {categoryLabel}{' '}
@@ -740,7 +745,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                     className='input-field'
                   >
                     <option value=''>
-                      {signupT.selectAccountType}
+                      {signupT.selectCategory}
                     </option>
                     {Object.keys(categoriesObject).map((cat: string) => (
                       <option key={cat} value={cat}>{cat}</option>
