@@ -1,6 +1,7 @@
 import React from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
+import { useAuth } from '../hooks/useAuth';
 import { useNavigation } from '../contexts/NavigationContext';
 import { ROUTES } from '../config/routes';
 import DynamicBrand from './DynamicBrand';
@@ -11,8 +12,11 @@ const Footer: React.FC = () => {
   const { isRTL } = useLanguage();
   const { navigate } = useNavigation();
   const { language } = useLanguage();
-  const footerT = footerI18n[language as keyof typeof footerI18n] || footerI18n.en;
-  const headerT = headerI18n[language as keyof typeof headerI18n] || headerI18n.en;
+  const footerT =
+    footerI18n[language as keyof typeof footerI18n] || footerI18n.en;
+  const headerT =
+    headerI18n[language as keyof typeof headerI18n] || headerI18n.en;
+  const { isAuthenticated } = useAuth();
 
   return (
     <footer className='bg-gray-900 text-white'>
@@ -23,9 +27,7 @@ const Footer: React.FC = () => {
             <div className='mb-4'>
               <DynamicBrand showSubtitle={true} />
             </div>
-            <p className='text-gray-400 mb-4 max-w-md'>
-              {footerT.description}
-            </p>
+            <p className='text-gray-400 mb-4 max-w-md'>{footerT.description}</p>
             <div
               className={`flex ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'}`}
             >
@@ -35,54 +37,66 @@ const Footer: React.FC = () => {
               <button className='text-gray-400 hover:text-white transition-colors duration-200'>
                 <Phone className='w-5 h-5' />
               </button>
-              <button className='text-gray-400 hover:text-white transition-colors duration-200'>
+              <a
+                className='text-gray-400 hover:text-white transition-colors duration-200'
+                href='https://maps.app.goo.gl/bBYyE9iGcJ7PB65BA'
+                target='_blank'
+                rel='noreferrer'
+                aria-label='Open company location in Google Maps'
+              >
                 <MapPin className='w-5 h-5' />
-              </button>
+              </a>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className='text-lg font-semibold mb-4'>
-              {footerT.quickLinks}
-            </h4>
-            <ul className='space-y-2'>
-              <li>
-                <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                  {headerT.dashboard}
-                </button>
-              </li>
-              <li>
-                <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                  {headerT.campaigns}
-                </button>
-              </li>
-              <li>
-                <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                  {headerT.analytics}
-                </button>
-              </li>
-              <li>
-                <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                  {headerT.support}
-                </button>
-              </li>
-            </ul>
-          </div>
+          {/* Quick Links - hide when user is logged in */}
+          {!isAuthenticated && (
+            <div>
+              <h4 className='text-lg font-semibold mb-4'>
+                {footerT.quickLinks}
+              </h4>
+              <ul className='space-y-2'>
+                <li>
+                  <button className='text-gray-400 hover:text-white transition-colors duration-200'>
+                    {headerT.dashboard}
+                  </button>
+                </li>
+                <li>
+                  <button className='text-gray-400 hover:text-white transition-colors duration-200'>
+                    {headerT.campaigns}
+                  </button>
+                </li>
+                <li>
+                  <button className='text-gray-400 hover:text-white transition-colors duration-200'>
+                    {headerT.analytics}
+                  </button>
+                </li>
+                <li>
+                  <button className='text-gray-400 hover:text-white transition-colors duration-200'>
+                    {headerT.support}
+                  </button>
+                </li>
+              </ul>
+            </div>
+          )}
 
           {/* Support */}
           <div>
-            <h4 className='text-lg font-semibold mb-4'>
-              {footerT.support}
-            </h4>
+            <h4 className='text-lg font-semibold mb-4'>{footerT.support}</h4>
             <ul className='space-y-2'>
+              {/* If user is authenticated, only show contact, privacy and terms. Otherwise show full support list */}
+              {!isAuthenticated && (
+                <li>
+                  <button className='text-gray-400 hover:text-white transition-colors duration-200'>
+                    {footerT.helpCenter}
+                  </button>
+                </li>
+              )}
               <li>
-                <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                  {footerT.helpCenter}
-                </button>
-              </li>
-              <li>
-                <button onClick={() => navigate(ROUTES.CONTACT_US.path)} className='text-gray-400 hover:text-white transition-colors duration-200'>
+                <button
+                  onClick={() => navigate(ROUTES.CONTACT_US.path)}
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
+                >
                   {footerT.contactUs}
                 </button>
               </li>
@@ -103,12 +117,17 @@ const Footer: React.FC = () => {
         <div className='border-t border-gray-800 mt-8 pt-8 text-center relative'>
           {/* Enamad trust seal - left side */}
           <div className='absolute left-0 top-1/2 -translate-y-1/2'>
-            <a referrerPolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP' rel="noreferrer">
+            <a
+              referrerPolicy='origin'
+              target='_blank'
+              href='https://trustseal.enamad.ir/?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'
+              rel='noreferrer'
+            >
               <img
                 referrerPolicy='origin'
                 src='https://trustseal.enamad.ir/logo.aspx?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'
                 alt='Enamad Trust Seal'
-                className='h-12 w-auto'
+                className='h-20 md:h-24 w-auto'
                 style={{ cursor: 'pointer' }}
                 data-code='FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'
               />
