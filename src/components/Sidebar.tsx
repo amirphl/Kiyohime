@@ -64,7 +64,6 @@ const Sidebar: React.FC = () => {
     { id: 'dashboard', icon: <LayoutDashboard className='h-5 w-5' />, label: 'Dashboard', translationKey: 'dashboard.dashboard', href: '/dashboard', onClick: () => navigateToPage('/dashboard') },
     { id: 'targeted-send', icon: <Send className='h-5 w-5' />, label: 'targeted send', translationKey: 'dashboard.targetedSend', href: '/campaign-creation', onClick: handleTargetedSend },
     { id: 'reports', icon: <BarChart3 className='h-5 w-5' />, label: 'reports', translationKey: 'dashboard.reports', href: '/dashboard/reports', onClick: () => navigateToPage('/dashboard/reports') },
-    { id: 'campaigns', icon: <Users className='h-5 w-5' />, label: 'Campaign and Customer', translationKey: 'dashboard.campaigns', href: '/dashboard/campaigns', onClick: () => navigateToPage('/dashboard/campaigns') },
     { id: 'wallet', icon: <Wallet className='h-5 w-5' />, label: 'Wallet and Charge', translationKey: 'dashboard.wallet', href: '/dashboard/wallet', onClick: () => navigateToPage('/dashboard/wallet') },
     { id: 'support', icon: <Ticket className='h-5 w-5' />, label: 'Ticket and Support', translationKey: 'dashboard.support', href: '/dashboard/support', onClick: () => navigateToPage('/dashboard/support') },
     { id: 'customer-discount-management', icon: <UserCog className='h-5 w-5' />, label: 'Customer & Discount Management', translationKey: 'dashboard.customerDiscountManagement', href: '/dashboard/customer-management', showForAgency: true, onClick: () => navigateToPage('/dashboard/customer-management') },
