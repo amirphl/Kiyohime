@@ -5,7 +5,7 @@ import FormField from '../../ui/FormField';
 
 interface LineNumberCardProps {
     value: string;
-    options: Array<{ value: string; label: string }>;
+    options: Array<{ value: string; label: string; priceFactor?: number }>;
     isLoading: boolean;
     error: string | null;
     onChange: (value: string) => void;
@@ -13,6 +13,7 @@ interface LineNumberCardProps {
     label: string;
     placeholder: string;
     helpText: string;
+    priceFactorLabel?: string;
 }
 
 const LineNumberCard: React.FC<LineNumberCardProps> = ({
@@ -25,7 +26,9 @@ const LineNumberCard: React.FC<LineNumberCardProps> = ({
     label,
     placeholder,
     helpText,
+    priceFactorLabel,
 }) => {
+    const selected = options.find(opt => opt.value === value);
     return (
         <Card>
             <div className="space-y-4">
@@ -47,6 +50,12 @@ const LineNumberCard: React.FC<LineNumberCardProps> = ({
                         required
                         placeholder={placeholder}
                     />
+                )}
+
+                {priceFactorLabel && selected?.priceFactor !== undefined && (
+                    <div className="text-sm text-gray-700">
+                        {priceFactorLabel}: <span className="font-medium">{selected.priceFactor}</span>
+                    </div>
                 )}
 
                 <div className="text-sm text-gray-500">
