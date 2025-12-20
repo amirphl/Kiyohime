@@ -3,12 +3,14 @@ import { apiService } from '../../../services/api';
 import { useToast } from '../../../hooks/useToast';
 
 // Module-level cache and flags to avoid duplicate fetches
-let activeLineNumbersCache: Array<{ value: string; label: string }> | null = null;
-let activeLineNumbersFetchInFlight: Promise<Array<{ value: string; label: string }>> | null = null;
+type LineNumberOption = { value: string; label: string; priceFactor?: number };
+
+let activeLineNumbersCache: Array<LineNumberOption> | null = null;
+let activeLineNumbersFetchInFlight: Promise<Array<LineNumberOption>> | null = null;
 let fetchAttempted = false; // Track if we've already tried fetching (success or failure)
 
 export const useLineNumbers = (accessToken: string | null) => {
-    const [lineNumberOptions, setLineNumberOptions] = useState<Array<{ value: string; label: string }>>([]);
+    const [lineNumberOptions, setLineNumberOptions] = useState<Array<LineNumberOption>>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { showToast } = useToast();
@@ -55,8 +57,12 @@ export const useLineNumbers = (accessToken: string | null) => {
             if (!res.success || !res.data) {
                 throw new Error(res.message || 'Failed to load line numbers');
             }
-            const items = (res.data.items || []) as Array<{ line_number: string }>;
-            const opts = items.map(it => ({ value: it.line_number, label: it.line_number }));
+            const items = (res.data.items || []) as Array<{ line_number: string; price_factor?: number }>;
+            const opts = items.map(it => ({
+                value: it.line_number,
+                label: it.line_number,
+                priceFactor: typeof it.price_factor === 'number' ? it.price_factor : undefined,
+            }));
             return opts;
         })();
 
