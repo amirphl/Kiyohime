@@ -1,41 +1,42 @@
 const budgetEn = {
     // Step header
     title: 'Set Your Budget',
-    subtitle: 'Define the financial parameters for your campaign',
 
     // Line number section
     lineNumber: 'Line Number',
     selectLineNumber: 'Select Line Number',
     lineNumberPlaceholder: 'Choose a line number for your campaign',
-    lineNumberHelp: 'Select the phone line that will be used to send SMS messages for this campaign.',
     selectedLine: 'Selected Line',
+    linePriceFactor: 'Line price factor',
 
     // Budget section
-    totalBudget: 'Total Budget',
     campaignBudget: 'Campaign Budget',
     budgetPlaceholder: 'Enter budget amount in Toman',
-    budgetValidation: 'Budget must be between 1 and 100,000,000,000 Toman',
+    budgetValidation: 'Budget must be between 1,000 and 160,000,000 Toman',
     budget: 'Budget',
     budgetHelp: 'Set your total campaign budget. The system will calculate how many messages can be sent with this budget.',
+    selectBudgetPercentTitle: 'Use Wallet Balance',
+    availableBalance: 'Available Balance',
+    balanceError: 'Unable to retrieve wallet balance',
+    budgetFromBalance: 'Budget from balance (Toman)',
+    currency: 'Toman',
+    budgetTooLow: 'Computed amount is below minimum ({min})',
+    budgetTooHigh: 'Computed amount exceeds maximum ({max})',
 
     // Message count section
     estimatedMessages: 'Number of Messages That Can Be Sent',
     calculatingMessages: 'Calculating messages...',
     messages: 'messages',
     basedOnBudget: 'Based on your budget of {budget}',
-    lastUpdated: 'Last updated: {time}',
     calculating: 'Calculating...',
     enterBudgetToSee: 'Enter a budget to see estimated messages',
     estimatedMessagesHelp: 'This field is automatically calculated by the backend based on your budget and current message costs.',
     note: 'Note:',
-    notStored: 'This value is not stored in your campaign data and will be recalculated when needed.',
 
     // Budget summary
     budgetSummary: 'Budget Summary',
     lineNumberLabel: 'Line Number:',
-    totalBudgetLabel: 'Total Budget:',
     estimatedMessagesLabel: 'Estimated Messages:',
-    messageCountHelp: 'Number of messages that can be sent with your budget',
     calculateMessageCount: 'Calculate Message Count',
     calculatingMessageCount: 'Calculating message count...',
     messageCountResult: '{count} messages can be sent',
@@ -50,41 +51,42 @@ const budgetEn = {
 const budgetFa = {
     // Step header
     title: 'بودجه خود را تنظیم کنید',
-    subtitle: 'پارامترهای مالی کمپین خود را تعریف کنید',
 
     // Line number section
     lineNumber: 'شماره خط',
-    selectLineNumber: 'انتخاب شماره خط',
+    selectLineNumber: 'انتخاب سرشماره',
     lineNumberPlaceholder: 'شماره خط کمپین خود را انتخاب کنید',
-    lineNumberHelp: 'شماره خط تلفنی که برای ارسال پیام‌های پیامکی این کمپین استفاده خواهد شد را انتخاب کنید.',
     selectedLine: 'خط انتخاب شده',
+    linePriceFactor: 'ضریب قیمت خط',
 
     // Budget section
-    totalBudget: 'کل بودجه',
-    campaignBudget: 'بودجه کمپین',
+    campaignBudget: 'بودجه ارسال',
     budgetPlaceholder: 'مقدار بودجه را به تومان وارد کنید',
-    budgetValidation: 'بودجه باید بین ۱ تا ۱۰۰,۰۰۰,۰۰۰,۰۰۰ تومان باشد',
+    budgetValidation: 'بودجه باید بین ۱,۰۰۰ تا ۱۶۰,۰۰۰,۰۰۰ تومان باشد',
     budget: 'بودجه',
     budgetHelp: 'کل بودجه کمپین خود را تنظیم کنید. سیستم محاسبه خواهد کرد که با این بودجه چند پیام می‌توان ارسال کرد.',
+    selectBudgetPercentTitle: 'استفاده از موجودی کیف پول',
+    availableBalance: 'موجودی قابل برداشت',
+    balanceError: 'عدم توانایی در بازیابی موجودی کیف پول',
+    budgetFromBalance: 'بودجه از موجودی (تومان)',
+    currency: 'تومان',
+    budgetTooLow: 'مقدار محاسبه شده کمتر از حداقل ({min}) است',
+    budgetTooHigh: 'مقدار محاسبه شده بیشتر از حداکثر ({max}) است',
 
     // Message count section
-    estimatedMessages: 'تعداد پیام‌هایی که می‌توان ارسال کرد',
+    estimatedMessages: 'تعداد پیام‌های ارسالی',
     calculatingMessages: 'در حال محاسبه پیام‌ها...',
     messages: 'پیام',
     basedOnBudget: 'بر اساس بودجه شما: {budget}',
-    lastUpdated: 'آخرین به‌روزرسانی: {time}',
     calculating: 'در حال محاسبه...',
     enterBudgetToSee: 'بودجه را وارد کنید تا پیام‌های تخمینی را ببینید',
     estimatedMessagesHelp: 'این فیلد به طور خودکار توسط سیستم بر اساس بودجه شما و هزینه‌های فعلی پیام محاسبه می‌شود.',
     note: 'توجه:',
-    notStored: 'این مقدار در داده‌های کمپین شما ذخیره نمی‌شود و در صورت نیاز مجدداً محاسبه خواهد شد.',
 
     // Budget summary
     budgetSummary: 'خلاصه بودجه',
     lineNumberLabel: 'شماره خط:',
-    totalBudgetLabel: 'کل بودجه:',
     estimatedMessagesLabel: 'تعداد پیام‌های تخمینی:',
-    messageCountHelp: 'تعداد پیام‌هایی که می‌توان با بودجه شما ارسال کرد',
     calculateMessageCount: 'محاسبه تعداد پیام',
     calculatingMessageCount: 'در حال محاسبه تعداد پیام...',
     messageCountResult: '{count} پیام می‌توان با بودجه شما ارسال کرد',
