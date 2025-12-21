@@ -18,9 +18,22 @@ export const useScheduleTime = (scheduleAt?: string) => {
             // Set default schedule to now + 20 minutes
             const now = new Date();
             const plus20 = new Date(now.getTime() + 20 * 60 * 1000);
+            plus20.setSeconds(0, 0);
             onScheduleChange(plus20.toISOString());
         } else {
             // Clear schedule when disabling
+            onScheduleChange(undefined);
+        }
+    };
+
+    const setDateTimePicker = (show: boolean, onScheduleChange: (scheduleAt?: string) => void) => {
+        setShowDateTimePicker(show);
+        if (show) {
+            const now = new Date();
+            const plus20 = new Date(now.getTime() + 20 * 60 * 1000);
+            plus20.setSeconds(0, 0);
+            onScheduleChange(plus20.toISOString());
+        } else {
             onScheduleChange(undefined);
         }
     };
@@ -39,5 +52,6 @@ export const useScheduleTime = (scheduleAt?: string) => {
         showDateTimePicker,
         toggleDateTimePicker,
         validateScheduleTime,
+        setDateTimePicker,
     };
 }; 
