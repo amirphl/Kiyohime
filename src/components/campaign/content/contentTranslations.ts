@@ -1,7 +1,6 @@
 const contentEn = {
     // Step header
     title: 'Design Your Message',
-    subtitle: 'Create compelling content for your SMS campaign',
 
     // Link insertion section
     insertLink: 'Insert Link',
@@ -14,19 +13,20 @@ const contentEn = {
     linkValidation: 'Link must be at most 10000 characters',
     linkInvalidUrl: 'Please enter a valid URL (must start with http:// or https://)',
     characters: 'characters',
+    linkAnalysisInfo: 'By enabling this feature you can analyze click results on your landing link.',
 
     // Schedule section
     scheduleAt: 'Schedule At (Optional)',
     disableSchedule: 'Disable Schedule',
     enableSchedule: 'Enable Schedule',
     campaignScheduled: 'Campaign will be scheduled',
-    campaignImmediate: 'Campaign will be sent immediately',
-    scheduleDateTime: 'Schedule Date & Time (Tehran Time)',
+    campaignImmediate: 'Campaign will be sent immediately after approval.',
+    scheduleDateTime: 'Schedule Date & Time',
     scheduleTooSoon: 'Please pick a time at least 20 minutes from now',
 
     // Message text section
     text: 'Text',
-    campaignText: 'Campaign Text',
+    campaignText: '',
     textPlaceholder: 'Enter your campaign message text',
     insertLinkCharacter: 'Add link here',
     linkCharacterInserted: 'Link position marked',
@@ -45,10 +45,9 @@ const contentEn = {
 const contentFa = {
     // Step header
     title: 'پیام خود را طراحی کنید',
-    subtitle: 'محتوای جذاب برای کمپین پیامکی خود ایجاد کنید',
 
     // Link insertion section
-    insertLink: 'افزودن لینک',
+    insertLink: 'قابلیت تحلیل نتایج عملکردی لینک',
     on: 'فعال',
     off: 'غیرفعال',
     linkInsertionEnabled: 'افزودن لینک فعال است',
@@ -58,26 +57,27 @@ const contentFa = {
     linkValidation: 'لینک باید حداکثر ۱۰۰۰۰ کاراکتر باشد',
     linkInvalidUrl: 'لطفاً یک آدرس لینک صحیح وارد کنید (باید با http:// یا https:// شروع شود)',
     characters: 'کاراکتر',
+    linkAnalysisInfo: 'با فعال‌کردن این قابلیت امکان تحلیل نتایج کلیک روی لینک لندینگ مورد نظر شما فراهم می‌شود.',
 
     // Schedule section
     scheduleAt: 'زمان‌بندی (اختیاری)',
     disableSchedule: 'غیرفعال کردن زمان‌بندی',
     enableSchedule: 'فعال کردن زمان‌بندی',
-    campaignScheduled: 'کمپین زمان‌بندی خواهد شد',
-    campaignImmediate: 'کمپین فوراً ارسال خواهد شد',
-    scheduleDateTime: 'تاریخ و زمان زمان‌بندی (زمان تهران)',
+    campaignScheduled: 'کمپین زمان‌بندی خواهد شد.',
+    campaignImmediate: 'کمپین بلافاصله بعد از تایید ارسال می‌شود.',
+    scheduleDateTime: 'تاریخ و زمان زمان‌بندی',
     scheduleTooSoon: 'لطفاً زمانی حداقل ۲۰ دقیقه بعد از اکنون انتخاب کنید',
 
     // Message text section
     text: 'متن',
-    campaignText: 'متن کمپین',
+    campaignText: '',
     textPlaceholder: 'متن پیام کمپین خود را وارد کنید',
     insertLinkCharacter: 'افزودن لینک در اینجا',
     linkCharacterInserted: 'موقعیت لینک شناسایی شده',
-    linkCharacterInsertedMessage: 'لینک در موقعیت شناسایی شده (🔗) قرار خواهد گرفت',
-    charactersLabel: 'کاراکترها: {count} (ورودی کاربر)',
+    linkCharacterInsertedMessage: 'لینک کوتاه‌شده در محل مکان‌نما با علامت 🔗 قرار خواهد گرفت.',
+    charactersLabel: 'تعداد کاراکترها: {count} (ورودی کاربر)',
     totalLabel: 'مجموع: {count} / {max}',
-    partsLabel: 'تعداد پیام: {count}',
+    partsLabel: 'تعداد صفحه: {count}',
     partsCount: '{total}/{parts}',
     partsBreakdown: 'تجزیه تعداد پیام:',
     partsExplanation: '≤۷۰ کاراکتر = ۱ پیام، ≤۱۳۲ = ۲ پیام، ≤۱۹۸ = ۳ پیام، ≤۲۶۴ = ۴ پیام، ≤۳۳۰ = ۵ پیام',
