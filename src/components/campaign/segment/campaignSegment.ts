@@ -1,6 +1,5 @@
 const campaignLevelEn = {
     title: 'Define Your Target Audience',
-    subtitle: 'Select the criteria for your target audience',
 
     // Campaign Title
     campaignTitle: 'Campaign Title',
@@ -92,7 +91,6 @@ const campaignLevelEn = {
 
 const campaignLevelFa = {
     title: 'مخاطبان هدف خود را تعریف کنید',
-    subtitle: 'معیارهای مخاطب هدف خود را انتخاب کنید',
 
     // Campaign Title
     campaignTitle: 'عنوان کمپین',
