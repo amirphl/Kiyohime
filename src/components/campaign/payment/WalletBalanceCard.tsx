@@ -7,12 +7,10 @@ interface WalletBalanceCardProps {
     walletBalance?: number;
     total?: number;
     hasEnoughBalance?: boolean;
-    isLoading: boolean;
     error: string | null;
     onRedirectToWallet: () => void;
     currencyLabel: string;
     title: string;
-    checkingLabel: string;
     availableBalanceLabel: string;
     campaignCostLabel: string;
     sufficientBalanceLabel: string;
@@ -29,12 +27,10 @@ const WalletBalanceCard: React.FC<WalletBalanceCardProps> = ({
     walletBalance,
     total,
     hasEnoughBalance,
-    isLoading,
     error,
     onRedirectToWallet,
     currencyLabel,
     title,
-    checkingLabel,
     availableBalanceLabel,
     campaignCostLabel,
     sufficientBalanceLabel,
@@ -47,15 +43,6 @@ const WalletBalanceCard: React.FC<WalletBalanceCardProps> = ({
     helpText,
 }) => {
     const renderContent = () => {
-        if (isLoading) {
-            return (
-                <div className="flex items-center justify-center space-x-2 text-gray-600 py-8">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
-                    <span>{checkingLabel}</span>
-                </div>
-            );
-        }
-
         if (walletBalance !== undefined) {
             return (
                 <div className="space-y-3">
