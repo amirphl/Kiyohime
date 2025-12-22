@@ -16,14 +16,11 @@ interface CostBreakdownCardProps {
     totalLabel: string;
     estimatedMessagesLabel: string;
     messagesLabel: string;
-    lastCalculatedLabel: string;
     errorTitle: string;
     retryLabel: string;
     calculatingMessage: string;
     completeDetailsMessage: string;
-    helpText: string;
     noteLabel: string;
-    notStoredText: string;
 }
 
 const CostBreakdownCard: React.FC<CostBreakdownCardProps> = ({
@@ -40,14 +37,10 @@ const CostBreakdownCard: React.FC<CostBreakdownCardProps> = ({
     totalLabel,
     estimatedMessagesLabel,
     messagesLabel,
-    lastCalculatedLabel,
     errorTitle,
     retryLabel,
     calculatingMessage,
     completeDetailsMessage,
-    helpText,
-    noteLabel,
-    notStoredText,
 }) => {
     const formatCurrency = (amount: number) => {
         return `${amount.toLocaleString()} ${currencyLabel}`;
@@ -79,12 +72,6 @@ const CostBreakdownCard: React.FC<CostBreakdownCardProps> = ({
                             <span className="text-lg font-semibold text-blue-900">
                                 {messageCount.toLocaleString()} {messagesLabel}
                             </span>
-                        </div>
-                    )}
-
-                    {lastCalculation > 0 && (
-                        <div className="text-xs text-gray-500 text-center">
-                            {lastCalculatedLabel.replace('{time}', new Date(lastCalculation).toLocaleTimeString())}
                         </div>
                     )}
                 </>
@@ -123,12 +110,6 @@ const CostBreakdownCard: React.FC<CostBreakdownCardProps> = ({
 
                 <div className="space-y-4">
                     {renderContent()}
-                </div>
-
-                <div className="text-sm text-gray-500">
-                    {helpText}
-                    <br />
-                    <span className="font-medium">{noteLabel}</span> {notStoredText}
                 </div>
             </div>
         </Card>
