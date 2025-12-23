@@ -333,7 +333,6 @@ export const translations = {
       dashboard: 'Dashboard',
       targetedSend: 'targeted send',
       reports: 'Reports',
-      campaigns: 'Campaign and Customer',
       wallet: 'Wallet and Charge',
       customerManagement: 'Customer Management',
       discountManagement: 'Discount Management',
@@ -459,7 +458,6 @@ export const translations = {
       // Step 2: Content
       content: {
         title: 'Design Your Message',
-        subtitle: 'Create compelling content for your SMS campaign',
 
         // Legacy fields (keeping for backward compatibility)
         messageText: 'Message Text',
@@ -490,7 +488,7 @@ export const translations = {
 
         // Text Content Section
         text: 'Text',
-        campaignText: 'Campaign Text',
+        campaignText: '',
         textPlaceholder: 'Enter your campaign message text',
 
         // Character Counter Section
@@ -513,8 +511,8 @@ export const translations = {
         enableSchedule: 'Enable Schedule',
         disableSchedule: 'Disable Schedule',
         campaignScheduled: 'Campaign will be scheduled',
-        campaignImmediate: 'Campaign will be sent immediately',
-        scheduleDateTime: 'Schedule Date & Time (Tehran Time)',
+        campaignImmediate: 'Campaign will be sent immediately after approval.',
+        scheduleDateTime: 'Schedule Date & Time',
         schedulePlaceholder: 'Select date and time',
         scheduledFor: 'Scheduled for: {datetime}',
         scheduleTooSoon: 'Please pick a time at least 20 minutes from now',
@@ -540,14 +538,14 @@ export const translations = {
         lineNumber: 'Line Number',
         selectLineNumber: 'Select Line Number',
         lineNumberPlaceholder: 'Choose a line number for your campaign',
-        lineNumberHelp: 'Select the phone line that will be used to send SMS messages for this campaign.',
         selectedLine: 'Selected Line',
+        linePriceFactor: 'Line price factor',
 
         // Total Budget
         totalBudget: 'Total Budget',
         campaignBudget: 'Campaign Budget',
         budgetPlaceholder: 'Enter budget amount in Toman',
-        budgetValidation: 'Budget must be between 1 and 100,000,000,000 Toman',
+        budgetValidation: 'Budget must be between 1,000 and 160,000,000 Toman',
         budget: 'Budget',
         budgetHelp: 'Set your total campaign budget. The system will calculate how many messages can be sent with this budget.',
 
@@ -561,7 +559,6 @@ export const translations = {
         enterBudgetToSee: 'Enter a budget to see estimated messages',
         estimatedMessagesHelp: 'This field is automatically calculated by the backend based on your budget and current message costs.',
         note: 'Note:',
-        notStored: 'This value is not stored in your campaign data and will be recalculated when needed.',
 
         // Budget Summary
         budgetSummary: 'Budget Summary',
@@ -588,7 +585,6 @@ export const translations = {
 
         // Wallet Balance Section
         walletBalance: 'Wallet Balance',
-        checkingBalance: 'Checking wallet balance...',
         availableBalance: 'Available Balance',
         campaignCost: 'Campaign Cost',
         toman: 'Toman',
@@ -629,12 +625,9 @@ export const translations = {
         costBreakdown: 'Cost Breakdown',
         calculatingCosts: 'Calculating costs...',
         total: 'Total:',
-        lastCalculated: 'Last calculated: {time}',
         calculatingCostsMessage: 'Calculating costs...',
         completeDetailsMessage: 'Complete campaign details to see cost breakdown',
-        costsHelp: 'Costs are automatically calculated by the system based on your campaign settings.',
         note: 'Note:',
-        costsNotStored: 'Cost values are not stored in your campaign data and will be recalculated when needed.',
         estimatedMessages: 'Estimated Messages',
         messages: 'messages',
         costCalculationError: 'Failed to calculate costs',
@@ -662,7 +655,6 @@ export const translations = {
 
         // Wallet Balance Section
         walletBalance: 'Wallet Balance',
-        checkingBalance: 'Checking wallet balance...',
         availableBalance: 'Available Balance',
         campaignCost: 'Campaign Cost',
         toman: 'Toman',
@@ -1306,7 +1298,6 @@ export const translations = {
       dashboard: 'پیشخوان',
       targetedSend: 'مدیریت کمپین‌ها',
       reports: 'گزارش و تحلیل',
-      campaigns: 'کمپین و مشتریان',
       wallet: 'مدیریت مالی',
       customerManagement: 'مدیریت مشتریان',
       discountManagement: 'مدیریت تخفیف',
@@ -1432,7 +1423,6 @@ export const translations = {
       // Step 2: Content
       content: {
         title: 'پیام خود را طراحی کنید',
-        subtitle: 'محتوای جذاب برای کمپین پیامکی خود ایجاد کنید',
 
         // Insert Link Section
         insertLink: 'افزودن لینک',
@@ -1454,13 +1444,13 @@ export const translations = {
 
         // Text Content Section
         text: 'متن',
-        campaignText: 'متن کمپین',
+        campaignText: '',
         textPlaceholder: 'متن پیام کمپین خود را وارد کنید',
 
         // Character Counter Section
-        charactersLabel: 'کاراکترها: {count} (ورودی کاربر)',
+        charactersLabel: 'تعداد کاراکترها: {count} (ورودی کاربر)',
         totalLabel: 'مجموع: {count} / {max}',
-        partsLabel: 'تعداد پیام: {count}',
+        partsLabel: 'تعداد صفحه: {count}',
         partsCount: '{total}/{parts}',
 
         // Parts Explanation
@@ -1476,9 +1466,9 @@ export const translations = {
         scheduleAt: 'زمان‌بندی (اختیاری)',
         enableSchedule: 'فعال کردن زمان‌بندی',
         disableSchedule: 'غیرفعال کردن زمان‌بندی',
-        campaignScheduled: 'کمپین زمان‌بندی خواهد شد',
-        campaignImmediate: 'کمپین فوراً ارسال خواهد شد',
-        scheduleDateTime: 'تاریخ و زمان زمان‌بندی (زمان تهران)',
+        campaignScheduled: 'کمپین زمان‌بندی خواهد شد.',
+        campaignImmediate: 'کمپین بلافاصله بعد از تایید ارسال می‌شود.',
+        scheduleDateTime: 'تاریخ و زمان زمان‌بندی',
         schedulePlaceholder: 'تاریخ و زمان را انتخاب کنید',
         scheduledFor: 'زمان‌بندی شده برای: {datetime}',
         scheduleTooSoon: 'لطفاً زمانی حداقل ۲۰ دقیقه بعد از اکنون انتخاب کنید',
@@ -1504,35 +1494,30 @@ export const translations = {
         lineNumber: 'شماره خط',
         selectLineNumber: 'انتخاب شماره خط',
         lineNumberPlaceholder: 'شماره خط کمپین خود را انتخاب کنید',
-        lineNumberHelp: 'شماره خط تلفنی که برای ارسال پیام‌های پیامکی این کمپین استفاده خواهد شد را انتخاب کنید.',
         selectedLine: 'خط انتخاب شده',
+        linePriceFactor: 'ضریب قیمت خط',
 
         // Total Budget
-        totalBudget: 'کل بودجه',
-        campaignBudget: 'بودجه کمپین',
+        campaignBudget: 'بودجه ارسال',
         budgetPlaceholder: 'مقدار بودجه را به تومان وارد کنید',
-        budgetValidation: 'بودجه باید بین ۱ تا ۱۰۰,۰۰۰,۰۰۰,۰۰۰ تومان باشد',
+        budgetValidation: 'بودجه باید بین ۱,۰۰۰ تا ۱۶۰,۰۰۰,۰۰۰ تومان باشد',
         budget: 'بودجه',
         budgetHelp: 'کل بودجه کمپین خود را تنظیم کنید. سیستم محاسبه خواهد کرد که با این بودجه چند پیام می‌توان ارسال کرد.',
 
         // Estimated Messages
-        estimatedMessages: 'تعداد پیام‌هایی که می‌توان ارسال کرد',
+        estimatedMessages: 'تعداد پیام‌های ارسالی',
         calculatingMessages: 'در حال محاسبه پیام‌ها...',
         messages: 'پیام',
         basedOnBudget: 'بر اساس بودجه شما: {budget}',
-        lastUpdated: 'آخرین به‌روزرسانی: {time}',
         calculating: 'در حال محاسبه...',
         enterBudgetToSee: 'بودجه را وارد کنید تا پیام‌های تخمینی را ببینید',
         estimatedMessagesHelp: 'این فیلد به طور خودکار توسط سیستم بر اساس بودجه شما و هزینه‌های فعلی پیام محاسبه می‌شود.',
         note: 'توجه:',
-        notStored: 'این مقدار در داده‌های کمپین شما ذخیره نمی‌شود و در صورت نیاز مجدداً محاسبه خواهد شد.',
 
         // Budget Summary
         budgetSummary: 'خلاصه بودجه',
         lineNumberLabel: 'شماره خط:',
-        totalBudgetLabel: 'کل بودجه:',
         estimatedMessagesLabel: 'تعداد پیام‌های تخمینی:',
-        messageCountHelp: 'تعداد پیام‌هایی که می‌توان با بودجه شما ارسال کرد',
         calculateMessageCount: 'محاسبه تعداد پیام',
         calculatingMessageCount: 'در حال محاسبه تعداد پیام...',
         messageCountResult: '{count} پیام می‌توان با بودجه شما ارسال کرد',
@@ -1552,7 +1537,6 @@ export const translations = {
 
         // Wallet Balance Section
         walletBalance: 'موجودی کیف پول',
-        checkingBalance: 'در حال بررسی موجودی کیف پول...',
         availableBalance: 'موجودی موجود',
         campaignCost: 'هزینه کمپین',
         toman: 'تومان',
@@ -1593,12 +1577,9 @@ export const translations = {
         costBreakdown: 'تجزیه هزینه',
         calculatingCosts: 'در حال محاسبه هزینه‌ها...',
         total: 'مجموع',
-        lastCalculated: 'آخرین محاسبه: {time}',
         calculatingCostsMessage: 'در حال محاسبه هزینه‌ها...',
         completeDetailsMessage: 'جزئیات کمپین را تکمیل کنید تا تجزیه هزینه را ببینید',
-        costsHelp: 'هزینه‌ها به طور خودکار توسط سیستم بر اساس تنظیمات کمپین شما محاسبه می‌شود.',
         note: 'توجه:',
-        costsNotStored: 'مقادیر هزینه در داده‌های کمپین شما ذخیره نمی‌شود و در صورت نیاز مجدداً محاسبه خواهد شد.',
         estimatedMessages: 'تعداد پیام‌های تخمینی',
         messages: 'پیام',
         costCalculationError: 'خطا در محاسبه هزینه‌ها',
@@ -1626,7 +1607,6 @@ export const translations = {
 
         // Wallet Balance Section
         walletBalance: 'موجودی کیف پول',
-        checkingBalance: 'در حال بررسی موجودی کیف پول...',
         availableBalance: 'موجودی موجود',
         campaignCost: 'هزینه کمپین',
         toman: 'تومان',
@@ -1720,7 +1700,6 @@ export const translations = {
       reserved: 'رزرو شده',
       credit: 'اعتبار',
       total: 'جمع کل',
-      lastUpdated: 'آخرین به‌روزرسانی',
       chargeTitle: 'شارژ کیف پول',
       amountLabel: 'مبلغ (تومان)',
       amountPlaceholder: 'مبلغ را وارد کنید',
