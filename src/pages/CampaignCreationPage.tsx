@@ -220,28 +220,24 @@ const CampaignCreationPage: React.FC = () => {
     {
       id: 1,
       title: t('campaign.steps.segment.title'),
-      subtitle: t('campaign.steps.segment.subtitle'),
       isCompleted: validation.isStepCompleted(1),
       isAccessible: validation.isStepAccessible(1),
     },
     {
       id: 2,
       title: t('campaign.steps.content.title'),
-      subtitle: t('campaign.steps.content.subtitle'),
       isCompleted: validation.isStepCompleted(2),
       isAccessible: validation.isStepAccessible(2),
     },
     {
       id: 3,
       title: t('campaign.steps.budget.title'),
-      subtitle: t('campaign.steps.budget.subtitle'),
       isCompleted: validation.isStepCompleted(3),
       isAccessible: validation.isStepAccessible(3),
     },
     {
       id: 4,
       title: t('campaign.steps.payment.title'),
-      subtitle: t('campaign.steps.payment.subtitle'),
       isCompleted: validation.isStepCompleted(4),
       isAccessible: validation.isStepAccessible(4),
     },
