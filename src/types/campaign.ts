@@ -155,7 +155,6 @@ export interface UpdateSMSCampaignResponse {
 export interface CampaignStep {
 	id: number;
 	title: string;
-	subtitle: string;
 	isCompleted: boolean;
 	isAccessible: boolean;
 }
