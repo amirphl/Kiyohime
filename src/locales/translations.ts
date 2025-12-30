@@ -178,6 +178,17 @@ export const translations = {
         success: 'Download started',
         error: 'Failed to generate CSV'
       },
+      downloadWithClicksRange: {
+        title: 'Download Short Links with Clicks by Scenario Range',
+        scenarioFromLabel: 'Scenario From',
+        scenarioFromPlaceholder: 'Enter starting scenario ID',
+        scenarioToLabel: 'Scenario To (exclusive)',
+        scenarioToPlaceholder: 'Enter ending scenario ID',
+        download: 'Download CSV',
+        downloading: 'Downloading…',
+        success: 'Download started',
+        error: 'Failed to generate CSV'
+      },
       downloadByName: {
         title: 'Download Short Links With Clicks by Scenario Name',
         scenarioNameRegexLabel: 'Scenario Name Regex',
@@ -1138,6 +1149,17 @@ export const translations = {
         title: 'دانلود لینک‌های کوتاه دارای کلیک بر اساس سناریو',
         scenarioIdLabel: 'شناسه سناریو',
         scenarioIdPlaceholder: 'شناسه سناریو را وارد کنید',
+        download: 'دانلود CSV',
+        downloading: 'در حال دانلود…',
+        success: 'دانلود آغاز شد',
+        error: 'تولید CSV ناموفق بود'
+      },
+      downloadWithClicksRange: {
+        title: 'دانلود لینک‌های کوتاه دارای کلیک بر اساس بازه سناریو',
+        scenarioFromLabel: 'شناسه سناریو از',
+        scenarioFromPlaceholder: 'شناسه سناریوی شروع را وارد کنید',
+        scenarioToLabel: 'شناسه سناریو تا (انحصاری)',
+        scenarioToPlaceholder: 'شناسه سناریوی پایان را وارد کنید',
         download: 'دانلود CSV',
         downloading: 'در حال دانلود…',
         success: 'دانلود آغاز شد',
