@@ -87,6 +87,7 @@ const campaignLevelEn = {
     category: 'Category',
     type: 'Type',
     status: 'Status',
+    questionMark: '?',
 };
 
 const campaignLevelFa = {
@@ -178,6 +179,7 @@ const campaignLevelFa = {
     category: 'دسته‌بندی',
     type: 'نوع',
     status: 'وضعیت',
+    questionMark: '؟',
 };
 
 export const campaignLevelI18n = {
