@@ -26,6 +26,11 @@ const AdminShortLinkManagementPage: React.FC = () => {
   const [downloadingClicks, setDownloadingClicks] = useState<boolean>(false);
   const [downloadMessageClicks, setDownloadMessageClicks] = useState<string>('');
   const [downloadTypeClicks, setDownloadTypeClicks] = useState<'idle' | 'success' | 'error'>('idle');
+  const [scenarioFromRange, setScenarioFromRange] = useState<string>('');
+  const [scenarioToRange, setScenarioToRange] = useState<string>('');
+  const [downloadingRange, setDownloadingRange] = useState<boolean>(false);
+  const [downloadMessageRange, setDownloadMessageRange] = useState<string>('');
+  const [downloadTypeRange, setDownloadTypeRange] = useState<'idle' | 'success' | 'error'>('idle');
   const [scenarioNameRegex, setScenarioNameRegex] = useState<string>('');
   const [downloadingByName, setDownloadingByName] = useState<boolean>(false);
   const [downloadByNameMessage, setDownloadByNameMessage] = useState<string>('');
@@ -184,6 +189,66 @@ const AdminShortLinkManagementPage: React.FC = () => {
       setDownloadTypeClicks('error');
     } finally {
       setDownloadingClicks(false);
+    }
+  };
+
+  const onDownloadWithClicksRange = async () => {
+    setDownloadMessageRange('');
+    setDownloadTypeRange('idle');
+
+    const fromNum = parseInt(scenarioFromRange, 10);
+    const toNum = parseInt(scenarioToRange, 10);
+    if (!fromNum || !toNum || fromNum <= 0 || toNum <= 0 || toNum <= fromNum) {
+      setDownloadMessageRange(t('adminShortLinks.downloadWithClicksRange.error'));
+      setDownloadTypeRange('error');
+      return;
+    }
+
+    try {
+      setDownloadingRange(true);
+      const token = adminApi.getAccessToken();
+      const url = getApiUrl('/admin/short-links/download-with-clicks-range');
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'text/csv, application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ scenario_from: fromNum, scenario_to: toNum }),
+        signal: AbortSignal.timeout(30000),
+      });
+
+      const contentType = resp.headers.get('Content-Type') || '';
+      if (resp.ok && contentType.includes('text/csv')) {
+        const blob = await resp.blob();
+        const cd = resp.headers.get('Content-Disposition') || '';
+        const match = cd.match(/filename\s*=\s*([^;]+)/i);
+        const filename = match ? match[1].replace(/"/g, '').trim() : `short-links-with-clicks-${fromNum}-${toNum}.csv`;
+        const urlObj = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = urlObj;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(urlObj);
+        setDownloadMessageRange(t('adminShortLinks.downloadWithClicksRange.success'));
+        setDownloadTypeRange('success');
+      } else {
+        let errorText = t('adminShortLinks.downloadWithClicksRange.error');
+        try {
+          const data = await resp.json();
+          errorText = data?.message || data?.error?.code || errorText;
+        } catch { }
+        setDownloadMessageRange(errorText);
+        setDownloadTypeRange('error');
+      }
+    } catch {
+      setDownloadMessageRange(t('adminShortLinks.downloadWithClicksRange.error'));
+      setDownloadTypeRange('error');
+    } finally {
+      setDownloadingRange(false);
     }
   };
 
@@ -397,6 +462,60 @@ const AdminShortLinkManagementPage: React.FC = () => {
             {downloadMessageClicks && (
               <span className={`${downloadTypeClicks === 'error' ? 'text-red-600' : downloadTypeClicks === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}>
                 {downloadMessageClicks}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Download with Clicks by Scenario Range */}
+      <div className="mt-10 max-w-xl border-t border-gray-200 pt-6">
+        <h2 className="text-lg font-semibold mb-4">{t('adminShortLinks.downloadWithClicksRange.title')}</h2>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1" htmlFor="scenario-from">
+                {t('adminShortLinks.downloadWithClicksRange.scenarioFromLabel')}
+              </label>
+              <input
+                id="scenario-from"
+                type="number"
+                inputMode="numeric"
+                value={scenarioFromRange}
+                onChange={(e) => setScenarioFromRange(e.target.value)}
+                placeholder={t('adminShortLinks.downloadWithClicksRange.scenarioFromPlaceholder')}
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" htmlFor="scenario-to">
+                {t('adminShortLinks.downloadWithClicksRange.scenarioToLabel')}
+              </label>
+              <input
+                id="scenario-to"
+                type="number"
+                inputMode="numeric"
+                value={scenarioToRange}
+                onChange={(e) => setScenarioToRange(e.target.value)}
+                placeholder={t('adminShortLinks.downloadWithClicksRange.scenarioToPlaceholder')}
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+              />
+            </div>
+          </div>
+
+          <div className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}>
+            <button
+              type="button"
+              onClick={onDownloadWithClicksRange}
+              disabled={downloadingRange}
+              className={`px-4 py-2 rounded text-white ${downloadingRange ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+            >
+              {downloadingRange ? t('adminShortLinks.downloadWithClicksRange.downloading') : t('adminShortLinks.downloadWithClicksRange.download')}
+            </button>
+
+            {downloadMessageRange && (
+              <span className={`${downloadTypeRange === 'error' ? 'text-red-600' : downloadTypeRange === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}>
+                {downloadMessageRange}
               </span>
             )}
           </div>
