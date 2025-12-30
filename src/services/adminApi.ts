@@ -553,7 +553,8 @@ class AdminApiService {
           ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
         },
         body: form,
-        signal: AbortSignal.timeout(30000),
+        // Uploads can be large; allow up to 5 minutes to match backend limits
+        signal: AbortSignal.timeout(300000),
       });
       if (resp.status === 401) {
         this.handleUnauthorized();
