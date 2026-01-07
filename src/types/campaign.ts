@@ -200,9 +200,13 @@ export interface GetSMSCampaignResponse {
 	content?: string;
 	scheduleat?: string;
 	line_number?: string;
+	line_price_factor?: number;
 	budget?: number;
-	total?: number;
+	num_audience?: number;
 	comment?: string;
+	statistics?: Record<string, any>;
+	click_rate?: number;
+	total_clicks?: number;
 }
 
 export interface PaginationInfo {
