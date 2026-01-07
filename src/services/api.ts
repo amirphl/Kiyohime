@@ -98,7 +98,7 @@ class ApiService {
         ...options.headers,
       },
       // Add timeout to prevent hanging requests
-      signal: AbortSignal.timeout(30000), // 30 seconds timeout
+      signal: options.signal || AbortSignal.timeout(30000), // 30 seconds timeout (overridable)
     };
 
     try {
@@ -494,7 +494,7 @@ class ApiService {
   }
 
   // Campaign endpoints
-  async listCampaigns(params: ListSMSCampaignsParams): Promise<ApiResponse<ListSMSCampaignsResponse>> {
+  async listCampaigns(params: ListSMSCampaignsParams, signal?: AbortSignal): Promise<ApiResponse<ListSMSCampaignsResponse>> {
     const query = new URLSearchParams();
     query.set('page', String(params.page));
     query.set('limit', String(params.limit));
@@ -504,6 +504,7 @@ class ApiService {
     const endpoint = `${config.endpoints.campaigns.list}?${query.toString()}`;
     return this.request<ListSMSCampaignsResponse>(endpoint, {
       method: 'GET',
+      signal,
     });
   }
 
