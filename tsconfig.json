@@ -14,33 +14,32 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "paths": {
       "@/*": [
-        "src/*"
+        "./src/*"
       ],
       "@/components/*": [
-        "src/components/*"
+        "./src/components/*"
       ],
       "@/pages/*": [
-        "src/pages/*"
+        "./src/pages/*"
       ],
       "@/services/*": [
-        "src/services/*"
+        "./src/services/*"
       ],
       "@/hooks/*": [
-        "src/hooks/*"
+        "./src/hooks/*"
       ],
       "@/config/*": [
-        "src/config/*"
+        "./src/config/*"
       ],
       "@/locales/*": [
-        "src/locales/*"
+        "./src/locales/*"
       ]
     }
   },
