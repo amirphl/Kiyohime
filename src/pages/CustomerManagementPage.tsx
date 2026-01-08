@@ -8,12 +8,12 @@ import persian from 'react-date-object/calendars/persian';
 import persian_fa from 'react-date-object/locales/persian_fa';
 import Button from '../components/ui/Button';
 import { Calculator } from 'lucide-react';
-import { calcI18n } from '../locales/calc';
 import DatePicker from 'react-multi-date-picker';
 import gregorian from 'react-date-object/calendars/gregorian';
 import gregorian_en from 'react-date-object/locales/gregorian_en';
 import TimePicker from 'react-multi-date-picker/plugins/time_picker';
 import { useToast } from '../hooks/useToast';
+import AgencyCalculatorModal, { calculatorTranslations } from '../components/calculator/Calculator';
 
 const CustomerManagementPage: React.FC = () => {
   const { t } = useTranslation();
@@ -48,18 +48,13 @@ const CustomerManagementPage: React.FC = () => {
   const [historyItems, setHistoryItems] = useState<Array<{ discount_rate: number; created_at: string; expires_at?: string | null; total_sent: number; agency_share_with_tax: number }>>([]);
   const initialLoadRef = useRef<boolean>(false);
 
-  // Calculator state (overlay on top of create discount modal)
+  // Calculator state
   const [showCalcModal, setShowCalcModal] = useState(false);
-  const [calcAmount, setCalcAmount] = useState<number>(100000);
-  const [calcDiscount, setCalcDiscount] = useState<number>(20);
-  const calcT = calcI18n[language as keyof typeof calcI18n] || calcI18n.en;
-  const formatNum = (n: number) => n.toLocaleString(language === 'fa' ? 'fa-IR' : 'en-US');
-  const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
-  const extraPct = () => (1 / (1 - ((clamp(calcDiscount, 0, 100) / 100) / 2))) - 1; // d/(2-d)
-  const gift = () => Math.max(0, Math.round(calcAmount * extraPct()));
-  const yourRevenue = () => Math.max(0, Math.round(calcAmount - (calcAmount / (2 - (clamp(calcDiscount, 0, 100) / 100)))));
-  const baselineAgency = () => Math.round(calcAmount * 0.5);
-  const reduction = () => Math.max(0, baselineAgency() - yourRevenue());
+  const calcT = calculatorTranslations[language as keyof typeof calculatorTranslations] || calculatorTranslations.en;
+  const handleCalcApply = (percent: number) => {
+    setNewDiscountRate(String(percent));
+    setShowCalcModal(false);
+  };
 
   const formatDatetime = (iso: string) => {
     try {
@@ -436,6 +431,8 @@ const CustomerManagementPage: React.FC = () => {
                   <input
                     type="number"
                     step="0.01"
+                    min="0"
+                    max="100"
                     value={newDiscountRate}
                     onChange={(e) => setNewDiscountRate(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
@@ -449,7 +446,7 @@ const CustomerManagementPage: React.FC = () => {
                     variant="primary"
                     disabled={(() => {
                       const rateNum = parseFloat(newDiscountRate);
-                      const isValidRate = !Number.isNaN(rateNum) && rateNum > 0 && rateNum < 0.5;
+                      const isValidRate = !Number.isNaN(rateNum) && rateNum >= 0 && rateNum <= 100;
                       const hasName = newDiscountName.trim().length > 0;
                       const hasCustomer = showGlobalCreateModal ? (typeof globalCustomerId === 'number') : (createForCustomerId !== null);
                       return createSubmitting || !isValidRate || !hasName || !hasCustomer;
@@ -463,7 +460,7 @@ const CustomerManagementPage: React.FC = () => {
                         showError(msg);
                         return;
                       }
-                      if (!(rateNum > 0 && rateNum < 0.5)) {
+                      if (!(rateNum >= 0 && rateNum <= 100)) {
                         const msg = t('agencyReport.discountRateInvalid');
                         setCreateError(msg);
                         showError(msg);
@@ -480,7 +477,8 @@ const CustomerManagementPage: React.FC = () => {
                           showError(msg);
                           return;
                         }
-                        const res = await apiService.createAgencyDiscount({ customer_id: targetCustomerId, name: newDiscountName.trim(), discount_rate: rateNum });
+                        const normalizedRate = rateNum / (rateNum + 100);
+                        const res = await apiService.createAgencyDiscount({ customer_id: targetCustomerId, name: newDiscountName.trim(), discount_rate: normalizedRate });
                         if (res.success) {
                           showSuccess(res.message || t('agencyReport.discountCreate'));
                           setShowCreateModal(false);
@@ -506,108 +504,13 @@ const CustomerManagementPage: React.FC = () => {
                 </div>
               </div>
               {showCalcModal && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-                  <div className="absolute inset-0 bg-black/30" onClick={() => setShowCalcModal(false)}></div>
-                  <div className="relative bg-white rounded-lg w-full p-6 max-w-[69.12rem]">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-medium text-gray-900">{calcT.title}</h3>
-                      <button onClick={() => setShowCalcModal(false)} className="text-gray-400 hover:text-gray-600">×</button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{calcT.amountLabel}</label>
-                        <input
-                          type="number"
-                          min={0}
-                          step={1000}
-                          value={calcAmount}
-                          onChange={(e) => setCalcAmount(Math.max(0, Number(e.target.value || 0)))}
-                          className="input-field"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{calcT.discountLabel}</label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="number"
-                            min={0}
-                            max={100}
-                            step={1}
-                            value={calcDiscount}
-                            onChange={(e) => setCalcDiscount(clamp(Number(e.target.value || 0), 0, 100))}
-                            className="input-field max-w-[120px]"
-                          />
-                          <div className="flex flex-wrap gap-2">
-                            {[0, 20, 40, 60, 80, 90, 100].map((d, idx) => (
-                              <button
-                                key={d}
-                                className={`px-3 py-1 rounded-full text-xs border ${calcDiscount === d ? 'border-primary-600 text-primary-700 bg-primary-50' : 'border-gray-300 text-gray-600 bg-white'}`}
-                                onClick={() => setCalcDiscount(d)}
-                              >
-                                {calcT.chips[idx] || `${d}%`}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-4 overflow-x-auto">
-                      <table dir={language === 'fa' ? 'rtl' : 'ltr'} className="min-w-full table-fixed border text-sm">
-                        <colgroup>
-                          <col className="w-4/5" />
-                          <col className="w-1/5" />
-                        </colgroup>
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="border px-2 py-2 text-center">{calcT.tableHeadDesc}</th>
-                            <th className="border px-2 py-2 text-center">{calcT.tableHeadValue}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td className="border px-2 py-2 text-center" dir={language === 'fa' ? undefined : 'ltr'}>
-                              {calcT.reductionLabel}
-                              <span className="relative inline-block group ml-1 align-middle">
-                                <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border text-[10px] border-primary-600 text-primary-600 select-none">?</span>
-                                <span className={`absolute ${language === 'fa' ? 'left-full ml-2' : 'right-full mr-2'} top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity max-w-[360px] w-64`} dir={language === 'fa' ? 'rtl' : 'ltr'}>
-                                  {calcT.reductionTip}
-                                </span>
-                              </span>
-                            </td>
-                            <td className="border px-2 py-2 text-center text-orange-600 font-medium" dir={language === 'fa' ? undefined : 'ltr'}>{formatNum(reduction())}</td>
-                          </tr>
-                          <tr>
-                            <td className="border px-2 py-2 text-center" dir={language === 'fa' ? undefined : 'ltr'}>
-                              {calcT.giftLabel}
-                              <span className="relative inline-block group ml-1 align-middle">
-                                <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border text-[10px] border-primary-600 text-primary-600 select-none">?</span>
-                                <span className={`absolute ${language === 'fa' ? 'left-full ml-2' : 'right-full mr-2'} top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity max-w-[360px] w-64`} dir={language === 'fa' ? 'rtl' : 'ltr'}>
-                                  {calcT.giftTip}
-                                </span>
-                              </span>
-                            </td>
-                            <td className="border px-2 py-2 text-center text-green-600 font-medium" dir={language === 'fa' ? undefined : 'ltr'}>{formatNum(gift())}</td>
-                          </tr>
-                          <tr>
-                            <td colSpan={2} className="border px-2 py-2 bg-gray-50 text-center" dir={language === 'fa' ? undefined : 'ltr'}>
-                              <strong>{calcT.ruleFixed}</strong> {`${formatNum(reduction())} ${calcT.times} ${language === 'fa' ? '۲' : '2'} = ${formatNum(gift())}`}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="border px-2 py-2 text-center" dir={language === 'fa' ? undefined : 'ltr'}><strong>{calcT.yourRevenueLabel}</strong></td>
-                            <td className="border px-2 py-2 text-center" dir={language === 'fa' ? undefined : 'ltr'}>{formatNum(yourRevenue())}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                      <div className="mt-3 flex justify-between items-center text-xs text-gray-500">
-                        <div />
-                        <button className="btn-secondary" onClick={() => { setCalcAmount(100000); setCalcDiscount(80); }}>
-                          {calcT.reset}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <AgencyCalculatorModal
+                  isOpen={showCalcModal}
+                  onClose={() => setShowCalcModal(false)}
+                  translations={calcT}
+                  dir={language === 'fa' ? 'rtl' : 'ltr'}
+                  onApply={handleCalcApply}
+                />
               )}
             </div>
           </div>
