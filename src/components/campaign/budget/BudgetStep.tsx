@@ -37,7 +37,6 @@ const BudgetStep: React.FC = () => {
     maxMessageCount,
     isLoading: isLoadingMessageCount,
     error: messageCountError,
-    lastApiCall,
     calculateDebounced,
   } = useMessageCount(campaignData);
 
