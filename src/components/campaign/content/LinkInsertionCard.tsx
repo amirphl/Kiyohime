@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'lucide-react';
 import Card from '../../ui/Card';
-import Button from '../../ui/Button';
 import FormField from '../../ui/FormField';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { contentI18n } from './contentTranslations';
