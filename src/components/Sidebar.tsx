@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useCampaign } from '../hooks/useCampaign';
 import LanguageSwitcher from './LanguageSwitcher';
-import { LayoutDashboard, Send, BarChart3, Users, Wallet, Ticket, UserCog, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Send, BarChart3, Wallet, Ticket, UserCog, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface SidebarItem {
   id: string;
