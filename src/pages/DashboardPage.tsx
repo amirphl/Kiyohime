@@ -10,7 +10,9 @@ import { GetSMSCampaignResponse } from '../types/campaign';
 
 import { useToast } from '../hooks/useToast';
 import { Upload, X, Calculator } from 'lucide-react';
-import { calcI18n } from '../locales/calc';
+import AgencyCalculatorModal, {
+  calculatorTranslations,
+} from '../components/calculator/Calculator';
 
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
@@ -30,8 +32,6 @@ const DashboardPage: React.FC = () => {
     file?: string;
   }>({});
   const [showCalcModal, setShowCalcModal] = useState(false);
-  const [calcAmount, setCalcAmount] = useState<number>(100000);
-  const [calcDiscount, setCalcDiscount] = useState<number>(20);
   // Profile modal state
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -159,22 +159,12 @@ const DashboardPage: React.FC = () => {
   };
 
   const isAgency = user?.account_type === 'marketing_agency';
-  const calcT = calcI18n[language as keyof typeof calcI18n] || calcI18n.en;
+  const calcT =
+    calculatorTranslations[
+      language as keyof typeof calculatorTranslations
+    ] || calculatorTranslations.en;
   const formatNum = (n: number) =>
     n.toLocaleString(language === 'fa' ? 'fa-IR' : 'en-US');
-  const clamp = (v: number, min: number, max: number) =>
-    Math.max(min, Math.min(max, v));
-  const extraPct = () => 1 / (1 - clamp(calcDiscount, 0, 100) / 100 / 2) - 1; // d/(2-d)
-  const gift = () => Math.max(0, Math.round(calcAmount * extraPct()));
-  const yourRevenue = () =>
-    Math.max(
-      0,
-      Math.round(
-        calcAmount - calcAmount / (2 - clamp(calcDiscount, 0, 100) / 100)
-      )
-    );
-  const baselineAgency = () => Math.round(calcAmount * 0.5);
-  const reduction = () => Math.max(0, baselineAgency() - yourRevenue());
 
   const isReportsView = window.location.pathname === '/dashboard/reports';
 
@@ -741,185 +731,12 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* Calculator Modal */}
-      {showCalcModal && (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
-          <div className='bg-white rounded-lg w-full p-6 max-w-[69.12rem]'>
-            <div
-              className={`flex justify-between items-center mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}
-            >
-              <h3 className='text-lg font-medium text-gray-900'>
-                {calcT.title}
-              </h3>
-              <button
-                onClick={() => setShowCalcModal(false)}
-                className='text-gray-400 hover:text-gray-600'
-              >
-                <X className='h-5 w-5' />
-              </button>
-            </div>
-
-            <div className='grid grid-cols-2 gap-4'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  {calcT.amountLabel}
-                </label>
-                <input
-                  type='number'
-                  min={0}
-                  step={1000}
-                  value={calcAmount}
-                  onChange={e =>
-                    setCalcAmount(Math.max(0, Number(e.target.value || 0)))
-                  }
-                  className='input-field'
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  {calcT.discountLabel}
-                </label>
-                <div className='flex items-center gap-2'>
-                  <input
-                    type='number'
-                    min={0}
-                    max={100}
-                    step={1}
-                    value={calcDiscount}
-                    onChange={e =>
-                      setCalcDiscount(
-                        clamp(Number(e.target.value || 0), 0, 100)
-                      )
-                    }
-                    className='input-field max-w-[120px]'
-                  />
-                  <div className='flex flex-wrap gap-2'>
-                    {[0, 20, 40, 60, 80, 90, 100].map((d, idx) => (
-                      <button
-                        key={d}
-                        className={`px-3 py-1 rounded-full text-xs border ${calcDiscount === d ? 'border-primary-600 text-primary-700 bg-primary-50' : 'border-gray-300 text-gray-600 bg-white'}`}
-                        onClick={() => setCalcDiscount(d)}
-                      >
-                        {calcT.chips[idx] || `${d}%`}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className='mt-4 overflow-x-auto'>
-              <table
-                dir={isRTL ? 'rtl' : 'ltr'}
-                className='min-w-full table-fixed border text-sm'
-              >
-                <colgroup>
-                  <col className='w-4/5' />
-                  <col className='w-1/5' />
-                </colgroup>
-                <thead className='bg-gray-50'>
-                  <tr>
-                    <th className='border px-2 py-2 text-center'>
-                      {calcT.tableHeadDesc}
-                    </th>
-                    <th className='border px-2 py-2 text-center'>
-                      {calcT.tableHeadValue}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td
-                      className='border px-2 py-2 text-center'
-                      dir={isRTL ? undefined : 'ltr'}
-                    >
-                      {calcT.reductionLabel}
-                      <span className='relative inline-block group ml-1 align-middle'>
-                        <span className='inline-flex items-center justify-center w-4 h-4 rounded-full border text-[10px] border-primary-600 text-primary-600 select-none'>
-                          ?
-                        </span>
-                        <span
-                          className={`absolute ${isRTL ? 'left-full ml-2' : 'right-full mr-2'} top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity max-w-[360px] w-64`}
-                          dir={isRTL ? 'rtl' : 'ltr'}
-                        >
-                          {calcT.reductionTip}
-                        </span>
-                      </span>
-                    </td>
-                    <td
-                      className='border px-2 py-2 text-center text-orange-600 font-medium'
-                      dir={isRTL ? undefined : 'ltr'}
-                    >
-                      {formatNum(reduction())}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      className='border px-2 py-2 text-center'
-                      dir={isRTL ? undefined : 'ltr'}
-                    >
-                      {calcT.giftLabel}
-                      <span className='relative inline-block group ml-1 align-middle'>
-                        <span className='inline-flex items-center justify-center w-4 h-4 rounded-full border text-[10px] border-primary-600 text-primary-600 select-none'>
-                          ?
-                        </span>
-                        <span
-                          className={`absolute ${isRTL ? 'left-full ml-2' : 'right-full mr-2'} top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity max-w-[360px] w-64`}
-                          dir={isRTL ? 'rtl' : 'ltr'}
-                        >
-                          {calcT.giftTip}
-                        </span>
-                      </span>
-                    </td>
-                    <td
-                      className='border px-2 py-2 text-center text-green-600 font-medium'
-                      dir={isRTL ? undefined : 'ltr'}
-                    >
-                      {formatNum(gift())}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      colSpan={2}
-                      className='border px-2 py-2 bg-gray-50 text-center'
-                      dir={isRTL ? undefined : 'ltr'}
-                    >
-                      <strong>{calcT.ruleFixed}</strong>{' '}
-                      {`${formatNum(reduction())} ${calcT.times} 2 = ${formatNum(gift())}`}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      className='border px-2 py-2 text-center'
-                      dir={isRTL ? undefined : 'ltr'}
-                    >
-                      <strong>{calcT.yourRevenueLabel}</strong>
-                    </td>
-                    <td
-                      className='border px-2 py-2 text-center'
-                      dir={isRTL ? undefined : 'ltr'}
-                    >
-                      {formatNum(yourRevenue())}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div className='mt-3 flex justify-between items-center text-xs text-gray-500'>
-                <div />
-                <button
-                  className='btn-secondary'
-                  onClick={() => {
-                    setCalcAmount(100000);
-                    setCalcDiscount(80);
-                  }}
-                >
-                  {calcT.reset}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <AgencyCalculatorModal
+        isOpen={showCalcModal}
+        onClose={() => setShowCalcModal(false)}
+        translations={calcT}
+        dir={isRTL ? 'rtl' : 'ltr'}
+      />
     </div>
   );
 };
