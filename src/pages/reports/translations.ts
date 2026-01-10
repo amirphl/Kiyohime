@@ -1,0 +1,185 @@
+export interface ReportsTranslations {
+  title: string;
+  filterPlaceholder: string;
+  sortBy: string;
+  sortNewest: string;
+  sortOldest: string;
+  noMore: string;
+  loading: string;
+  table: {
+    row: string;
+    title: string;
+    text: string;
+    lineNumber: string;
+    segment: string;
+    sent: string;
+    status: string;
+    numAudience: string;
+    createdAt: string;
+    scheduleAt: string;
+    details: string;
+    subsegments: string;
+    sex: string;
+    cities: string;
+    adlink: string;
+    updatedAt: string;
+  };
+  statuses: {
+    initiated: string;
+    'in-progress': string;
+    'waiting-for-approval': string;
+    approved: string;
+    rejected: string;
+    [key: string]: string;
+  };
+  modal: {
+    details: string;
+    rejected: string;
+    close: string;
+    fixAndRestart: string;
+    lineNumber: string;
+    subsegments: string;
+    sex: string;
+    cities: string;
+    adlink: string;
+    scheduleAt: string;
+    updatedAt: string;
+    level1: string;
+    level2: string;
+    level3: string;
+    linePriceFactor: string;
+    budget: string;
+    comment: string;
+    statistics: string;
+    clickRate: string;
+    totalClicks: string;
+    total: string;
+    numAudience: string;
+  };
+}
+
+export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
+  en: {
+    title: 'Reports',
+    filterPlaceholder: 'Filter by title...',
+    sortBy: 'Sort by',
+    sortNewest: 'Newest',
+    sortOldest: 'Oldest',
+    noMore: 'No more campaigns',
+    loading: 'Loading...',
+    table: {
+      row: '#',
+      title: 'Title',
+      text: 'Text',
+      lineNumber: 'Line Number',
+      segment: 'Segment',
+      sent: 'Sent',
+      status: 'Status',
+      numAudience: 'Total',
+      createdAt: 'Created At',
+      scheduleAt: 'Schedule At',
+      details: 'Details',
+      subsegments: 'Subsegments',
+      sex: 'Sex',
+      cities: 'Cities',
+      adlink: 'Ad Link',
+      updatedAt: 'Updated At',
+    },
+    statuses: {
+      initiated: 'Initiated',
+      'in-progress': 'In Progress',
+      'waiting-for-approval': 'Waiting for Approval',
+      approved: 'Approved',
+      rejected: 'Rejected',
+    },
+    modal: {
+      details: 'Details',
+      rejected: 'Rejected',
+      close: 'Close',
+      fixAndRestart: 'Fix and restart the campaign?',
+      lineNumber: 'Line Number',
+      subsegments: 'Subsegments',
+      sex: 'Sex',
+      cities: 'Cities',
+      adlink: 'Ad Link',
+      scheduleAt: 'Schedule At',
+      updatedAt: 'Updated At',
+      level1: 'Level 1',
+      level2: 'Level 2',
+      level3: 'Level 3',
+      linePriceFactor: 'Line Price Factor',
+      budget: 'Budget',
+      comment: 'Comment',
+      statistics: 'Statistics',
+      clickRate: 'Click Rate',
+      totalClicks: 'Total Clicks',
+      total: 'Total',
+      numAudience: 'Total',
+    },
+  },
+  fa: {
+    title: 'گزارش و تحلیل',
+    filterPlaceholder: 'فیلتر بر اساس عنوان...',
+    sortBy: 'مرتب‌سازی بر اساس',
+    sortNewest: 'جدیدترین',
+    sortOldest: 'قدیمی‌ترین',
+    noMore: 'کمپین دیگری وجود ندارد',
+    loading: 'در حال بارگذاری...',
+    table: {
+      row: '#',
+      title: 'عنوان',
+      text: 'متن',
+      lineNumber: 'شماره خط',
+      segment: 'بخش',
+      sent: 'ارسال شده',
+      status: 'وضعیت',
+      numAudience: 'مجموع',
+      createdAt: 'ایجاد شده',
+      scheduleAt: 'زمان‌بندی',
+      details: 'جزئیات',
+      subsegments: 'زیربخش‌ها',
+      sex: 'جنسیت',
+      cities: 'شهرها',
+      adlink: 'لینک تبلیغ',
+      updatedAt: 'به‌روزرسانی',
+    },
+    statuses: {
+      initiated: 'آغاز شده',
+      'in-progress': 'در حال انجام',
+      'waiting-for-approval': 'در انتظار تأیید',
+      approved: 'تأیید شده',
+      rejected: 'رد شده',
+    },
+    modal: {
+      details: 'جزئیات',
+      rejected: 'رد شده',
+      close: 'بستن',
+      fixAndRestart: 'اصلاح و شروع مجدد کمپین؟',
+      lineNumber: 'شماره خط',
+      subsegments: 'زیربخش‌ها',
+      sex: 'جنسیت',
+      cities: 'شهرها',
+      adlink: 'لینک تبلیغ',
+      scheduleAt: 'زمان‌بندی',
+      updatedAt: 'به‌روزرسانی',
+      level1: 'سطح ۱',
+      level2: 'سطح ۲',
+      level3: 'سطح ۳',
+      linePriceFactor: 'ضریب قیمت خط',
+      budget: 'بودجه',
+      comment: 'توضیحات',
+      statistics: 'آمار',
+      clickRate: 'نرخ کلیک',
+      totalClicks: 'مجموع کلیک',
+      total: 'مجموع',
+      numAudience: 'مجموع',
+    },
+  },
+};
+
+export type ReportsLocale = keyof typeof reportsTranslations;
+
+export const getReportsCopy = (language: string): ReportsTranslations =>
+  reportsTranslations[language as ReportsLocale] || reportsTranslations.en;
+
+export type ReportsCopy = ReportsTranslations;
