@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useTranslation } from '../../../hooks/useTranslation';
 import { useCampaign } from '../../../hooks/useCampaign';
 import { apiService } from '../../../services/api';
 import { useAuth } from '../../../hooks/useAuth';
@@ -15,9 +14,14 @@ import {
     loadLevelSelection,
     createEmptyLevelSelection
 } from '../../../types/segment';
+import { campaignLevelI18n } from './segmentTranslations';
+import { useLanguage } from '../../../hooks/useLanguage';
 
 const LevelStep: React.FC = () => {
-    const { t } = useTranslation();
+    const { language } = useLanguage();
+    const t =
+        campaignLevelI18n[language as keyof typeof campaignLevelI18n] ||
+        campaignLevelI18n.en;
     const { updateLevel } = useCampaign();
     const { accessToken } = useAuth();
 
@@ -218,25 +222,9 @@ const LevelStep: React.FC = () => {
                     <TitleCard
                         title={campaignTitle || ''}
                         onChange={handleCampaignTitleChange}
-                        label={t('campaign.level.campaignTitle')}
-                        placeholder={t('campaign.level.campaignTitlePlaceholder')}
-                        validationMessage={t('campaign.level.campaignTitleValidation')}
-                    />
-                </div>
-
-                {/* Capacity Display */}
-                <div className='md:col-span-2'>
-                    <CapacityCard
-                        title={t('campaign.level.campaignCapacity')}
-                        help={t('campaign.level.campaignCapacityHelp')}
-                        isLoading={false}
-                        capacity={capacity}
-                        fallbackCapacity={capacity}
-                        unitsLabel={t('campaign.level.users')}
-                        calculatingLabel={t('campaign.level.calculating')}
-                        notSetLabel={t('campaign.level.notSet')}
-                        lowCapacityLabel={t('campaign.level.capacityTooLow')}
-                        error={null}
+                        label={t.campaignTitleLabel}
+                        placeholder={t.campaignTitlePlaceholder}
+                        validationMessage={t.campaignTitleValidation}
                     />
                 </div>
 
@@ -245,11 +233,12 @@ const LevelStep: React.FC = () => {
                     {specError ? (
                         <div className='text-sm text-red-600'>{specError}</div>
                     ) : loadingSpec ? (
-                        <div className='text-sm text-gray-600'>{t('common.loading')}</div>
+                        <div className='text-sm text-gray-600'>{t.loading}</div>
                     ) : (
                         <LevelOneCard
-                            label={t('campaign.level.level1Label') || 'Level 1'}
-                            placeholder={t('campaign.level.level1Placeholder') || 'Select Level 1'}
+                            label={t.level1Label || 'Level 1'}
+                            labelDescription={t.level1Description || ''}
+                            placeholder={t.level1Placeholder || 'Select Level 1'}
                             options={level1Options}
                             value={level1}
                             onChange={handleLevel1Change}
@@ -263,17 +252,33 @@ const LevelStep: React.FC = () => {
                         <LevelTwoCard
                             spec={audienceSpec || null}
                             level1={level1}
-                            label={t('campaign.level.level2Label') || 'Level 2'}
-                            help={t('campaign.level.level2Help') || 'Choose one or more Level 2 groups'}
+                            label={t.level2Label}
+                            help={t.level2Help}
                             options={level2Options}
                             selectedLevel2s={level2s}
                             selectedLevel3s={level3s}
                             onToggleLevel2={handleLevel2Toggle}
                             onToggleLevel3={handleLevel3Toggle}
-                            validationMessage={t('campaign.level.level2Validation')}
+                            validationMessage={t.level2Validation}
                         />
                     </div>
                 )}
+
+                {/* Capacity Display */}
+                <div className='md:col-span-2'>
+                    <CapacityCard
+                        title={t.campaignCapacity}
+                        help={t.campaignCapacityHelp}
+                        isLoading={false}
+                        capacity={capacity}
+                        fallbackCapacity={capacity}
+                        unitsLabel={t.users}
+                        calculatingLabel={t.calculating}
+                        notSetLabel={t.notSet}
+                        lowCapacityLabel={t.capacityTooLow}
+                        error={null}
+                    />
+                </div>
             </div>
         </div>
     );
