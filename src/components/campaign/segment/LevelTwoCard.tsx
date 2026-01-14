@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import Card from '../../ui/Card';
 import { getLevel2Metadata, getLevel3Options, formatLabel } from './utils';
 import { AudienceSpec } from '../../../types/campaign';
-import { useTranslation } from '../../../hooks/useTranslation';
+import { useLanguage } from '../../../hooks/useLanguage';
+import { campaignLevelI18n } from './segmentTranslations';
 
 interface LevelTwoCardProps {
   spec: AudienceSpec | null;
@@ -29,7 +30,18 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
   onToggleLevel3,
   validationMessage,
 }) => {
-  const { t } = useTranslation();
+  const { language } = useLanguage();
+  const t =
+    campaignLevelI18n[language as keyof typeof campaignLevelI18n] ||
+    campaignLevelI18n.en;
+
+  const resolveMetaLabel = (rawKey: string) => {
+    const lower = rawKey.toLowerCase();
+    if (lower === 'inclusion') return t.inclusion;
+    if (lower === 'exclusion') return t.exclusion;
+    if (lower === 'one_line') return t.description || t.one_line;
+    return formatLabel(rawKey);
+  };
 
   // Auto-select Level 3 when there is only one option for a chosen Level 2
   useEffect(() => {
@@ -50,7 +62,7 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
       <div className='space-y-4'>
         <h3 className='text-lg font-medium text-gray-900'>{label}</h3>
         <p className='text-sm text-gray-600'>{help}</p>
-        <div className='grid grid-cols-2 gap-3'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'>
           {options.map(lvl2 => (
             <div key={lvl2.value} className='flex items-center space-x-3'>
               <label className='flex items-center space-x-3 cursor-pointer'>
@@ -64,7 +76,7 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
               </label>
               <div className='relative group'>
                 <span className='inline-flex items-center justify-center w-5 h-5 rounded-full border text-xs border-primary-600 text-primary-600 select-none'>
-                  {t('campaign.level.questionMark') || '?'}
+                  {t.questionMark || '?'}
                 </span>
                 {(() => {
                   const meta = getLevel2Metadata(spec, level1, lvl2.value);
@@ -75,13 +87,27 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
                         {formatLabel(lvl2.value)}
                       </div>
                       <div className='space-y-1'>
-                        {Object.entries(meta).map(([k, v]) => (
+                        {Object.entries(meta)
+                          .sort(([a], [b]) => {
+                            const order: Record<string, number> = {
+                              inclusion: 0,
+                              Inclusion: 0,
+                              exclusion: 1,
+                              Exclusion: 1,
+                              description: 2,
+                              Description: 2,
+                            };
+                            const ra = order[a] ?? 99;
+                            const rb = order[b] ?? 99;
+                            return ra - rb;
+                          })
+                          .map(([k, v]) => (
                           <div
-                            key={t(`campaign.level.${k}`)}
+                            key={k}
                             className='flex flex-col text-ellipsis overflow-hidden'
                           >
                             <span className='mr-2 text-gray-300'>
-                              {t(`campaign.level.${k}`)}
+                              {resolveMetaLabel(k)}
                             </span>
                             <span className='text-gray-100 text-left'>
                               {typeof v === 'object'
@@ -109,9 +135,9 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
                   {showLevel3Choices && (
                     <div className='space-y-2 border-t pt-4'>
                       <h4 className='text-sm font-medium text-gray-800'>
-                        {t('campaign.level.level3')} - {formatLabel(l2)}
+                        {t.level3} {formatLabel(l2)}
                       </h4>
-                      <div className='grid grid-cols-2 gap-3'>
+                      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'>
                         {l3Options.map(l3 => (
                           <label
                             key={`${l2}-${l3.value}`}
