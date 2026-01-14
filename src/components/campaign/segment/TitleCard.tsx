@@ -21,7 +21,7 @@ const TitleCard: React.FC<TitleCardProps> = ({ title, onChange, label, placehold
                 </h3>
                 <FormField
                     id='campaignTitle'
-                    label={label}
+                    label={''}
                     type='text'
                     placeholder={placeholder}
                     value={title}
