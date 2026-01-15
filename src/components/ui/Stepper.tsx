@@ -18,9 +18,9 @@ const Stepper: React.FC<StepperProps> = ({
   return (
     <div className={`py-6 ${className}`}>
       <div className='flex items-center justify-center'>
-        <div className='flex items-center space-x-8'>
+        <div className='flex items-center space-x-10'>
           {steps.map((step, index) => (
-            <div key={step.id} className='flex items-center'>
+            <div key={step.id} className='flex items-center space-x-3'>
               <button
                 onClick={() => onStepClick(step.id)}
                 disabled={!step.isAccessible}
@@ -44,7 +44,7 @@ const Stepper: React.FC<StepperProps> = ({
               </button>
 
               {/* Step label */}
-              <div className='ml-3 text-left'>
+              <div className='text-left'>
                 <div
                   className={`text-sm font-medium ${
                     step.id === currentStep
@@ -61,7 +61,7 @@ const Stepper: React.FC<StepperProps> = ({
               {/* Connector line */}
               {index < steps.length - 1 && (
                 <div
-                  className={`w-16 h-0.5 mx-4 ${
+                  className={`w-20 h-0.5 mx-5 ${
                     step.isCompleted ? 'bg-green-500' : 'bg-gray-300'
                   }`}
                 />
