@@ -1,6 +1,6 @@
 export interface AgencyCustomerReportItem {
-	first_name: string;
-	last_name: string;
+	representative_first_name: string;
+	representative_last_name: string;
 	company_name: string;
 	total_sent: number;
 	total_agency_share_with_tax: number;
@@ -15,8 +15,8 @@ export interface AgencyCustomerReportResponse {
 
 export interface AgencyActiveDiscountItem {
 	customer_id: number;
-	first_name: string;
-	last_name: string;
+	representative_first_name: string;
+	representative_last_name: string;
 	company_name?: string | null;
 	discount_rate: number;
 	created_at: string; // ISO string
@@ -42,8 +42,8 @@ export interface ListAgencyCustomerDiscountsResponse {
 
 export interface AgencyCustomerListItem {
 	customer_id: number;
-	first_name: string;
-	last_name: string;
+	representative_first_name: string;
+	representative_last_name: string;
 	company_name?: string | null;
 	created_at: string;
 	is_active?: boolean | null;
