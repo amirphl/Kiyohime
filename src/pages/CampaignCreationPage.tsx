@@ -13,6 +13,9 @@ import CampaignSegmentStep from '../components/campaign/CampaignSegmentStep';
 import CampaignContentStep from '../components/campaign/CampaignContentStep';
 import CampaignBudgetStep from '../components/campaign/CampaignBudgetStep';
 import CampaignPaymentStep from '../components/campaign/CampaignPaymentStep';
+import { budgetI18n } from '../components/campaign/budget/budgetTranslations';
+import { paymentI18n } from '../components/campaign/payment/paymentTranslations';
+import { contentI18n } from '../components/campaign/content/contentTranslations';
 import Button from '../components/ui/Button';
 import Stepper from '../components/ui/Stepper';
 import { CampaignStep, CreateCampaignPayload, UpdateSMSCampaignRequest } from '../types/campaign';
@@ -21,6 +24,9 @@ const CampaignCreationPage: React.FC = () => {
   const { t } = useTranslation();
   const { isRTL, language } = useLanguage();
   const { accessToken } = useAuth();
+  const budgetCopy = budgetI18n[language as keyof typeof budgetI18n] || budgetI18n.en;
+  const paymentCopy = paymentI18n[language as keyof typeof paymentI18n] || paymentI18n.en;
+  const contentCopy = contentI18n[language as keyof typeof contentI18n] || contentI18n.en;
   const {
     currentStep,
     campaignData,
@@ -225,19 +231,19 @@ const CampaignCreationPage: React.FC = () => {
     },
     {
       id: 2,
-      title: t('campaign.steps.content.title'),
+      title: contentCopy.title,
       isCompleted: validation.isStepCompleted(2),
       isAccessible: validation.isStepAccessible(2),
     },
     {
       id: 3,
-      title: t('campaign.steps.budget.title'),
+      title: budgetCopy.title,
       isCompleted: validation.isStepCompleted(3),
       isAccessible: validation.isStepAccessible(3),
     },
     {
       id: 4,
-      title: t('campaign.steps.payment.title'),
+      title: paymentCopy.title,
       isCompleted: validation.isStepCompleted(4),
       isAccessible: validation.isStepAccessible(4),
     },
@@ -305,7 +311,7 @@ const CampaignCreationPage: React.FC = () => {
                 className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
                   }`}
               >
-                <ChevronLeft className="h-4 w-4" />
+                {/* <ChevronLeft className="h-4 w-4" /> */}
                 {t('common.previous')}
               </Button>
             )}
@@ -320,7 +326,7 @@ const CampaignCreationPage: React.FC = () => {
                   }`}
               >
                 {t('common.next')}
-                <ChevronRight className="h-4 w-4" />
+                {/* <ChevronRight className="h-4 w-4" /> */}
               </Button>
             ) : (
               <Button
