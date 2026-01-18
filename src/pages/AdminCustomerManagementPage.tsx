@@ -6,10 +6,12 @@ import adminApi from '../services/adminApi';
 import { useNavigation } from '../contexts/NavigationContext';
 import { ROUTES } from '../config/routes';
 import { AdminCustomersSharesResponse, AdminCustomerWithCampaignsResponse, AdminGetCampaignResponse, AdminCustomerDiscountHistoryItem, AdminSetCustomerActiveStatusRequest } from '../types/admin';
+import { getCustomerManagementCopy } from './customerManagement/translations';
 
 const AdminCustomerManagementPage: React.FC = () => {
   const { language } = useLanguage();
   const t = useMemo(() => translations[language], [language]);
+  const agencyCopy = useMemo(() => getCustomerManagementCopy(language), [language]);
   const { showError } = useToast();
   const { navigate } = useNavigation();
   const didInitRef = useRef(false);
@@ -451,7 +453,7 @@ const AdminCustomerManagementPage: React.FC = () => {
             <div className="h-full flex items-start justify-center p-4">
               <div className="w-full max-w-5xl h-full bg-white rounded-xl shadow-2xl border overflow-hidden">
                 <div className="flex items-center justify-between p-4 border-b bg-gray-50">
-                  <h2 className="text-lg font-semibold">{t.agencyReport?.discountHistoryTitle || 'Discounts History'}</h2>
+                  <h2 className="text-lg font-semibold">{agencyCopy.discountHistoryTitle || 'Discounts History'}</h2>
                   <button className="text-gray-500 hover:text-gray-700" onClick={() => { setDiscountsOpen(false); }}>
                     ✕
                   </button>
@@ -465,9 +467,9 @@ const AdminCustomerManagementPage: React.FC = () => {
                         <thead className="bg-gray-50">
                           <tr>
                             <th className="border px-2 py-2">#</th>
-                            <th className="border px-2 py-2">{t.agencyReport?.discountRate || 'Rate (%)'}</th>
-                            <th className="border px-2 py-2">{t.agencyReport?.discountCreatedAt || 'Created At'}</th>
-                            <th className="border px-2 py-2">{t.agencyReport?.discountExpiresAt || 'Expires At'}</th>
+                            <th className="border px-2 py-2">{agencyCopy.discountRate || 'Rate (%)'}</th>
+                            <th className="border px-2 py-2">{agencyCopy.discountCreatedAt || 'Created At'}</th>
+                            <th className="border px-2 py-2">{agencyCopy.discountExpiresAt || 'Expires At'}</th>
                             <th className="border px-2 py-2">{t.adminCustomers?.table?.headers?.totalSent || 'Total Sent'}</th>
                             <th className="border px-2 py-2">{t.adminCustomers?.totals?.agencyIncome || 'Sum Agency Income'}</th>
                           </tr>
