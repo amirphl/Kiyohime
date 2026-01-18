@@ -123,13 +123,12 @@ export interface GetWalletBalanceResponse {
 	free: number;
 	locked: number;
 	frozen: number;
+	credit?: number;
+	spent_on_campaigns?: number;
+	agency_share_with_tax?: number;
 	total: number;
 	currency: string;
 	last_updated: string;
-	pending_transactions: number;
-	minimum_balance: number;
-	credit?: number;
-	balance_status: string;
 }
 
 // Update campaign request interface
