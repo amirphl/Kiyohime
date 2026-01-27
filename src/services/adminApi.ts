@@ -538,6 +538,83 @@ class AdminApiService {
     }
   }
 
+  async listLevel3Options(): Promise<ApiResponse<import('../types/admin').AdminListLevel3OptionsResponse>> {
+    const url = getApiUrl('/admin/segment-price-factors/level3-options');
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return { success: false, message: data?.message || 'Failed to list level3 options', error: data?.error } as any;
+      }
+      return { success: true, message: data?.message || 'OK', data: (data?.data || { items: [] }) as import('../types/admin').AdminListLevel3OptionsResponse };
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } } as any;
+    }
+  }
+
+  async listSegmentPriceFactors(): Promise<ApiResponse<import('../types/admin').AdminListSegmentPriceFactorsResponse>> {
+    const url = getApiUrl('/admin/segment-price-factors');
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return { success: false, message: data?.message || 'Failed to list segment price factors', error: data?.error } as any;
+      }
+      return { success: true, message: data?.message || 'OK', data: (data?.data || { items: [] }) as import('../types/admin').AdminListSegmentPriceFactorsResponse };
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } } as any;
+    }
+  }
+
+  async createSegmentPriceFactor(payload: import('../types/admin').AdminCreateSegmentPriceFactorRequest): Promise<ApiResponse<import('../types/admin').AdminCreateSegmentPriceFactorResponse>> {
+    const url = getApiUrl('/admin/segment-price-factors');
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return { success: false, message: data?.message || 'Failed to create segment price factor', error: data?.error } as any;
+      }
+      return { success: true, message: data?.message || 'OK', data: (data?.data || {}) as import('../types/admin').AdminCreateSegmentPriceFactorResponse };
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } } as any;
+    }
+  }
+
   // NEW: Upload short links CSV (no retries, single request)
   async uploadShortLinksCSV(file: File, shortLinkDomain: string, scenarioName: string): Promise<ApiResponse<any>> {
     const url = getApiUrl('/admin/short-links/upload-csv');
