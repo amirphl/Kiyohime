@@ -119,6 +119,32 @@ export interface AdminRejectCampaignResponse {
   message: string;
 }
 
+// Admin Segment Price Factors
+export interface AdminCreateSegmentPriceFactorRequest {
+  level3: string;
+  price_factor: number;
+}
+
+export interface AdminCreateSegmentPriceFactorResponse {
+  message: string;
+}
+
+export interface AdminSegmentPriceFactorItem {
+  level3: string;
+  price_factor: number;
+  created_at: string;
+}
+
+export interface AdminListSegmentPriceFactorsResponse {
+  message: string;
+  items: AdminSegmentPriceFactorItem[];
+}
+
+export interface AdminListLevel3OptionsResponse {
+  message: string;
+  items: string[];
+}
+
 // Admin Customer Management - Customers Shares
 export interface AdminCustomersSharesRequest {
   start_date?: string; // RFC3339
