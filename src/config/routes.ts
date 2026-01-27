@@ -161,6 +161,13 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Admin Short Links',
     description: 'Admin short link management',
   },
+  ADMIN_SEGMENT_PRICE_FACTORS: {
+    path: '/satrap/sardis/segment-price-factors',
+    page: 'admin-segment-price-factors',
+    requiresAuth: false,
+    title: 'Segment Price Factors',
+    description: 'Admin segment price factor management',
+  },
 };
 
 export const getRouteByPath = (path: string): RouteConfig | null => {
