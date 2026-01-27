@@ -20,6 +20,10 @@ export const translations = {
           title: 'Customer Management',
           description: 'Customers shares and performance report'
         },
+        segmentPriceFactors: {
+          title: 'Segment Price Factors',
+          description: 'Manage Level 3 price factors',
+        },
         shortLinks: {
           title: 'Short Link Management',
           description: 'Upload CSV to create short links'
@@ -677,6 +681,10 @@ export const translations = {
         customers: {
           title: 'مدیریت مشتریان',
           description: 'گزارش سهم‌ها و عملکرد مشتریان'
+        },
+        segmentPriceFactors: {
+          title: 'ضریب قیمت سگمنت',
+          description: 'مدیریت ضرایب قیمت سطح ۳',
         },
         shortLinks: {
           title: 'مدیریت لینک کوتاه',
