@@ -4,6 +4,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css');
 
 @layer base {
   html {
@@ -11,7 +12,7 @@
   }
 
   html[lang='fa'] {
-    font-family: 'Vazirmatn', 'Tahoma', system-ui, sans-serif;
+    font-family: 'Vazir', 'Vazirmatn', 'Tahoma', system-ui, sans-serif;
   }
 
   /* RTL Support */
