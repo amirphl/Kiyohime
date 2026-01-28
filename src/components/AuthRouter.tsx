@@ -23,8 +23,9 @@ import AdminTicketsPage from '../pages/AdminTicketsPage';
 import PricingPage from '../pages/PricingPage';
 import TermsPage from '../pages/TermsPage';
 import AdminShortLinkManagementPage from '../pages/AdminShortLinkManagementPage';
+import AdminSegmentPriceFactorsPage from '../pages/AdminSegmentPriceFactorsPage';
 
-type PageType = 'home' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation' | 'wallet' | 'reports' | 'customer-management' | 'contact' | 'terms' | 'pricing' | 'admin-login' | 'admin-sardis' | 'admin-line-numbers' | 'admin-campaigns' | 'admin-customers' | 'support' | 'admin-tickets' | 'admin-short-links';
+type PageType = 'home' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation' | 'wallet' | 'reports' | 'customer-management' | 'contact' | 'terms' | 'pricing' | 'admin-login' | 'admin-sardis' | 'admin-line-numbers' | 'admin-campaigns' | 'admin-customers' | 'support' | 'admin-tickets' | 'admin-short-links' | 'admin-segment-price-factors';
 
 const AuthRouter: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PageType>('home');
@@ -215,6 +216,8 @@ const AuthRouter: React.FC = () => {
       return <AdminTicketsPage />;
     case 'admin-short-links':
       return <AdminShortLinkManagementPage />;
+    case 'admin-segment-price-factors':
+      return <AdminSegmentPriceFactorsPage />;
 
     default:
       return <HomePage />;
