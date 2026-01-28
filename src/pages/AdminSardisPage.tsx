@@ -21,10 +21,10 @@ const AdminSardisPage: React.FC = () => {
           <div className="font-medium">{t.adminLineNumbers?.managementTitle || 'Line Number Management'}</div>
           <div className="text-xs text-gray-500 mt-1">{t.adminSardis?.cards?.lineNumbers?.description || 'Create, manage, update and report line numbers'}</div>
         </button>
-        <div className="border rounded px-4 py-3 text-left opacity-60 cursor-not-allowed">
-          <div className="font-medium">Segments</div>
-          <div className="text-xs text-gray-500 mt-1">{t.common?.comingSoon || 'Coming soon'}</div>
-        </div>
+        <button className="border rounded px-4 py-3 text-left hover:bg-gray-50" onClick={() => go('/satrap/sardis/segment-price-factors')}>
+          <div className="font-medium">{t.adminSardis?.cards?.segmentPriceFactors?.title || 'Segment Price Factors'}</div>
+          <div className="text-xs text-gray-500 mt-1">{t.adminSardis?.cards?.segmentPriceFactors?.description || 'Manage Level 3 price factors'}</div>
+        </button>
         <div className="border rounded px-4 py-3 text-left opacity-60 cursor-not-allowed">
           <div className="font-medium">Tags</div>
           <div className="text-xs text-gray-500 mt-1">{t.common?.comingSoon || 'Coming soon'}</div>
