@@ -30,6 +30,7 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
   onToggleLevel3,
   validationMessage,
 }) => {
+  const singleSelectedLevel2 = selectedLevel2s[0] || '';
   const { language } = useLanguage();
   const t =
     campaignLevelI18n[language as keyof typeof campaignLevelI18n] ||
@@ -46,16 +47,39 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
   // Auto-select Level 3 when there is only one option for a chosen Level 2
   useEffect(() => {
     if (!spec || !level1 || selectedLevel2s.length === 0) return;
-    selectedLevel2s.forEach(l2 => {
-      const l3Options = getLevel3Options(spec, level1, l2);
-      if (l3Options.length === 1) {
-        const onlyL3 = l3Options[0].value;
-        if (!selectedLevel3s.includes(onlyL3)) {
-          onToggleLevel3(onlyL3);
-        }
+    const l2 = selectedLevel2s[0];
+    const l3Options = getLevel3Options(spec, level1, l2);
+    if (l3Options.length === 1) {
+      const onlyL3 = l3Options[0].value;
+      selectedLevel3s.forEach(sel => {
+        if (sel !== onlyL3) onToggleLevel3(sel);
+      });
+      if (!selectedLevel3s.includes(onlyL3)) {
+        onToggleLevel3(onlyL3);
       }
-    });
+    }
   }, [spec, level1, selectedLevel2s, selectedLevel3s, onToggleLevel3]);
+
+  const handleLevel2Select = (value: string) => {
+    if (singleSelectedLevel2 === value) return;
+    selectedLevel2s.forEach(sel => {
+      if (sel !== value) onToggleLevel2(sel);
+    });
+    selectedLevel3s.forEach(onToggleLevel3);
+    if (!selectedLevel2s.includes(value)) {
+      onToggleLevel2(value);
+    }
+  };
+
+  const handleLevel3Select = (value: string) => {
+    if (selectedLevel3s.length === 1 && selectedLevel3s[0] === value) return;
+    selectedLevel3s.forEach(sel => {
+      if (sel !== value) onToggleLevel3(sel);
+    });
+    if (!selectedLevel3s.includes(value)) {
+      onToggleLevel3(value);
+    }
+  };
 
   return (
     <Card>
@@ -67,9 +91,10 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
             <div key={lvl2.value} className='flex items-center space-x-3'>
               <label className='flex items-center space-x-3 cursor-pointer'>
                 <input
-                  type='checkbox'
+                  type='radio'
+                  name='level2Select'
                   checked={selectedLevel2s.includes(lvl2.value)}
-                  onChange={() => onToggleLevel2(lvl2.value)}
+                  onChange={() => handleLevel2Select(lvl2.value)}
                   className='h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300'
                 />
                 <span className='text-sm text-gray-700'>{lvl2.label}</span>
@@ -90,32 +115,32 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
                         {Object.entries(meta)
                           .sort(([a], [b]) => {
                             const order: Record<string, number> = {
-                              inclusion: 0,
-                              Inclusion: 0,
-                              exclusion: 1,
-                              Exclusion: 1,
-                              description: 2,
-                              Description: 2,
+                              one_line: 0,
+                              One_line: 0,
+                              inclusion: 1,
+                              Inclusion: 1,
+                              exclusion: 2,
+                              Exclusion: 2,
                             };
                             const ra = order[a] ?? 99;
                             const rb = order[b] ?? 99;
                             return ra - rb;
                           })
                           .map(([k, v]) => (
-                          <div
-                            key={k}
-                            className='flex flex-col text-ellipsis overflow-hidden'
-                          >
-                            <span className='mr-2 text-gray-300'>
-                              {resolveMetaLabel(k)}
-                            </span>
-                            <span className='text-gray-100 text-left'>
-                              {typeof v === 'object'
-                                ? JSON.stringify(v)
-                                : String(v)}
-                            </span>
-                          </div>
-                        ))}
+                            <div
+                              key={k}
+                              className='flex flex-col text-ellipsis overflow-hidden'
+                            >
+                              <span className='mr-2 text-gray-300'>
+                                {resolveMetaLabel(k)}
+                              </span>
+                              <span className='text-gray-100 text-left'>
+                                {typeof v === 'object'
+                                  ? JSON.stringify(v)
+                                  : String(v)}
+                              </span>
+                            </div>
+                          ))}
                       </div>
                     </div>
                   );
@@ -144,9 +169,10 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
                             className='flex items-center space-x-3 cursor-pointer'
                           >
                             <input
-                              type='checkbox'
+                              type='radio'
+                              name='level3Select'
                               checked={selectedLevel3s.includes(l3.value)}
-                              onChange={() => onToggleLevel3(l3.value)}
+                              onChange={() => handleLevel3Select(l3.value)}
                               className='h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300'
                             />
                             <span className='text-sm text-gray-700'>
