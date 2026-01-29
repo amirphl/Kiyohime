@@ -10,7 +10,7 @@ const budgetEn = {
     linePriceFactor: 'Line price factor',
 
     // Budget section
-    campaignBudget: 'Campaign Budget',
+    campaignBudget: 'Campaign Budget (Toman)',
     budgetPlaceholder: 'Enter budget amount in Toman',
     budgetValidation: 'Budget must be between 1,000 and 160,000,000 Toman',
     budget: 'Budget',
@@ -53,14 +53,14 @@ const budgetFa = {
     title: 'بودجه خود را تنظیم کنید',
 
     // Line number section
-    lineNumber: 'شماره خط',
+    lineNumber: 'انتخاب سرشماره',
     selectLineNumber: 'انتخاب سرشماره',
-    lineNumberPlaceholder: 'شماره خط کمپین خود را انتخاب کنید',
+    lineNumberPlaceholder: 'سرشماره مدنظر خود را انتخاب کنید',
     selectedLine: 'خط انتخاب شده',
     linePriceFactor: 'ضریب قیمت خط',
 
     // Budget section
-    campaignBudget: 'بودجه ارسال',
+    campaignBudget: 'بودجه ارسال (تومان)',
     budgetPlaceholder: 'مقدار بودجه را به تومان وارد کنید',
     budgetValidation: 'بودجه باید بین ۱,۰۰۰ تا ۱۶۰,۰۰۰,۰۰۰ تومان باشد',
     budget: 'بودجه',
