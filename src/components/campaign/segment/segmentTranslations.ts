@@ -37,7 +37,7 @@ const campaignLevelEn = {
 
     // Summary Section
     campaignSummary: 'Campaign Summary',
-    campaignTitleLabel: 'Campaign Title:',
+    campaignTitleLabel: 'Campaign Title',
     level3Label: 'level3:',
     sexLabel: 'Sex:',
     citiesLabel: 'Cities:',
@@ -133,7 +133,7 @@ const campaignLevelFa = {
 
     // Summary Section
     campaignSummary: 'خلاصه کمپین',
-    campaignTitleLabel: 'عنوان کمپین:',
+    campaignTitleLabel: 'عنوان کمپین',
     level3Label: 'سطح ۳:',
     sexLabel: 'جنسیت:',
     citiesLabel: 'شهرها:',
