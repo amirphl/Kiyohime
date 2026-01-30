@@ -48,16 +48,16 @@ const paymentFa = {
 
     // Wallet balance section
     walletBalance: 'موجودی کیف پول',
-    availableBalance: 'موجودی موجود',
-    campaignCost: 'هزینه کمپین',
-    sufficientBalance: 'موجودی کافی برای کمپین',
+    availableBalance: 'موجودی در دسترس',
+    campaignCost: 'هزینه ارسال',
+    sufficientBalance: 'موجودی کافی برای ارسال',
     insufficientBalance: 'موجودی ناکافی برای کمپین',
     insufficientBalanceMessage: 'برای ادامه این کمپین باید موجودی کیف پول خود را افزایش دهید.',
     goToWallet: 'رفتن به کیف پول و شارژ',
     balanceError: 'خطا در بررسی موجودی کیف پول',
     balanceErrorHelp: 'لطفاً بعداً دوباره تلاش کنید یا با پشتیبانی تماس بگیرید.',
     balanceNotAvailable: 'موجودی کیف پول در دسترس نیست',
-    balanceHelp: 'موجودی کیف پول شما در برابر هزینه کمپین بررسی می‌شود.',
+    balanceHelp: 'موجودی کیف پول شما در برابر هزینه ارسال بررسی می‌شود.',
 };
 
 export const paymentI18n = {
