@@ -126,7 +126,7 @@ const PaymentStep: React.FC = () => {
           balanceErrorTitle={t.balanceError}
           balanceErrorHelp={t.balanceErrorHelp}
           balanceNotAvailableLabel={t.balanceNotAvailable}
-          helpText={t.balanceHelp}
+          helpText={''}
         />
       </div>
     </div>
