@@ -97,7 +97,7 @@ const BudgetStep: React.FC = () => {
           error={lineNumbersError}
           onChange={handleLineNumberChange}
           title={t.lineNumber}
-          label={t.selectLineNumber}
+          label={''}
           placeholder={t.lineNumberPlaceholder}
           helpText={''}
           priceFactorLabel={t.linePriceFactor}
