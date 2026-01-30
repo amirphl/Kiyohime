@@ -241,12 +241,12 @@ const CampaignCreationPage: React.FC = () => {
       isCompleted: validation.isStepCompleted(3),
       isAccessible: validation.isStepAccessible(3),
     },
-    {
-      id: 4,
-      title: paymentCopy.title,
-      isCompleted: validation.isStepCompleted(4),
-      isAccessible: validation.isStepAccessible(4),
-    },
+    // {
+    //   id: 4,
+    //   title: paymentCopy.title,
+    //   isCompleted: validation.isStepCompleted(4),
+    //   isAccessible: validation.isStepAccessible(4),
+    // },
   ];
 
   return (
