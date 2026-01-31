@@ -33,7 +33,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
     return [];
   };
 
-  const level1 = campaign.level1 ;
+  const level1 = campaign.level1;
   const level2s = normalizeList(campaign.level2s as any);
   const level3s = normalizeList(
     (campaign.level3s as any)
@@ -83,7 +83,6 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {infoRow('UUID', campaign.uuid)}
               {infoRow(copy.table.status, statusLabel(campaign.status))}
             </div>
 
@@ -91,10 +90,6 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
               {infoRow(
                 copy.table.createdAt,
                 formatDateTime(campaign.created_at)
-              )}
-              {infoRow(
-                copy.modal.updatedAt,
-                formatDateTime(campaign.updated_at)
               )}
               {infoRow(
                 copy.modal.scheduleAt,
@@ -107,7 +102,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
                 {copy.table.segment}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {infoRow(
+                {/* {infoRow(
                   copy.modal.level1,
                   <span className="whitespace-pre-wrap break-words">
                     {level1 || '-'}
@@ -129,9 +124,10 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
                   ) : (
                     '-'
                   )
-                )}
+                )} */}
                 {infoRow(
-                  copy.modal.level3,
+                  // copy.modal.level3,
+                  '',
                   level3s.length ? (
                     <ul className="list-disc list-inside space-y-1 text-sm text-slate-900">
                       {(level3s as string[]).map((item, idx) => (
@@ -199,7 +195,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
                 {copy.modal.statistics}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="sm:col-span-2">
+                {/* <div className="sm:col-span-2">
                   <div className="flex flex-col gap-2">
                     {statisticEntries.length ? (
                       statisticEntries.map(([key, value]) => (
@@ -221,12 +217,21 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
                       <div className="text-sm text-slate-500">-</div>
                     )}
                   </div>
-                </div>
+                </div> */}
                 <div className="flex flex-col gap-3">
-                  {infoRow(copy.modal.clickRate, campaign.click_rate ?? '-')}
                   {infoRow(copy.modal.totalClicks, campaign.total_clicks ?? '-')}
+                  {infoRow(copy.modal.clickRate, campaign.click_rate ?? '-')}
                 </div>
               </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
+              <div className="text-xs uppercase tracking-[0.2em] text-slate-400 mb-2">
+                {copy.modal.linkShortener}
+              </div>
+              <p className="text-sm text-slate-900 whitespace-pre-wrap break-words leading-relaxed">
+                {'https://j0in.ir'}
+              </p>
             </div>
           </div>
 
