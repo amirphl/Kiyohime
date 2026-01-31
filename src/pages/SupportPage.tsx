@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Headphones, Plus } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
@@ -7,11 +7,13 @@ import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { apiService } from '../services/api';
+import { getWalletCopy } from './wallet/translations';
 
 const SupportPage: React.FC = () => {
   const { t } = useTranslation();
   const { language } = useLanguage();
   const { accessToken } = useAuth();
+  const walletCopy = useMemo(() => getWalletCopy(language), [language]);
 
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -225,17 +227,17 @@ const SupportPage: React.FC = () => {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('wallet.table.row') || '#'}</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{walletCopy.table.row || '#'}</th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('dashboard.supportModal.titleLabel') || 'Title'}</th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('dashboard.supportModal.contentLabel') || 'Content'}</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('wallet.table.datetime') || 'Created At'}</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{walletCopy.table.datetime || 'Created At'}</th>
                         <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{t('common.details') || 'Details'}</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {groups.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="px-4 py-6 text-center text-gray-500">{t('wallet.table.noTransactions') || 'No records'}</td>
+                          <td colSpan={5} className="px-4 py-6 text-center text-gray-500">{walletCopy.table.noTransactions || 'No records'}</td>
                         </tr>
                       ) : (
                         groups.map((g, idx) => {
@@ -347,7 +349,7 @@ const SupportPage: React.FC = () => {
               </div>
             </>
           ) : (
-            <div className="text-sm text-gray-500">{t('wallet.table.noTransactions') || 'No records'}</div>
+            <div className="text-sm text-gray-500">{walletCopy.table.noTransactions || 'No records'}</div>
           )}
         </div>
       </ConfirmationModal>
