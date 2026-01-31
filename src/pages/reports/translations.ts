@@ -55,6 +55,7 @@ export interface ReportsTranslations {
     totalClicks: string;
     total: string;
     numAudience: string;
+    linkShortener: string;
   };
 }
 
@@ -115,6 +116,7 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       totalClicks: 'Total Clicks',
       total: 'Total',
       numAudience: 'Total',
+      linkShortener: 'Link Shortener',
     },
   },
   fa: {
@@ -127,20 +129,20 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
     loading: 'در حال بارگذاری...',
     table: {
       row: '#',
-      title: 'عنوان',
+      title: 'عنوان ارسال',
       text: 'متن',
-      lineNumber: 'شماره خط',
-      segment: 'بخش',
-      sent: 'ارسال شده',
+      lineNumber: 'سر شماره',
+      segment: 'مخاطبان هدف',
+      sent: 'تعداد پیام های رسیده',
       status: 'وضعیت',
-      numAudience: 'مجموع',
+      numAudience: 'تعداد پیام های ارسالی',
       createdAt: 'ایجاد شده',
-      scheduleAt: 'زمان‌بندی',
+      scheduleAt: 'زمان‌بندی ارسال',
       details: 'جزئیات',
       subsegments: 'زیربخش‌ها',
       sex: 'جنسیت',
       cities: 'شهرها',
-      adlink: 'لینک تبلیغ',
+      adlink: 'لینک ضمیمه شده',
       updatedAt: 'به‌روزرسانی',
     },
     statuses: {
@@ -155,24 +157,25 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       rejected: 'رد شده',
       close: 'بستن',
       fixAndRestart: 'اصلاح و شروع مجدد کمپین؟',
-      lineNumber: 'شماره خط',
+      lineNumber: 'سر شماره',
       subsegments: 'زیربخش‌ها',
       sex: 'جنسیت',
       cities: 'شهرها',
-      adlink: 'لینک تبلیغ',
-      scheduleAt: 'زمان‌بندی',
+      adlink: 'لینک ضمیمه شده',
+      scheduleAt: 'زمان‌بندی ارسال',
       updatedAt: 'به‌روزرسانی',
       level1: 'سطح ۱',
       level2: 'سطح ۲',
       level3: 'سطح ۳',
       linePriceFactor: 'ضریب قیمت خط',
-      budget: 'بودجه',
-      comment: 'توضیحات',
+      budget: 'هزینه ارسال',
+      comment: 'پیام ادمین',
       statistics: 'آمار',
-      clickRate: 'نرخ کلیک',
+      clickRate: 'نرخ کلیک (تعداد کلیک / تعداد پیام های رسیده)',
       totalClicks: 'مجموع کلیک',
       total: 'مجموع',
-      numAudience: 'مجموع',
+      numAudience: 'تعداد پیام های ارسالی',
+      linkShortener: 'کوتاه کننده لینک',
     },
   },
 };
