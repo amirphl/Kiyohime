@@ -33,22 +33,19 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                   {copy.table.title}
                 </th>
                 <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  {copy.table.text}
-                </th>
-                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
                   {copy.table.lineNumber}
                 </th>
                 <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
                   {copy.table.segment}
                 </th>
                 <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  {copy.table.numAudience}
+                </th>
+                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
                   {copy.table.sent}
                 </th>
                 <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
                   {copy.table.status}
-                </th>
-                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  {copy.table.numAudience}
                 </th>
                 <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
                   {copy.table.createdAt}
@@ -67,9 +64,6 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                   <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                     {idx + 1}
                   </td>
-                  <td className='px-4 py-2 text-sm text-gray-900 text-center'>
-                    {truncateText(c.title || '')}
-                  </td>
                   <td className='px-4 py-2 text-sm text-gray-700 text-center'>
                     {truncateText(c.content || '')}
                   </td>
@@ -77,16 +71,16 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                     {c.line_number || '-'}
                   </td>
                   <td className='px-4 py-2 text-sm text-gray-900 text-center'>
-                    {c.level1 || '-'}
+                    {Array.isArray(c.level3s) ? c.level3s.join(', ') : c.level3s || '-'}
+                  </td>
+                  <td className='px-4 py-2 text-sm text-gray-500 text-center'>
+                    {c.num_audience || '-'}
                   </td>
                   <td className='px-4 py-2 text-sm text-gray-500 text-center'>
                     {c.statistics?.totalSent || '-'}
                   </td>
                   <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                     {statusLabel(c.status)}
-                  </td>
-                  <td className='px-4 py-2 text-sm text-gray-500 text-center'>
-                    {c.num_audience || '-'}
                   </td>
                   <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                     {formatDateTime(c.created_at)}
