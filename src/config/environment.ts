@@ -104,7 +104,7 @@ const defaultConfig: EnvironmentConfig = {
 
   ui: {
     primaryColor: '#2563eb',
-    logoUrl: '/logo.png',
+    logoUrl: '/Jazebeh.png',
     faviconUrl: '/favicon.ico',
     theme: 'light',
   },
@@ -131,7 +131,7 @@ const domainConfigs: Record<string, Partial<EnvironmentConfig>> = {
     },
     ui: {
       primaryColor: '#22c55e',
-      logoUrl: '/logo-yamata.png',
+      logoUrl: '/Jazebeh.png',
       faviconUrl: '/favicon-yamata.ico',
       theme: 'light',
     },
@@ -178,7 +178,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
       },
       ui: {
         primaryColor: '#2563eb',
-        logoUrl: '/logo.png',
+        logoUrl: '/Jazebeh.png',
         faviconUrl: '/favicon.ico',
         theme: 'light',
       },
