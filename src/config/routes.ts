@@ -14,6 +14,13 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Home',
     description: 'Welcome to Marketing Platform',
   },
+  LANDING: {
+    path: '/landing',
+    page: 'landing',
+    requiresAuth: false,
+    title: 'Landing',
+    description: 'Jazebeh landing page',
+  },
   LOGIN: {
     path: '/signin',
     page: 'login',
