@@ -17,7 +17,7 @@ export const headerI18n = {
     brand: 'پلتفرم هوشمند و داده‌محور',
     subtitle: 'پلتفرم بازاریابی هوشمند و داده‌محور',
     dashboard: 'پیشخوان',
-    campaigns: 'کمپین‌ها',
+    campaigns: 'ارسال‌ها',
     analytics: 'تحلیلات',
     support: 'پشتیبانی',
     features: 'ویژگی‌ها',
