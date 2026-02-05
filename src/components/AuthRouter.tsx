@@ -24,11 +24,18 @@ import PricingPage from '../pages/PricingPage';
 import TermsPage from '../pages/TermsPage';
 import AdminShortLinkManagementPage from '../pages/AdminShortLinkManagementPage';
 import AdminSegmentPriceFactorsPage from '../pages/AdminSegmentPriceFactorsPage';
+import LandingPage from '../pages/LandingPage';
 
-type PageType = 'home' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation' | 'wallet' | 'reports' | 'customer-management' | 'contact' | 'terms' | 'pricing' | 'admin-login' | 'admin-sardis' | 'admin-line-numbers' | 'admin-campaigns' | 'admin-customers' | 'support' | 'admin-tickets' | 'admin-short-links' | 'admin-segment-price-factors';
+type PageType = 'home' | 'landing' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation' | 'wallet' | 'reports' | 'customer-management' | 'contact' | 'terms' | 'pricing' | 'admin-login' | 'admin-sardis' | 'admin-line-numbers' | 'admin-campaigns' | 'admin-customers' | 'support' | 'admin-tickets' | 'admin-short-links' | 'admin-segment-price-factors';
 
 const AuthRouter: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<PageType>('home');
+  const [currentPage, setCurrentPage] = useState<PageType>(() => {
+    if (typeof window !== 'undefined') {
+      const route = getRouteByPath(window.location.pathname);
+      if (route) return route.page as PageType;
+    }
+    return 'home';
+  });
   const { isAuthenticated } = useAuth();
   const [sessionExpired, setSessionExpired] = useState(false);
   const { t } = useTranslation();
@@ -119,6 +126,8 @@ const AuthRouter: React.FC = () => {
   switch (currentPage) {
     case 'home':
       return <HomePage />;
+    case 'landing':
+      return <LandingPage />;
 
     case 'login':
       return (
