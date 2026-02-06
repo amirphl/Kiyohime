@@ -100,7 +100,7 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
                 <span className='text-sm text-gray-700'>{lvl2.label}</span>
               </label>
               <div className='relative group'>
-                <span className='inline-flex items-center justify-center w-5 h-5 rounded-full border text-xs border-primary-600 text-primary-600 select-none'>
+                <span className='inline-flex items-center justify-center w-5 h-5 rounded-full border text-xs border-primary-600 text-primary-600 select-none leading-none text-center'>
                   {t.questionMark || '?'}
                 </span>
                 {(() => {
