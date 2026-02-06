@@ -60,7 +60,7 @@ const AdminCustomerManagementPage: React.FC = () => {
     const res = await adminApi.getCustomerDiscountsHistory(customerId);
     setDiscountsLoading(false);
     if (!res.success) {
-      const msg = res.message || (language === 'fa' ? 'دریافت تاریخچه تخفیف‌ها ناموفق بود' : 'Failed to load discounts history');
+      const msg = res.message || (language === 'fa' ? 'دریافت تاریخچه شارژهای هدیه ناموفق بود' : 'Failed to load discounts history');
       setDiscountsError(msg);
       return;
     }
