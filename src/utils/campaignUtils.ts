@@ -7,11 +7,16 @@
  * English characters and numbers = 1, others (Farsi, Arabic, etc.) = 2
  * Excludes the link placeholder character (🔗) from counting
  */
+const normalizeLinkPlaceholder = (text: string): string =>
+	text
+		// Replace displayed placeholder with single marker so downstream logic stays consistent
+		.replace(/jo1n\.ir\/xxxxxx/gi, '🔗');
+
 export const countCharacters = (text: string): number => {
 	if (!text) return 0;
 
 	// Remove the link character (🔗) before counting
-	const textWithoutLinkChar = text.replace(/🔗/g, '');
+	const textWithoutLinkChar = normalizeLinkPlaceholder(text).replace(/🔗/g, '');
 
 	let count = 0;
 	for (let i = 0; i < textWithoutLinkChar.length; i++) {
@@ -37,12 +42,13 @@ export const calculateTotalCharacterCount = (userText: string, insertLink: boole
 	const shortenedLinkChars = 14; // Shortened link takes 14 characters
 	const maxCharacters = 330; // Maximum total characters allowed
 
-	const characterCount = countCharacters(userText);
+	const normalizedText = normalizeLinkPlaceholder(userText || '');
+	const characterCount = countCharacters(normalizedText);
 	let startCount: number;
 
 	if (insertLink) {
 		// Check if link character is present in text
-		if (userText && userText.includes('🔗')) {
+		if (normalizedText && normalizedText.includes('🔗')) {
 			// Link character will be replaced by shortened link (14 chars) + backend append (6 chars)
 			startCount = shortenedLinkChars + backendAppendChars; // 20 chars
 		} else {
