@@ -25,6 +25,8 @@ const budgetEn = {
 
     // Message count section
     estimatedMessages: 'Number of Messages That Can Be Sent',
+    sentCountLabel: 'Your total messages to send:',
+    capacityCountLabel: 'Capacity of your selected audience:',
     calculatingMessages: 'Calculating messages...',
     messages: 'messages',
     basedOnBudget: 'Based on your budget of {budget}',
@@ -75,6 +77,8 @@ const budgetFa = {
 
     // Message count section
     estimatedMessages: 'تعداد پیام‌های ارسالی',
+    sentCountLabel: 'تعداد پیام‌های ارسالی شما:',
+    capacityCountLabel: 'تعداد ظرفیت مخاطبان هدف انتخابی شما:',
     calculatingMessages: 'در حال محاسبه پیام‌ها...',
     messages: 'پیام',
     basedOnBudget: 'بر اساس بودجه شما: {budget}',
