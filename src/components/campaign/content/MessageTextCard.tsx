@@ -56,12 +56,20 @@ const MessageTextCard: React.FC<MessageTextCardProps> = ({
   withoutLinkExplanation,
   textExceedsLimit,
 }) => {
+  const linkDisplay = 'jo1n.ir/xxxxxx';
+  const toDisplay = (text || '').replace(/🔗/g, linkDisplay);
+  const handleDisplayChange = (value: string) => {
+    const normalized = value.replace(new RegExp(linkDisplay, 'g'), '🔗');
+    onTextChange(normalized);
+  };
+
   const characterCount = countCharacters(text || '');
   const charCountResult = calculateTotalCharacterCount(text || '', insertLink);
   const totalCharacterCount = charCountResult.totalCharacterCount;
   const isOverLimit = charCountResult.isOverLimit;
   const maxCharacters = charCountResult.maxCharacters;
   const numberOfParts = calculateSMSParts(totalCharacterCount);
+  const hasLinkMarker = (text || '').includes('🔗');
 
   return (
     <Card>
@@ -70,17 +78,25 @@ const MessageTextCard: React.FC<MessageTextCardProps> = ({
           <MessageSquare className='h-5 w-5 mr-2 text-primary-600' />
           {title}
         </h3>
-        <FormField
-          id='text'
-          label={label}
-          type='textarea'
-          placeholder={placeholder}
-          value={text || ''}
-          onChange={onTextChange}
-          required
-          ref={textAreaRef}
-        />
-        {insertLink && !(text || '').includes('🔗') && (
+        <div className='relative'>
+          <FormField
+            id='text'
+            label={label}
+            type='textarea'
+            placeholder={placeholder}
+            value={toDisplay}
+            onChange={handleDisplayChange}
+            required
+            ref={textAreaRef}
+          />
+          <span className='pointer-events-none absolute bottom-3 right-3 text-sm text-gray-400 select-none'>
+            لغو۱۱
+          </span>
+        </div>
+        {/* {insertLink && !(text || '').includes('🔗') && (
+          <p className='text-sm text-red-600'>{linkCharacterInsertedMessage}</p>
+        )} */}
+        {insertLink && !hasLinkMarker && (
           <p className='text-sm text-red-600'>{linkCharacterInsertedMessage}</p>
         )}
         {insertLink && (
@@ -129,7 +145,7 @@ const MessageTextCard: React.FC<MessageTextCardProps> = ({
           </div>
           <div className='text-xs text-gray-500 bg-gray-50 p-2 rounded'>
             <div className='font-medium mb-1'>{partsBreakdown}</div>
-            <div>{partsExplanation}</div>
+            {/* <div>{partsExplanation}</div> */}
             <div className='mt-1'>
               {insertLink ? withLinkExplanation : withoutLinkExplanation}
             </div>
