@@ -184,6 +184,7 @@ export interface StepConfig {
 }
 
 export interface GetSMSCampaignResponse {
+	id?: number;
 	uuid: string;
 	status: string;
 	created_at: string;
