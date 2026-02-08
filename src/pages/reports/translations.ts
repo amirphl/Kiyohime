@@ -23,6 +23,7 @@ export interface ReportsTranslations {
     cities: string;
     adlink: string;
     updatedAt: string;
+    actions: string;
   };
   statuses: {
     initiated: string;
@@ -56,6 +57,15 @@ export interface ReportsTranslations {
     total: string;
     numAudience: string;
     linkShortener: string;
+    cancelCampaign: string;
+    cancelCommentPlaceholder: string;
+    cancel: string;
+    cancelling: string;
+    cancelled: string;
+    cancelSuccess: string;
+    cancelError: string;
+    cancelNotAllowed: string;
+    cancelConfirm: string;
   };
 }
 
@@ -85,6 +95,7 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       cities: 'Cities',
       adlink: 'Ad Link',
       updatedAt: 'Updated At',
+      actions: 'Actions',
     },
     statuses: {
       initiated: 'Initiated',
@@ -117,6 +128,15 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       total: 'Total',
       numAudience: 'Total',
       linkShortener: 'Link Shortener',
+      cancelCampaign: 'Cancel Campaign',
+      cancelCommentPlaceholder: 'Optional comment (max 500 chars)',
+      cancel: 'Cancel campaign',
+      cancelling: 'Cancelling...',
+      cancelled: 'Campaign cancelled',
+      cancelSuccess: 'Campaign cancelled successfully',
+      cancelError: 'Failed to cancel campaign',
+      cancelNotAllowed: 'Only campaigns waiting for approval can be cancelled',
+      cancelConfirm: 'Are you sure you want to cancel this campaign?',
     },
   },
   fa: {
@@ -144,6 +164,7 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       cities: 'شهرها',
       adlink: 'لینک ضمیمه شده',
       updatedAt: 'به‌روزرسانی',
+      actions: 'اقدامات',
     },
     statuses: {
       initiated: 'آغاز شده',
@@ -176,6 +197,15 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       total: 'مجموع',
       numAudience: 'تعداد پیام های ارسالی',
       linkShortener: 'کوتاه کننده لینک',
+      cancelCampaign: 'لغو',
+      cancelCommentPlaceholder: 'توضیح اختیاری (حداکثر ۵۰۰ کاراکتر)',
+      cancel: 'لغو',
+      cancelling: 'در حال لغو...',
+      cancelled: 'کمپین لغو شد',
+      cancelSuccess: 'کمپین با موفقیت لغو شد',
+      cancelError: 'لغو کمپین ناموفق بود',
+      cancelNotAllowed: 'فقط ارسال‌های در انتظار تایید قابل لغو هستند',
+      cancelConfirm: 'آیا از لغو این کمپین مطمئن هستید؟',
     },
   },
 };
