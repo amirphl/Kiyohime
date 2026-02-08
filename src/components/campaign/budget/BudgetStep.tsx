@@ -138,6 +138,8 @@ const BudgetStep: React.FC = () => {
             messagesLabel={t.messages}
             calculatingText={t.calculating}
             enterBudgetText={t.enterBudgetToSee}
+            sentLabel={t.sentCountLabel}
+            capacityLabel={t.capacityCountLabel}
           />
         </div>
       </div>
