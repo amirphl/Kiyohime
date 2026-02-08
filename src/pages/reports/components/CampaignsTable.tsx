@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GetSMSCampaignResponse } from '../../../types/campaign';
 import { ReportsCopy } from '../translations';
+import { useCancelCampaign } from '../hooks/useCancelCampaign';
 
 interface CampaignsTableProps {
   items: GetSMSCampaignResponse[];
@@ -18,6 +19,7 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
   truncateText,
 }) => {
   const statusLabel = (status: string) => copy.statuses[status] || status;
+  const { cancelCampaign, cancelling, cancelled } = useCancelCampaign(copy);
 
   return (
     <div className='bg-white rounded-lg shadow-sm border border-gray-200'>
@@ -54,6 +56,9 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                   {copy.table.scheduleAt}
                 </th>
                 <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  {copy.table.actions}
+                </th>
+                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
                   {copy.table.details}
                 </th>
               </tr>
@@ -87,6 +92,23 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                   </td>
                   <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                     {formatDateTime(c.scheduleat)}
+                  </td>
+                  <td className='px-4 py-2 text-center text-sm text-gray-900'>
+                    {c.status === 'waiting-for-approval' && c.id ? (
+                      <button
+                        onClick={() => cancelCampaign(c)}
+                        disabled={cancelling[c.id] || cancelled[c.id]}
+                        className='px-3 py-1 text-sm rounded bg-amber-600 text-white shadow-sm hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition'
+                      >
+                        {cancelled[c.id]
+                          ? copy.modal.cancelled
+                          : cancelling[c.id]
+                            ? copy.modal.cancelling
+                            : copy.modal.cancel}
+                      </button>
+                    ) : (
+                      <span className='text-gray-400'>-</span>
+                    )}
                   </td>
                   <td className='px-4 py-2 text-center'>
                     <button
