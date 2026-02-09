@@ -6,6 +6,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   isRTL: boolean;
+  languageSwitchEnabled: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(
@@ -23,15 +24,22 @@ export const useLanguage = () => {
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const languageSwitchEnabled =
+    process.env.REACT_APP_ENABLE_LANGUAGE_SWITCH !== 'false';
+  const defaultLanguageEnv =
+    process.env.REACT_APP_DEFAULT_LANGUAGE === 'en' ? 'en' : 'fa';
+
   const [language, setLanguageState] = useState<Language>(() => {
+    if (!languageSwitchEnabled) return defaultLanguageEnv;
     const stored = localStorage.getItem('language');
     if (stored === 'fa' || stored === 'en') {
       return stored as Language;
     }
-    return 'fa';
+    return defaultLanguageEnv;
   });
 
   const setLanguage = (lang: Language) => {
+    if (!languageSwitchEnabled) return;
     setLanguageState(lang);
     localStorage.setItem('language', lang);
     document.documentElement.setAttribute('lang', lang);
@@ -49,7 +57,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [language]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, isRTL }}>
+    <LanguageContext.Provider
+      value={{ language, setLanguage, isRTL, languageSwitchEnabled }}
+    >
       {children}
     </LanguageContext.Provider>
   );

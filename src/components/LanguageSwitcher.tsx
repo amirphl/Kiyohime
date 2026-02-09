@@ -2,7 +2,9 @@ import React from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 
 const LanguageSwitcher: React.FC = () => {
-  const { language, setLanguage, isRTL } = useLanguage();
+  const { language, setLanguage, isRTL, languageSwitchEnabled } = useLanguage();
+
+  if (!languageSwitchEnabled) return null;
 
   return (
     <div className='flex items-center space-x-2'>
