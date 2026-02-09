@@ -113,7 +113,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     reserved: 'رزرو شده',
     credit: 'اعتبار هدیه',
     total: 'جمع کل',
-    spendOnCampaigns: 'هزینه کمپین‌های گذشته',
+    spendOnCampaigns: 'هزینه ارسال‌های گذشته',
     agencyShareWithTax: 'درآمد آژانس (با مالیات)',
     lastUpdated: 'آخرین بروزرسانی',
     chargeTitle: 'شارژ کیف پول',
