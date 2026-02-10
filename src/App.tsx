@@ -4,7 +4,7 @@ import AuthRouter from './components/AuthRouter';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
-import { ROUTES } from './config/routes';
+import { getRouteByPath } from './config/routes';
 import { LanguageProvider } from './hooks/useLanguage';
 import { ToastProvider } from './components/ToastContainer';
 import { AuthProvider } from './hooks/useAuth';
@@ -14,7 +14,7 @@ import { NavigationProvider } from './contexts/NavigationContext';
 function App() {
   const isLandingPage =
     typeof window !== 'undefined' &&
-    window.location.pathname === ROUTES.LANDING.path;
+    getRouteByPath(window.location.pathname)?.page === 'landing';
 
   return (
     <LanguageProvider>
