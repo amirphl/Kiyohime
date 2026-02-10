@@ -167,6 +167,7 @@ const CustomerManagementPage: React.FC = () => {
         showError(msg);
         return;
       }
+      // Normalize to backend fraction: E / (E + 100)
       const normalizedRate = rateNum / (rateNum + 100);
       if (accessToken) apiService.setAccessToken(accessToken);
       const res = await apiService.createAgencyDiscount({
