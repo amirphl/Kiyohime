@@ -777,8 +777,8 @@ class ApiService {
     if ((!customer_id && customer_id !== 0) || !name?.trim()) {
       return { success: false, message: 'Missing required fields', error: { code: 'Missing required fields', details: null } };
     }
-    if (!(discount_rate > 0 && discount_rate < 0.5)) {
-      return { success: false, message: 'Rate must be between 0 and 0.5', error: { code: 'DISCOUNT_RATE_OUT_OF_RANGE', details: null } };
+    if (!(discount_rate > 0 && discount_rate <= 100)) {
+      return { success: false, message: 'Rate must be between 0 and 100', error: { code: 'DISCOUNT_RATE_OUT_OF_RANGE', details: null } };
     }
     return this.request(`/reports/agency/discounts`, {
       method: 'POST',
