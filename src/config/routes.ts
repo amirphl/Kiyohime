@@ -21,6 +21,13 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Landing',
     description: 'Jazebeh landing page',
   },
+  LANDING_SLASH: {
+    path: '/landing/',
+    page: 'landing',
+    requiresAuth: false,
+    title: 'Landing',
+    description: 'Jazebeh landing page',
+  },
   LOGIN: {
     path: '/signin',
     page: 'login',
