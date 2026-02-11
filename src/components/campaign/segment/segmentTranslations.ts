@@ -98,7 +98,7 @@ const campaignLevelFa = {
     title: 'مخاطبان هدف خود را تعریف کنید',
 
     // Campaign Title
-    campaignTitle: 'عنوان کمپین',
+    campaignTitle: 'عنوان ارسال',
     campaignTitlePlaceholder: 'عنوان کمپین را وارد کنید (حداکثر ۲۵۵ کاراکتر)',
     campaignTitleValidation: 'عنوان کمپین باید حداکثر ۲۵۵ کاراکتر باشد',
 
@@ -133,24 +133,24 @@ const campaignLevelFa = {
 
     // Summary Section
     campaignSummary: 'خلاصه کمپین',
-    campaignTitleLabel: 'عنوان کمپین',
+    campaignTitleLabel: 'عنوان ارسال',
     level3Label: 'سطح ۳:',
     sexLabel: 'جنسیت:',
     citiesLabel: 'شهرها:',
     notSet: 'تنظیم نشده',
 
     // Campaign Capacity Section
-    campaignCapacity: 'ظرفیت کمپین',
+    campaignCapacity: 'ظرفیت ارسال',
     capacityDescription: 'تعداد افرادی که بر اساس فیلترهای انتخاب شده پیام پیامکی شما را دریافت خواهند کرد',
     calculatingCapacity: 'در حال محاسبه ظرفیت...',
     capacityResult: '{count} نفر پیام پیامکی شما را دریافت خواهند کرد',
     capacityError: 'قادر به محاسبه ظرفیت نیست. لطفاً انتخاب‌های خود را بررسی کنید.',
-    capacityHelp: 'ظرفیت به طور خودکار با تنظیم فیلترهای کمپین شما محاسبه می‌شود.',
-    campaignCapacityHelp: 'ظرفیت به طور خودکار با تنظیم فیلترهای کمپین شما محاسبه می‌شود.',
+    capacityHelp: 'ظرفیت به طور خودکار با تنظیم فیلترهای ارسال شما محاسبه می‌شود.',
+    campaignCapacityHelp: 'ظرفیت به طور خودکار با تنظیم فیلترهای ارسال شما محاسبه می‌شود.',
     capacityTooLow: 'ظرفیت بسیار کم است (کمتر از ۵۰۰). چند فیلتر را حذف کنید تا ظرفیت افزایش یابد.',
     estimatedCapacity: 'ظرفیت تخمینی',
     calculating: 'در حال محاسبه...',
-    users: 'کاربر',
+    users: 'مخاطب',
 
     // Legacy fields (keeping for backward compatibility)
     customerType: 'نوع مشتری',
