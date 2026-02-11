@@ -59,7 +59,7 @@ const budgetFa = {
     selectLineNumber: 'انتخاب سرشماره',
     lineNumberPlaceholder: 'سرشماره مدنظر خود را انتخاب کنید',
     selectedLine: 'خط انتخاب شده',
-    linePriceFactor: 'ضریب قیمت خط',
+    linePriceFactor: 'ضریب قیمت سرشماره',
 
     // Budget section
     campaignBudget: 'بودجه ارسال (تومان)',
