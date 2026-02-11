@@ -52,7 +52,7 @@ const CapacityCard: React.FC<CapacityCardProps> = ({
         <p className='text-sm text-gray-600'>{help}</p>
         <div className='flex items-center justify-between bg-gray-50 p-4 rounded-lg'>
           <div>
-            <p className='text-sm font-medium text-gray-700'>{title}</p>
+            {/* <p className='text-sm font-medium text-gray-700'>{title}</p> */}
             <p className='text-2xl font-bold text-primary-600'>
               {isLoading
                 ? calculatingLabel
