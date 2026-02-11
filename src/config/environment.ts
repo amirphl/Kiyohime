@@ -67,7 +67,7 @@ const defaultConfig: EnvironmentConfig = {
   apiUrl: 'https://yamata-no-orochi.com:8443/api/v1', // Will be overridden by production config
 
   brandName: 'Jazebeh',
-  brandSubtitle: 'Marketing Platform',
+  brandSubtitle: '',
 
   features: {
     smsMarketing: true,
@@ -124,7 +124,7 @@ const domainConfigs: Record<string, Partial<EnvironmentConfig>> = {
     baseUrl: 'https://yamata-no-orochi.com:8443',
     apiUrl: 'https://yamata-no-orochi.com:8443/api/v1',
     brandName: 'Yamata no Orochi',
-    brandSubtitle: 'Marketing Platform',
+    brandSubtitle: '',
     features: {
       smsMarketing: true,
       analytics: true,
@@ -171,7 +171,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
       baseUrl: `https://${currentDomain}`,
       apiUrl: `https://${currentDomain}/api/v1`,
       brandName: 'Jazebeh',
-      brandSubtitle: 'Marketing Platform',
+      brandSubtitle: '',
       features: {
         smsMarketing: true,
         analytics: true,
