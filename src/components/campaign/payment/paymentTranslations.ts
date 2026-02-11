@@ -51,7 +51,7 @@ const paymentFa = {
     availableBalance: 'موجودی در دسترس',
     campaignCost: 'هزینه ارسال',
     sufficientBalance: 'موجودی کافی برای ارسال',
-    insufficientBalance: 'موجودی ناکافی برای کمپین',
+    insufficientBalance: 'موجودی ناکافی برای ارسال',
     insufficientBalanceMessage: 'برای ادامه این کمپین باید موجودی کیف پول خود را افزایش دهید.',
     goToWallet: 'رفتن به کیف پول و شارژ',
     balanceError: 'خطا در بررسی موجودی کیف پول',
