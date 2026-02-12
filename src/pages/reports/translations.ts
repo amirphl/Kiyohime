@@ -188,7 +188,7 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       level1: 'سطح ۱',
       level2: 'سطح ۲',
       level3: 'سطح ۳',
-      linePriceFactor: 'ضریب قیمت خط',
+      linePriceFactor: 'ضریب قیمت سرشماره',
       budget: 'هزینه ارسال',
       comment: 'پیام ادمین',
       statistics: 'آمار',
