@@ -90,14 +90,14 @@ export const customerManagementTranslations: Record<'en' | 'fa', AgencyReportTra
     discountHistoryAction: 'سوابق',
     discountSelectCustomer: 'انتخاب مشتری',
     discountName: 'نام شارژ هدیه',
-    discountRateLabel: 'عدد تخفیف (۰ تا ۱۰۰)',
+    discountRateLabel: 'درصد شارژ هدیه (۰ تا ۱۰۰)',
     discountCancel: 'انصراف',
     discountNameRequired: 'نام الزامی است',
     discountRateInvalid: 'نرخ باید بین ۰ تا ۱۰۰ باشد',
     discountCreate: 'ایجاد',
     discountHistoryTitle: 'تاریخچه شارژهای هدیه',
     discountExpiresAt: 'تاریخ انقضا',
-    discountGlobalCreate: 'ایجاد تخفیف',
+    discountGlobalCreate: 'ایجاد شارژ هدیه',
   },
 };
 
