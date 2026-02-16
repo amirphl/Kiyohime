@@ -25,7 +25,11 @@ export const countCharacters = (text: string): number => {
 		if (char >= 32 && char <= 126) {
 			count += 1; // English character
 		} else {
-			count += 2; // Non-English character (Farsi, Arabic, etc.)
+			// Non-English character (Farsi, Arabic, etc.)
+			// count += 2;
+
+			// New requirement: Count Arabic and Farsi numerals as 1 character
+			count += 1;
 		}
 	}
 	return count;
