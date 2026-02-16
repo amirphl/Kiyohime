@@ -61,6 +61,16 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
+        // Backfill shortLinkDomain and lineNumber for existing stored drafts
+        if (!parsedData.content) parsedData.content = {};
+        if (!parsedData.content.shortLinkDomain) {
+          parsedData.content.shortLinkDomain = 'jo1n.ir';
+        }
+        if (!('lineNumber' in parsedData.content)) parsedData.content.lineNumber = '';
+        if (parsedData.level) {
+          if (!('jobCategory' in parsedData.level)) parsedData.level.jobCategory = '';
+          if (!('job' in parsedData.level)) parsedData.level.job = '';
+        }
         return parsedData;
       } catch (error) {
         console.warn('Failed to parse saved campaign data:', error);
@@ -78,15 +88,18 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         tags: [],
         capacityTooLow: false,
         capacity: undefined,
+        jobCategory: '',
+        job: '',
       },
       content: {
         insertLink: false,
         link: '',
         text: '',
         scheduleAt: undefined,
+        shortLinkDomain: 'jo1n.ir',
+        lineNumber: '',
       },
       budget: {
-        lineNumber: '',
         totalBudget: 0,
         estimatedMessages: undefined,
       },
@@ -205,15 +218,18 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         tags: [],         // Union of tags from selected level3s
         capacityTooLow: false,
         capacity: undefined,
+        jobCategory: '',
+        job: '',
       },
       content: {
         insertLink: false,
         link: '',
         text: '',
         scheduleAt: undefined,
+        shortLinkDomain: 'jo1n.ir',
+        lineNumber: '',
       },
       budget: {
-        lineNumber: '',
         totalBudget: 0,
         estimatedMessages: undefined,
       },
@@ -258,15 +274,18 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         tags: [],         // Union of tags from selected level3s
         capacityTooLow: false,
         capacity: undefined,
+        jobCategory: '',
+        job: '',
       },
       content: {
         insertLink: false,
         link: '',
         text: '',
         scheduleAt: undefined,
+        shortLinkDomain: 'jo1n.ir',
+        lineNumber: '',
       },
       budget: {
-        lineNumber: '',
         totalBudget: 0,
         estimatedMessages: undefined,
       },
@@ -299,13 +318,14 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
 
     // Check each step for completion
     // Step 1: Campaign title, level1, and level3s required
-    if (campaignData.level.campaignTitle && campaignData.level.level1 && campaignData.level.level3s.length > 0) {
+    const isAgency = typeof window !== 'undefined' ? localStorage.getItem('account_type') === 'marketing_agency' : false;
+    if (campaignData.level.campaignTitle && campaignData.level.level1 && campaignData.level.level3s.length > 0 && (!isAgency || (campaignData.level.jobCategory && campaignData.level.job))) {
       completedSteps++;
     }
     if (campaignData.content.text && (!campaignData.content.insertLink || (campaignData.content.insertLink && campaignData.content.link))) {
       completedSteps++;
     }
-    if (campaignData.budget.lineNumber && campaignData.budget.totalBudget > 0) {
+    if (campaignData.content.lineNumber && campaignData.budget.totalBudget > 0) {
       completedSteps++;
     }
     if (campaignData.payment.paymentMethod && campaignData.payment.termsAccepted) {
