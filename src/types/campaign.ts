@@ -8,6 +8,8 @@ export interface CustomerLevel {
 	tags?: string[];      // Union of tags from selected level3s
 	capacityTooLow?: boolean;
 	capacity?: number;    // Total audience capacity
+	jobCategory?: string;
+	job?: string;
 }
 
 export interface CustomFilter {
@@ -21,10 +23,11 @@ export interface CampaignContent {
 	link: string;
 	text: string;
 	scheduleAt?: string; // ISO string for datetime
+	shortLinkDomain?: string;
+	lineNumber?: string;
 }
 
 export interface CampaignBudget {
-	lineNumber: string;
 	totalBudget: number;
 	estimatedMessages?: number; // Populated by backend, not stored in localStorage
 }
@@ -57,6 +60,9 @@ export interface CreateCampaignPayload {
 	scheduleat?: string;
 	line_number?: string;
 	budget?: number;
+	short_link_domain?: string;
+	job_category?: string;
+	job?: string;
 }
 
 // API response interface matching Go backend structure
@@ -87,6 +93,9 @@ export interface CalculateCampaignCapacityRequest {
 	scheduleat?: string;
 	line_number?: string;
 	budget?: number;
+	short_link_domain?: string;
+	job_category?: string;
+	job?: string;
 }
 
 // Campaign capacity calculation response interface
@@ -107,6 +116,9 @@ export interface CalculateCampaignCostRequest {
 	scheduleat?: string;
 	line_number?: string;
 	budget?: number;
+	short_link_domain?: string;
+	job_category?: string;
+	job?: string;
 }
 
 // Campaign cost calculation response interface
@@ -144,6 +156,9 @@ export interface UpdateSMSCampaignRequest {
 	line_number?: string;
 	budget?: number;
 	finalize?: boolean;
+	short_link_domain?: string;
+	job_category?: string;
+	job?: string;
 }
 
 // Update campaign response interface
