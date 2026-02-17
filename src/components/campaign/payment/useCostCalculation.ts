@@ -1,6 +1,7 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { apiService } from '../../../services/api';
 import { CampaignData } from '../../../types/campaign';
+import { useAuth } from '../../../hooks/useAuth';
 
 export const useCostCalculation = (campaignData: CampaignData, onUpdatePayment: (data: any) => void) => {
     const [total, setTotal] = useState<number | undefined>(undefined);
@@ -8,10 +9,16 @@ export const useCostCalculation = (campaignData: CampaignData, onUpdatePayment: 
     const [lastCalculation, setLastCalculation] = useState<number>(0);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { accessToken } = useAuth();
 
     // Guards to avoid duplicate API calls
     const requestInFlightRef = useRef(false);
     const triggeredKeyRef = useRef<string | null>(null);
+
+    // Keep API client synced with latest token
+    useEffect(() => {
+        apiService.setAccessToken(accessToken || null);
+    }, [accessToken]);
 
     const calculateCosts = useCallback(async () => {
         const title = campaignData.level.campaignTitle;
@@ -22,8 +29,11 @@ export const useCostCalculation = (campaignData: CampaignData, onUpdatePayment: 
         const adlink = campaignData.content.link;
         const content = campaignData.content.text;
         const scheduleat = campaignData.content.scheduleAt;
-        const line_number = campaignData.budget.lineNumber;
+        const line_number = campaignData.content.lineNumber;
         const budget = campaignData.budget.totalBudget;
+        const short_link_domain = campaignData.content.shortLinkDomain || 'jo1n.ir';
+        const job_category = campaignData.level.jobCategory || undefined;
+        const job = campaignData.level.job || undefined;
 
         if (!title || !level1 || !content || !budget || !line_number) {
             return;
@@ -63,6 +73,9 @@ export const useCostCalculation = (campaignData: CampaignData, onUpdatePayment: 
                 scheduleat,
                 line_number,
                 budget,
+                short_link_domain,
+                job_category,
+                job,
             });
 
             if (response.success && response.data) {
