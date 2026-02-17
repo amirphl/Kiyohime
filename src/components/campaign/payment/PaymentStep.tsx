@@ -74,7 +74,7 @@ const PaymentStep: React.FC = () => {
     campaignData.level.level1 &&
     campaignData.content.text &&
     campaignData.budget.totalBudget &&
-    campaignData.budget.lineNumber
+    campaignData.content.lineNumber
   );
 
   return (
