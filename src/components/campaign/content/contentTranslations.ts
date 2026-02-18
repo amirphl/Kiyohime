@@ -41,6 +41,16 @@ const contentEn = {
     withLinkExplanation: 'With link: starts at 20 chars (6 cancellation + 14 shortened link)',
     withoutLinkExplanation: 'Without link: starts at 6 chars (cancellation append)',
     textExceedsLimit: '⚠️ Text exceeds maximum length. Please shorten your message.',
+
+    // Line number section
+    lineNumber: 'Line Number',
+    selectLineNumber: 'Select Line Number',
+    lineNumberPlaceholder: 'Choose a line number for your campaign',
+    linePriceFactor: 'Line price factor',
+
+    // Short link domain
+    shortLinkDomain: 'Short link domain',
+    shortLinkDomainPlaceholder: 'Select a short link domain',
 };
 
 const contentFa = {
@@ -87,6 +97,16 @@ const contentFa = {
     withLinkExplanation: '۱۴ کاراکتر رزرو در صورت استفاده از لینک کوتاه جاذبه، ۶ کاراکتر رزرو لغو۱۱',
     withoutLinkExplanation: 'بدون لینک: از ۶ کاراکتر شروع می‌شود (اضافه کردن لغو)',
     textExceedsLimit: '⚠️ متن از حداکثر طول مجاز فراتر رفته است. لطفاً پیام خود را کوتاه کنید.',
+
+    // Line number section
+    lineNumber: 'انتخاب سرشماره',
+    selectLineNumber: 'انتخاب سرشماره',
+    lineNumberPlaceholder: 'سرشماره مدنظر خود را انتخاب کنید',
+    linePriceFactor: 'ضریب قیمت سرشماره',
+
+    // Short link domain
+    shortLinkDomain: 'دامنه لینک کوتاه',
+    shortLinkDomainPlaceholder: 'دامنه لینک کوتاه را انتخاب کنید',
 };
 
 export const contentI18n = {
