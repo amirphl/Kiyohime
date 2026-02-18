@@ -2,14 +2,18 @@ import React, { useRef } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useCampaign } from '../../../hooks/useCampaign';
+import { useAuth } from '../../../hooks/useAuth';
 import StepHeader from '../../ui/StepHeader';
 import LinkInsertionCard from './LinkInsertionCard';
 import ScheduleCard from './ScheduleCard';
 import MessageTextCard from './MessageTextCard';
+import LineNumberCard from './LineNumberCard';
+import ShortLinkDomainCard from './ShortLinkDomainCard';
 import { useUrlValidation } from './useUrlValidation';
 import { useLinkCharacter } from './useLinkCharacter';
 import { useScheduleTime } from './useScheduleTime';
 import { contentI18n } from './contentTranslations';
+import { useLineNumbers } from './useLineNumbers';
 
 const ContentStep: React.FC = () => {
   const { campaignData, updateContent } = useCampaign();
@@ -17,6 +21,7 @@ const ContentStep: React.FC = () => {
   const t = contentI18n[language as keyof typeof contentI18n] || contentI18n.en;
   const isEnglish = language === 'en';
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const { accessToken } = useAuth();
 
   // Custom hooks for business logic
   const { linkError, handleLinkChange, clearError } = useUrlValidation(
@@ -68,6 +73,16 @@ const ContentStep: React.FC = () => {
   const handleScheduleChange = (scheduleAt?: string) => {
     updateContent({ scheduleAt });
   };
+
+  const handleLineNumberChange = (value: string) => {
+    updateContent({ lineNumber: value });
+  };
+
+  const handleShortLinkDomainChange = (value: string) => {
+    updateContent({ shortLinkDomain: value });
+  };
+
+  const { lineNumberOptions, isLoading: isLoadingLineNumbers, error: lineNumbersError } = useLineNumbers(accessToken);
 
   return (
     <div className='space-y-8'>
@@ -140,6 +155,30 @@ const ContentStep: React.FC = () => {
             withLinkExplanation={t.withLinkExplanation}
             withoutLinkExplanation={t.withoutLinkExplanation}
             textExceedsLimit={t.textExceedsLimit}
+          />
+        </div>
+
+        <div className='md:col-span-2'>
+          <ShortLinkDomainCard
+            value={campaignData.content.shortLinkDomain || 'jo1n.ir'}
+            onChange={handleShortLinkDomainChange}
+            title={t.shortLinkDomain}
+            placeholder={t.shortLinkDomainPlaceholder}
+          />
+        </div>
+
+        <div className='md:col-span-2'>
+          <LineNumberCard
+            value={campaignData.content.lineNumber || ''}
+            options={lineNumberOptions}
+            isLoading={isLoadingLineNumbers}
+            error={lineNumbersError}
+            onChange={handleLineNumberChange}
+            title={t.lineNumber}
+            label={''}
+            placeholder={t.lineNumberPlaceholder}
+            helpText={''}
+            priceFactorLabel={t.linePriceFactor}
           />
         </div>
       </div>
