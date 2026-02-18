@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { apiService } from '../../../services/api';
 import { useToast } from '../../../hooks/useToast';
 import { CampaignData } from '../../../types/campaign';
+import { useAuth } from '../../../hooks/useAuth';
 
 export const useMessageCount = (campaignData: CampaignData) => {
     const [messageCount, setMessageCount] = useState<number | undefined>(undefined);
@@ -10,17 +11,22 @@ export const useMessageCount = (campaignData: CampaignData) => {
     const [error, setError] = useState<string | null>(null);
     const [hasError, setHasError] = useState(false);
     const [lastApiCall, setLastApiCall] = useState<number>(0);
+    const { accessToken } = useAuth();
 
     const { showToast } = useToast();
     const requestInFlightRef = useRef(false);
     const initialCalculatedRef = useRef(false);
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
+    useEffect(() => {
+        apiService.setAccessToken(accessToken || null);
+    }, [accessToken]);
+
     // API call for message count calculation
     const calculateMessageCount = useCallback(async (currentLineNumber?: string, currentBudget?: number) => {
         if (hasError) return;
 
-        const lineNumber = currentLineNumber || campaignData.budget.lineNumber;
+        const lineNumber = currentLineNumber || campaignData.content.lineNumber;
         const budget = currentBudget || campaignData.budget.totalBudget;
 
         if (!lineNumber || budget <= 0) return;
@@ -42,6 +48,9 @@ export const useMessageCount = (campaignData: CampaignData) => {
                 scheduleat: campaignData.content.scheduleAt,
                 line_number: lineNumber,
                 budget: budget,
+                short_link_domain: campaignData.content.shortLinkDomain || 'jo1n.ir',
+                job_category: campaignData.level.jobCategory || undefined,
+                job: campaignData.level.job || undefined,
             });
 
             if (response.success && response.data) {
@@ -77,9 +86,11 @@ export const useMessageCount = (campaignData: CampaignData) => {
         campaignData.content.link,
         campaignData.content.text,
         campaignData.content.scheduleAt,
-        campaignData.budget.lineNumber,
+        campaignData.content.lineNumber,
         campaignData.budget.totalBudget,
         campaignData.level.tags,
+        campaignData.level.jobCategory,
+        campaignData.level.job,
         showToast
     ]);
 
@@ -96,11 +107,11 @@ export const useMessageCount = (campaignData: CampaignData) => {
     // One-time initial calculate if both fields are pre-filled
     useEffect(() => {
         if (initialCalculatedRef.current) return;
-        if (campaignData.budget.lineNumber && campaignData.budget.totalBudget > 0) {
+        if (campaignData.content.lineNumber && campaignData.budget.totalBudget > 0) {
             initialCalculatedRef.current = true;
-            calculateMessageCount(campaignData.budget.lineNumber, campaignData.budget.totalBudget);
+            calculateMessageCount(campaignData.content.lineNumber, campaignData.budget.totalBudget);
         }
-    }, [campaignData.budget.lineNumber, campaignData.budget.totalBudget, calculateMessageCount]);
+    }, [campaignData.content.lineNumber, campaignData.budget.totalBudget, calculateMessageCount]);
 
     // Reset error flag when user makes changes
     useEffect(() => {
@@ -108,7 +119,7 @@ export const useMessageCount = (campaignData: CampaignData) => {
             setHasError(false);
             setError(null);
         }
-    }, [hasError, campaignData.budget.lineNumber, campaignData.budget.totalBudget]);
+    }, [hasError, campaignData.content.lineNumber, campaignData.budget.totalBudget]);
 
     // Cleanup timeout on unmount
     useEffect(() => {
