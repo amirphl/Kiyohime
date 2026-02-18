@@ -4,11 +4,9 @@ import { useCampaign } from '../../../hooks/useCampaign';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useAuth } from '../../../hooks/useAuth';
 import StepHeader from '../../ui/StepHeader';
-import LineNumberCard from './LineNumberCard';
 import BudgetInputCard from './BudgetInputCard';
 import BudgetSelector from './BudgetSelector';
 import MessageCountCard from './MessageCountCard';
-import { useLineNumbers } from './useLineNumbers';
 import { useMessageCount } from './useMessageCount';
 import { budgetI18n } from './budgetTranslations';
 
@@ -24,13 +22,6 @@ const BudgetStep: React.FC = () => {
   // Debouncing ref for budget field
   const budgetDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch line numbers
-  const {
-    lineNumberOptions,
-    isLoading: isLoadingLineNumbers,
-    error: lineNumbersError,
-  } = useLineNumbers(accessToken);
-
   // Calculate message count
   const {
     messageCount,
@@ -40,22 +31,12 @@ const BudgetStep: React.FC = () => {
     calculateDebounced,
   } = useMessageCount(campaignData);
 
-  const handleLineNumberChange = (value: string) => {
-    updateBudget({ lineNumber: value });
-    if (budgetDebounceRef.current) {
-      clearTimeout(budgetDebounceRef.current);
-    }
-    if (value && campaignData.budget.totalBudget > 0) {
-      calculateDebounced(value, campaignData.budget.totalBudget);
-    }
-  };
-
   const handleTotalBudgetChange = (value: number) => {
     const numeric = Number.isFinite(value) ? value : 0;
     const clamped = Math.max(MIN_TEXT_BUDGET, Math.min(MAX_BUDGET, numeric));
     updateBudget({ totalBudget: clamped });
-    if (clamped > 0 && campaignData.budget.lineNumber) {
-      calculateDebounced(campaignData.budget.lineNumber, clamped);
+    if (clamped > 0 && campaignData.content.lineNumber) {
+      calculateDebounced(campaignData.content.lineNumber, clamped);
     }
     if (budgetDebounceRef.current) {
       clearTimeout(budgetDebounceRef.current);
@@ -68,13 +49,13 @@ const BudgetStep: React.FC = () => {
       const rounded = Math.max(0, Math.floor(amount / 1000) * 1000);
       const clamped = Math.min(MAX_BUDGET, rounded);
       updateBudget({ totalBudget: clamped });
-      if (clamped > 0 && campaignData.budget.lineNumber) {
-        calculateDebounced(campaignData.budget.lineNumber, clamped);
+      if (clamped > 0 && campaignData.content.lineNumber) {
+        calculateDebounced(campaignData.content.lineNumber, clamped);
       }
     },
     [
       MAX_BUDGET,
-      campaignData.budget.lineNumber,
+      campaignData.content.lineNumber,
       calculateDebounced,
       updateBudget,
     ]
@@ -89,20 +70,6 @@ const BudgetStep: React.FC = () => {
       />
 
       <div className='space-y-6'>
-        {/* Line Number Selection */}
-        <LineNumberCard
-          value={campaignData.budget.lineNumber || ''}
-          options={lineNumberOptions}
-          isLoading={isLoadingLineNumbers}
-          error={lineNumbersError}
-          onChange={handleLineNumberChange}
-          title={t.lineNumber}
-          label={''}
-          placeholder={t.lineNumberPlaceholder}
-          helpText={''}
-          priceFactorLabel={t.linePriceFactor}
-        />
-
         {/* Budget selector based on user balance */}
         <BudgetSelector
           accessToken={accessToken}
@@ -131,7 +98,7 @@ const BudgetStep: React.FC = () => {
             maxMessageCount={maxMessageCount}
             isLoading={isLoadingMessageCount}
             error={messageCountError}
-            lineNumber={campaignData.budget.lineNumber}
+            lineNumber={campaignData.content.lineNumber || ''}
             totalBudget={campaignData.budget.totalBudget}
             title={t.estimatedMessages}
             calculatingLabel={t.calculatingMessageCount}
