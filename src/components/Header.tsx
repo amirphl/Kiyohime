@@ -4,11 +4,13 @@ import { useAuth } from '../hooks/useAuth';
 import DynamicBrand from './DynamicBrand';
 import LanguageSwitcher from './LanguageSwitcher';
 import { headerI18n } from '../locales/header';
+import { useTheme } from '../hooks/useTheme';
+import { Moon, Sun } from 'lucide-react';
 
 const Header: React.FC = () => {
-  const { isRTL } = useLanguage();
+  const { isRTL, language } = useLanguage();
   const { isAuthenticated, manualLogout } = useAuth();
-  const { language } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const t = headerI18n[language as keyof typeof headerI18n] || headerI18n.en;
 
 
@@ -70,6 +72,14 @@ const Header: React.FC = () => {
           <div
             className={`flex items-center ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'}`}
           >
+            <button
+              onClick={toggleTheme}
+              className={`flex items-center rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
+              aria-label={t.darkMode}
+            >
+              {theme === 'dark' ? <Sun className='h-4 w-4' /> : <Moon className='h-4 w-4' />}
+              <span>{t.darkMode}</span>
+            </button>
             <LanguageSwitcher />
 
             {isAuthenticated ? (
