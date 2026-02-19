@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useCampaign } from '../../../hooks/useCampaign';
 import { apiService } from '../../../services/api';
 import { useAuth } from '../../../hooks/useAuth';
+import { jobCategoryI18n, JobCategoryLocale } from '../../../locales/jobCategory';
 import TitleCard from './TitleCard';
 import CapacityCard from './CapacityCard';
 import LevelOneCard from './LevelOneCard';
@@ -16,21 +17,27 @@ import {
 } from '../../../types/segment';
 import { campaignLevelI18n } from './segmentTranslations';
 import { useLanguage } from '../../../hooks/useLanguage';
+import CategoryJobFields from '../../CategoryJobFields';
 
 const LevelStep: React.FC = () => {
     const { language } = useLanguage();
     const t =
         campaignLevelI18n[language as keyof typeof campaignLevelI18n] ||
         campaignLevelI18n.en;
-    const { updateLevel } = useCampaign();
-    const { accessToken } = useAuth();
+    const { campaignData, updateLevel } = useCampaign();
+    const { accessToken, user } = useAuth();
+    const categories = (jobCategoryI18n[language as JobCategoryLocale] || jobCategoryI18n.en) as Record<string, readonly string[]>;
+    const isAgency = user?.account_type === 'marketing_agency';
 
     // Local state for selections
-    const [campaignTitle, setCampaignTitle] = useState<string>('');
-    const [level1, setLevel1] = useState<string>('');
-    const [level2s, setLevel2s] = useState<string[]>([]);
-    const [level3s, setLevel3s] = useState<string[]>([]);
+    const [campaignTitle, setCampaignTitle] = useState<string>(campaignData.level.campaignTitle || '');
+    const [level1, setLevel1] = useState<string>(campaignData.level.level1 || '');
+    const [level2s, setLevel2s] = useState<string[]>(campaignData.level.level2s || []);
+    const [level3s, setLevel3s] = useState<string[]>(campaignData.level.level3s || []);
     const [capacity, setCapacity] = useState<number>(0);
+    const [jobCategory, setJobCategory] = useState<string>(campaignData.level.jobCategory || '');
+    const [job, setJob] = useState<string>(campaignData.level.job || '');
+    const [jobErrors, setJobErrors] = useState<{ category?: string; job?: string }>({});
 
     // Track if initialization has already happened
     const initializedRef = useRef(false);
@@ -158,8 +165,10 @@ const LevelStep: React.FC = () => {
             tags: Array.from(tags), // Union of tags from selected level3s
             capacity: totalCapacity,
             capacityTooLow: capacityTooLow,
+            jobCategory,
+            job,
         });
-    }, [audienceSpec, level1, level2s, level3s, campaignTitle, updateLevel]);
+    }, [audienceSpec, level1, level2s, level3s, campaignTitle, jobCategory, job, updateLevel]);
 
     const handleCampaignTitleChange = (value: string) => {
         setCampaignTitle(value);
@@ -199,6 +208,19 @@ const LevelStep: React.FC = () => {
                 return [...prev, l2];
             }
         });
+    };
+
+    const handleJobCategoryChange = (value: string) => {
+        setJobCategory(value);
+        setJob('');
+        updateLevel({ jobCategory: value, job: '' });
+        setJobErrors(prev => ({ ...prev, category: value ? '' : t.agencyCategoryRequired, job: '' }));
+    };
+
+    const handleJobChange = (value: string) => {
+        setJob(value);
+        updateLevel({ job: value });
+        setJobErrors(prev => ({ ...prev, job: value ? '' : t.agencyJobRequired }));
     };
 
     const handleLevel3Toggle = (l3: string) => {
@@ -261,6 +283,31 @@ const LevelStep: React.FC = () => {
                             onToggleLevel3={handleLevel3Toggle}
                             validationMessage={t.level2Validation}
                         />
+                    </div>
+                )}
+
+                {isAgency && (
+                    <div className='md:col-span-2'>
+                        <div className='bg-white shadow-sm border border-gray-200 rounded-lg p-4'>
+                            <CategoryJobFields
+                                category={jobCategory}
+                                job={job}
+                                onChange={(field, value) => field === 'jobCategory' ? handleJobCategoryChange(value) : handleJobChange(value)}
+                                requiredLabel={<span className='text-red-500'>*</span>}
+                                strings={{
+                                    categoryHeader: t.agencyCategoryHeader,
+                                    category: t.agencyCategory,
+                                    selectCategory: t.agencySelectCategory,
+                                    job: t.agencyJob,
+                                    selectJob: t.agencySelectJob,
+                                }}
+                                categories={categories}
+                                errors={{
+                                    category: isAgency && !jobCategory ? t.agencyCategoryRequired : jobErrors.category,
+                                    job: isAgency && !job ? t.agencyJobRequired : jobErrors.job,
+                                }}
+                            />
+                        </div>
                     </div>
                 )}
 
