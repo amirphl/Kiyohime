@@ -92,6 +92,15 @@ const campaignLevelEn = {
 
     // Common fields
     loading: 'Loading...',
+
+    // Job fields for agencies
+    agencyCategoryHeader: 'Please select the category and subcategory that best describes your business',
+    agencyCategory: 'Category',
+    agencyJob: 'Job',
+    agencySelectCategory: 'Select category',
+    agencySelectJob: 'Select job',
+    agencyCategoryRequired: 'Category is required',
+    agencyJobRequired: 'Job is required',
 };
 
 const campaignLevelFa = {
@@ -188,6 +197,15 @@ const campaignLevelFa = {
 
     // Common fields
     loading: 'در حال بارگذاری...',
+
+    // Job fields for agencies
+    agencyCategoryHeader: 'لطفا با انتخاب دسته‌ و زیردسته نوع کسب‌وکار خود را به صورت دقیق انتخاب کنید',
+    agencyCategory: 'دسته‌بندی اصلی کسب و کار شما',
+    agencyJob: 'زیردسته دقیق‌تر کسب و کار شما',
+    agencySelectCategory: 'انتخاب دسته‌بندی اصلی کسب و کار',
+    agencySelectJob: 'انتخاب زیردسته دقیق‌تر',
+    agencyCategoryRequired: 'انتخاب دسته‌بندی الزامی است',
+    agencyJobRequired: 'انتخاب زیردسته الزامی است',
 };
 
 export const campaignLevelI18n = {
