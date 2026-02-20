@@ -19,7 +19,7 @@ interface SidebarItem {
 
 const Sidebar: React.FC = () => {
   const { t } = useTranslation();
-  const { isRTL } = useLanguage();
+  const { isRTL, languageSwitchEnabled } = useLanguage();
   // Sidebar open state (persist in localStorage)
   const [open, setOpen] = React.useState<boolean>(() => {
     try {
@@ -50,9 +50,9 @@ const Sidebar: React.FC = () => {
     resetCampaign();
     const initialCampaignData = {
       uuid: '',
-      segment: { campaignTitle: '', segment: '', subsegments: [], sex: '', city: [] },
-      content: { insertLink: false, link: '', text: '', scheduleAt: undefined },
-      budget: { lineNumber: '', totalBudget: 0, estimatedMessages: undefined },
+      segment: { campaignTitle: '', segment: '', subsegments: [], sex: '', city: [], jobCategory: '', job: '' },
+      content: { insertLink: false, link: '', text: '', scheduleAt: undefined, shortLinkDomain: 'jo1n.ir', lineNumber: '' },
+      budget: { totalBudget: 0, estimatedMessages: undefined },
       payment: { paymentMethod: '', termsAccepted: false },
     };
     localStorage.setItem('campaign_creation_data', JSON.stringify(initialCampaignData));
@@ -117,12 +117,14 @@ const Sidebar: React.FC = () => {
           })}
         </nav>
 
-        <div className='mt-6 pt-6 border-t border-gray-200'>
-          <div className='flex items-center justify-between mb-4'>
-            <span className='text-sm font-medium text-gray-700'>{t('dashboard.language')}</span>
+        {languageSwitchEnabled && (
+          <div className='mt-6 pt-6 border-t border-gray-200'>
+            <div className='flex items-center justify-between mb-4'>
+              <span className='text-sm font-medium text-gray-700'>{t('dashboard.language')}</span>
+            </div>
+            <LanguageSwitcher />
           </div>
-          <LanguageSwitcher />
-        </div>
+        )}
 
         {/* Logout removed from sidebar per design */}
         </div>
