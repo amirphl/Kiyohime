@@ -24,6 +24,62 @@
   }
 }
 
+:root {
+  --color-bg: #f9fafb;
+  --color-surface: #ffffff;
+  --color-text: #0f172a;
+  --color-muted: #475569;
+  --color-border: #e2e8f0;
+}
+
+:root[data-theme='dark'] {
+  --color-bg: #0b1120;
+  --color-surface: #111827;
+  --color-text: #e2e8f0;
+  --color-muted: #94a3b8;
+  --color-border: #1f2937;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+:root[data-theme='dark'] .bg-gray-50,
+:root[data-theme='dark'] .bg-white {
+  background-color: var(--color-surface) !important;
+}
+
+:root[data-theme='dark'] .bg-gray-100 {
+  background-color: #1f2937 !important;
+}
+
+:root[data-theme='dark'] .text-gray-500,
+:root[data-theme='dark'] .text-gray-600,
+:root[data-theme='dark'] .text-gray-700,
+:root[data-theme='dark'] .text-gray-800,
+:root[data-theme='dark'] .text-gray-900 {
+  color: var(--color-text) !important;
+}
+
+:root[data-theme='dark'] .border-gray-100,
+:root[data-theme='dark'] .border-gray-200,
+:root[data-theme='dark'] .border-gray-300 {
+  border-color: var(--color-border) !important;
+}
+
+:root[data-theme='dark'] .hover\:bg-gray-100:hover {
+  background-color: #1f2937 !important;
+}
+
+:root[data-theme='dark'] .hover\:bg-gray-200:hover {
+  background-color: #0f172a !important;
+}
+
+:root[data-theme='dark'] a {
+  color: var(--color-text);
+}
+
 @layer components {
   .btn-primary {
     @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
