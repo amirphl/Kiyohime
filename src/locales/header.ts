@@ -12,6 +12,7 @@ export const headerI18n = {
     signin: 'Sign In',
     signup: 'Sign Up',
     logout: 'Logout',
+    darkMode: 'Dark mode',
   },
   fa: {
     brand: 'پلتفرم هوشمند و داده‌محور',
@@ -26,6 +27,7 @@ export const headerI18n = {
     signin: 'ورود',
     signup: 'ثبت نام',
     logout: 'خروج',
+    darkMode: 'حالت تیره',
   },
 } as const;
 
