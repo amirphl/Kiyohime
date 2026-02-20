@@ -101,7 +101,10 @@ const Footer: React.FC = () => {
                 </button>
               </li>
               <li>
-                <button className='text-gray-400 hover:text-white transition-colors duration-200'>
+                <button
+                  onClick={() => navigate(ROUTES.TERMS.path)}
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
+                >
                   {footerT.termsOfService}
                 </button>
               </li>
