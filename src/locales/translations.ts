@@ -1011,7 +1011,7 @@ export const translations = {
       wallet: 'مدیریت مالی',
       customerManagement: 'مدیریت مشتریان',
       discountManagement: 'مدیریت تخفیف',
-      customerDiscountManagement: 'مدیریت مشتری و تخفیف',
+      customerDiscountManagement: 'مدیریت مشتری',
 
       // Stats
       stats: {
