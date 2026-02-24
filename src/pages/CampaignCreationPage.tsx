@@ -101,6 +101,10 @@ const CampaignCreationPage: React.FC = () => {
             tags: campaignData.level.tags && campaignData.level.tags.length > 0
               ? campaignData.level.tags
               : undefined,
+            line_number: campaignData.content.lineNumber || undefined,
+            job_category: campaignData.level.jobCategory || undefined,
+            job: campaignData.level.job || undefined,
+            short_link_domain: campaignData.content.shortLinkDomain || 'jo1n.ir',
           };
 
           // Call the API to create a new SMS campaign with segment data
@@ -171,8 +175,11 @@ const CampaignCreationPage: React.FC = () => {
         adlink: campaignData.content.link,
         content: campaignData.content.text,
         scheduleat: campaignData.content.scheduleAt,
-        line_number: campaignData.budget.lineNumber,
+        line_number: campaignData.content.lineNumber,
         budget: campaignData.budget.totalBudget,
+        short_link_domain: campaignData.content.shortLinkDomain || 'jo1n.ir',
+        job_category: campaignData.level.jobCategory || undefined,
+        job: campaignData.level.job || undefined,
         finalize: true,
       };
 
