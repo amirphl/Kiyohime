@@ -97,7 +97,7 @@ const AdminShortLinkManagementPage: React.FC = () => {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ scenario_id: idNum }),
-        signal: AbortSignal.timeout(30000),
+        signal: AbortSignal.timeout(300000),
       });
 
       const contentType = resp.headers.get('Content-Type') || '';
@@ -156,7 +156,7 @@ const AdminShortLinkManagementPage: React.FC = () => {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ scenario_id: idNum }),
-        signal: AbortSignal.timeout(30000),
+        signal: AbortSignal.timeout(300000),
       });
 
       const contentType = resp.headers.get('Content-Type') || '';
@@ -216,7 +216,7 @@ const AdminShortLinkManagementPage: React.FC = () => {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ scenario_from: fromNum, scenario_to: toNum }),
-        signal: AbortSignal.timeout(30000),
+        signal: AbortSignal.timeout(300000),
       });
 
       const contentType = resp.headers.get('Content-Type') || '';
@@ -275,7 +275,7 @@ const AdminShortLinkManagementPage: React.FC = () => {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ scenario_name_regex: regex }),
-        signal: AbortSignal.timeout(30000),
+        signal: AbortSignal.timeout(300000),
       });
 
       const contentType = resp.headers.get('Content-Type') || '';
