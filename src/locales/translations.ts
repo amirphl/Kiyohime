@@ -317,6 +317,16 @@ export const translations = {
           attachment: 'Attachment (optional)',
           attachmentHelp: 'jpg, png, pdf, docx, xlsx, zip — up to 10 MB',
         },
+        ticketSectionTitle: 'Ticket Details',
+        metadataTitle: 'Metadata',
+        messageTitle: 'Message',
+        createdAtLabel: 'Created at',
+        adminReply: 'Admin Reply',
+        attachments: 'Attachments',
+        downloadAttachment: 'Download attachment',
+        noAttachments: 'No attachments',
+        downloadError: 'Failed to download attachment. Please try again.',
+        downloadTimeout: 'Attachment download timed out. Please try again.',
         placeholders: {
           ticketTitle: 'Enter a brief title (max 80 characters)',
           description: 'Describe your issue or request (max 1000 characters)',
@@ -456,6 +466,12 @@ export const translations = {
       // Errors
       error: 'Failed to create campaign',
       tryAgain: 'Please try again.',
+      errors: {
+        scheduleTimeTooSoon:
+          'Schedule time must be at least 20 minutes in the future. Go back to Step 2 to set a valid schedule time.',
+        invalidScheduleTime:
+          'Schedule time is invalid. Go back to Step 2 to set a valid schedule time.',
+      },
     },
 
     // Home Page
@@ -979,6 +995,16 @@ export const translations = {
           attachment: 'ضمیمه (اختیاری)',
           attachmentHelp: 'jpg, png, pdf, docx, xlsx, zip — تا ۱۰ مگابایت',
         },
+        ticketSectionTitle: 'جزئیات تیکت',
+        metadataTitle: 'اطلاعات',
+        messageTitle: 'متن',
+        createdAtLabel: 'زمان ثبت',
+        adminReply: 'پاسخ ادمین',
+        attachments: 'ضمیمه‌ها',
+        downloadAttachment: 'دانلود ضمیمه',
+        noAttachments: 'ضمیمه‌ای وجود ندارد',
+        downloadError: 'دانلود ضمیمه ناموفق بود. لطفاً دوباره تلاش کنید.',
+        downloadTimeout: 'دانلود ضمیمه زمان‌بر شد. لطفاً دوباره تلاش کنید.',
         placeholders: {
           ticketTitle: 'یک عنوان کوتاه وارد کنید (حداکثر ۸۰ کاراکتر)',
           description: 'مشکل یا درخواست خود را توضیح دهید (حداکثر ۱۰۰۰ کاراکتر)',
@@ -1118,6 +1144,12 @@ export const translations = {
       // Errors
       error: 'ایجاد کمپین ناموفق بود',
       tryAgain: 'لطفاً دوباره تلاش کنید.',
+      errors: {
+        scheduleTimeTooSoon:
+          'زمان‌بندی باید حداقل ۲۰ دقیقه بعد از زمان فعلی باشد. برای اصلاح زمان‌بندی به مرحله ۲ بازگردید.',
+        invalidScheduleTime:
+          'زمان‌بندی نامعتبر است. برای اصلاح زمان‌بندی به مرحله ۲ بازگردید.',
+      },
     },
 
     // Home Page
