@@ -335,8 +335,10 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
                 {resetPasswordT.requirements.title}
               </h4>
               <ul className='text-xs text-blue-800 space-y-1'>
+                <li>• {resetPasswordT.requirements.enChars}</li>
                 <li>• {resetPasswordT.requirements.minLength}</li>
-                <li>• {resetPasswordT.requirements.letterAndDigit}</li>
+                <li>• {resetPasswordT.requirements.minUppercase}</li>
+                <li>• {resetPasswordT.requirements.minNumber}</li>
               </ul>
             </div>
 
