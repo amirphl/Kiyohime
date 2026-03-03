@@ -628,7 +628,7 @@ class ApiService {
     }
   }
 
-  async listSupportTickets(params: { title?: string; start_date?: string; end_date?: string; page?: number; page_size?: number } = {}): Promise<ApiResponse<{ message: string; groups: Array<{ correlation_id: string; items: Array<{ id: number; title: string; content: string; created_at: string; replied_by_admin?: boolean | null }> }> }>> {
+  async listSupportTickets(params: { title?: string; start_date?: string; end_date?: string; page?: number; page_size?: number } = {}): Promise<ApiResponse<{ message: string; groups: Array<{ correlation_id: string; items: Array<{ id: number; title: string; content: string; created_at: string; replied_by_admin?: boolean | null; attachments?: Array<string | { filename?: string; name?: string }> }> }> }>> {
     const query = new URLSearchParams();
     if (params.title) query.set('title', params.title);
     if (params.start_date) query.set('start_date', params.start_date);
@@ -637,6 +637,61 @@ class ApiService {
     if (params.page_size) query.set('page_size', String(params.page_size));
     const endpoint = `/tickets${query.toString() ? `?${query.toString()}` : ''}`;
     return this.request(endpoint, { method: 'GET' });
+  }
+
+  async downloadTicketAttachment(ticketId: number, fileIndex: number): Promise<ApiResponse<{ blob: Blob; filename?: string }>> {
+    if (!ticketId || ticketId <= 0 || fileIndex < 0) {
+      return { success: false, message: 'Invalid ticket id or file index', error: { code: 'INVALID_PARAMS', details: null } };
+    }
+
+    const endpoint = `/tickets/${ticketId}/attachments/${fileIndex}`;
+    const url = getApiUrl(endpoint);
+    if (!this.isValidUrl(url)) {
+      return { success: false, message: 'Invalid URL', error: { code: 'Invalid URL', details: null } };
+    }
+
+    const headers: Record<string, string> = {
+      Accept: 'application/octet-stream',
+      'X-Requested-With': 'XMLHttpRequest',
+    };
+    if (this.accessToken) {
+      headers['Authorization'] = `Bearer ${this.accessToken}`;
+    }
+
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers,
+        signal: AbortSignal.timeout(30000),
+      });
+
+      if (resp.status === 401) {
+        if (this.unauthorizedHandler) {
+          this.unauthorizedHandler();
+        }
+        return { success: false, message: 'Unauthorized', error: { code: 'Unauthorized', details: null } };
+      }
+
+      if (resp.ok) {
+        const disposition = resp.headers.get('content-disposition') || '';
+        const filenameMatch = disposition.match(/filename="?([^"]+)"?/i);
+        const filename = filenameMatch?.[1];
+        const blob = await resp.blob();
+        return { success: true, message: 'Downloaded', data: { blob, filename } };
+      }
+
+      const contentType = resp.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = await resp.json();
+        const errorMessage = data?.error?.code || data?.message || `HTTP ${resp.status}`;
+        return { success: false, message: errorMessage, error: { code: errorMessage, details: data?.error?.details } };
+      }
+
+      return { success: false, message: `HTTP ${resp.status}`, error: { code: `HTTP ${resp.status}`, details: null } };
+    } catch (e) {
+      const msg = this.isProduction() ? 'An error occurred' : (e instanceof Error ? e.message : 'Unknown error');
+      return { success: false, message: msg, error: { code: msg, details: null } };
+    }
   }
 
   // Create ticket reply (customer response to existing ticket)
