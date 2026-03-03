@@ -13,7 +13,10 @@ export const resetPasswordI18n = {
         backToLogin: 'Back to Login',
         requirements: {
             title: 'Password Requirements',
+            enChars: 'Password characters must be English',
             minLength: 'At least 8 characters',
+            minUppercase: 'At least 1 uppercase letter',
+            minNumber: 'At least 1 number',
             letterAndDigit: 'At least 1 letter and 1 digit',
         },
         validation: {
@@ -58,7 +61,10 @@ export const resetPasswordI18n = {
         backToLogin: 'بازگشت به ورود',
         requirements: {
             title: 'نیازمندی‌های رمز عبور',
-            minLength: 'حداقل ۸ کاراکتر',
+            enChars: 'حروف رمز عبور باید انگلیسی باشد',
+            minLength: 'رمز عبور باید حداقل ۸ کاراکتر باشد',
+            minUppercase: 'رمز عبور باید حداقل ۱ حرف بزرگ داشته باشد',
+            minNumber: 'رمز عبور باید حداقل ۱ رقم داشته باشد',
             letterAndDigit: 'حداقل ۱ حرف و ۱ رقم',
         },
         validation: {
