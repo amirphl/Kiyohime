@@ -213,6 +213,9 @@ export interface GetSMSCampaignResponse {
 	city?: string[];
 	adlink?: string;
 	content?: string;
+	short_link_domain?: string;
+	job_category?: string;
+	job?: string;
 	scheduleat?: string;
 	line_number?: string;
 	line_price_factor?: number;
