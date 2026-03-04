@@ -6,6 +6,8 @@ interface FormFieldProps extends FormFieldType {
   onChange: (value: any) => void;
   error?: string;
   className?: string;
+  inputClassName?: string;
+  rows?: number;
 }
 
 const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
@@ -20,6 +22,8 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
   onChange,
   error,
   className = '',
+  inputClassName = '',
+  rows,
 }, ref) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     let newValue: any = e.target.value;
@@ -39,13 +43,12 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
         return (
           <textarea
             id={id}
-            rows={4}
+            rows={rows ?? 4}
             value={value || ''}
             onChange={handleChange}
             placeholder={placeholder}
             required={required}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none ${error ? 'border-red-300' : 'border-gray-300'
-              }`}
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none ${error ? 'border-red-300' : 'border-gray-300'} ${inputClassName}`}
             ref={ref}
           />
         );
@@ -57,8 +60,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             value={value || ''}
             onChange={handleChange}
             required={required}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${error ? 'border-red-300' : 'border-gray-300'
-              }`}
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${error ? 'border-red-300' : 'border-gray-300'} ${inputClassName}`}
           >
             <option value="">{placeholder || 'Select an option'}</option>
             {options.map((option) => (
@@ -77,7 +79,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             checked={value || false}
             onChange={handleChange}
             required={required}
-            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+            className={`h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded ${inputClassName}`}
           />
         );
 
@@ -92,7 +94,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
                   value={option.value}
                   checked={value === option.value}
                   onChange={handleChange}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
+                  className={`h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 ${inputClassName}`}
                 />
                 <span className="ml-2 text-sm text-gray-700">{option.label}</span>
               </label>
@@ -111,8 +113,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             required={required}
             min={validation?.min}
             max={validation?.max}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${error ? 'border-red-300' : 'border-gray-300'
-              }`}
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${error ? 'border-red-300' : 'border-gray-300'} ${inputClassName}`}
           />
         );
     }
