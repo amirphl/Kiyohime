@@ -111,6 +111,16 @@ const ContentStep: React.FC = () => {
             linkValidation={t.linkValidation}
             charactersLabel={t.characters}
           />
+          {campaignData.content.insertLink && (
+            // <div className='mt-6'>
+              <ShortLinkDomainCard
+                value={campaignData.content.shortLinkDomain || 'jo1n.ir'}
+                onChange={handleShortLinkDomainChange}
+                title={t.shortLinkDomain}
+                placeholder={t.shortLinkDomainPlaceholder}
+              />
+            // </div>
+          )}
         </div>
 
         {/* Row 1 - Col 2: DateTime Picker */}
@@ -155,15 +165,6 @@ const ContentStep: React.FC = () => {
             withLinkExplanation={t.withLinkExplanation}
             withoutLinkExplanation={t.withoutLinkExplanation}
             textExceedsLimit={t.textExceedsLimit}
-          />
-        </div>
-
-        <div className='md:col-span-2'>
-          <ShortLinkDomainCard
-            value={campaignData.content.shortLinkDomain || 'jo1n.ir'}
-            onChange={handleShortLinkDomainChange}
-            title={t.shortLinkDomain}
-            placeholder={t.shortLinkDomainPlaceholder}
           />
         </div>
 
