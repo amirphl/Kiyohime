@@ -186,6 +186,15 @@ const CampaignCreationPage: React.FC = () => {
       const response = await apiService.updateCampaign(campaignData.uuid, updateData);
 
       if (!response.success) {
+        const errorCode = response.error?.code;
+        if (errorCode === 'SCHEDULE_TIME_TOO_SOON') {
+          showError(t('campaign.errors.scheduleTimeTooSoon'));
+          return;
+        }
+        if (errorCode === 'INVALID_SCHEDULE_TIME') {
+          showError(t('campaign.errors.invalidScheduleTime'));
+          return;
+        }
         throw new Error(response.message || 'Failed to update campaign');
       }
 
@@ -276,7 +285,7 @@ const CampaignCreationPage: React.FC = () => {
 
             <div className="flex items-center space-x-4">
               <h1 className="text-xl font-semibold text-gray-900">
-                {t('campaign.title')}
+                {/* {t('campaign.title')} */}
               </h1>
             </div>
           </div>
