@@ -74,8 +74,8 @@ const MessageTextCard: React.FC<MessageTextCardProps> = ({
   return (
     <Card>
       <div className='space-y-4'>
-        <h3 className='text-lg font-medium text-gray-900 flex items-center'>
-          <MessageSquare className='h-5 w-5 mr-2 text-primary-600' />
+        <h3 className='text-lg font-medium text-gray-900 flex items-center gap-1'>
+          <MessageSquare className='h-5 w-5 text-primary-600' />
           {title}
         </h3>
         <div className='relative'>
@@ -88,6 +88,8 @@ const MessageTextCard: React.FC<MessageTextCardProps> = ({
             onChange={handleDisplayChange}
             required
             ref={textAreaRef}
+            // inputClassName='pb-8 pr-12'
+            rows={10}
           />
           <span className='pointer-events-none absolute bottom-3 right-3 text-sm text-gray-400 select-none'>
             لغو۱۱
