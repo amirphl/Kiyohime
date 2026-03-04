@@ -82,7 +82,7 @@ const contentFa = {
     // Message text section
     text: 'متن',
     campaignText: '',
-    textPlaceholder: 'متن پیام کمپین خود را وارد کنید',
+    textPlaceholder: 'متن پیام ارسال خود را وارد کنید',
     insertLinkCharacter: 'افزودن لینک در اینجا',
     linkCharacterInserted: 'موقعیت لینک شناسایی شده',
     // linkCharacterInsertedMessage: 'لینک کوتاه‌شده در محل مکان‌نما با علامت 🔗 قرار خواهد گرفت.',
