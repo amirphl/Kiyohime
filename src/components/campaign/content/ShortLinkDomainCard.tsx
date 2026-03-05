@@ -17,7 +17,7 @@ const ShortLinkDomainCard: React.FC<ShortLinkDomainCardProps> = ({
 }) => {
   const options = [
     { value: 'jo1n.ir', label: 'jo1n.ir' },
-    { value: 'joinsahel.ir', label: 'joinsahel.ir' },
+    // { value: 'joinsahel.ir', label: 'joinsahel.ir' },
   ];
 
   return (
