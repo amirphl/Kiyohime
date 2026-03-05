@@ -47,8 +47,8 @@ const ScheduleCard: React.FC<ScheduleCardProps> = ({
   return (
     <Card className='h-full'>
       <div className='space-y-4'>
-        <h3 className='text-lg font-medium text-gray-900 flex items-center'>
-          <Calendar className='h-5 w-5 mr-2 text-primary-600' />
+        <h3 className='text-lg font-medium text-gray-900 flex items-center gap-1'>
+          <Calendar className='h-5 w-5 text-primary-600' />
           {title}
         </h3>
         <div className='flex items-center space-x-4'>
