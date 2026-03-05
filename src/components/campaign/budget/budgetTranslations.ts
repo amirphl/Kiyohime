@@ -12,7 +12,7 @@ const budgetEn = {
     // Budget section
     campaignBudget: 'Campaign Budget (Toman)',
     budgetPlaceholder: 'Enter budget amount in Toman',
-    budgetValidation: 'Budget must be between 1,000 and 160,000,000 Toman',
+    budgetValidation: 'Budget must be between 100,000 and 160,000,000 Toman',
     budget: 'Budget',
     budgetHelp: 'Set your total campaign budget. The system will calculate how many messages can be sent with this budget.',
     selectBudgetPercentTitle: 'Use Wallet Balance',
@@ -64,7 +64,7 @@ const budgetFa = {
     // Budget section
     campaignBudget: 'بودجه ارسال (تومان)',
     budgetPlaceholder: 'مقدار بودجه را به تومان وارد کنید',
-    budgetValidation: 'بودجه باید بین ۱,۰۰۰ تا ۱۶۰,۰۰۰,۰۰۰ تومان باشد',
+    budgetValidation: 'بودجه باید بین ۱۰۰,۰۰۰ تا ۱۶۰,۰۰۰,۰۰۰ تومان باشد',
     budget: 'بودجه',
     budgetHelp: 'کل بودجه کمپین خود را تنظیم کنید. سیستم محاسبه خواهد کرد که با این بودجه چند پیام می‌توان ارسال کرد.',
     selectBudgetPercentTitle: 'استفاده از موجودی کیف پول',
