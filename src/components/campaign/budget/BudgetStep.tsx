@@ -16,7 +16,7 @@ const BudgetStep: React.FC = () => {
   const t = budgetI18n[language as keyof typeof budgetI18n] || budgetI18n.en;
   const { accessToken } = useAuth();
   const currencyLabel = language === 'en' ? 'Toman' : 'تومان';
-  const MIN_TEXT_BUDGET = 1000;
+  const MIN_TEXT_BUDGET = 100000;
   const MAX_BUDGET = 160000000;
 
   // Debouncing ref for budget field
@@ -45,7 +45,7 @@ const BudgetStep: React.FC = () => {
 
   const handlePercentBudgetChange = useCallback(
     (percent: number, amount: number) => {
-      // Round to nearest 1000 and cap at MAX_BUDGET; percent already limited to balance
+      if (percent <= 0) return;
       const rounded = Math.max(0, Math.floor(amount / 1000) * 1000);
       const clamped = Math.min(MAX_BUDGET, rounded);
       updateBudget({ totalBudget: clamped });
@@ -83,8 +83,8 @@ const BudgetStep: React.FC = () => {
           <BudgetInputCard
             value={campaignData.budget.totalBudget}
             onChange={handleTotalBudgetChange}
-            title={''}
-            label={t.campaignBudget}
+            title={t.campaignBudget}
+            label={''}
             placeholder={t.budgetPlaceholder}
             helpText={t.budgetHelp}
             validationMessage={t.budgetValidation}
