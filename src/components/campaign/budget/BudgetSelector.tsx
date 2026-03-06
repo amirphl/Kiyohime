@@ -21,32 +21,30 @@ const BudgetSelector: React.FC<BudgetSelectorProps> = ({
   const { showToast } = useToast();
 
   const [balance, setBalance] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [percent, setPercent] = useState<number>(initialPercent);
 
-  const MIN_BUDGET = 1000;
+  const MIN_BUDGET = 100000;
   const MAX_BUDGET = 160000000;
+  const BUDGET_STEP = 100000;
 
-  const didFetchRef = React.useRef(false);
   useEffect(() => {
-    if (didFetchRef.current) return;
-    didFetchRef.current = true;
-
     let cancelled = false;
     const fetchBalance = async () => {
-      setLoading(true);
       setError(null);
       try {
         if (accessToken) {
           apiService.setAccessToken(accessToken);
         }
         const resp = await apiService.getWalletBalance();
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
+
         if (resp.success && resp.data) {
-          // API returns `free` for available balance
-          const freeBalance = (resp.data as any).free ?? 0;
-          setBalance(freeBalance);
+          const freeBalance = Number((resp.data as any).free ?? 0);
+          const creditBalance = Number((resp.data as any).credit ?? 0);
+          setBalance(freeBalance + creditBalance);
         } else {
           const msg =
             (t as any).balanceError || 'Failed to check wallet balance';
@@ -57,8 +55,6 @@ const BudgetSelector: React.FC<BudgetSelectorProps> = ({
         const msg = (t as any).balanceError || 'Failed to check wallet balance';
         setError(msg);
         showToast('error', msg);
-      } finally {
-        if (!cancelled) setLoading(false);
       }
     };
 
@@ -66,7 +62,7 @@ const BudgetSelector: React.FC<BudgetSelectorProps> = ({
     return () => {
       cancelled = true;
     };
-    // Run only once on mount; guard prevents repeated fetches on re-renders
+    // Run on mount; in StrictMode the effect runs twice, cleanup cancels the first.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -75,28 +71,23 @@ const BudgetSelector: React.FC<BudgetSelectorProps> = ({
     return Math.max(0, balance);
   }, [balance]);
 
-  const rawAmount = useMemo(() => {
-    // Round down to nearest 1000 to satisfy step requirement
-    const computed = Math.floor((availableMax * percent) / 100);
-    return Math.floor(computed / 1000) * 1000;
-  }, [availableMax, percent]);
+  const computeAmount = (pct: number) => {
+    const computed = Math.floor((availableMax * pct) / 100);
+    const rounded = Math.floor(computed / BUDGET_STEP) * BUDGET_STEP;
+    if (rounded <= 0) return 0;
+    const capped = Math.min(MAX_BUDGET, rounded);
+    return Math.max(MIN_BUDGET, capped);
+  };
+
+  const rawAmount = computeAmount(percent);
 
   // Hide selector if user has zero or negative balance
   if (balance !== null && balance <= 0) {
     return null;
   }
 
-  const computeAmount = (pct: number) => {
-    const computed = Math.floor((availableMax * pct) / 100);
-    const rounded = Math.floor(computed / 1000) * 1000;
-    if (rounded <= 0) return 0;
-    const capped = Math.min(availableMax, rounded);
-    const effectiveMin = Math.min(MIN_BUDGET, availableMax);
-    return Math.max(effectiveMin, capped);
-  };
-
   const propagateChange = (nextPercent: number) => {
-    if (availableMax <= 0) return;
+    if (nextPercent <= 0) return;
     const nextAmount = computeAmount(nextPercent);
     if (onChange) onChange(nextPercent, nextAmount);
   };
@@ -124,7 +115,7 @@ const BudgetSelector: React.FC<BudgetSelectorProps> = ({
         <div>
           <input
             type='range'
-            min={1}
+            min={0}
             max={100}
             value={percent}
             onChange={e => {
@@ -135,7 +126,7 @@ const BudgetSelector: React.FC<BudgetSelectorProps> = ({
             className='w-full'
           />
           <div className='flex justify-between text-xs text-gray-500 mt-1'>
-            <span>1%</span>
+            <span>0%</span>
             <span>{percent}%</span>
             <span>100%</span>
           </div>
