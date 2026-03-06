@@ -33,8 +33,8 @@ const BudgetInputCard: React.FC<BudgetInputCardProps> = ({
   return (
     <Card>
       <div className='space-y-4'>
-        <h3 className='text-lg font-medium text-gray-900 flex items-center'>
-          <DollarSign className='h-5 w-5 mr-2 text-primary-600' />
+        <h3 className='text-lg font-medium text-gray-900 flex items-center gap-1'>
+          <DollarSign className='h-5 w-5 text-primary-600' />
           {title}
         </h3>
 
@@ -46,9 +46,9 @@ const BudgetInputCard: React.FC<BudgetInputCardProps> = ({
           value={value || ''}
           onChange={(v: number) => onChange(Number(v))}
           validation={{
-            min: 1000,
+            min: 100000,
             max: 160000000,
-            step: 1000,
+            step: 100000,
             message: validationMessage,
           }}
           required
