@@ -103,8 +103,8 @@ const CostBreakdownCard: React.FC<CostBreakdownCardProps> = ({
     return (
         <Card>
             <div className="space-y-4">
-                <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                    <Calculator className="h-5 w-5 mr-2 text-primary-600" />
+                <h3 className="text-lg font-medium text-gray-900 flex items-center gap-1">
+                    <Calculator className="h-5 w-5 text-primary-600" />
                     {title}
                 </h3>
 
