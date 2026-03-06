@@ -78,8 +78,8 @@ const MessageCountCard: React.FC<MessageCountCardProps> = ({
   return (
     <Card>
       <div className='space-y-4'>
-        <h3 className='text-lg font-medium text-gray-900 flex items-center'>
-          <MessageSquare className='h-5 w-5 mr-2 text-primary-600' />
+        <h3 className='text-lg font-medium text-gray-900 flex items-center gap-1'>
+          <MessageSquare className='h-5 w-5 text-primary-600' />
           {title}
         </h3>
 
