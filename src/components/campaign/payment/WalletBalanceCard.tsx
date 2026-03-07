@@ -98,7 +98,7 @@ const WalletBalanceCard: React.FC<WalletBalanceCardProps> = ({
                                         variant="primary"
                                         className="w-full"
                                     >
-                                        <Wallet className="w-4 h-4 mr-2" />
+                                        <Wallet className="w-4 h-4 mr-3" />
                                         {goToWalletLabel}
                                     </Button>
                                 </div>
@@ -131,8 +131,8 @@ const WalletBalanceCard: React.FC<WalletBalanceCardProps> = ({
     return (
         <Card>
             <div className="space-y-4">
-                <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                    <Wallet className="h-5 w-5 mr-2 text-primary-600" />
+                <h3 className="text-lg font-medium text-gray-900 flex items-center gap-1">
+                    <Wallet className="h-5 w-5 text-primary-600" />
                     {title}
                 </h3>
 
