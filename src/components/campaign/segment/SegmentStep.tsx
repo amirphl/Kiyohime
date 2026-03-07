@@ -250,6 +250,31 @@ const LevelStep: React.FC = () => {
                     />
                 </div>
 
+                {isAgency && (
+                    <div className='md:col-span-2'>
+                        <div className='bg-white shadow-sm border border-gray-200 rounded-lg p-4'>
+                            <CategoryJobFields
+                                category={jobCategory}
+                                job={job}
+                                onChange={(field, value) => field === 'jobCategory' ? handleJobCategoryChange(value) : handleJobChange(value)}
+                                requiredLabel={<span className='text-red-500'>*</span>}
+                                strings={{
+                                    categoryHeader: t.agencyCategoryHeader,
+                                    category: t.agencyCategory,
+                                    selectCategory: t.agencySelectCategory,
+                                    job: t.agencyJob,
+                                    selectJob: t.agencySelectJob,
+                                }}
+                                categories={categories}
+                                errors={{
+                                    category: isAgency && !jobCategory ? t.agencyCategoryRequired : jobErrors.category,
+                                    job: isAgency && !job ? t.agencyJobRequired : jobErrors.job,
+                                }}
+                            />
+                        </div>
+                    </div>
+                )}
+
                 {/* Level 1 Selection */}
                 <div className='md:col-span-2'>
                     {specError ? (
@@ -283,31 +308,6 @@ const LevelStep: React.FC = () => {
                             onToggleLevel3={handleLevel3Toggle}
                             validationMessage={t.level2Validation}
                         />
-                    </div>
-                )}
-
-                {isAgency && (
-                    <div className='md:col-span-2'>
-                        <div className='bg-white shadow-sm border border-gray-200 rounded-lg p-4'>
-                            <CategoryJobFields
-                                category={jobCategory}
-                                job={job}
-                                onChange={(field, value) => field === 'jobCategory' ? handleJobCategoryChange(value) : handleJobChange(value)}
-                                requiredLabel={<span className='text-red-500'>*</span>}
-                                strings={{
-                                    categoryHeader: t.agencyCategoryHeader,
-                                    category: t.agencyCategory,
-                                    selectCategory: t.agencySelectCategory,
-                                    job: t.agencyJob,
-                                    selectJob: t.agencySelectJob,
-                                }}
-                                categories={categories}
-                                errors={{
-                                    category: isAgency && !jobCategory ? t.agencyCategoryRequired : jobErrors.category,
-                                    job: isAgency && !job ? t.agencyJobRequired : jobErrors.job,
-                                }}
-                            />
-                        </div>
                     </div>
                 )}
 
