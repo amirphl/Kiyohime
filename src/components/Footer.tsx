@@ -7,6 +7,7 @@ import { ROUTES } from '../config/routes';
 import DynamicBrand from './DynamicBrand';
 import { footerI18n } from '../locales/footer';
 import { headerI18n } from '../locales/header';
+import { contactI18n } from '../locales/contact';
 
 const Footer: React.FC = () => {
   const { isRTL } = useLanguage();
@@ -16,7 +17,40 @@ const Footer: React.FC = () => {
     footerI18n[language as keyof typeof footerI18n] || footerI18n.en;
   const headerT =
     headerI18n[language as keyof typeof headerI18n] || headerI18n.en;
+  const contactT =
+    contactI18n[language as keyof typeof contactI18n] || contactI18n.en;
   const { isAuthenticated } = useAuth();
+
+  const getPrimaryPhoneHref = (raw: string) => {
+    if (!raw) return '';
+    const parts = raw.split(/[:：]/);
+    const numbersPart = parts.length > 1 ? parts.slice(1).join(':') : raw;
+    const rawTokens = numbersPart
+      .split(/[,;\\/|\u2022\u00B7–—-]+/)
+      .map(token => token.trim())
+      .filter(Boolean);
+    if (rawTokens.length === 0) return '';
+
+    const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+    const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
+    const toEnglishDigits = (input: string) => {
+      if (!input) return input;
+      return input
+        .replace(/[۰-۹]/g, d => String(persianDigits.indexOf(d)))
+        .replace(/[٠-٩]/g, d => String(arabicDigits.indexOf(d)));
+    };
+
+    let s = toEnglishDigits(rawTokens[0]);
+    s = s.replace(/[^+\d]/g, '');
+    if (s.startsWith('+')) return s;
+    if (s.startsWith('00')) return '+' + s.slice(2);
+    if (s.startsWith('0')) return '+98' + s.slice(1);
+    if (s.startsWith('98')) return '+' + s;
+    if (s.startsWith('9')) return '+98' + s;
+    return s;
+  };
+
+  const phoneHref = getPrimaryPhoneHref(contactT.phone || '');
 
   return (
     <footer className='bg-gray-900 text-white'>
@@ -31,12 +65,32 @@ const Footer: React.FC = () => {
             <div
               className={`flex ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'}`}
             >
-              <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                <Mail className='w-5 h-5' />
-              </button>
-              <button className='text-gray-400 hover:text-white transition-colors duration-200'>
-                <Phone className='w-5 h-5' />
-              </button>
+              {contactT.email ? (
+                <a
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
+                  href={`mailto:${contactT.email}`}
+                  aria-label={`Email ${contactT.email}`}
+                >
+                  <Mail className='w-5 h-5' />
+                </a>
+              ) : (
+                <span className='text-gray-400'>
+                  <Mail className='w-5 h-5' />
+                </span>
+              )}
+              {phoneHref ? (
+                <a
+                  className='text-gray-400 hover:text-white transition-colors duration-200'
+                  href={`tel:${phoneHref}`}
+                  aria-label='Call phone number'
+                >
+                  <Phone className='w-5 h-5' />
+                </a>
+              ) : (
+                <span className='text-gray-400'>
+                  <Phone className='w-5 h-5' />
+                </span>
+              )}
               <a
                 className='text-gray-400 hover:text-white transition-colors duration-200'
                 href='https://maps.app.goo.gl/bBYyE9iGcJ7PB65BA'
