@@ -3,6 +3,7 @@ import { Headphones, Plus } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import ConfirmationModal from '../components/ConfirmationModal';
@@ -26,9 +27,9 @@ const SupportPage: React.FC = () => {
   // Tickets state
   const [loadingTickets, setLoadingTickets] = useState(false);
   const [ticketsError, setTicketsError] = useState<string | null>(null);
-  const [groups, setGroups] = useState<Array<{ correlation_id: string; items: Array<{ id: number; title: string; content: string; created_at: string; replied_by_admin?: boolean | null }> }>>([]);
+  const [groups, setGroups] = useState<Array<{ correlation_id: string; items: Array<{ id: number; title: string; content: string; created_at: string; replied_by_admin?: boolean | null; attachments?: Array<string | { filename?: string; name?: string }> }> }>>([]);
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState<{ correlation_id: string; items: Array<{ id: number; title: string; content: string; created_at: string; replied_by_admin?: boolean | null }> } | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<{ correlation_id: string; items: Array<{ id: number; title: string; content: string; created_at: string; replied_by_admin?: boolean | null; attachments?: Array<string | { filename?: string; name?: string }> }> } | null>(null);
 
   // Reply modal state
   const [replyOpen, setReplyOpen] = useState(false);
@@ -37,6 +38,8 @@ const SupportPage: React.FC = () => {
   const [replyFile, setReplyFile] = useState<File | null>(null);
   const [replyError, setReplyError] = useState<string | null>(null);
   const replyGuardRef = useRef(false);
+  const downloadInFlightRef = useRef(new Set<string>());
+  const { showError } = useToast();
 
   const loadTicketsOnceRef = useRef(false);
 
@@ -96,6 +99,45 @@ const SupportPage: React.FC = () => {
     setReplyContent('');
     setReplyFile(null);
     setReplyError(null);
+  };
+
+  const handleDownloadAttachment = async (
+    ticketId: number,
+    fileIndex: number,
+    fallbackName?: string
+  ) => {
+    const key = `${ticketId}-${fileIndex}`;
+    if (downloadInFlightRef.current.has(key)) return;
+    downloadInFlightRef.current.add(key);
+    try {
+      const resp = await apiService.downloadTicketAttachment(ticketId, fileIndex);
+      if (resp.success && resp.data?.blob) {
+        const filename =
+          resp.data.filename ||
+          fallbackName ||
+          `attachment-${ticketId}-${fileIndex + 1}`;
+        const url = URL.createObjectURL(resp.data.blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      } else {
+        const msg =
+          resp.message || t('dashboard.supportModal.downloadError') || 'Failed to download attachment';
+        showError(msg);
+      }
+    } catch (e) {
+      const isTimeout = e instanceof Error && e.name === 'TimeoutError';
+      const msg = isTimeout
+        ? t('dashboard.supportModal.downloadTimeout') || 'Attachment download timed out'
+        : t('dashboard.supportModal.downloadError') || 'Failed to download attachment';
+      showError(msg);
+    } finally {
+      downloadInFlightRef.current.delete(key);
+    }
   };
 
   const openModal = () => {
@@ -324,25 +366,91 @@ const SupportPage: React.FC = () => {
         title={t('common.details') || 'Details'}
         confirmText={t('common.close') || 'Close'}
         cancelText={t('common.cancel')}
+        containerClassName="max-w-3xl"
       >
-        <div className="space-y-3 max-h-[60vh] overflow-auto">
+        <div className="space-y-4 max-h-[70vh] overflow-auto">
           {selectedGroup ? (
             <>
-              {selectedGroup.items.map(it => (
-                <div key={it.id} className="p-3 border rounded-md relative">
+              <div className="text-xs uppercase tracking-[0.2em] text-gray-400">
+                {t('dashboard.supportModal.ticketSectionTitle') || 'Ticket Details'}
+              </div>
+              <div className="space-y-4">
+              {selectedGroup.items.map(it => {
+                const attachments = Array.isArray(it.attachments)
+                  ? it.attachments
+                  : [];
+                return (
+                <div key={it.id} className="p-4 border border-gray-200 rounded-lg bg-gray-50/60 relative">
                   {it.replied_by_admin && (
-                    <div className="absolute top-2 right-2">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {language === 'fa' ? 'پاسخ ادمین' : 'Admin Reply'}
+                    <div className="absolute top-3 right-3">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {t('dashboard.supportModal.adminReply') || 'Admin Reply'}
                       </span>
                     </div>
                   )}
-                  <div className="text-sm text-gray-500">{new Date(it.created_at).toLocaleString()}</div>
-                  <div className="font-medium text-gray-900 mt-1">{it.title || '-'}</div>
-                  <div className="text-gray-700 mt-1 whitespace-pre-wrap">{it.content || '-'}</div>
+                  <div className="text-xs uppercase tracking-wide text-gray-500">
+                    {t('dashboard.supportModal.metadataTitle') || 'Metadata'}
+                  </div>
+                  <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <div className="text-xs text-gray-500">
+                        {t('dashboard.supportModal.createdAtLabel') || 'Created at'}
+                      </div>
+                      <div className="text-gray-900">
+                        {new Date(it.created_at).toLocaleString()}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">
+                        {t('dashboard.supportModal.titleLabel') || 'Title'}
+                      </div>
+                      <div className="text-gray-900">{it.title || '-'}</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 border-t border-gray-200 pt-4">
+                    <div className="text-xs uppercase tracking-wide text-gray-500">
+                      {t('dashboard.supportModal.messageTitle') || 'Message'}
+                    </div>
+                    <div className="text-gray-700 mt-2 whitespace-pre-wrap">
+                      {it.content || '-'}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 border-t border-gray-200 pt-4">
+                    <div className="text-xs uppercase tracking-wide text-gray-500">
+                      {t('dashboard.supportModal.attachments') || 'Attachments'}
+                    </div>
+                    {attachments.length > 0 ? (
+                      <div className="mt-2 flex flex-col gap-2">
+                        {attachments.map((attachment, idx) => {
+                          const label =
+                            typeof attachment === 'string'
+                              ? attachment
+                              : attachment?.filename || attachment?.name || `${t('dashboard.supportModal.fields.attachment') || 'Attachment'} ${idx + 1}`;
+                          return (
+                            <button
+                              key={`${it.id}-${idx}`}
+                              type="button"
+                              onClick={() => handleDownloadAttachment(it.id, idx, label)}
+                              className="text-left text-sm text-primary-600 hover:underline"
+                            >
+                              {t('dashboard.supportModal.downloadAttachment') || 'Download attachment'} {label ? `(${label})` : ''}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="mt-2 text-sm text-gray-500">
+                        {t('dashboard.supportModal.noAttachments') || 'No attachments'}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              ))}
-              <div className="pt-2">
+                );
+              })}
+              </div>
+              <div className="pt-4 border-t border-gray-200">
                 <Button onClick={() => { setReplyOpen(true); resetReplyForm(); }} className="w-full" variant="primary">
                   {t('common.reply') || 'Reply'}
                 </Button>
