@@ -54,7 +54,7 @@ export interface ReportsTranslations {
     statistics: string;
     clickRate: string;
     totalClicks: string;
-    total: string;
+    totalSentSuccessfully: string;
     numAudience: string;
     linkShortener: string;
     cancelCampaign: string;
@@ -103,6 +103,9 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       'waiting-for-approval': 'Waiting for Approval',
       approved: 'Approved',
       rejected: 'Rejected',
+      running: 'Running',
+      cancelled: 'Cancelled',
+      executed: 'Executed',
     },
     modal: {
       details: 'Details',
@@ -125,7 +128,7 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       statistics: 'Statistics',
       clickRate: 'Click Rate',
       totalClicks: 'Total Clicks',
-      total: 'Total',
+      totalSentSuccessfully: 'Total Sent Successfully',
       numAudience: 'Total',
       linkShortener: 'Link Shortener',
       cancelCampaign: 'Cancel Campaign',
@@ -172,6 +175,9 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       'waiting-for-approval': 'در انتظار تأیید',
       approved: 'تأیید شده',
       rejected: 'رد شده',
+      running: 'در حال اجرا',
+      cancelled: 'لغو شده',
+      executed: 'اجرا شده',
     },
     modal: {
       details: 'جزئیات',
@@ -194,7 +200,7 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       statistics: 'آمار',
       clickRate: 'نرخ کلیک (تعداد کلیک / تعداد پیام های رسیده)',
       totalClicks: 'مجموع کلیک',
-      total: 'مجموع',
+      totalSentSuccessfully: 'تعداد پیام‌های رسیده',
       numAudience: 'تعداد پیام های ارسالی',
       linkShortener: 'کوتاه کننده لینک',
       cancelCampaign: 'لغو',
