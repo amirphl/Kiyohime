@@ -106,7 +106,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     title: 'مدیریت مالی',
     comingSoon: 'به زودی',
     backToDashboard: 'بازگشت به پیشخوان',
-    currency: 'تومن',
+    currency: 'تومان',
     currentBalance: 'موجودی فعلی',
     free: 'موجودی در دسترس',
     locked: 'قفل‌شده',
