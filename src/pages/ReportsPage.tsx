@@ -158,7 +158,6 @@ const ReportsPage: React.FC = () => {
       scheduleAt: selected.scheduleat || undefined,
     });
     updateBudget({
-      lineNumber: selected.line_number || '',
       totalBudget: selected.budget || 0,
     });
     updatePayment({ termsAccepted: false });
