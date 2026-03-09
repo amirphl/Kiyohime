@@ -253,14 +253,19 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
                 </div> */}
               {/* <div className="flex flex-col gap-3 w-full"> */}
               {infoRow(copy.modal.numAudience, campaign.num_audience ?? '-')}
-              {infoRow(copy.modal.totalSentSuccessfully, campaign.statistics?.aggregated_total_sent ?? '-')}
+              {infoRow(copy.modal.totalSentSuccessfully, campaign.statistics?.aggregatedTotalSent ?? '-')}
               {infoRow(
                 copy.modal.totalClicks,
                 typeof campaign.total_clicks === 'number'
                   ? campaign.total_clicks.toFixed(2)
                   : '-'
               )}
-              {infoRow(copy.modal.clickRate, campaign.click_rate ?? '-')}
+              {infoRow(
+                copy.modal.clickRate,
+                typeof campaign.click_rate === 'number'
+                  ? `${(campaign.click_rate * 100).toFixed(2)}%`
+                  : '-'
+              )}
               {/* </div> */}
               {/* </div> */}
             </div>
