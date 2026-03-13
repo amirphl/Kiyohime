@@ -91,18 +91,26 @@ export interface AdminGetCampaignResponse {
   created_at: string;
   updated_at?: string | null;
   title?: string | null;
-  segment?: string | null;
-  subsegment?: string[];
+  level1?: string | null;
+  level2s?: string[];
+  level3s?: string[];
+  tags?: string[];
   sex?: string | null;
   city?: string[];
   adlink?: string | null;
   content?: string | null;
+  short_link_domain?: string | null;
+  job_category?: string | null;
+  job?: string | null;
   scheduleat?: string | null;
   line_number?: string | null;
   budget?: number | null;
   comment?: string | null;
   segment_price_factor?: number;
   line_number_price_factor?: number;
+  statistics?: Record<string, any>;
+  total_clicks?: number | null;
+  click_rate?: number | null;
 }
 
 export interface AdminListCampaignsResponse {
@@ -213,6 +221,9 @@ export interface AdminCustomerCampaignItem {
   total_delivered: number; // uint64
   click_rate: number;
   campaign_id?: number | null;
+  line_number?: string | null;
+  level3s?: string[] | null;
+  num_audience?: number | null;
 }
 
 export interface AdminCustomerWithCampaignsResponse {
