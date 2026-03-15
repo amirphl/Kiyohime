@@ -249,8 +249,8 @@ const AdminCampaignsPage: React.FC = () => {
                   <td className="border px-2 py-2">{formatDateTime(it.created_at)}</td>
                   <td className="border px-2 py-2">{formatDateTime(it.updated_at)}</td>
                   <td className="border px-2 py-2 max-w-[220px] truncate" title={it.title || ''}>{it.title || ''}</td>
-                  <td className="border px-2 py-2 max-w-[220px] truncate" title={it.segment || ''}>{it.segment || ''}</td>
-                  <td className="border px-2 py-2 max-w-[220px] truncate" title={Array.isArray(it.subsegment) ? it.subsegment.join(', ') : ''}>{Array.isArray(it.subsegment) ? it.subsegment.join(', ') : ''}</td>
+                  <td className="border px-2 py-2 max-w-[220px] truncate" title={it.level1 || ''}>{it.level1 || ''}</td>
+                  <td className="border px-2 py-2 max-w-[220px] truncate" title={Array.isArray(it.level2s) ? it.level2s.join(', ') : ''}>{Array.isArray(it.level2s) ? it.level2s.join(', ') : ''}</td>
                   <td className="border px-2 py-2">{it.sex || ''}</td>
                   <td className="border px-2 py-2">{Array.isArray(it.city) ? it.city.join(', ') : ''}</td>
                   <td className="border px-2 py-2 max-w-[220px] truncate" title={it.adlink || ''}>{it.adlink || ''}</td>
