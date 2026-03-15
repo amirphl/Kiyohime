@@ -37,7 +37,7 @@
   --color-surface: #111827;
   --color-text: #e2e8f0;
   --color-muted: #94a3b8;
-  --color-border: #1f2937;
+  --color-border: #334155;
 }
 
 body {
@@ -66,6 +66,20 @@ body {
 :root[data-theme='dark'] .border-gray-200,
 :root[data-theme='dark'] .border-gray-300 {
   border-color: var(--color-border) !important;
+}
+
+:root[data-theme='dark'] input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+:root[data-theme='dark'] textarea,
+:root[data-theme='dark'] select,
+:root[data-theme='dark'] .input-field {
+  background-color: #0f172a !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+:root[data-theme='dark'] input::placeholder,
+:root[data-theme='dark'] textarea::placeholder {
+  color: var(--color-muted) !important;
 }
 
 :root[data-theme='dark'] .hover\:bg-gray-100:hover {
