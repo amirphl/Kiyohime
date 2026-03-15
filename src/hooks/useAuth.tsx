@@ -159,7 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (redirectToLogin) {
       console.log('🔄 Manual logout - redirecting to login page...');
       setTimeout(() => {
-        window.location.replace('/login');
+        window.location.replace('/signin');
       }, 100);
     }
   }, []);
