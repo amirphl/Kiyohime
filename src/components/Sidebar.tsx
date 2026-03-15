@@ -33,6 +33,30 @@ const Sidebar: React.FC = () => {
   const { user } = useAuth();
   const { navigate } = useNavigation();
   const { resetCampaign } = useCampaign();
+  const [currentPath, setCurrentPath] = React.useState(() =>
+    typeof window !== 'undefined' ? window.location.pathname : ''
+  );
+
+  React.useEffect(() => {
+    const updatePath = (path?: string) => {
+      if (path) {
+        setCurrentPath(path);
+        return;
+      }
+      setCurrentPath(typeof window !== 'undefined' ? window.location.pathname : '');
+    };
+
+    const handleNavigation = (event: CustomEvent) => updatePath(event.detail?.path);
+    const handlePopState = () => updatePath();
+
+    window.addEventListener('navigation', handleNavigation as EventListener);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('navigation', handleNavigation as EventListener);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   const navigateToPage = (path: string) => navigate(path);
 
@@ -75,8 +99,7 @@ const Sidebar: React.FC = () => {
   if (!user) return null;
 
   // Hide sidebar for admin-like pages (e.g. satrap)
-  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
-  if (pathname.startsWith('/satrap') || pathname.includes('/satrap')) return null;
+  if (currentPath.startsWith('/satrap') || currentPath.includes('/satrap')) return null;
 
   const toggle = () => {
     try {
@@ -107,7 +130,7 @@ const Sidebar: React.FC = () => {
         <nav className='space-y-2'>
           {sidebarItems.map(item => {
             if (item.showForAgency && !isAgency) return null;
-            const isActive = window.location.pathname === item.href;
+            const isActive = currentPath === item.href;
             return (
               <button key={item.id} onClick={item.onClick} className={`flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} ${isActive ? 'bg-primary-100 text-primary-700' : 'text-gray-700 hover:bg-gray-100'}`}>
                 {item.icon}
