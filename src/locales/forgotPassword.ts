@@ -20,7 +20,7 @@ export const forgotPasswordI18n = {
     success: {
       title: 'Reset Link Sent',
       subtitle: 'Check your mobile for the OTP',
-      message: 'Password reset OTP has been sent to {phone}',
+      message: 'Password reset OTP has been sent to {phone} Please check your messages.',
       expiresIn: 'OTP expires in {minutes} minutes',
       tryAgain: 'Try Another Email/Mobile',
       resetPassword: 'Reset Password',
