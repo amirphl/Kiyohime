@@ -17,6 +17,7 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
   const { language } = useLanguage();
   const { isRTL } = useLanguage();
   const forgotPasswordT = forgotPasswordI18n[language as keyof typeof forgotPasswordI18n] || forgotPasswordI18n.en;
+  const [messageBeforePhone = '', messageAfterPhone = ''] = forgotPasswordT.success.message.split('{phone}');
 
   const formatMessage = (template: string, params: Record<string, any>) =>
     template.replace(/\{(\w+)\}/g, (_, key) => String(params[key] ?? ''));
@@ -89,7 +90,9 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
           <div className='bg-green-50 border border-green-200 rounded-md p-6'>
             <div className='text-center'>
               <p className='text-sm text-green-800 mb-4'>
-                {formatMessage(forgotPasswordT.success.message, { phone: maskedPhone })}
+                <span className='block'>{messageBeforePhone.trim()}</span>
+                <span className='block' dir='ltr'>{maskedPhone}</span>
+                <span className='block'>{messageAfterPhone.trim()}</span>
               </p>
               <p className='text-xs text-green-600'>
                 {formatMessage(forgotPasswordT.success.expiresIn, { minutes: 5 })}
