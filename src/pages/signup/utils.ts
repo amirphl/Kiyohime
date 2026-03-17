@@ -4,6 +4,7 @@ export const defaultSignupForm: SignupFormData = {
   accountType: '',
   companyName: '',
   nationalId: '',
+  nationalCode: '',
   companyPhone: '',
   companyAddress: '',
   postalCode: '',
