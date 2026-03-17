@@ -275,4 +275,16 @@ export interface ActiveLineNumberItem {
 export interface ListActiveLineNumbersResponse {
 	message: string;
 	items: ActiveLineNumberItem[];
-} 
+}
+
+// Segment price factors (latest per level3)
+export interface SegmentPriceFactorItem {
+	level3: string;
+	price_factor: number;
+	created_at: string;
+}
+
+export interface ListLatestSegmentPriceFactorsResponse {
+	message: string;
+	items: SegmentPriceFactorItem[];
+}
