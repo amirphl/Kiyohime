@@ -119,7 +119,7 @@ const AdminLineNumbersPage: React.FC = () => {
     switch (code) {
       case 'LINE_NUMBER_VALUE_REQUIRED':
         return language === 'fa'
-          ? t.adminLineNumbers?.fields?.lineNumber + ' ' + 'الزامی است'
+          ? `${t.adminLineNumbers?.fields?.lineNumber} الزامی است`
           : 'Line number is required';
       case 'PRICE_FACTOR_INVALID':
         return language === 'fa'
