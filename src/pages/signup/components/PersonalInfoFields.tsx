@@ -62,6 +62,24 @@ const PersonalInfoFields: React.FC<Props> = ({
           <p className='mt-1 text-sm text-red-600'>{errors.representativeLastName}</p>
         )}
       </div>
+
+      {!isCompanyAccount && (
+        <div>
+          <label className='block text-sm font-medium text-gray-700 mb-2'>
+            {strings.nationalCode} {requiredLabel}
+          </label>
+          <input
+            type='text'
+            name='nationalCode'
+            value={formData.nationalCode}
+            onChange={e => onChange('nationalCode', e.target.value)}
+            className='input-field'
+            placeholder={strings.nationalCodePlaceholder}
+            maxLength={11}
+          />
+          {errors.nationalCode && <p className='mt-1 text-sm text-red-600'>{errors.nationalCode}</p>}
+        </div>
+      )}
     </div>
 
     <div>
