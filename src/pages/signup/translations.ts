@@ -13,6 +13,8 @@ export interface SignupTranslations {
   companyNamePlaceholder: string;
   nationalId: string;
   nationalIdPlaceholder: string;
+  nationalCode: string;
+  nationalCodePlaceholder: string;
   companyPhone: string;
   companyPhonePlaceholder: string;
   postalCode: string;
@@ -42,6 +44,7 @@ export interface SignupTranslations {
   createAccount: string;
   haveAccount: string;
   signInHere: string;
+  signInWithOtp: string;
   passwordRequirements: string;
   verifyMobile: string;
   otpSent: string;
@@ -64,6 +67,8 @@ export interface SignupTranslations {
     companyNameMax: string;
     nationalIdRequired: string;
     nationalIdFormat: string;
+    nationalCodeRequired: string;
+    nationalCodeFormat: string;
     companyPhoneRequired: string;
     companyPhoneMin: string;
     companyAddressRequired: string;
@@ -131,6 +136,8 @@ export const signupTranslations: Record<SignupLocale, SignupTranslations> = {
     companyNamePlaceholder: 'Enter company name',
     nationalId: 'National ID',
     nationalIdPlaceholder: '10 or 11-digit national ID',
+    nationalCode: 'National Code',
+    nationalCodePlaceholder: '10 or 11-digit national code',
     companyPhone: 'Company Phone',
     companyPhonePlaceholder: 'Company phone number',
     postalCode: 'Postal Code',
@@ -160,6 +167,7 @@ export const signupTranslations: Record<SignupLocale, SignupTranslations> = {
     createAccount: 'Create Account',
     haveAccount: 'Already have an account?',
     signInHere: 'Sign in here',
+    signInWithOtp: 'Sign in with OTP',
     passwordRequirements: 'Password Requirements',
     verifyMobile: 'Verify Your Mobile Number',
     otpSent: "We've sent a 6-digit verification code to",
@@ -182,6 +190,8 @@ export const signupTranslations: Record<SignupLocale, SignupTranslations> = {
       companyNameMax: 'Company name must be 60 characters or less',
       nationalIdRequired: 'National ID is required',
       nationalIdFormat: 'National ID must be 10 or 11 digits',
+      nationalCodeRequired: 'National code is required',
+      nationalCodeFormat: 'National code must be 10 or 11 digits',
       companyPhoneRequired: 'Company phone is required',
       companyPhoneMin: 'Phone number must be at least 10 digits',
       companyAddressRequired: 'Company address is required',
@@ -247,6 +257,8 @@ export const signupTranslations: Record<SignupLocale, SignupTranslations> = {
     companyNamePlaceholder: 'نام شرکت را وارد کنید',
     nationalId: 'شناسه ملی',
     nationalIdPlaceholder: 'شناسه ملی ۱۰ یا ۱۱ رقمی',
+    nationalCode: 'کد ملی',
+    nationalCodePlaceholder: 'کد ملی ۱۰ یا ۱۱ رقمی',
     companyPhone: 'تلفن شرکت',
     companyPhonePlaceholder: 'شماره تلفن شرکت',
     postalCode: 'کد پستی',
@@ -276,6 +288,7 @@ export const signupTranslations: Record<SignupLocale, SignupTranslations> = {
     createAccount: 'ایجاد حساب کاربری',
     haveAccount: 'قبلاً حساب کاربری دارید؟',
     signInHere: 'اینجا وارد شوید',
+    signInWithOtp: 'ورود با رمز یکبار مصرف',
     passwordRequirements: 'نیازمندی‌های رمز عبور',
     verifyMobile: 'تأیید شماره موبایل شما',
     otpSent: 'کد تأیید ۶ رقمی به شماره زیر ارسال شده است',
@@ -287,8 +300,8 @@ export const signupTranslations: Record<SignupLocale, SignupTranslations> = {
     acceptTerms: 'با شرایط و ضوابط موافقت می‌کنم',
     mustAcceptTerms: 'برای ادامه باید با شرایط و ضوابط موافقت کنید',
     categoryHeader: 'لطفا با انتخاب دسته‌ و زیردسته نوع کسب‌وکار خود را به صورت دقیق انتخاب کنید',
-    category: 'دسته‌بندی اصلی کسب و کار شما',
-    job: 'زیردسته دقیق‌تر کسب و کار شما',
+    category: 'دسته‌بندی اصلی کسب‌و‌کار شما',
+    job: 'زیردسته دقیق‌تر کسب‌و‌کار شما',
     selectCategory: 'انتخاب دسته‌بندی اصلی کسب و کار',
     selectJob: 'انتخاب زیردسته دقیق‌تر',
     validation: {
@@ -298,6 +311,8 @@ export const signupTranslations: Record<SignupLocale, SignupTranslations> = {
       companyNameMax: 'نام شرکت باید حداکثر ۶۰ کاراکتر باشد',
       nationalIdRequired: 'شناسه ملی الزامی است',
       nationalIdFormat: 'شناسه ملی باید ۱۰ یا ۱۱ رقم باشد',
+      nationalCodeRequired: 'کد ملی الزامی است',
+      nationalCodeFormat: 'کد ملی باید ۱۰ یا ۱۱ رقم باشد',
       companyPhoneRequired: 'تلفن شرکت الزامی است',
       companyPhoneMin: 'شماره تلفن باید حداقل ۱۰ رقم باشد',
       companyAddressRequired: 'آدرس شرکت الزامی است',
