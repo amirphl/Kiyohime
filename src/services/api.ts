@@ -5,10 +5,11 @@ import {
   UpdateSMSCampaignRequest, UpdateSMSCampaignResponse,
   ListSMSCampaignsParams, ListSMSCampaignsResponse,
 } from '../types/campaign';
-import { config, getApiUrl } from '../config/environment';
+import { config, getApiUrl, isDevelopment, isProduction } from '../config/environment';
 import { GetTransactionHistoryParams, TransactionHistoryResponse } from '../types/payments';
 import { AgencyCustomerReportResponse, ListAgencyActiveDiscountsResponse, ListAgencyCustomerDiscountsResponse, ListAgencyCustomersResponse } from '../types/agency';
-import { ListAudienceSpecResponse, ListActiveLineNumbersResponse } from '../types/campaign';
+import { ListAudienceSpecResponse, ListActiveLineNumbersResponse, ListLatestSegmentPriceFactorsResponse } from '../types/campaign';
+import { login as authLogin, requestLoginOtp as authRequestLoginOtp, verifyLoginOtp as authVerifyLoginOtp } from './auth/api';
 
 // Updated to match Go backend response structure
 export interface ApiResponse<T = any> {
@@ -122,6 +123,7 @@ class ApiService {
       } else if (response.status === 401) {
         // Unauthorized - check if this is an auth endpoint
         const isAuthEndpoint = endpoint.includes('/auth/login') ||
+          endpoint.includes('/auth/login/otp') ||
           endpoint.includes('/auth/signup') ||
           endpoint.includes('/auth/verify') ||
           endpoint.includes('/auth/resend-otp') ||
@@ -243,49 +245,15 @@ class ApiService {
 
   // Auth endpoints
   async login(identifier: string, password: string): Promise<ApiResponse> {
-    // Input validation
-    if (
-      !identifier ||
-      typeof identifier !== 'string' ||
-      identifier.length > 255
-    ) {
-      return {
-        success: false,
-        message: 'Invalid identifier',
-        error: {
-          code: 'Invalid identifier',
-          details: null
-        },
-      };
-    }
+    return authLogin(identifier, password);
+  }
 
-    if (!password || typeof password !== 'string' || password.length < 8) {
-      return {
-        success: false,
-        message: 'Invalid password',
-        error: {
-          code: 'Invalid password',
-          details: null
-        },
-      };
-    }
+  async requestLoginOtp(identifier: string): Promise<ApiResponse> {
+    return authRequestLoginOtp(identifier);
+  }
 
-    // Check if identifier looks like a phone number (contains only digits and +)
-    const phoneRegex = /^[\d+]+$/;
-    let formattedIdentifier = identifier.trim();
-
-    if (phoneRegex.test(formattedIdentifier)) {
-      // Format phone number to include +98 prefix
-      formattedIdentifier = this.formatPhoneNumber(formattedIdentifier);
-    }
-
-    return this.request('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({
-        identifier: formattedIdentifier,
-        password,
-      }),
-    });
+  async verifyLoginOtp(customerId: number, otpCode: string): Promise<ApiResponse> {
+    return authVerifyLoginOtp(customerId, otpCode);
   }
 
   async signup(signupData: any): Promise<ApiResponse> {
@@ -851,17 +819,22 @@ class ApiService {
     return this.request<ListActiveLineNumbersResponse>(config.endpoints.lineNumbers.active, { method: 'GET' });
   }
 
+  // Segment price factors (latest per level3)
+  async listLatestSegmentPriceFactors(): Promise<ApiResponse<ListLatestSegmentPriceFactorsResponse>> {
+    return this.request<ListLatestSegmentPriceFactorsResponse>(config.endpoints.segmentPriceFactors.listLatest, { method: 'GET' });
+  }
+
   // Utility methods
   getConfig() {
     return config;
   }
 
   isProduction() {
-    return config.domain !== 'yamata-no-orochi.com';
+    return isProduction();
   }
 
   isDevelopment() {
-    return config.domain === 'yamata-no-orochi.com';
+    return isDevelopment();
   }
 
   isStaging() {
