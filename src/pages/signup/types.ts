@@ -4,6 +4,7 @@ export interface SignupFormData {
   accountType: AccountType;
   companyName: string;
   nationalId: string;
+  nationalCode: string;
   companyPhone: string;
   companyAddress: string;
   postalCode: string;
