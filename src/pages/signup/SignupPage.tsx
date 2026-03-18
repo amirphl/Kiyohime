@@ -9,18 +9,19 @@ import {
   CategoryJobFields,
   CompanyFields,
   CredentialsFields,
-  OtpModal,
   PersonalInfoFields,
   TermsCheckbox,
 } from './components';
+import OtpModal from '../../components/auth/OtpModal';
 import { signupTranslations, SignupLocale } from './translations';
 import { useSignupForm } from './useSignupForm';
 
 interface SignupPageProps {
   onNavigateToLogin?: () => void;
+  onNavigateToLoginWithOtp?: () => void;
 }
 
-const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
+const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin, onNavigateToLoginWithOtp }) => {
   const { t } = useTranslation();
   const { isRTL, language } = useLanguage();
   const strings = signupTranslations[language as SignupLocale] || signupTranslations.en;
@@ -164,6 +165,15 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
                   {strings.signInHere}
                 </button>
               </p>
+              <p className='text-sm text-gray-600 mt-2'>
+                <button
+                  type='button'
+                  onClick={onNavigateToLoginWithOtp || onNavigateToLogin}
+                  className='text-primary-600 hover:text-primary-700 font-medium'
+                >
+                  {strings.signInWithOtp}
+                </button>
+              </p>
             </div>
           </form>
         </div>
@@ -171,8 +181,14 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
 
       <OtpModal
         open={showOtpModal}
-        strings={strings}
         isRTL={isRTL}
+        title={strings.verifyMobile}
+        otpSentLabel={strings.otpSent}
+        enterCodeLabel={strings.enterVerificationCode}
+        verifyLabel={strings.verifyCode}
+        resendLabel={t('common.resend')}
+        resendInLabel={strings.resendIn}
+        secondsLabel={t('common.seconds')}
         mobile={formData.representativeMobile}
         otpCode={otpCode}
         onClose={() => setShowOtpModal(false)}
@@ -182,8 +198,6 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin }) => {
         resendCountdown={resendCountdown}
         onResend={handleResendOtp}
         isLoading={isLoading}
-        commonResendLabel={t('common.resend')}
-        commonSecondsLabel={t('common.seconds')}
       />
     </div>
   );
