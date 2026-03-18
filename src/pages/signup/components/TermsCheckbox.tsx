@@ -20,7 +20,7 @@ const TermsCheckbox: React.FC<Props> = ({ accepted, onChange, strings }) => (
       <a
         href='/terms'
         className='text-primary-600 hover:text-primary-700'
-        target='_self'
+        target='_blank'
         rel='noopener noreferrer'
       >
         {strings.acceptTerms}
