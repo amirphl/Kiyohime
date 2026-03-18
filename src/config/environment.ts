@@ -1,4 +1,4 @@
-// Environment configuration for multi-domain deployment
+// Environment configuration for fixed local dev and configurable production
 export interface EnvironmentConfig {
   // Domain and URL settings
   domain: string;
@@ -38,6 +38,9 @@ export interface EnvironmentConfig {
     lineNumbers: {
       active: string;
     };
+    segmentPriceFactors: {
+      listLatest: string;
+    };
     analytics: {
       dashboard: string;
       reports: string;
@@ -60,11 +63,10 @@ export interface EnvironmentConfig {
   };
 }
 
-// Default configuration
-const defaultConfig: EnvironmentConfig = {
-  domain: 'yamata-no-orochi.com',
-  baseUrl: 'https://yamata-no-orochi.com:8443', // Will be overridden by production config
-  apiUrl: 'https://yamata-no-orochi.com:8443/api/v1', // Will be overridden by production config
+const localConfig: EnvironmentConfig = {
+  domain: 'localhost',
+  baseUrl: 'http://localhost:8081',
+  apiUrl: 'http://localhost:8080/api/v1',
 
   brandName: 'Jazebeh',
   brandSubtitle: '',
@@ -96,6 +98,9 @@ const defaultConfig: EnvironmentConfig = {
     lineNumbers: {
       active: '/line-numbers/active',
     },
+    segmentPriceFactors: {
+      listLatest: '/segment-price-factors',
+    },
     analytics: {
       dashboard: '/analytics/dashboard',
       reports: '/analytics/reports',
@@ -116,122 +121,34 @@ const defaultConfig: EnvironmentConfig = {
   },
 };
 
-// Domain-specific configurations
-const domainConfigs: Record<string, Partial<EnvironmentConfig>> = {
-  // Yamata no Orochi domain (set in /etc/hosts) - Local development
-  'yamata-no-orochi.com': {
-    domain: 'yamata-no-orochi.com',
-    baseUrl: 'https://yamata-no-orochi.com:8443',
-    apiUrl: 'https://yamata-no-orochi.com:8443/api/v1',
-    brandName: 'Yamata no Orochi',
-    brandSubtitle: '',
-    features: {
-      smsMarketing: true,
-      analytics: true,
-    },
-    ui: {
-      primaryColor: '#22c55e',
-      logoUrl: '/Jazebeh.png',
-      faviconUrl: '/favicon-yamata.ico',
-      theme: 'light',
-    },
-  },
-};
+const getProductionConfig = (): EnvironmentConfig => {
+  const domain = (process.env.REACT_APP_PRODUCTION_DOMAIN || '').trim();
+  const baseUrl = domain ? `https://${domain}` : localConfig.baseUrl;
+  const apiUrl = domain ? `https://${domain}/api/v1` : localConfig.apiUrl;
 
-// Get current domain
-const getCurrentDomain = (): string => {
-  // For production, prioritize the production domain from environment
-  if (process.env.REACT_APP_PRODUCTION_DOMAIN) {
-    console.log('Using production domain from env:', process.env.REACT_APP_PRODUCTION_DOMAIN);
-    return process.env.REACT_APP_PRODUCTION_DOMAIN;
-  }
-
-  // Fallback to current hostname if no production domain set
-  if (typeof window !== 'undefined') {
-    console.log('Using current hostname:', window.location.hostname);
-    return window.location.hostname;
-  }
-
-  console.log('Using fallback domain:', process.env.REACT_APP_DOMAIN || 'yamata-no-orochi.com');
-  return process.env.REACT_APP_DOMAIN || 'yamata-no-orochi.com';
-};
-
-// Get environment configuration
-export const getEnvironmentConfig = (): EnvironmentConfig => {
-  const currentDomain = getCurrentDomain();
-  let domainConfig = domainConfigs[currentDomain] || {};
-
-  // For production domain (not in predefined configs), create dynamic config
-  if (
-    process.env.REACT_APP_PRODUCTION_DOMAIN &&
-    currentDomain === process.env.REACT_APP_PRODUCTION_DOMAIN
-  ) {
-    domainConfig = {
-      domain: currentDomain,
-      baseUrl: `https://${currentDomain}`,
-      apiUrl: `https://${currentDomain}/api/v1`,
-      brandName: 'Jazebeh',
-      brandSubtitle: '',
-      features: {
-        smsMarketing: true,
-        analytics: true,
-      },
-      ui: {
-        primaryColor: '#2563eb',
-        logoUrl: '/Jazebeh.png',
-        faviconUrl: '/favicon.ico',
-        theme: 'light',
-      },
-    };
-
-    // Log the production configuration for debugging
-    console.log('Production domain detected:', {
-      domain: currentDomain,
-      baseUrl: `https://${currentDomain}`,
-      apiUrl: `https://${currentDomain}/api/v1`
-    });
-  }
-
-  // Merge with default config
-  const config: EnvironmentConfig = {
-    ...defaultConfig,
-    ...domainConfig,
-    // For production domains, ensure URLs are completely overridden
-    ...(process.env.REACT_APP_PRODUCTION_DOMAIN && currentDomain === process.env.REACT_APP_PRODUCTION_DOMAIN && {
-      baseUrl: `https://${currentDomain}`,
-      apiUrl: `https://${currentDomain}/api/v1`,
-    }),
-    features: {
-      ...defaultConfig.features,
-      ...domainConfig.features,
-    },
-    endpoints: {
-      ...defaultConfig.endpoints,
-      ...domainConfig.endpoints,
-    },
-    ui: {
-      ...defaultConfig.ui,
-      ...domainConfig.ui,
-    },
-    localization: {
-      ...defaultConfig.localization,
-      ...domainConfig.localization,
-    },
+  return {
+    ...localConfig,
+    domain: domain || localConfig.domain,
+    baseUrl,
+    apiUrl,
   };
-
-  return config;
 };
 
-// Export current config
+export const getEnvironmentConfig = (): EnvironmentConfig => {
+  const isProd =
+    process.env.REACT_APP_NODE_ENV === 'production' || process.env.NODE_ENV === 'production';
+  return isProd ? getProductionConfig() : localConfig;
+};
+
 export const config = getEnvironmentConfig();
 
 // Helper functions
 export const isProduction = (): boolean => {
-  return config.domain !== 'yamata-no-orochi.com';
+  return process.env.REACT_APP_NODE_ENV === 'production' || process.env.NODE_ENV === 'production';
 };
 
 export const isDevelopment = (): boolean => {
-  return config.domain === 'yamata-no-orochi.com';
+  return !isProduction();
 };
 
 export const isStaging = (): boolean => {
