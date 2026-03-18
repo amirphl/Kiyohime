@@ -72,6 +72,15 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
             return strings.validation.nationalIdFormat;
           }
           return '';
+        case 'nationalCode':
+          if (data.accountType === 'individual' && !value.trim()) {
+            return strings.validation.nationalCodeRequired;
+          }
+          const normalizedCode = toEnglishDigits(value);
+          if (normalizedCode && (!/^\d+$/.test(normalizedCode) || (normalizedCode.length !== 10 && normalizedCode.length !== 11))) {
+            return strings.validation.nationalCodeFormat;
+          }
+          return '';
         case 'companyPhone':
           if (data.accountType !== 'individual' && !value.trim()) {
             return strings.validation.companyPhoneRequired;
@@ -191,6 +200,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           'accountType',
           'companyName',
           'nationalId',
+          'nationalCode',
           'companyPhone',
           'postalCode',
           'companyAddress',
@@ -254,7 +264,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
         const signupData = {
           account_type: currentData.accountType,
           company_name: currentData.accountType !== 'individual' ? currentData.companyName : undefined,
-          national_id: currentData.accountType !== 'individual' ? currentData.nationalId : undefined,
+          national_id: currentData.accountType === 'individual' ? currentData.nationalCode : currentData.nationalId,
           company_phone: currentData.accountType !== 'individual' ? currentData.companyPhone : undefined,
           company_address: currentData.accountType !== 'individual' ? currentData.companyAddress : undefined,
           postal_code: currentData.accountType !== 'individual' ? currentData.postalCode : undefined,
@@ -294,7 +304,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
         setIsLoading(false);
       }
     },
-    [acceptedTerms, formData, language, showError, startResendCountdown, strings, validateForm]
+    [acceptedTerms, formData, normalizedLanguage, showError, startResendCountdown, strings, validateForm]
   );
 
   const handleOtpVerification = useCallback(async () => {
@@ -333,7 +343,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
     } finally {
       setIsLoading(false);
     }
-  }, [customerId, language, login, otpCode, showError, showSuccess, strings]);
+  }, [customerId, normalizedLanguage, login, otpCode, showError, showSuccess, strings]);
 
   const handleResendOtp = useCallback(async () => {
     if (!canResendOtp || !customerId) return;
@@ -357,7 +367,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
     } finally {
       setIsLoading(false);
     }
-  }, [canResendOtp, customerId, language, showError, showInfo, startResendCountdown, strings]);
+  }, [canResendOtp, customerId, normalizedLanguage, showError, showInfo, startResendCountdown, strings]);
 
   return {
     formData,
