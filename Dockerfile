@@ -7,6 +7,7 @@ FROM node:24-alpine AS builder
 # Build arguments
 ARG NPM_REGISTRY=https://registry.npmjs.org/
 ARG NODE_ENV=production
+ARG PRODUCTION_DOMAIN=jazebeh.ir
 
 # Set working directory
 WORKDIR /app
@@ -31,7 +32,7 @@ COPY . .
 # Set production environment variables
 ENV NODE_ENV=production \
     REACT_APP_NODE_ENV=production \
-    REACT_APP_PRODUCTION_DOMAIN=jazebeh.ir \
+    REACT_APP_PRODUCTION_DOMAIN=$PRODUCTION_DOMAIN \
     REACT_APP_ENABLE_ANALYTICS=true \
     REACT_APP_PRIMARY_COLOR=#2563eb \
     REACT_APP_THEME=light \
