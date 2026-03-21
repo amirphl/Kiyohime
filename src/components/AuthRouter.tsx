@@ -150,6 +150,10 @@ const AuthRouter: React.FC = () => {
             setCurrentPage('login');
             window.history.pushState({}, '', ROUTES.LOGIN.path);
           }}
+          onNavigateToLoginWithOtp={() => {
+            setCurrentPage('login');
+            window.history.pushState({}, '', `${ROUTES.LOGIN.path}?method=otp`);
+          }}
         />
       );
 
