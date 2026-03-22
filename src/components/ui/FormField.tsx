@@ -8,6 +8,7 @@ interface FormFieldProps extends FormFieldType {
   className?: string;
   inputClassName?: string;
   rows?: number;
+  onBlur?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 }
 
 const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
@@ -24,6 +25,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
   className = '',
   inputClassName = '',
   rows,
+  onBlur,
 }, ref) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     let newValue: any = e.target.value;
@@ -46,6 +48,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             rows={rows ?? 4}
             value={value || ''}
             onChange={handleChange}
+            onBlur={onBlur}
             placeholder={placeholder}
             required={required}
             className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none ${error ? 'border-red-300' : 'border-gray-300'} ${inputClassName}`}
@@ -59,6 +62,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             id={id}
             value={value || ''}
             onChange={handleChange}
+            onBlur={onBlur}
             required={required}
             className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${error ? 'border-red-300' : 'border-gray-300'} ${inputClassName}`}
           >
@@ -78,6 +82,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             type="checkbox"
             checked={value || false}
             onChange={handleChange}
+            onBlur={onBlur}
             required={required}
             className={`h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded ${inputClassName}`}
           />
@@ -94,6 +99,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
                   value={option.value}
                   checked={value === option.value}
                   onChange={handleChange}
+                  onBlur={onBlur}
                   className={`h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 ${inputClassName}`}
                 />
                 <span className="ml-2 text-sm text-gray-700">{option.label}</span>
@@ -109,10 +115,12 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             type={type}
             value={value || ''}
             onChange={handleChange}
+            onBlur={onBlur}
             placeholder={placeholder}
             required={required}
             min={validation?.min}
             max={validation?.max}
+            step={validation?.step}
             className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${error ? 'border-red-300' : 'border-gray-300'} ${inputClassName}`}
           />
         );
