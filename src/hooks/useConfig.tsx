@@ -7,7 +7,6 @@ import {
 
 export const useConfig = (): EnvironmentConfig => {
   return useMemo(() => {
-    // Re-evaluate config on each call to handle dynamic domain changes
     return getEnvironmentConfig();
   }, []);
 };
