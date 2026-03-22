@@ -10,22 +10,11 @@ const EnvironmentBanner: React.FC = () => {
     return null;
   }
 
-  const getBannerConfig = () => {
-    if (config.domain === 'yamata-no-orochi.com') {
-      return {
-        text: 'Yamata Development',
-        bgColor: '#22c55e', // Light Green
-        textColor: 'white',
-      };
-    }
-    return {
-      text: 'Development Environment',
-      bgColor: '#f59e0b', // Orange fallback
-      textColor: 'white',
-    };
+  const bannerConfig = {
+    text: 'Local Environment',
+    bgColor: '#f59e0b',
+    textColor: 'white',
   };
-
-  const bannerConfig = getBannerConfig();
 
   return (
     <div
