@@ -5,6 +5,8 @@ import { validateCampaignContent } from '../utils/campaignUtils';
 export const useCampaignValidation = (campaignData: CampaignData, currentStep: number) => {
   const accountType = typeof window !== 'undefined' ? localStorage.getItem('account_type') : null;
   const isAgency = accountType === 'marketing_agency';
+  const MIN_BUDGET = 100000;
+  const MAX_BUDGET = 160000000;
   // Precompute step validation booleans with memoization
   const step1Valid = useMemo(() => {
     const { level } = campaignData;
@@ -18,14 +20,18 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
   }, [campaignData, isAgency]);
 
   const step2Valid = useMemo(() => {
-    const { content, budget } = campaignData;
+    const { content } = campaignData;
     const contentValid = validateCampaignContent(content).isValid;
     return contentValid && !!content.lineNumber;
   }, [campaignData]);
 
   const step3Valid = useMemo(() => {
     const { budget, content } = campaignData;
-    return !!content.lineNumber && budget.totalBudget > 0;
+    return (
+      !!content.lineNumber &&
+      budget.totalBudget >= MIN_BUDGET &&
+      budget.totalBudget <= MAX_BUDGET
+    );
   }, [campaignData]);
 
   const step4Valid = useMemo(() => {
