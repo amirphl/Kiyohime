@@ -48,6 +48,7 @@ const budgetEn = {
     estimatedReach: 'Estimated Reach',
     estimatedReachMessage: 'This shows how many people your campaign can reach based on your budget and targeting criteria.',
     budgetSummaryHelp: 'Review your budget allocation and estimated campaign reach before proceeding to payment.',
+    reset: 'Reset',
 };
 
 const budgetFa = {
@@ -100,6 +101,7 @@ const budgetFa = {
     estimatedReach: 'دسترسی تخمینی',
     estimatedReachMessage: 'این نشان می‌دهد که کمپین شما بر اساس بودجه و معیارهای هدف‌گذاری می‌تواند به چند نفر برسد.',
     budgetSummaryHelp: 'قبل از ادامه به پرداخت، تخصیص بودجه و دسترسی تخمینی کمپین خود را بررسی کنید.',
+    reset: 'بازنشانی',
 };
 
 export const budgetI18n = {
