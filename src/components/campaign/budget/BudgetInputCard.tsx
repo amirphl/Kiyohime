@@ -13,6 +13,9 @@ interface BudgetInputCardProps {
   validationMessage: string;
   currencyLabel: string;
   budgetLabel: string;
+  min: number;
+  max: number;
+  step: number;
 }
 
 const BudgetInputCard: React.FC<BudgetInputCardProps> = ({
@@ -25,9 +28,23 @@ const BudgetInputCard: React.FC<BudgetInputCardProps> = ({
   validationMessage,
   currencyLabel,
   budgetLabel,
+  min,
+  max,
+  step,
 }) => {
   const formatBudget = (budget: number) => {
     return `${budget.toLocaleString()} ${currencyLabel}`;
+  };
+  const isOutOfRange = value > 0 && (value < min || value > max);
+  const error = isOutOfRange ? validationMessage : undefined;
+
+  const handleBlur = () => {
+    if (value <= 0) return;
+    const rounded = Math.round(value / step) * step;
+    const adjusted = rounded === 0 ? step : rounded;
+    if (adjusted !== value) {
+      onChange(adjusted);
+    }
   };
 
   return (
@@ -45,10 +62,12 @@ const BudgetInputCard: React.FC<BudgetInputCardProps> = ({
           placeholder={placeholder}
           value={value || ''}
           onChange={(v: number) => onChange(Number(v))}
+          onBlur={handleBlur}
+          error={error}
           validation={{
-            min: 100000,
-            max: 160000000,
-            step: 100000,
+            min,
+            max,
+            step,
             message: validationMessage,
           }}
           required
