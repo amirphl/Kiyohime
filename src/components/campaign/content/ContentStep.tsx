@@ -4,6 +4,7 @@ import { useLanguage } from '../../../hooks/useLanguage';
 import { useCampaign } from '../../../hooks/useCampaign';
 import { useAuth } from '../../../hooks/useAuth';
 import StepHeader from '../../ui/StepHeader';
+import Button from '../../ui/Button';
 import LinkInsertionCard from './LinkInsertionCard';
 import ScheduleCard from './ScheduleCard';
 import MessageTextCard from './MessageTextCard';
@@ -83,6 +84,19 @@ const ContentStep: React.FC = () => {
   };
 
   const { lineNumberOptions, isLoading: isLoadingLineNumbers, error: lineNumbersError } = useLineNumbers(accessToken);
+  const handleReset = () => {
+    clearError();
+    resetLinkCharacter();
+    setDateTimePicker(false, scheduleAt => updateContent({ scheduleAt }));
+    updateContent({
+      insertLink: false,
+      link: '',
+      text: '',
+      scheduleAt: undefined,
+      shortLinkDomain: 'jo1n.ir',
+      lineNumber: '',
+    });
+  };
 
   return (
     <div className='space-y-8'>
@@ -181,6 +195,12 @@ const ContentStep: React.FC = () => {
             helpText={''}
             priceFactorLabel={t.linePriceFactor}
           />
+        </div>
+
+        <div className='md:col-span-2 flex items-center'>
+          <Button variant='outline' onClick={handleReset}>
+            {t.reset}
+          </Button>
         </div>
       </div>
     </div>
