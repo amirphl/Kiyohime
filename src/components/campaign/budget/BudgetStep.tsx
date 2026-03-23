@@ -4,6 +4,7 @@ import { useCampaign } from '../../../hooks/useCampaign';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useAuth } from '../../../hooks/useAuth';
 import StepHeader from '../../ui/StepHeader';
+import Button from '../../ui/Button';
 import BudgetInputCard from './BudgetInputCard';
 import BudgetSelector from './BudgetSelector';
 import MessageCountCard from './MessageCountCard';
@@ -18,6 +19,7 @@ const BudgetStep: React.FC = () => {
   const currencyLabel = language === 'en' ? 'Toman' : 'تومان';
   const MIN_TEXT_BUDGET = 100000;
   const MAX_BUDGET = 160000000;
+  const BUDGET_STEP = 100000;
 
   // Debouncing ref for budget field
   const budgetDebounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -29,14 +31,19 @@ const BudgetStep: React.FC = () => {
     isLoading: isLoadingMessageCount,
     error: messageCountError,
     calculateDebounced,
+    resetMessageCount,
   } = useMessageCount(campaignData);
 
   const handleTotalBudgetChange = (value: number) => {
     const numeric = Number.isFinite(value) ? value : 0;
-    const clamped = Math.max(MIN_TEXT_BUDGET, Math.min(MAX_BUDGET, numeric));
-    updateBudget({ totalBudget: clamped });
-    if (clamped > 0 && campaignData.content.lineNumber) {
-      calculateDebounced(campaignData.content.lineNumber, clamped);
+    const normalized = Math.max(0, numeric);
+    updateBudget({ totalBudget: normalized });
+    if (
+      normalized >= MIN_TEXT_BUDGET &&
+      normalized <= MAX_BUDGET &&
+      campaignData.content.lineNumber
+    ) {
+      calculateDebounced(campaignData.content.lineNumber, normalized);
     }
     if (budgetDebounceRef.current) {
       clearTimeout(budgetDebounceRef.current);
@@ -47,10 +54,13 @@ const BudgetStep: React.FC = () => {
     (percent: number, amount: number) => {
       if (percent <= 0) return;
       const rounded = Math.max(0, Math.floor(amount / 1000) * 1000);
-      const clamped = Math.min(MAX_BUDGET, rounded);
-      updateBudget({ totalBudget: clamped });
-      if (clamped > 0 && campaignData.content.lineNumber) {
-        calculateDebounced(campaignData.content.lineNumber, clamped);
+      updateBudget({ totalBudget: rounded });
+      if (
+        rounded >= MIN_TEXT_BUDGET &&
+        rounded <= MAX_BUDGET &&
+        campaignData.content.lineNumber
+      ) {
+        calculateDebounced(campaignData.content.lineNumber, rounded);
       }
     },
     [
@@ -60,6 +70,18 @@ const BudgetStep: React.FC = () => {
       updateBudget,
     ]
   );
+
+  const handleReset = () => {
+    if (budgetDebounceRef.current) {
+      clearTimeout(budgetDebounceRef.current);
+      budgetDebounceRef.current = null;
+    }
+    resetMessageCount();
+    updateBudget({
+      totalBudget: 0,
+      estimatedMessages: undefined,
+    });
+  };
 
   return (
     <div className='space-y-8'>
@@ -90,6 +112,9 @@ const BudgetStep: React.FC = () => {
             validationMessage={t.budgetValidation}
             currencyLabel={currencyLabel}
             budgetLabel={t.budget}
+            min={MIN_TEXT_BUDGET}
+            max={MAX_BUDGET}
+            step={BUDGET_STEP}
           />
 
           {/* Message Count Calculation */}
@@ -108,6 +133,12 @@ const BudgetStep: React.FC = () => {
             sentLabel={t.sentCountLabel}
             capacityLabel={t.capacityCountLabel}
           />
+        </div>
+
+        <div className='flex items-center'>
+          <Button variant='outline' onClick={handleReset}>
+            {t.reset}
+          </Button>
         </div>
       </div>
     </div>
