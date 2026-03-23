@@ -17,6 +17,13 @@ export const useMessageCount = (campaignData: CampaignData) => {
     const requestInFlightRef = useRef(false);
     const initialCalculatedRef = useRef(false);
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
+    const resetMessageCount = useCallback(() => {
+        setMessageCount(undefined);
+        setMaxMessageCount(undefined);
+        setError(null);
+        setHasError(false);
+        setLastApiCall(0);
+    }, []);
 
     useEffect(() => {
         apiService.setAccessToken(accessToken || null);
@@ -87,6 +94,7 @@ export const useMessageCount = (campaignData: CampaignData) => {
         campaignData.content.text,
         campaignData.content.scheduleAt,
         campaignData.content.lineNumber,
+        campaignData.content.shortLinkDomain,
         campaignData.budget.totalBudget,
         campaignData.level.tags,
         campaignData.level.jobCategory,
@@ -138,5 +146,6 @@ export const useMessageCount = (campaignData: CampaignData) => {
         lastApiCall,
         calculateMessageCount,
         calculateDebounced,
+        resetMessageCount,
     };
 }; 
