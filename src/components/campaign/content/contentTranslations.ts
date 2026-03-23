@@ -51,6 +51,7 @@ const contentEn = {
     // Short link domain
     shortLinkDomain: 'Short link domain',
     shortLinkDomainPlaceholder: 'Select a short link domain',
+    reset: 'Reset',
 };
 
 const contentFa = {
@@ -63,7 +64,7 @@ const contentFa = {
     off: 'غیرفعال',
     linkInsertionEnabled: 'افزودن لینک فعال است',
     linkInsertionDisabled: 'افزودن لینک غیرفعال است',
-    campaignLink: 'لینک کمپین',
+    campaignLink: 'لینک ارسال',
     linkPlaceholder: 'آدرس لینک را وارد کنید (حداکثر ۱۰۰۰۰ کاراکتر)',
     linkValidation: 'لینک باید حداکثر ۱۰۰۰۰ کاراکتر باشد',
     linkInvalidUrl: 'لطفاً یک آدرس لینک صحیح وارد کنید (باید با http:// یا https:// شروع شود)',
@@ -95,7 +96,7 @@ const contentFa = {
     partsExplanation: '≤۷۰ کاراکتر = ۱ پیام، ≤۱۳۲ = ۲ پیام، ≤۱۹۸ = ۳ پیام، ≤۲۶۴ = ۴ پیام، ≤۳۳۰ = ۵ پیام',
     // withLinkExplanation: 'با لینک: از ۲۰ کاراکتر شروع می‌شود (۶ لغو + ۱۴ لینک کوتاه)',
     withLinkExplanation: '۱۴ کاراکتر رزرو در صورت استفاده از لینک کوتاه جاذبه، ۶ کاراکتر رزرو لغو۱۱',
-    withoutLinkExplanation: 'بدون لینک: از ۶ کاراکتر شروع می‌شود (اضافه کردن لغو)',
+    withoutLinkExplanation: 'بدون لینک: از ۶ کاراکتر شروع می‌شود (اضافه کردن لغو۱۱)',
     textExceedsLimit: '⚠️ متن از حداکثر طول مجاز فراتر رفته است. لطفاً پیام خود را کوتاه کنید.',
 
     // Line number section
@@ -107,6 +108,7 @@ const contentFa = {
     // Short link domain
     shortLinkDomain: 'دامنه لینک کوتاه',
     shortLinkDomainPlaceholder: 'دامنه لینک کوتاه را انتخاب کنید',
+    reset: 'بازنشانی',
 };
 
 export const contentI18n = {
