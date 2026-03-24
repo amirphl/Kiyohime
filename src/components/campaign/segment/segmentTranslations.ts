@@ -90,8 +90,12 @@ const campaignLevelEn = {
     status: 'Status',
     questionMark: '?',
 
+    // Segment price factors
+    segmentPriceFactors: 'Level 3 Price Factor:',
+
     // Common fields
     loading: 'Loading...',
+    reset: 'Reset',
 
     // Job fields for agencies
     agencyCategoryHeader: 'Please select the category and subcategory that best describes your business',
@@ -108,8 +112,8 @@ const campaignLevelFa = {
 
     // Campaign Title
     campaignTitle: 'عنوان ارسال',
-    campaignTitlePlaceholder: 'عنوان کمپین را وارد کنید (حداکثر ۲۵۵ کاراکتر)',
-    campaignTitleValidation: 'عنوان کمپین باید حداکثر ۲۵۵ کاراکتر باشد',
+    campaignTitlePlaceholder: 'عنوان ارسال را وارد کنید (حداکثر ۲۵۵ کاراکتر)',
+    campaignTitleValidation: 'عنوان ارسال باید حداکثر ۲۵۵ کاراکتر باشد',
 
     // Level 1 Selection
     level1: 'سطح ۱',
@@ -195,13 +199,17 @@ const campaignLevelFa = {
     status: 'وضعیت',
     questionMark: '؟',
 
+    // Segment price factors
+    segmentPriceFactors: 'ضریب قیمتی دسته انتخاب شما برابر است با:',
+
     // Common fields
     loading: 'در حال بارگذاری...',
+    reset: 'بازنشانی',
 
     // Job fields for agencies
     agencyCategoryHeader: 'لطفا با انتخاب دسته‌ و زیردسته نوع کسب‌وکار خود را به صورت دقیق انتخاب کنید',
-    agencyCategory: 'دسته‌بندی اصلی کسب و کار شما',
-    agencyJob: 'زیردسته دقیق‌تر کسب و کار شما',
+    agencyCategory: 'دسته‌بندی اصلی کسب‌و‌کار شما',
+    agencyJob: 'زیردسته دقیق‌تر کسب‌و‌کار شما',
     agencySelectCategory: 'انتخاب دسته‌بندی اصلی کسب و کار',
     agencySelectJob: 'انتخاب زیردسته دقیق‌تر',
     agencyCategoryRequired: 'انتخاب دسته‌بندی الزامی است',
