@@ -31,7 +31,7 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
   validationMessage,
 }) => {
   const singleSelectedLevel2 = selectedLevel2s[0] || '';
-  const { language } = useLanguage();
+  const { language, isRTL } = useLanguage();
   const t =
     campaignLevelI18n[language as keyof typeof campaignLevelI18n] ||
     campaignLevelI18n.en;
@@ -42,6 +42,16 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
     if (lower === 'exclusion') return t.exclusion;
     if (lower === 'one_line') return t.description || t.one_line;
     return formatLabel(rawKey);
+  };
+
+  const isJustifiedMetaField = (rawKey: string) => {
+    const lower = rawKey.toLowerCase();
+    return (
+      lower === 'inclusion' ||
+      lower === 'exclusion' ||
+      lower === 'one_line' ||
+      lower === 'description'
+    );
   };
 
   // Auto-select Level 3 when there is only one option for a chosen Level 2
@@ -134,7 +144,21 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
                               <span className='mr-2 text-gray-300'>
                                 {resolveMetaLabel(k)}
                               </span>
-                              <span className='text-gray-100 text-left'>
+                              <span
+                                className={`text-gray-100 ${
+                                  isJustifiedMetaField(k)
+                                    ? ''
+                                    : 'text-left'
+                                }`}
+                                style={
+                                  isJustifiedMetaField(k)
+                                    ? {
+                                        textAlign: 'justify',
+                                        direction: isRTL ? 'rtl' : 'ltr',
+                                      }
+                                    : undefined
+                                }
+                              >
                                 {typeof v === 'object'
                                   ? JSON.stringify(v)
                                   : String(v)}
