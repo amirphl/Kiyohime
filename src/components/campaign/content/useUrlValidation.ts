@@ -9,7 +9,7 @@ export const useUrlValidation = (url: string, insertLink: boolean, errorMessage:
 
         // Reject strings containing control characters (such as backspace \u0008)
         // or other non-printable ASCII control codes
-        const controlCharRegex = /[\x00-\x1F\x7F]/;
+        const controlCharRegex = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/;
         if (controlCharRegex.test(urlToValidate)) return false;
 
         try {
