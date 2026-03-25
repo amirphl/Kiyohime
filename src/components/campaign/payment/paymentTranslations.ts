@@ -6,7 +6,7 @@ const paymentEn = {
     // Cost breakdown section
     costBreakdown: 'Cost Breakdown',
     calculatingCosts: 'Calculating costs...',
-    total: 'Total:',
+    total: 'Total',
     estimatedMessages: 'Estimated Messages',
     messages: 'messages',
     costCalculationError: 'Failed to calculate costs',
@@ -14,6 +14,8 @@ const paymentEn = {
     calculatingCostsMessage: 'Calculating costs...',
     completeDetailsMessage: 'Complete campaign details to see cost breakdown',
     note: 'Note:',
+    costPerMessage: 'Cost per message',
+    linePriceFactor: 'Line price factor',
 
     // Wallet balance section
     walletBalance: 'Wallet Balance',
@@ -45,6 +47,8 @@ const paymentFa = {
     calculatingCostsMessage: 'در حال محاسبه هزینه‌ها...',
     completeDetailsMessage: 'جزئیات کمپین را تکمیل کنید تا تجزیه هزینه را ببینید',
     note: 'توجه:',
+    costPerMessage: 'تعرفه هر پیام ارسالی شما',
+    linePriceFactor: 'ضریب خط ارسالی',
 
     // Wallet balance section
     walletBalance: 'موجودی کیف پول',
