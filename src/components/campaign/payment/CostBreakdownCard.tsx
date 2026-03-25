@@ -5,6 +5,8 @@ import Card from '../../ui/Card';
 interface CostBreakdownCardProps {
     total?: number;
     messageCount?: number;
+    costPerMessage?: number;
+    linePriceFactor?: number;
     lastCalculation: number;
     isLoading: boolean;
     error: string | null;
@@ -21,11 +23,15 @@ interface CostBreakdownCardProps {
     calculatingMessage: string;
     completeDetailsMessage: string;
     noteLabel: string;
+    costPerMessageLabel: string;
+    linePriceFactorLabel: string;
 }
 
 const CostBreakdownCard: React.FC<CostBreakdownCardProps> = ({
     total,
     messageCount,
+    costPerMessage,
+    linePriceFactor,
     lastCalculation,
     isLoading,
     error,
@@ -41,6 +47,8 @@ const CostBreakdownCard: React.FC<CostBreakdownCardProps> = ({
     retryLabel,
     calculatingMessage,
     completeDetailsMessage,
+    costPerMessageLabel,
+    linePriceFactorLabel,
 }) => {
     const formatCurrency = (amount: number) => {
         return `${amount.toLocaleString()} ${currencyLabel}`;
@@ -60,7 +68,7 @@ const CostBreakdownCard: React.FC<CostBreakdownCardProps> = ({
             return (
                 <>
                     <div className="flex justify-between items-center p-4 bg-primary-50 rounded-lg border border-primary-200">
-                        <span className="text-primary-800 font-bold text-lg">{totalLabel}:</span>
+                        <span className="text-primary-800 font-bold text-lg">{totalLabel}</span>
                         <span className="text-2xl font-bold text-primary-900">
                             {formatCurrency(total)}
                         </span>
@@ -74,6 +82,22 @@ const CostBreakdownCard: React.FC<CostBreakdownCardProps> = ({
                             </span>
                         </div>
                     )}
+
+                    {costPerMessage !== undefined && (
+                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <span className="text-gray-700 font-medium">{costPerMessageLabel}</span>
+                            <span className="text-lg font-semibold text-gray-900">
+                                {formatCurrency(costPerMessage)}
+                            </span>
+                        </div>
+                    )}
+
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <span className="text-gray-700 font-medium">{linePriceFactorLabel}</span>
+                        <span className="text-lg font-semibold text-gray-900">
+                            {linePriceFactor !== undefined ? linePriceFactor : '-'}
+                        </span>
+                    </div>
                 </>
             );
         }
