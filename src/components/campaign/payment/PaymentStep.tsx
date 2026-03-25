@@ -10,6 +10,7 @@ import WalletBalanceCard from './WalletBalanceCard';
 import { useCostCalculation } from './useCostCalculation';
 import { useWalletBalance } from './useWalletBalance';
 import { paymentI18n } from './paymentTranslations';
+import { useLineNumbers } from '../content/useLineNumbers';
 
 const PaymentStep: React.FC = () => {
   const { campaignData, updatePayment } = useCampaign();
@@ -37,12 +38,12 @@ const PaymentStep: React.FC = () => {
 
   const {
     walletBalance,
-    isLoading: isLoadingBalance,
     error: balanceError,
     hasEnoughBalance,
     balanceChecked,
     getWalletBalance,
   } = useWalletBalance(campaignData.budget.totalBudget, total, updatePayment);
+  const { lineNumberOptions } = useLineNumbers(accessToken);
 
   // Trigger cost calculation
   useEffect(() => {
@@ -76,6 +77,13 @@ const PaymentStep: React.FC = () => {
     campaignData.budget.totalBudget &&
     campaignData.content.lineNumber
   );
+  const costPerMessage =
+    total !== undefined && messageCount && messageCount > 0
+      ? total / messageCount
+      : undefined;
+  const linePriceFactor =
+    lineNumberOptions.find(opt => opt.value === campaignData.content.lineNumber)
+      ?.priceFactor ?? undefined;
 
   return (
     <div className='space-y-8'>
@@ -106,6 +114,10 @@ const PaymentStep: React.FC = () => {
           calculatingMessage={t.calculatingCostsMessage}
           completeDetailsMessage={t.completeDetailsMessage}
           noteLabel={t.note}
+          costPerMessageLabel={t.costPerMessage}
+          linePriceFactorLabel={t.linePriceFactor}
+          costPerMessage={costPerMessage}
+          linePriceFactor={linePriceFactor}
         />
 
         {/* Wallet Balance Check */}
