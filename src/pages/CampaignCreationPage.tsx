@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { ChevronLeft, Check } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
@@ -14,7 +14,6 @@ import CampaignContentStep from '../components/campaign/CampaignContentStep';
 import CampaignBudgetStep from '../components/campaign/CampaignBudgetStep';
 import CampaignPaymentStep from '../components/campaign/CampaignPaymentStep';
 import { budgetI18n } from '../components/campaign/budget/budgetTranslations';
-import { paymentI18n } from '../components/campaign/payment/paymentTranslations';
 import { contentI18n } from '../components/campaign/content/contentTranslations';
 import Button from '../components/ui/Button';
 import Stepper from '../components/ui/Stepper';
@@ -25,7 +24,6 @@ const CampaignCreationPage: React.FC = () => {
   const { isRTL, language } = useLanguage();
   const { accessToken } = useAuth();
   const budgetCopy = budgetI18n[language as keyof typeof budgetI18n] || budgetI18n.en;
-  const paymentCopy = paymentI18n[language as keyof typeof paymentI18n] || paymentI18n.en;
   const contentCopy = contentI18n[language as keyof typeof contentI18n] || contentI18n.en;
   const {
     currentStep,
