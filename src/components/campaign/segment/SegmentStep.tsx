@@ -7,17 +7,21 @@ import TitleCard from './TitleCard';
 import CapacityCard from './CapacityCard';
 import LevelOneCard from './LevelOneCard';
 import LevelTwoCard from './LevelTwoCard';
+import SegmentPriceFactorsCard from './SegmentPriceFactorsCard';
 import { useAudienceSpec } from './useAudienceSpec';
 import { getLevel1Options, getLevel2Options, getLevel3Options, getItemTags, getLevel2Metadata } from './utils';
 import {
     LevelSelectionState,
     saveLevelSelection,
     loadLevelSelection,
-    createEmptyLevelSelection
+    createEmptyLevelSelection,
+    clearLevelSelection
 } from '../../../types/segment';
 import { campaignLevelI18n } from './segmentTranslations';
 import { useLanguage } from '../../../hooks/useLanguage';
 import CategoryJobFields from '../../CategoryJobFields';
+import Button from '../../ui/Button';
+import { useToast } from '../../../hooks/useToast';
 
 const LevelStep: React.FC = () => {
     const { language } = useLanguage();
@@ -26,6 +30,7 @@ const LevelStep: React.FC = () => {
         campaignLevelI18n.en;
     const { campaignData, updateLevel } = useCampaign();
     const { accessToken, user } = useAuth();
+    const { showError } = useToast();
     const categories = (jobCategoryI18n[language as JobCategoryLocale] || jobCategoryI18n.en) as Record<string, readonly string[]>;
     const isAgency = user?.account_type === 'marketing_agency';
 
@@ -38,9 +43,11 @@ const LevelStep: React.FC = () => {
     const [jobCategory, setJobCategory] = useState<string>(campaignData.level.jobCategory || '');
     const [job, setJob] = useState<string>(campaignData.level.job || '');
     const [jobErrors, setJobErrors] = useState<{ category?: string; job?: string }>({});
+    const [segmentPriceFactors, setSegmentPriceFactors] = useState<Record<string, number>>({});
 
     // Track if initialization has already happened
     const initializedRef = useRef(false);
+    const priceFactorFetchedRef = useRef(false);
 
     // Fetch audience spec on mount
     const { spec: audienceSpec, loading: loadingSpec, error: specError } = useAudienceSpec();
@@ -51,6 +58,29 @@ const LevelStep: React.FC = () => {
             apiService.setAccessToken(accessToken);
         }
     }, [accessToken]);
+
+    useEffect(() => {
+        if (!accessToken || priceFactorFetchedRef.current) return;
+        priceFactorFetchedRef.current = true;
+
+        const fetchPriceFactors = async () => {
+            const response = await apiService.listLatestSegmentPriceFactors();
+            if (!response.success || !response.data) {
+                showError(response.message || 'Failed to load segment price factors');
+                return;
+            }
+            const items = response.data.items || [];
+            const nextMap: Record<string, number> = {};
+            items.forEach(item => {
+                if (item?.level3) {
+                    nextMap[item.level3] = item.price_factor;
+                }
+            });
+            setSegmentPriceFactors(nextMap);
+        };
+
+        fetchPriceFactors();
+    }, [accessToken, showError]);
 
     // Initialize from localStorage when spec is loaded (only once)
     // Loads from dedicated level selection storage, with fallback to campaignData
@@ -233,6 +263,30 @@ const LevelStep: React.FC = () => {
         });
     };
 
+    const handleReset = () => {
+        setCampaignTitle('');
+        setLevel1('');
+        setLevel2s([]);
+        setLevel3s([]);
+        setCapacity(0);
+        setJobCategory('');
+        setJob('');
+        setJobErrors({});
+        clearLevelSelection();
+
+        updateLevel({
+            campaignTitle: '',
+            level1: '',
+            level2s: [],
+            level3s: [],
+            tags: [],
+            capacity: 0,
+            capacityTooLow: false,
+            jobCategory: '',
+            job: '',
+        });
+    };
+
     const level1Options = getLevel1Options(audienceSpec || null);
     const level2Options = getLevel2Options(audienceSpec || null, level1);
 
@@ -308,8 +362,15 @@ const LevelStep: React.FC = () => {
                             onToggleLevel3={handleLevel3Toggle}
                             validationMessage={t.level2Validation}
                         />
+                        <SegmentPriceFactorsCard
+                            level3s={level3s}
+                            segmentPriceFactors={segmentPriceFactors}
+                            label={t.segmentPriceFactors}
+                            notSetLabel={t.notSet}
+                        />
                     </div>
                 )}
+
 
                 {/* Capacity Display */}
                 <div className='md:col-span-2'>
@@ -325,6 +386,12 @@ const LevelStep: React.FC = () => {
                         lowCapacityLabel={t.capacityTooLow}
                         error={null}
                     />
+                </div>
+
+                <div className='md:col-span-2 flex items-center'>
+                    <Button variant='outline' onClick={handleReset}>
+                        {t.reset}
+                    </Button>
                 </div>
             </div>
         </div>
