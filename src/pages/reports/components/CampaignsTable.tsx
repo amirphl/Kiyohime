@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { GetSMSCampaignResponse } from '../../../types/campaign';
 import { ReportsCopy } from '../translations';
 import { useCancelCampaign } from '../hooks/useCancelCampaign';
