@@ -90,7 +90,7 @@ const AdminLoginPage: React.FC = () => {
       return;
     }
     loadCaptcha(false);
-  }, []);
+  }, [loadCaptcha, navigate]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
