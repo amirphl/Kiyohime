@@ -194,7 +194,7 @@ const DashboardPage: React.FC = () => {
   // Scroll to top when switching between dashboard and reports view
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [isReportsView]);
+  }, [isReportsView, accessToken]);
 
   const [loadingReports, setLoadingReports] = useState(false);
   const [reportsError, setReportsError] = useState<string | null>(null);
