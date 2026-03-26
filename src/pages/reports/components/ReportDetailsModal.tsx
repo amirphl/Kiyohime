@@ -26,21 +26,15 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
   formatDateTime,
   copy,
 }) => {
-  const statusLabel = (status: string) => copy.statuses[status] || status;
   const normalizeList = (value?: string[] | string) => {
     if (Array.isArray(value)) return value;
     if (typeof value === 'string' && value.trim() !== '') return [value];
     return [];
   };
 
-  const level1 = campaign.level1;
-  const level2s = normalizeList(campaign.level2s as any);
   const level3s = normalizeList(
     (campaign.level3s as any)
   );
-  const statisticEntries = campaign.statistics
-    ? Object.entries(campaign.statistics)
-    : [];
   const shortLinkDisplay = `${campaign.short_link_domain ? campaign.short_link_domain + '/xxxxxx' : ''}`;
   const displayContent = campaign.content
     ? campaign.content.replace(/🔗/g, shortLinkDisplay)
