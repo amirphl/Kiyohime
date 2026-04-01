@@ -5,6 +5,7 @@ export interface CustomerLevel {
 	level1: string;       // Level 1 selection (single)
 	level2s: string[];    // Level 2 selections (multiple)
 	level3s: string[];    // Level 3 selections (multiple)
+	platform: CampaignPlatform;
 	tags?: string[];      // Union of tags from selected level3s
 	capacityTooLow?: boolean;
 	capacity?: number;    // Total audience capacity
@@ -25,6 +26,8 @@ export interface CampaignContent {
 	scheduleAt?: string; // ISO string for datetime
 	shortLinkDomain?: string;
 	lineNumber?: string;
+	activeService?: string;
+	mediaAttachment?: CampaignMediaAttachment | null;
 }
 
 export interface CampaignBudget {
@@ -48,6 +51,14 @@ export interface CampaignData {
 	payment: CampaignPayment;
 }
 
+export type CampaignPlatform = 'sms' | 'rubika' | 'bale' | 'splus';
+export type CampaignMediaType = 'image' | 'video';
+export interface CampaignMediaAttachment {
+	name: string;
+	type: CampaignMediaType;
+	dataUrl: string;
+}
+
 // API payload interface matching Go backend structure
 export interface CreateCampaignPayload {
 	title?: string;
@@ -58,11 +69,14 @@ export interface CreateCampaignPayload {
 	adlink?: string;
 	content?: string;
 	scheduleat?: string;
-	line_number?: string;
+	line_number?: string | null;
 	budget?: number;
 	short_link_domain?: string;
 	job_category?: string;
 	job?: string;
+	platform?: CampaignPlatform;
+	active_service?: string | null;
+	media_attachment?: CampaignMediaAttachment | null;
 }
 
 // API response interface matching Go backend structure
@@ -91,11 +105,14 @@ export interface CalculateCampaignCapacityRequest {
 	adlink?: string;
 	content?: string;
 	scheduleat?: string;
-	line_number?: string;
+	line_number?: string | null;
 	budget?: number;
 	short_link_domain?: string;
 	job_category?: string;
 	job?: string;
+	platform?: CampaignPlatform;
+	active_service?: string | null;
+	media_attachment?: CampaignMediaAttachment | null;
 }
 
 // Campaign capacity calculation response interface
@@ -114,11 +131,14 @@ export interface CalculateCampaignCostRequest {
 	adlink?: string;
 	content?: string;
 	scheduleat?: string;
-	line_number?: string;
+	line_number?: string | null;
 	budget?: number;
 	short_link_domain?: string;
 	job_category?: string;
 	job?: string;
+	platform?: CampaignPlatform;
+	active_service?: string | null;
+	media_attachment?: CampaignMediaAttachment | null;
 }
 
 // Campaign cost calculation response interface
@@ -153,12 +173,15 @@ export interface UpdateSMSCampaignRequest {
 	adlink?: string;
 	content?: string;
 	scheduleat?: string;
-	line_number?: string;
+	line_number?: string | null;
 	budget?: number;
 	finalize?: boolean;
 	short_link_domain?: string;
 	job_category?: string;
 	job?: string;
+	platform?: CampaignPlatform;
+	active_service?: string | null;
+	media_attachment?: CampaignMediaAttachment | null;
 }
 
 // Update campaign response interface
