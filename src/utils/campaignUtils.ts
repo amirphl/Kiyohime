@@ -1,3 +1,5 @@
+import { CampaignData, UpdateSMSCampaignRequest } from '../types/campaign';
+
 /**
  * Campaign utility functions for character counting, validation, and calculations
  */
@@ -101,10 +103,18 @@ export const validateCampaignContent = (content: {
 	insertLink: boolean;
 	link?: string;
 	scheduleAt?: string;
-}) => {
+}, platform: 'sms' | 'rubika' | 'bale' | 'splus' = 'sms') => {
 	// Check if text exists
 	if (!content.text?.trim()) {
 		return { isValid: false, error: 'Please enter text content' };
+	}
+
+	if (platform !== 'sms') {
+		const charCount = (content.text || '').length;
+		if (charCount > 1000) {
+			return { isValid: false, error: 'Text exceeds maximum length (1000 characters)' };
+		}
+		return { isValid: true, error: null };
 	}
 
 	// Check if link is provided when link insertion is enabled
@@ -138,4 +148,63 @@ export const validateCampaignContent = (content: {
 	}
 
 	return { isValid: true, error: null };
-}; 
+};
+
+export const serializeCampaignPayload = (
+	campaignData: CampaignData,
+	options?: { includeContent?: boolean; includeBudget?: boolean; finalize?: boolean }
+) => {
+	const platform = campaignData.level.platform || 'sms';
+	const payload: UpdateSMSCampaignRequest = {
+		title: campaignData.level.campaignTitle || undefined,
+		level1: campaignData.level.level1 || undefined,
+		level2s:
+			campaignData.level.level2s && campaignData.level.level2s.length > 0
+				? campaignData.level.level2s
+				: undefined,
+		level3s:
+			campaignData.level.level3s && campaignData.level.level3s.length > 0
+				? campaignData.level.level3s
+				: undefined,
+		tags:
+			campaignData.level.tags && campaignData.level.tags.length > 0
+				? campaignData.level.tags
+				: undefined,
+		line_number:
+			platform === 'sms'
+				? campaignData.content.lineNumber
+					? campaignData.content.lineNumber
+					: null
+				: null,
+		short_link_domain: campaignData.content.shortLinkDomain || 'jo1n.ir',
+		job_category: campaignData.level.jobCategory || undefined,
+		job: campaignData.level.job || undefined,
+		platform,
+		active_service:
+			platform === 'sms'
+				? null
+				: campaignData.content.activeService
+					? campaignData.content.activeService
+					: null,
+		media_attachment:
+			platform === 'sms'
+				? null
+				: campaignData.content.mediaAttachment ?? null,
+	};
+
+	if (options?.includeContent) {
+		payload.adlink = campaignData.content.link;
+		payload.content = campaignData.content.text;
+		payload.scheduleat = campaignData.content.scheduleAt;
+	}
+
+	if (options?.includeBudget) {
+		payload.budget = campaignData.budget.totalBudget;
+	}
+
+	if (options?.finalize !== undefined) {
+		payload.finalize = options.finalize;
+	}
+
+	return payload;
+};
