@@ -12,6 +12,7 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
     const { level } = campaignData;
     return !!(
       level.campaignTitle &&
+      level.platform &&
       level.level1 &&
       level.level3s && level.level3s.length > 0 &&
       level.capacityTooLow !== true &&
@@ -20,15 +21,18 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
   }, [campaignData, isAgency]);
 
   const step2Valid = useMemo(() => {
-    const { content } = campaignData;
-    const contentValid = validateCampaignContent(content).isValid;
-    return contentValid && !!content.lineNumber;
+    const { content, level } = campaignData;
+    const contentValid = validateCampaignContent(content, level.platform).isValid;
+    if (level.platform === 'sms') {
+      return contentValid && !!content.lineNumber;
+    }
+    return contentValid && !!content.activeService;
   }, [campaignData]);
 
   const step3Valid = useMemo(() => {
-    const { budget, content } = campaignData;
+    const { budget, content, level } = campaignData;
     return (
-      !!content.lineNumber &&
+      (level.platform === 'sms' ? !!content.lineNumber : !!content.activeService) &&
       budget.totalBudget >= MIN_BUDGET &&
       budget.totalBudget <= MAX_BUDGET
     );
@@ -80,6 +84,9 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
       case 1:
         if (!step1Valid) {
           errors.push('Please configure campaign title and select audience criteria');
+          if (!campaignData.level.platform) {
+            errors.push('Please select a platform');
+          }
           if (isAgency && !campaignData.level.jobCategory) {
             errors.push('Please select a category');
           }
@@ -91,19 +98,27 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
       case 2:
         if (!step2Valid) {
           const { content } = campaignData;
-          const validation = validateCampaignContent(content);
+          const validation = validateCampaignContent(content, campaignData.level.platform);
           if (!validation.isValid && validation.error) {
             errors.push(validation.error);
           }
-          if (!campaignData.content.lineNumber) {
-            errors.push('Please select a line number');
+          if (campaignData.level.platform === 'sms') {
+            if (!campaignData.content.lineNumber) {
+              errors.push('Please select a line number');
+            }
+          } else if (!campaignData.content.activeService) {
+            errors.push('Please select an active service');
           }
         }
         break;
       case 3:
         if (!step3Valid) {
-          if (!campaignData.content.lineNumber) {
-            errors.push('Please select a line number');
+          if (campaignData.level.platform === 'sms') {
+            if (!campaignData.content.lineNumber) {
+              errors.push('Please select a line number');
+            }
+          } else if (!campaignData.content.activeService) {
+            errors.push('Please select an active service');
           } else if (campaignData.budget.totalBudget <= 0) {
             errors.push('Please set a total budget greater than 0');
           }
