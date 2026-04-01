@@ -70,6 +70,11 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         if (parsedData.level) {
           if (!('jobCategory' in parsedData.level)) parsedData.level.jobCategory = '';
           if (!('job' in parsedData.level)) parsedData.level.job = '';
+          if (!('platform' in parsedData.level)) parsedData.level.platform = 'sms';
+        }
+        if (parsedData.content) {
+          if (!('activeService' in parsedData.content)) parsedData.content.activeService = '';
+          if (!('mediaAttachment' in parsedData.content)) parsedData.content.mediaAttachment = null;
         }
         return parsedData;
       } catch (error) {
@@ -85,6 +90,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         level1: '',
         level2s: [],
         level3s: [],
+        platform: 'sms',
         tags: [],
         capacityTooLow: false,
         capacity: undefined,
@@ -98,6 +104,8 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         scheduleAt: undefined,
         shortLinkDomain: 'jo1n.ir',
         lineNumber: '',
+        activeService: '',
+        mediaAttachment: null,
       },
       budget: {
         totalBudget: 0,
@@ -215,6 +223,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         level1: '',       // Level 1
         level2s: [],      // Level 2s
         level3s: [],      // Level 3s
+        platform: 'sms',
         tags: [],         // Union of tags from selected level3s
         capacityTooLow: false,
         capacity: undefined,
@@ -228,6 +237,8 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         scheduleAt: undefined,
         shortLinkDomain: 'jo1n.ir',
         lineNumber: '',
+        activeService: '',
+        mediaAttachment: null,
       },
       budget: {
         totalBudget: 0,
@@ -271,6 +282,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         level1: '',       // Level 1
         level2s: [],      // Level 2s
         level3s: [],      // Level 3s
+        platform: 'sms',
         tags: [],         // Union of tags from selected level3s
         capacityTooLow: false,
         capacity: undefined,
@@ -284,6 +296,8 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         scheduleAt: undefined,
         shortLinkDomain: 'jo1n.ir',
         lineNumber: '',
+        activeService: '',
+        mediaAttachment: null,
       },
       budget: {
         totalBudget: 0,
@@ -325,7 +339,10 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
     if (campaignData.content.text && (!campaignData.content.insertLink || (campaignData.content.insertLink && campaignData.content.link))) {
       completedSteps++;
     }
-    if (campaignData.content.lineNumber && campaignData.budget.totalBudget > 0) {
+    if (
+      (campaignData.level.platform === 'sms' ? campaignData.content.lineNumber : campaignData.content.activeService) &&
+      campaignData.budget.totalBudget > 0
+    ) {
       completedSteps++;
     }
     if (campaignData.payment.paymentMethod && campaignData.payment.termsAccepted) {
