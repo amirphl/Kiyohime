@@ -49,7 +49,6 @@ class ApiService {
 
   // Test method to verify 401 handling (for debugging)
   testUnauthorizedHandler() {
-    console.log('Testing unauthorized handler...');
     if (this.unauthorizedHandler) {
       console.log('Triggering test unauthorized handler...');
       this.unauthorizedHandler();
@@ -810,8 +809,11 @@ class ApiService {
   }
 
   // Audience spec endpoint
-  async listAudienceSpec(): Promise<ApiResponse<ListAudienceSpecResponse>> {
-    return this.request<ListAudienceSpecResponse>(config.endpoints.campaigns.audienceSpec, { method: 'GET' });
+  async listAudienceSpec(platform?: string): Promise<ApiResponse<ListAudienceSpecResponse>> {
+    const endpoint = platform
+      ? `${config.endpoints.campaigns.audienceSpec}?platform=${encodeURIComponent(platform)}`
+      : config.endpoints.campaigns.audienceSpec;
+    return this.request<ListAudienceSpecResponse>(endpoint, { method: 'GET' });
   }
 
   // Active line numbers
@@ -820,8 +822,11 @@ class ApiService {
   }
 
   // Segment price factors (latest per level3)
-  async listLatestSegmentPriceFactors(): Promise<ApiResponse<ListLatestSegmentPriceFactorsResponse>> {
-    return this.request<ListLatestSegmentPriceFactorsResponse>(config.endpoints.segmentPriceFactors.listLatest, { method: 'GET' });
+  async listLatestSegmentPriceFactors(platform?: string): Promise<ApiResponse<ListLatestSegmentPriceFactorsResponse>> {
+    const endpoint = platform
+      ? `${config.endpoints.segmentPriceFactors.listLatest}?platform=${encodeURIComponent(platform)}`
+      : config.endpoints.segmentPriceFactors.listLatest;
+    return this.request<ListLatestSegmentPriceFactorsResponse>(endpoint, { method: 'GET' });
   }
 
   // Utility methods
