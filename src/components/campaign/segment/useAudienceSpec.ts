@@ -3,10 +3,10 @@ import { AudienceSpec } from '../../../types/campaign';
 import { apiService } from '../../../services/api';
 import { useAuth } from '../../../hooks/useAuth';
 
-let audienceSpecCache: AudienceSpec | null = null;
-let audienceSpecFetchInFlight: Promise<AudienceSpec> | null = null;
+const audienceSpecCache = new Map<string, AudienceSpec>();
+const audienceSpecFetchInFlight = new Map<string, Promise<AudienceSpec>>();
 
-export const useAudienceSpec = () => {
+export const useAudienceSpec = (platform: string = 'sms') => {
     const { accessToken } = useAuth();
     const [spec, setSpec] = useState<AudienceSpec | null>(null);
     const [loading, setLoading] = useState(false);
@@ -14,8 +14,14 @@ export const useAudienceSpec = () => {
     const fetchedRef = useRef(false);
 
     useEffect(() => {
+        fetchedRef.current = false;
+        setSpec(null);
+    }, [platform]);
+
+    useEffect(() => {
         if (!accessToken) return;
         if (fetchedRef.current) return;
+        const cacheKey = platform || 'sms';
 
         let canceled = false;
         setLoading(true);
@@ -29,15 +35,16 @@ export const useAudienceSpec = () => {
             setLoading(false);
         };
 
-        if (audienceSpecCache) {
-            apply(audienceSpecCache);
+        if (audienceSpecCache.has(cacheKey)) {
+            apply(audienceSpecCache.get(cacheKey) as AudienceSpec);
             return () => {
                 canceled = true;
             };
         }
 
-        if (audienceSpecFetchInFlight) {
-            audienceSpecFetchInFlight
+        const inFlight = audienceSpecFetchInFlight.get(cacheKey);
+        if (inFlight) {
+            inFlight
                 .then(s => apply(s))
                 .catch(() => {
                     if (canceled) return;
@@ -50,19 +57,20 @@ export const useAudienceSpec = () => {
             };
         }
 
-        audienceSpecFetchInFlight = (async () => {
+        const fetchPromise = (async () => {
             apiService.setAccessToken(accessToken);
-            const res = await apiService.listAudienceSpec();
+            const res = await apiService.listAudienceSpec(cacheKey);
             const s = (res as any)?.data?.spec ?? (res as any)?.data?.data?.spec;
             if (!res.success || !s) {
                 throw new Error(res.message || 'Failed to load audience spec');
             }
             return s as AudienceSpec;
         })();
+        audienceSpecFetchInFlight.set(cacheKey, fetchPromise);
 
-        audienceSpecFetchInFlight
+        fetchPromise
             .then(s => {
-                audienceSpecCache = s;
+                audienceSpecCache.set(cacheKey, s);
                 apply(s);
             })
             .catch((e: any) => {
@@ -72,13 +80,13 @@ export const useAudienceSpec = () => {
                 setLoading(false);
             })
             .finally(() => {
-                audienceSpecFetchInFlight = null;
+                audienceSpecFetchInFlight.delete(cacheKey);
             });
 
         return () => {
             canceled = true;
         };
-    }, [accessToken]);
+    }, [accessToken, platform]);
 
     return { spec, loading, error };
 }; 
