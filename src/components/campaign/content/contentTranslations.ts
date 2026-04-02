@@ -28,6 +28,11 @@ const contentEn = {
     text: 'Text',
     campaignText: '',
     textPlaceholder: 'Enter your campaign message text',
+    mediaMessageTitle: 'Media Message',
+    mediaLabel: 'Image or Video',
+    mediaHelp: 'Upload JPG, PNG, or MP4 (max 1 file)',
+    removeMedia: 'Remove',
+    maxCharactersLabel: 'Remaining: {count}',
     insertLinkCharacter: 'Add link here',
     linkCharacterInserted: 'Link position marked',
     // linkCharacterInsertedMessage: 'Link will be inserted at the marked position (🔗)',
@@ -41,12 +46,17 @@ const contentEn = {
     withLinkExplanation: 'With link: starts at 20 chars (6 cancellation + 14 shortened link)',
     withoutLinkExplanation: 'Without link: starts at 6 chars (cancellation append)',
     textExceedsLimit: '⚠️ Text exceeds maximum length. Please shorten your message.',
+    nonSmsTextExceedsLimit: 'Text exceeds maximum length (1000 characters).',
 
     // Line number section
     lineNumber: 'Line Number',
     selectLineNumber: 'Select Line Number',
     lineNumberPlaceholder: 'Choose a line number for your campaign',
     linePriceFactor: 'Line price factor',
+
+    // Active services
+    activeServices: 'Active Services',
+    activeServicesPlaceholder: 'Select an active service',
 
     // Short link domain
     shortLinkDomain: 'Short link domain',
@@ -84,6 +94,11 @@ const contentFa = {
     text: 'متن',
     campaignText: '',
     textPlaceholder: 'متن پیام ارسال خود را وارد کنید',
+    mediaMessageTitle: 'پیام رسانه‌ای',
+    mediaLabel: 'تصویر یا ویدیو',
+    mediaHelp: 'فرمت‌های مجاز: JPG, PNG, MP4 (حداکثر ۱ فایل)',
+    removeMedia: 'حذف',
+    maxCharactersLabel: 'باقی‌مانده: {count}',
     insertLinkCharacter: 'افزودن لینک در اینجا',
     linkCharacterInserted: 'موقعیت لینک شناسایی شده',
     // linkCharacterInsertedMessage: 'لینک کوتاه‌شده در محل مکان‌نما با علامت 🔗 قرار خواهد گرفت.',
@@ -98,12 +113,17 @@ const contentFa = {
     withLinkExplanation: '۱۴ کاراکتر رزرو در صورت استفاده از لینک کوتاه جاذبه، ۶ کاراکتر رزرو لغو۱۱',
     withoutLinkExplanation: 'بدون لینک: از ۶ کاراکتر شروع می‌شود (اضافه کردن لغو۱۱)',
     textExceedsLimit: '⚠️ متن از حداکثر طول مجاز فراتر رفته است. لطفاً پیام خود را کوتاه کنید.',
+    nonSmsTextExceedsLimit: 'متن از حداکثر طول مجاز (۱۰۰۰ کاراکتر) فراتر رفته است.',
 
     // Line number section
     lineNumber: 'انتخاب سرشماره',
     selectLineNumber: 'انتخاب سرشماره',
     lineNumberPlaceholder: 'سرشماره مدنظر خود را انتخاب کنید',
     linePriceFactor: 'ضریب قیمت سرشماره',
+
+    // Active services
+    activeServices: 'سرویس‌های فعال',
+    activeServicesPlaceholder: 'انتخاب سرویس فعال',
 
     // Short link domain
     shortLinkDomain: 'دامنه لینک کوتاه',
