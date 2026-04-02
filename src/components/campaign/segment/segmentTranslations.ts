@@ -93,6 +93,13 @@ const campaignLevelEn = {
     // Segment price factors
     segmentPriceFactors: 'Level 3 Price Factor:',
 
+    // Platform selection
+    platform: 'Platform',
+    platformSms: 'SMS',
+    platformRubika: 'Rubika',
+    platformBale: 'Bale',
+    platformSplus: 'Splus',
+
     // Common fields
     loading: 'Loading...',
     reset: 'Reset',
@@ -201,6 +208,13 @@ const campaignLevelFa = {
 
     // Segment price factors
     segmentPriceFactors: 'ضریب قیمتی دسته انتخاب شما برابر است با:',
+
+    // Platform selection
+    platform: 'کانال ارسال',
+    platformSms: 'پیامک',
+    platformRubika: 'روبیکا',
+    platformBale: 'بله',
+    platformSplus: 'سروش پلاس',
 
     // Common fields
     loading: 'در حال بارگذاری...',
