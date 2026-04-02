@@ -8,6 +8,7 @@ import CapacityCard from './CapacityCard';
 import LevelOneCard from './LevelOneCard';
 import LevelTwoCard from './LevelTwoCard';
 import SegmentPriceFactorsCard from './SegmentPriceFactorsCard';
+import PlatformSelectionCard from './PlatformSelectionCard';
 import { useAudienceSpec } from './useAudienceSpec';
 import { getLevel1Options, getLevel2Options, getLevel3Options, getItemTags, getLevel2Metadata } from './utils';
 import {
@@ -17,6 +18,7 @@ import {
     createEmptyLevelSelection,
     clearLevelSelection
 } from '../../../types/segment';
+import { CampaignPlatform } from '../../../types/campaign';
 import { campaignLevelI18n } from './segmentTranslations';
 import { useLanguage } from '../../../hooks/useLanguage';
 import CategoryJobFields from '../../CategoryJobFields';
@@ -36,6 +38,7 @@ const LevelStep: React.FC = () => {
 
     // Local state for selections
     const [campaignTitle, setCampaignTitle] = useState<string>(campaignData.level.campaignTitle || '');
+    const [platform, setPlatform] = useState<CampaignPlatform>(campaignData.level.platform || 'sms');
     const [level1, setLevel1] = useState<string>(campaignData.level.level1 || '');
     const [level2s, setLevel2s] = useState<string[]>(campaignData.level.level2s || []);
     const [level3s, setLevel3s] = useState<string[]>(campaignData.level.level3s || []);
@@ -50,7 +53,7 @@ const LevelStep: React.FC = () => {
     const priceFactorFetchedRef = useRef(false);
 
     // Fetch audience spec on mount
-    const { spec: audienceSpec, loading: loadingSpec, error: specError } = useAudienceSpec();
+    const { spec: audienceSpec, loading: loadingSpec, error: specError } = useAudienceSpec(platform);
 
     // Ensure API service has token
     useEffect(() => {
@@ -64,7 +67,7 @@ const LevelStep: React.FC = () => {
         priceFactorFetchedRef.current = true;
 
         const fetchPriceFactors = async () => {
-            const response = await apiService.listLatestSegmentPriceFactors();
+            const response = await apiService.listLatestSegmentPriceFactors(platform);
             if (!response.success || !response.data) {
                 showError(response.message || 'Failed to load segment price factors');
                 return;
@@ -80,7 +83,7 @@ const LevelStep: React.FC = () => {
         };
 
         fetchPriceFactors();
-    }, [accessToken, showError]);
+    }, [accessToken, platform, showError]);
 
     // Initialize from localStorage when spec is loaded (only once)
     // Loads from dedicated level selection storage, with fallback to campaignData
@@ -263,8 +266,27 @@ const LevelStep: React.FC = () => {
         });
     };
 
+    const handlePlatformChange = (value: CampaignPlatform) => {
+        setPlatform(value);
+        setLevel1('');
+        setLevel2s([]);
+        setLevel3s([]);
+        setCapacity(0);
+        clearLevelSelection();
+        updateLevel({
+            platform: value,
+            level1: '',
+            level2s: [],
+            level3s: [],
+            tags: [],
+            capacity: 0,
+            capacityTooLow: false,
+        });
+    };
+
     const handleReset = () => {
         setCampaignTitle('');
+        setPlatform('sms');
         setLevel1('');
         setLevel2s([]);
         setLevel3s([]);
@@ -276,6 +298,7 @@ const LevelStep: React.FC = () => {
 
         updateLevel({
             campaignTitle: '',
+            platform: 'sms',
             level1: '',
             level2s: [],
             level3s: [],
@@ -293,6 +316,21 @@ const LevelStep: React.FC = () => {
     return (
         <div className='space-y-8'>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch'>
+                {/* Platform Selection */}
+                <div className='md:col-span-2'>
+                    <PlatformSelectionCard
+                        title={t.platform}
+                        value={platform}
+                        onChange={handlePlatformChange}
+                        options={[
+                            { value: 'sms', label: t.platformSms },
+                            { value: 'rubika', label: t.platformRubika },
+                            { value: 'bale', label: t.platformBale },
+                            { value: 'splus', label: t.platformSplus },
+                        ]}
+                    />
+                </div>
+
                 {/* Campaign Title */}
                 <div className='md:col-span-2'>
                     <TitleCard
