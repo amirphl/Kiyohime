@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { apiService } from '../../../services/api';
+import { serializeCampaignPayload } from '../../../utils/campaignUtils';
 import { useToast } from '../../../hooks/useToast';
 import { CampaignData } from '../../../types/campaign';
 import { useAuth } from '../../../hooks/useAuth';
@@ -36,7 +37,7 @@ export const useMessageCount = (campaignData: CampaignData) => {
         const lineNumber = currentLineNumber || campaignData.content.lineNumber;
         const budget = currentBudget || campaignData.budget.totalBudget;
 
-        if (!lineNumber || budget <= 0) return;
+        if (budget <= 0) return;
         if (requestInFlightRef.current) return;
 
         requestInFlightRef.current = true;
@@ -44,21 +45,13 @@ export const useMessageCount = (campaignData: CampaignData) => {
         setError(null);
 
         try {
-            const response = await apiService.calculateCampaignCost({
-                title: campaignData.level.campaignTitle,
-                level1: campaignData.level.level1,
-                level2s: campaignData.level.level2s,
-                level3s: campaignData.level.level3s,
-                tags: campaignData.level.tags,
-                adlink: campaignData.content.link,
-                content: campaignData.content.text,
-                scheduleat: campaignData.content.scheduleAt,
-                line_number: lineNumber,
-                budget: budget,
-                short_link_domain: campaignData.content.shortLinkDomain || 'jo1n.ir',
-                job_category: campaignData.level.jobCategory || undefined,
-                job: campaignData.level.job || undefined,
+            const payload = serializeCampaignPayload(campaignData, {
+                includeContent: true,
+                includeBudget: true,
             });
+            payload.line_number = lineNumber ? lineNumber : null;
+            payload.budget = budget;
+            const response = await apiService.calculateCampaignCost(payload);
 
             if (response.success && response.data) {
                 setMessageCount(response.data.msg_target);
@@ -86,19 +79,7 @@ export const useMessageCount = (campaignData: CampaignData) => {
         }
     }, [
         hasError,
-        campaignData.level.campaignTitle,
-        campaignData.level.level1,
-        campaignData.level.level2s,
-        campaignData.level.level3s,
-        campaignData.content.link,
-        campaignData.content.text,
-        campaignData.content.scheduleAt,
-        campaignData.content.lineNumber,
-        campaignData.content.shortLinkDomain,
-        campaignData.budget.totalBudget,
-        campaignData.level.tags,
-        campaignData.level.jobCategory,
-        campaignData.level.job,
+        campaignData,
         showToast
     ]);
 
@@ -115,11 +96,21 @@ export const useMessageCount = (campaignData: CampaignData) => {
     // One-time initial calculate if both fields are pre-filled
     useEffect(() => {
         if (initialCalculatedRef.current) return;
-        if (campaignData.content.lineNumber && campaignData.budget.totalBudget > 0) {
+        const platform = campaignData.level.platform || 'sms';
+        const hasIdentifier = platform === 'sms'
+            ? !!campaignData.content.lineNumber
+            : !!campaignData.content.activeService;
+        if (hasIdentifier && campaignData.budget.totalBudget > 0) {
             initialCalculatedRef.current = true;
             calculateMessageCount(campaignData.content.lineNumber, campaignData.budget.totalBudget);
         }
-    }, [campaignData.content.lineNumber, campaignData.budget.totalBudget, calculateMessageCount]);
+    }, [
+        campaignData.level.platform,
+        campaignData.content.lineNumber,
+        campaignData.content.activeService,
+        campaignData.budget.totalBudget,
+        calculateMessageCount,
+    ]);
 
     // Reset error flag when user makes changes
     useEffect(() => {
@@ -127,7 +118,12 @@ export const useMessageCount = (campaignData: CampaignData) => {
             setHasError(false);
             setError(null);
         }
-    }, [hasError, campaignData.content.lineNumber, campaignData.budget.totalBudget]);
+    }, [
+        hasError,
+        campaignData.content.lineNumber,
+        campaignData.content.activeService,
+        campaignData.budget.totalBudget,
+    ]);
 
     // Cleanup timeout on unmount
     useEffect(() => {
