@@ -18,6 +18,7 @@ const PaymentStep: React.FC = () => {
   const { language } = useLanguage();
   const t = paymentI18n[language as keyof typeof paymentI18n] || paymentI18n.en;
   const currencyLabel = language === 'en' ? 'Toman' : 'تومان';
+  const platform = campaignData.level.platform || 'sms';
 
   // Ensure API service has token
   useEffect(() => {
@@ -75,15 +76,16 @@ const PaymentStep: React.FC = () => {
     campaignData.level.level1 &&
     campaignData.content.text &&
     campaignData.budget.totalBudget &&
-    campaignData.content.lineNumber
+    (platform === 'sms' ? campaignData.content.lineNumber : campaignData.content.activeService)
   );
   const costPerMessage =
     total !== undefined && messageCount && messageCount > 0
       ? total / messageCount
       : undefined;
   const linePriceFactor =
-    lineNumberOptions.find(opt => opt.value === campaignData.content.lineNumber)
-      ?.priceFactor ?? undefined;
+    platform === 'sms'
+      ? lineNumberOptions.find(opt => opt.value === campaignData.content.lineNumber)?.priceFactor
+      : undefined;
 
   return (
     <div className='space-y-8'>
