@@ -13,6 +13,7 @@ import { budgetI18n } from './budgetTranslations';
 
 const BudgetStep: React.FC = () => {
   const { campaignData, updateBudget } = useCampaign();
+  const platform = campaignData.level.platform || 'sms';
   const { language } = useLanguage();
   const t = budgetI18n[language as keyof typeof budgetI18n] || budgetI18n.en;
   const { accessToken } = useAuth();
@@ -41,7 +42,8 @@ const BudgetStep: React.FC = () => {
     if (
       normalized >= MIN_TEXT_BUDGET &&
       normalized <= MAX_BUDGET &&
-      campaignData.content.lineNumber
+      ((platform === 'sms' && campaignData.content.lineNumber) ||
+        (platform !== 'sms' && campaignData.content.activeService))
     ) {
       calculateDebounced(campaignData.content.lineNumber, normalized);
     }
@@ -58,7 +60,8 @@ const BudgetStep: React.FC = () => {
       if (
         rounded >= MIN_TEXT_BUDGET &&
         rounded <= MAX_BUDGET &&
-        campaignData.content.lineNumber
+        ((platform === 'sms' && campaignData.content.lineNumber) ||
+          (platform !== 'sms' && campaignData.content.activeService))
       ) {
         calculateDebounced(campaignData.content.lineNumber, rounded);
       }
@@ -66,7 +69,9 @@ const BudgetStep: React.FC = () => {
     [
       MAX_BUDGET,
       campaignData.content.lineNumber,
+      campaignData.content.activeService,
       calculateDebounced,
+      platform,
       updateBudget,
     ]
   );
@@ -123,7 +128,11 @@ const BudgetStep: React.FC = () => {
             maxMessageCount={maxMessageCount}
             isLoading={isLoadingMessageCount}
             error={messageCountError}
-            lineNumber={campaignData.content.lineNumber || ''}
+            lineNumber={
+              platform === 'sms'
+                ? campaignData.content.lineNumber || ''
+                : campaignData.content.activeService || ''
+            }
             totalBudget={campaignData.budget.totalBudget}
             title={t.estimatedMessages}
             calculatingLabel={t.calculatingMessageCount}
