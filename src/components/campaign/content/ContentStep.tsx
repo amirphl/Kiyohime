@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useCampaign } from '../../../hooks/useCampaign';
@@ -8,8 +8,14 @@ import Button from '../../ui/Button';
 import LinkInsertionCard from './LinkInsertionCard';
 import ScheduleCard from './ScheduleCard';
 import MessageTextCard from './MessageTextCard';
+import MessageMediaCard from './MessageMediaCard';
+import RubikaMessageCard from './RubikaMessageCard';
+import BaleMessageCard from './BaleMessageCard';
+import SplusMessageCard from './SplusMessageCard';
 import LineNumberCard from './LineNumberCard';
 import ShortLinkDomainCard from './ShortLinkDomainCard';
+import ActiveServiceCard from './ActiveServiceCard';
+import { CampaignMediaAttachment } from '../../../types/campaign';
 import { useUrlValidation } from './useUrlValidation';
 import { useLinkCharacter } from './useLinkCharacter';
 import { useScheduleTime } from './useScheduleTime';
@@ -23,6 +29,7 @@ const ContentStep: React.FC = () => {
   const isEnglish = language === 'en';
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const { accessToken } = useAuth();
+  const platform = campaignData.level.platform || 'sms';
 
   // Custom hooks for business logic
   const { linkError, handleLinkChange, clearError } = useUrlValidation(
@@ -83,7 +90,44 @@ const ContentStep: React.FC = () => {
     updateContent({ shortLinkDomain: value });
   };
 
+  const handleActiveServiceChange = (value: string) => {
+    updateContent({ activeService: value });
+  };
+
+  const handleMediaChange = (payload: CampaignMediaAttachment) => {
+    updateContent({
+      mediaAttachment: {
+        dataUrl: payload.dataUrl,
+        type: payload.type,
+        name: payload.name,
+      },
+    });
+  };
+
+  const handleMediaClear = () => {
+    updateContent({
+      mediaAttachment: null,
+    });
+  };
+
   const { lineNumberOptions, isLoading: isLoadingLineNumbers, error: lineNumbersError } = useLineNumbers(accessToken);
+  const serviceOptions = [
+    { value: 'service_alpha', label: 'Service Alpha' },
+    { value: 'service_beta', label: 'Service Beta' },
+    { value: 'service_gamma', label: 'Service Gamma' },
+  ];
+
+  useEffect(() => {
+    if (platform === 'sms') {
+      if (campaignData.content.activeService || campaignData.content.mediaAttachment) {
+        updateContent({ activeService: '', mediaAttachment: null });
+      }
+      return;
+    }
+    if (campaignData.content.lineNumber) {
+      updateContent({ lineNumber: '' });
+    }
+  }, [campaignData.content.activeService, campaignData.content.lineNumber, campaignData.content.mediaAttachment, platform, updateContent]);
   const handleReset = () => {
     clearError();
     resetLinkCharacter();
@@ -95,7 +139,38 @@ const ContentStep: React.FC = () => {
       scheduleAt: undefined,
       shortLinkDomain: 'jo1n.ir',
       lineNumber: '',
+      activeService: '',
+      mediaAttachment: null,
     });
+  };
+
+  const renderPlatformMessageCard = () => {
+    const commonProps = {
+      title: t.mediaMessageTitle,
+      label: t.campaignText,
+      placeholder: t.textPlaceholder,
+      mediaLabel: t.mediaLabel,
+      mediaHelp: t.mediaHelp,
+      removeLabel: t.removeMedia,
+      text: campaignData.content.text,
+      mediaAttachment: campaignData.content.mediaAttachment,
+      onTextChange: handleTextChange,
+      onMediaChange: handleMediaChange,
+      onMediaClear: handleMediaClear,
+      maxCharactersLabel: t.maxCharactersLabel,
+      maxCharacters: 1000,
+    };
+
+    switch (platform) {
+      case 'rubika':
+        return <RubikaMessageCard {...commonProps} />;
+      case 'bale':
+        return <BaleMessageCard {...commonProps} />;
+      case 'splus':
+        return <SplusMessageCard {...commonProps} />;
+      default:
+        return <MessageMediaCard {...commonProps} />;
+    }
   };
 
   return (
@@ -157,44 +232,58 @@ const ContentStep: React.FC = () => {
 
         {/* Row 2: Text Box (Full Width) */}
         <div className='md:col-span-2'>
-          <MessageTextCard
-            text={campaignData.content.text}
-            insertLink={campaignData.content.insertLink}
-            textAreaRef={textAreaRef}
-            linkCharacterInserted={linkCharacterInserted}
-            onTextChange={handleTextChange}
-            onInsertLinkCharacter={handleInsertLinkCharacter}
-            title={t.text}
-            label={t.campaignText}
-            placeholder={t.textPlaceholder}
-            insertLinkCharacterLabel={t.insertLinkCharacter}
-            linkCharacterInsertedLabel={t.linkCharacterInserted}
-            linkCharacterInsertedMessage={t.linkCharacterInsertedMessage}
-            charactersLabel={t.charactersLabel}
-            totalLabel={t.totalLabel}
-            partsLabel={t.partsLabel}
-            partsCount={t.partsCount}
-            partsBreakdown={t.partsBreakdown}
-            partsExplanation={t.partsExplanation}
-            withLinkExplanation={t.withLinkExplanation}
-            withoutLinkExplanation={t.withoutLinkExplanation}
-            textExceedsLimit={t.textExceedsLimit}
-          />
+          {platform === 'sms' ? (
+            <MessageTextCard
+              text={campaignData.content.text}
+              insertLink={campaignData.content.insertLink}
+              textAreaRef={textAreaRef}
+              linkCharacterInserted={linkCharacterInserted}
+              onTextChange={handleTextChange}
+              onInsertLinkCharacter={handleInsertLinkCharacter}
+              title={t.text}
+              label={t.campaignText}
+              placeholder={t.textPlaceholder}
+              insertLinkCharacterLabel={t.insertLinkCharacter}
+              linkCharacterInsertedLabel={t.linkCharacterInserted}
+              linkCharacterInsertedMessage={t.linkCharacterInsertedMessage}
+              charactersLabel={t.charactersLabel}
+              totalLabel={t.totalLabel}
+              partsLabel={t.partsLabel}
+              partsCount={t.partsCount}
+              partsBreakdown={t.partsBreakdown}
+              partsExplanation={t.partsExplanation}
+              withLinkExplanation={t.withLinkExplanation}
+              withoutLinkExplanation={t.withoutLinkExplanation}
+              textExceedsLimit={t.textExceedsLimit}
+            />
+          ) : (
+            renderPlatformMessageCard()
+          )}
         </div>
 
         <div className='md:col-span-2'>
-          <LineNumberCard
-            value={campaignData.content.lineNumber || ''}
-            options={lineNumberOptions}
-            isLoading={isLoadingLineNumbers}
-            error={lineNumbersError}
-            onChange={handleLineNumberChange}
-            title={t.lineNumber}
-            label={''}
-            placeholder={t.lineNumberPlaceholder}
-            helpText={''}
-            priceFactorLabel={t.linePriceFactor}
-          />
+          {platform === 'sms' ? (
+            <LineNumberCard
+              value={campaignData.content.lineNumber || ''}
+              options={lineNumberOptions}
+              isLoading={isLoadingLineNumbers}
+              error={lineNumbersError}
+              onChange={handleLineNumberChange}
+              title={t.lineNumber}
+              label={''}
+              placeholder={t.lineNumberPlaceholder}
+              helpText={''}
+              priceFactorLabel={t.linePriceFactor}
+            />
+          ) : (
+            <ActiveServiceCard
+              value={campaignData.content.activeService || ''}
+              options={serviceOptions}
+              onChange={handleActiveServiceChange}
+              title={t.activeServices}
+              placeholder={t.activeServicesPlaceholder}
+            />
+          )}
         </div>
 
         <div className='md:col-span-2 flex items-center'>
