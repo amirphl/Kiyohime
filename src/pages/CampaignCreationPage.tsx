@@ -8,6 +8,7 @@ import { useNavigation } from '../contexts/NavigationContext';
 import { useToast } from '../hooks/useToast';
 import { apiService } from '../services/api';
 import { getApiErrorMessage } from '../utils/errorHandler';
+import { serializeCampaignPayload } from '../utils/campaignUtils';
 import { useCampaignValidation } from '../hooks/useCampaignValidation';
 import CampaignSegmentStep from '../components/campaign/CampaignSegmentStep';
 import CampaignContentStep from '../components/campaign/CampaignContentStep';
@@ -87,23 +88,7 @@ const CampaignCreationPage: React.FC = () => {
           apiService.setAccessToken(accessToken);
 
           // Create payload with level data
-          const payload: CreateCampaignPayload = {
-            title: campaignData.level.campaignTitle || undefined,
-            level1: campaignData.level.level1 || undefined,
-            level2s: campaignData.level.level2s && campaignData.level.level2s.length > 0
-              ? campaignData.level.level2s
-              : undefined,
-            level3s: campaignData.level.level3s && campaignData.level.level3s.length > 0
-              ? campaignData.level.level3s
-              : undefined,
-            tags: campaignData.level.tags && campaignData.level.tags.length > 0
-              ? campaignData.level.tags
-              : undefined,
-            line_number: campaignData.content.lineNumber || undefined,
-            job_category: campaignData.level.jobCategory || undefined,
-            job: campaignData.level.job || undefined,
-            short_link_domain: campaignData.content.shortLinkDomain || 'jo1n.ir',
-          };
+          const payload: CreateCampaignPayload = serializeCampaignPayload(campaignData);
 
           // Call the API to create a new SMS campaign with segment data
           const response = await apiService.createCampaign(payload);
@@ -164,22 +149,11 @@ const CampaignCreationPage: React.FC = () => {
 
       apiService.setAccessToken(accessToken);
 
-      const updateData: UpdateSMSCampaignRequest = {
-        title: campaignData.level.campaignTitle,
-        level1: campaignData.level.level1,
-        level2s: campaignData.level.level2s,
-        level3s: campaignData.level.level3s,
-        tags: campaignData.level.tags,
-        adlink: campaignData.content.link,
-        content: campaignData.content.text,
-        scheduleat: campaignData.content.scheduleAt,
-        line_number: campaignData.content.lineNumber,
-        budget: campaignData.budget.totalBudget,
-        short_link_domain: campaignData.content.shortLinkDomain || 'jo1n.ir',
-        job_category: campaignData.level.jobCategory || undefined,
-        job: campaignData.level.job || undefined,
+      const updateData: UpdateSMSCampaignRequest = serializeCampaignPayload(campaignData, {
+        includeContent: true,
+        includeBudget: true,
         finalize: true,
-      };
+      });
 
       const response = await apiService.updateCampaign(campaignData.uuid, updateData);
 
