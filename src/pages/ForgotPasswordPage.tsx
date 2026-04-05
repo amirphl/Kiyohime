@@ -44,8 +44,6 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
       const response = await apiService.forgotPassword(identifier);
 
       if (response.success && response.data) {
-        console.log("delete this", response.data?.customer_id);
-        console.log("delete this", response.data?.masked_phone);
         setSuccess(true);
         setCustomerId(response.data?.customer_id);
         setMaskedPhone(response.data?.masked_phone);
