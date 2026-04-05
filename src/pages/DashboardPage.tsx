@@ -225,7 +225,7 @@ const DashboardPage: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, [isReportsView]);
+  }, [isReportsView, accessToken]);
 
   // Fetch campaigns summary once when dashboard loads for authenticated users
   useEffect(() => {
