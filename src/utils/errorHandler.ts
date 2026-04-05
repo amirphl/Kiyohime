@@ -323,8 +323,6 @@ export function isAuthenticationError(errorCode: string | undefined): boolean {
  * This function should be called during logout to ensure complete cleanup
  */
 export function clearAllUserData(): void {
-  console.log('🧹 Starting comprehensive user data cleanup...');
-
   // Get all localStorage keys
   const allKeys = Object.keys(localStorage);
 
@@ -332,7 +330,6 @@ export function clearAllUserData(): void {
   allKeys.forEach(key => {
     if (!key.includes('language') && !key.includes('theme') && !key.includes('ui_')) {
       localStorage.removeItem(key);
-      console.log(`🗑️  Removed: ${key}`);
     } else {
       console.log(`💾 Preserved (user preference): ${key}`);
     }
@@ -346,8 +343,6 @@ export function clearAllUserData(): void {
  * This function should be called when campaign is finished or during logout
  */
 export function clearCampaignData(): void {
-  console.log('🧹 Clearing campaign data from localStorage...');
-
   // Clear campaign-specific items
   localStorage.removeItem('campaign_creation_data');
   localStorage.removeItem('campaign_creation_step');
