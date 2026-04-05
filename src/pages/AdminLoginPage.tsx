@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import adminApi from '../services/adminApi';
 import { AdminCaptchaInitResponse } from '../types/admin';
 import { useLanguage } from '../hooks/useLanguage';
@@ -36,7 +36,7 @@ const AdminLoginPage: React.FC = () => {
   const masterSrc = useMemo(() => toDataSrc(captcha?.master_image_base64), [captcha]);
   const thumbSrc = useMemo(() => toDataSrc(captcha?.thumb_image_base64), [captcha]);
 
-  const loadCaptcha = async (force: boolean = false) => {
+  const loadCaptcha = useCallback(async (force: boolean = false) => {
     setError(null);
     setLoading(true);
 
@@ -81,7 +81,7 @@ const AdminLoginPage: React.FC = () => {
       setLoading(false);
       captchaInitInFlight = null;
     }
-  };
+  }, [showError]);
 
   useEffect(() => {
     // If admin already logged in, redirect to Sardis and skip captcha
