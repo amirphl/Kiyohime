@@ -4,6 +4,7 @@
   "description": "Marketing Platform for Companies",
   "private": true,
   "dependencies": {
+    "@tanstack/react-query": "^5.59.16",
     "@types/node": "^18.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
@@ -13,10 +14,9 @@
     "react": "^18.2.0",
     "react-date-object": "^2.1.9",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.54.2",
     "react-multi-date-picker": "^4.5.2",
     "react-phone-number-input": "^3.3.0",
-    "react-hook-form": "^7.54.2",
-    "@tanstack/react-query": "^5.59.16",
     "react-scripts": "^5.0.1",
     "tailwindcss": "^3.3.0"
   },
@@ -37,12 +37,6 @@
     "fix": "npm run lint:fix && npm run format",
     "deploy:yamata": "./scripts/deploy.sh yamata",
     "deploy:production": "./scripts/deploy.sh production"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
@@ -75,19 +69,13 @@
   "author": "SMS Marketing Team",
   "license": "MIT",
   "devDependencies": {
-    "@eslint/css": "^0.14.1",
-    "@eslint/js": "^9.39.1",
-    "@eslint/json": "^0.14.0",
-    "@eslint/markdown": "^7.5.1",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.3",
-    "eslint-plugin-react": "^7.37.5",
-    "globals": "^16.5.0",
-    "prettier": "^3.6.2",
-    "typescript-eslint": "^8.48.0",
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.3.1",
     "@testing-library/user-event": "^14.6.1",
-    "@testing-library/jest-dom": "^6.6.3"
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "prettier": "^3.8.1",
+    "typescript-eslint": "^8.48.0"
   }
 }
