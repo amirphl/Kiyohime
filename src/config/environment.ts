@@ -41,6 +41,15 @@ export interface EnvironmentConfig {
     segmentPriceFactors: {
       listLatest: string;
     };
+    media: {
+      upload: string;
+      download: string;
+      preview: string;
+    };
+    platformSettings: {
+      list: string;
+      create: string;
+    };
     analytics: {
       dashboard: string;
       reports: string;
@@ -100,6 +109,15 @@ const localConfig: EnvironmentConfig = {
     },
     segmentPriceFactors: {
       listLatest: '/segment-price-factors',
+    },
+    media: {
+      upload: '/media/upload',
+      download: '/media/:uuid',
+      preview: '/media/:uuid/preview',
+    },
+    platformSettings: {
+      list: '/platform-settings',
+      create: '/platform-settings',
     },
     analytics: {
       dashboard: '/analytics/dashboard',
