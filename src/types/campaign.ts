@@ -1,313 +1,330 @@
 // Campaign Types and Interfaces
 
 export interface CustomerLevel {
-	campaignTitle: string;
-	level1: string;       // Level 1 selection (single)
-	level2s: string[];    // Level 2 selections (multiple)
-	level3s: string[];    // Level 3 selections (multiple)
-	platform: CampaignPlatform;
-	tags?: string[];      // Union of tags from selected level3s
-	capacityTooLow?: boolean;
-	capacity?: number;    // Total audience capacity
-	jobCategory?: string;
-	job?: string;
+  campaignTitle: string;
+  level1: string; // Level 1 selection (single)
+  level2s: string[]; // Level 2 selections (multiple)
+  level3s: string[]; // Level 3 selections (multiple)
+  platform: CampaignPlatform;
+  tags?: string[]; // Union of tags from selected level3s
+  capacityTooLow?: boolean;
+  capacity?: number; // Total audience capacity
+  jobCategory?: string;
+  job?: string;
 }
 
 export interface CustomFilter {
-	field: string;
-	operator: string;
-	value: string;
+  field: string;
+  operator: string;
+  value: string;
 }
 
 export interface CampaignContent {
-	insertLink: boolean;
-	link: string;
-	text: string;
-	scheduleAt?: string; // ISO string for datetime
-	shortLinkDomain?: string;
-	lineNumber?: string;
-	activeService?: string;
-	mediaAttachment?: CampaignMediaAttachment | null;
+  insertLink: boolean;
+  link: string;
+  text: string;
+  scheduleAt?: string; // ISO string for datetime
+  shortLinkDomain?: string;
+  lineNumber?: string;
+  platformSettingsId?: number | null;
+  mediaUuid?: string | null;
 }
 
 export interface CampaignBudget {
-	totalBudget: number;
-	estimatedMessages?: number; // Populated by backend, not stored in localStorage
+  totalBudget: number;
+  estimatedMessages?: number; // Populated by backend, not stored in localStorage
 }
 
 export interface CampaignPayment {
-	paymentMethod: string;
-	termsAccepted: boolean;
-	hasEnoughBalance?: boolean; // Track if user has sufficient wallet balance
-	finalCost?: number; // Populated by API, not stored in localStorage
-	total?: number; // Populated by API, not stored in localStorage
+  paymentMethod: string;
+  termsAccepted: boolean;
+  hasEnoughBalance?: boolean; // Track if user has sufficient wallet balance
+  finalCost?: number; // Populated by API, not stored in localStorage
+  total?: number; // Populated by API, not stored in localStorage
 }
 
 export interface CampaignData {
-	uuid: string;
-	level: CustomerLevel;
-	content: CampaignContent;
-	budget: CampaignBudget;
-	payment: CampaignPayment;
+  uuid: string;
+  level: CustomerLevel;
+  content: CampaignContent;
+  budget: CampaignBudget;
+  payment: CampaignPayment;
 }
 
 export type CampaignPlatform = 'sms' | 'rubika' | 'bale' | 'splus';
 export type CampaignMediaType = 'image' | 'video';
-export interface CampaignMediaAttachment {
-	name: string;
-	type: CampaignMediaType;
-	dataUrl: string;
-}
 
 // API payload interface matching Go backend structure
 export interface CreateCampaignPayload {
-	title?: string;
-	level1?: string;      // Level 1 selection (single)
-	level2s?: string[];   // Level 2 selections (multiple)
-	level3s?: string[];   // Level 3 selections (multiple)
-	tags?: string[];      // Union of tags from selected level3s
-	adlink?: string;
-	content?: string;
-	scheduleat?: string;
-	line_number?: string | null;
-	budget?: number;
-	short_link_domain?: string;
-	job_category?: string;
-	job?: string;
-	platform?: CampaignPlatform;
-	active_service?: string | null;
-	media_attachment?: CampaignMediaAttachment | null;
+  title?: string;
+  level1?: string; // Level 1 selection (single)
+  level2s?: string[]; // Level 2 selections (multiple)
+  level3s?: string[]; // Level 3 selections (multiple)
+  tags?: string[]; // Union of tags from selected level3s
+  adlink?: string;
+  content?: string;
+  scheduleat?: string;
+  line_number?: string | null;
+  budget?: number;
+  short_link_domain?: string;
+  job_category?: string;
+  job?: string;
+  platform?: CampaignPlatform;
+  platform_settings_id?: number | null;
+  media_uuid?: string | null;
 }
 
 // API response interface matching Go backend structure
 export interface CreateSMSCampaignResponse {
-	message: string;
-	uuid: string;
-	status: string;
-	created_at: string;
+  message: string;
+  uuid: string;
+  status: string;
+  created_at: string;
 }
 
 // API response wrapper matching Go backend structure
 export interface CreateCampaignResponse {
-	success: boolean;
-	message: string;
-	data?: CreateSMSCampaignResponse;
-	error?: any;
+  success: boolean;
+  message: string;
+  data?: CreateSMSCampaignResponse;
+  error?: any;
 }
 
 // Campaign capacity calculation request interface
 export interface CalculateCampaignCapacityRequest {
-	title?: string;
-	level1?: string;      // Level 1 selection (single)
-	level2s?: string[];   // Level 2 selections (multiple)
-	level3s?: string[];   // Level 3 selections (multiple)
-	tags?: string[];      // Union of tags from selected level3s
-	adlink?: string;
-	content?: string;
-	scheduleat?: string;
-	line_number?: string | null;
-	budget?: number;
-	short_link_domain?: string;
-	job_category?: string;
-	job?: string;
-	platform?: CampaignPlatform;
-	active_service?: string | null;
-	media_attachment?: CampaignMediaAttachment | null;
+  title?: string;
+  level1?: string; // Level 1 selection (single)
+  level2s?: string[]; // Level 2 selections (multiple)
+  level3s?: string[]; // Level 3 selections (multiple)
+  tags?: string[]; // Union of tags from selected level3s
+  adlink?: string;
+  content?: string;
+  scheduleat?: string;
+  line_number?: string | null;
+  budget?: number;
+  short_link_domain?: string;
+  job_category?: string;
+  job?: string;
+  platform?: CampaignPlatform;
+  platform_settings_id?: number | null;
+  media_uuid?: string | null;
 }
 
 // Campaign capacity calculation response interface
 export interface CalculateCampaignCapacityResponse {
-	message: string;
-	capacity: number;
+  message: string;
+  capacity: number;
 }
 
 // Campaign cost calculation request interface
 export interface CalculateCampaignCostRequest {
-	title?: string;
-	level1?: string;      // Level 1 selection (single)
-	level2s?: string[];   // Level 2 selections (multiple)
-	level3s?: string[];   // Level 3 selections (multiple)
-	tags?: string[];      // Union of tags from selected level3s
-	adlink?: string;
-	content?: string;
-	scheduleat?: string;
-	line_number?: string | null;
-	budget?: number;
-	short_link_domain?: string;
-	job_category?: string;
-	job?: string;
-	platform?: CampaignPlatform;
-	active_service?: string | null;
-	media_attachment?: CampaignMediaAttachment | null;
+  title?: string;
+  level1?: string; // Level 1 selection (single)
+  level2s?: string[]; // Level 2 selections (multiple)
+  level3s?: string[]; // Level 3 selections (multiple)
+  tags?: string[]; // Union of tags from selected level3s
+  adlink?: string;
+  content?: string;
+  scheduleat?: string;
+  line_number?: string | null;
+  budget?: number;
+  short_link_domain?: string;
+  job_category?: string;
+  job?: string;
+  platform?: CampaignPlatform;
+  platform_settings_id?: number | null;
+  media_uuid?: string | null;
 }
 
 // Campaign cost calculation response interface
 export interface CalculateCampaignCostResponse {
-	message: string;
-	total_cost: number;
-	msg_target: number;
-	max_msg_target?: number;
+  message: string;
+  total_cost: number;
+  msg_target: number;
+  max_msg_target?: number;
 }
 
 // Wallet balance response interface
 export interface GetWalletBalanceResponse {
-	message: string;
-	free: number;
-	locked: number;
-	frozen: number;
-	credit?: number;
-	spent_on_campaigns?: number;
-	agency_share_with_tax?: number;
-	total: number;
-	currency: string;
-	last_updated: string;
+  message: string;
+  free: number;
+  locked: number;
+  frozen: number;
+  credit?: number;
+  spent_on_campaigns?: number;
+  agency_share_with_tax?: number;
+  total: number;
+  currency: string;
+  last_updated: string;
 }
 
 // Update campaign request interface
 export interface UpdateSMSCampaignRequest {
-	title?: string;
-	level1?: string;      // Level 1 selection (single)
-	level2s?: string[];   // Level 2 selections (multiple)
-	level3s?: string[];   // Level 3 selections (multiple)
-	tags?: string[];      // Union of tags from selected level3s
-	adlink?: string;
-	content?: string;
-	scheduleat?: string;
-	line_number?: string | null;
-	budget?: number;
-	finalize?: boolean;
-	short_link_domain?: string;
-	job_category?: string;
-	job?: string;
-	platform?: CampaignPlatform;
-	active_service?: string | null;
-	media_attachment?: CampaignMediaAttachment | null;
+  title?: string;
+  level1?: string; // Level 1 selection (single)
+  level2s?: string[]; // Level 2 selections (multiple)
+  level3s?: string[]; // Level 3 selections (multiple)
+  tags?: string[]; // Union of tags from selected level3s
+  adlink?: string;
+  content?: string;
+  scheduleat?: string;
+  line_number?: string | null;
+  budget?: number;
+  finalize?: boolean;
+  short_link_domain?: string;
+  job_category?: string;
+  job?: string;
+  platform?: CampaignPlatform;
+  platform_settings_id?: number | null;
+  media_uuid?: string | null;
+}
+
+export interface UploadMultimediaResponse {
+  message: string;
+  uuid: string;
+  media_type: string;
+  mime_type: string;
+  size_bytes: number;
+  original_filename: string;
+  created_at: string;
 }
 
 // Update campaign response interface
 export interface UpdateSMSCampaignResponse {
-	message: string;
+  message: string;
 }
 
 export interface CampaignStep {
-	id: number;
-	title: string;
-	isCompleted: boolean;
-	isAccessible: boolean;
+  id: number;
+  title: string;
+  isCompleted: boolean;
+  isAccessible: boolean;
 }
 
 export interface FormField {
-	id: string;
-	label: string;
-	type: 'text' | 'number' | 'select' | 'textarea' | 'checkbox' | 'radio' | 'datetime-local';
-	placeholder?: string;
-	required?: boolean;
-	options?: Array<{ value: string; label: string }>;
-	validation?: {
-		min?: number;
-		max?: number;
-		step?: number;
-		pattern?: string;
-		message?: string;
-	};
+  id: string;
+  label: string;
+  type:
+    | 'text'
+    | 'number'
+    | 'select'
+    | 'textarea'
+    | 'checkbox'
+    | 'radio'
+    | 'datetime-local';
+  placeholder?: string;
+  required?: boolean;
+  options?: Array<{ value: string; label: string }>;
+  validation?: {
+    min?: number;
+    max?: number;
+    step?: number;
+    pattern?: string;
+    message?: string;
+  };
 }
 
 export interface StepConfig {
-	id: number;
-	title: string;
-	subtitle: string;
-	component: React.ComponentType;
-	validation: (data: CampaignData) => boolean;
-	fields: FormField[];
+  id: number;
+  title: string;
+  subtitle: string;
+  component: React.ComponentType;
+  validation: (data: CampaignData) => boolean;
+  fields: FormField[];
 }
 
 export interface GetSMSCampaignResponse {
-	id?: number;
-	uuid: string;
-	status: string;
-	created_at: string;
-	updated_at?: string;
-	title?: string;
-	level1?: string;
-	level2s?: string[];
-	level3s?: string[];
-	tags?: string[];
-	sex?: string;
-	city?: string[];
-	adlink?: string;
-	content?: string;
-	short_link_domain?: string;
-	job_category?: string;
-	job?: string;
-	scheduleat?: string;
-	line_number?: string;
-	line_price_factor?: number;
-	budget?: number;
-	num_audience?: number;
-	comment?: string;
-	statistics?: Record<string, any>;
-	click_rate?: number;
-	total_clicks?: number;
+  id?: number;
+  uuid: string;
+  status: string;
+  created_at: string;
+  updated_at?: string;
+  title?: string;
+  level1?: string;
+  level2s?: string[];
+  level3s?: string[];
+  tags?: string[];
+  sex?: string;
+  city?: string[];
+  adlink?: string;
+  content?: string;
+  short_link_domain?: string;
+  job_category?: string;
+  job?: string;
+  scheduleat?: string;
+  line_number?: string;
+  line_price_factor?: number;
+  budget?: number;
+  num_audience?: number;
+  comment?: string;
+  statistics?: Record<string, any>;
+  click_rate?: number;
+  total_clicks?: number;
 }
 
 export interface PaginationInfo {
-	page: number;
-	limit: number;
-	total_items: number;
-	total_pages: number;
+  page: number;
+  limit: number;
+  total_items: number;
+  total_pages: number;
 }
 
 export interface ListSMSCampaignsResponse {
-	message: string;
-	items: GetSMSCampaignResponse[];
-	pagination: PaginationInfo;
+  message: string;
+  items: GetSMSCampaignResponse[];
+  pagination: PaginationInfo;
 }
 
 export interface ListSMSCampaignsParams {
-	page: number;
-	limit: number;
-	orderby?: 'newest' | 'oldest';
-	title?: string;
-	status?: 'initiated' | 'in-progress' | 'waiting-for-approval' | 'approved' | 'rejected';
+  page: number;
+  limit: number;
+  orderby?: 'newest' | 'oldest';
+  title?: string;
+  status?:
+    | 'initiated'
+    | 'in-progress'
+    | 'waiting-for-approval'
+    | 'approved'
+    | 'rejected';
 }
 
 // Audience Spec types
 export interface AudienceSpecItem {
-	tags: string[];
-	available_audience: number;
+  tags: string[];
+  available_audience: number;
 }
 
 export interface AudienceSpecLevel2 {
-	metadata: Record<string, any>;
-	items: Record<string, AudienceSpecItem>;
+  metadata: Record<string, any>;
+  items: Record<string, AudienceSpecItem>;
 }
 
 // Now three levels: level1 -> level2 -> level3 -> AudienceSpecItem
 export type AudienceSpec = Record<string, Record<string, AudienceSpecLevel2>>;
 
 export interface ListAudienceSpecResponse {
-	message: string;
-	spec: AudienceSpec;
+  message: string;
+  spec: AudienceSpec;
 }
 
 // Active line numbers
 export interface ActiveLineNumberItem {
-	line_number: string;
+  line_number: string;
 }
 
 export interface ListActiveLineNumbersResponse {
-	message: string;
-	items: ActiveLineNumberItem[];
+  message: string;
+  items: ActiveLineNumberItem[];
 }
 
 // Segment price factors (latest per level3)
 export interface SegmentPriceFactorItem {
-	level3: string;
-	price_factor: number;
-	created_at: string;
+  level3: string;
+  price_factor: number;
+  created_at: string;
 }
 
 export interface ListLatestSegmentPriceFactorsResponse {
-	message: string;
-	items: SegmentPriceFactorItem[];
+  message: string;
+  items: SegmentPriceFactorItem[];
 }
