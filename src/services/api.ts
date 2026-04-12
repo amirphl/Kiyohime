@@ -4,7 +4,13 @@ import {
   CalculateCampaignCostRequest, CalculateCampaignCostResponse, GetWalletBalanceResponse,
   UpdateSMSCampaignRequest, UpdateSMSCampaignResponse,
   ListSMSCampaignsParams, ListSMSCampaignsResponse,
+  UploadMultimediaResponse,
 } from '../types/campaign';
+import {
+  CreatePlatformSettingsRequest,
+  CreatePlatformSettingsResponse,
+  ListPlatformSettingsResponse,
+} from '../types/platformSettings';
 import { config, getApiUrl, isDevelopment, isProduction } from '../config/environment';
 import { GetTransactionHistoryParams, TransactionHistoryResponse } from '../types/payments';
 import { AgencyCustomerReportResponse, ListAgencyActiveDiscountsResponse, ListAgencyCustomerDiscountsResponse, ListAgencyCustomersResponse } from '../types/agency';
@@ -91,12 +97,19 @@ class ApiService {
       defaultHeaders['Authorization'] = `Bearer ${this.accessToken}`;
     }
 
+    const mergedHeaders: Record<string, string> = {
+      ...defaultHeaders,
+      ...(options.headers as Record<string, string> | undefined),
+    };
+
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+    if (isFormData) {
+      delete mergedHeaders['Content-Type'];
+    }
+
     const config: RequestInit = {
       ...options,
-      headers: {
-        ...defaultHeaders,
-        ...options.headers,
-      },
+      headers: mergedHeaders,
       // Add timeout to prevent hanging requests
       signal: options.signal || AbortSignal.timeout(30000), // 30 seconds timeout (overridable)
     };
@@ -206,6 +219,58 @@ class ApiService {
           details: null
         },
       };
+    }
+  }
+
+  private async requestBinary(
+    endpoint: string
+  ): Promise<{ success: boolean; message: string; blob?: Blob; filename?: string }> {
+    const url = getApiUrl(endpoint);
+    if (!this.isValidUrl(url)) {
+      return { success: false, message: 'Invalid URL' };
+    }
+
+    const headers: Record<string, string> = {
+      Accept: '*/*',
+      'X-Requested-With': 'XMLHttpRequest',
+    };
+    if (this.accessToken) {
+      headers['Authorization'] = `Bearer ${this.accessToken}`;
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers,
+        signal: AbortSignal.timeout(30000),
+      });
+
+      if (response.status === 401) {
+        if (this.unauthorizedHandler) {
+          this.unauthorizedHandler();
+        }
+        return { success: false, message: 'Unauthorized - Please log in again' };
+      }
+
+      if (!response.ok) {
+        let errorMessage = `HTTP ${response.status}`;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          if (data?.error?.code) errorMessage = data.error.code;
+          else if (data?.message) errorMessage = data.message;
+        }
+        return { success: false, message: errorMessage };
+      }
+
+      const blob = await response.blob();
+      const disposition = response.headers.get('content-disposition') || '';
+      const filenameMatch = disposition.match(/filename=([^;]+)/i);
+      const filename = filenameMatch ? filenameMatch[1].replace(/"/g, '') : undefined;
+      return { success: true, message: 'Success', blob, filename };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      return { success: false, message };
     }
   }
 
@@ -827,6 +892,36 @@ class ApiService {
       ? `${config.endpoints.segmentPriceFactors.listLatest}?platform=${encodeURIComponent(platform)}`
       : config.endpoints.segmentPriceFactors.listLatest;
     return this.request<ListLatestSegmentPriceFactorsResponse>(endpoint, { method: 'GET' });
+  }
+
+  async uploadMultimedia(file: File): Promise<ApiResponse<UploadMultimediaResponse>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.request<UploadMultimediaResponse>(config.endpoints.media.upload, {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
+  async downloadMultimedia(uuid: string): Promise<{ success: boolean; message: string; blob?: Blob; filename?: string }> {
+    const endpoint = config.endpoints.media.download.replace(':uuid', encodeURIComponent(uuid));
+    return this.requestBinary(endpoint);
+  }
+
+  async previewMultimedia(uuid: string): Promise<{ success: boolean; message: string; blob?: Blob; filename?: string }> {
+    const endpoint = config.endpoints.media.preview.replace(':uuid', encodeURIComponent(uuid));
+    return this.requestBinary(endpoint);
+  }
+
+  async listPlatformSettings(): Promise<ApiResponse<ListPlatformSettingsResponse>> {
+    return this.request<ListPlatformSettingsResponse>(config.endpoints.platformSettings.list, { method: 'GET' });
+  }
+
+  async createPlatformSettings(payload: CreatePlatformSettingsRequest): Promise<ApiResponse<CreatePlatformSettingsResponse>> {
+    return this.request<CreatePlatformSettingsResponse>(config.endpoints.platformSettings.create, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
   }
 
   // Utility methods
