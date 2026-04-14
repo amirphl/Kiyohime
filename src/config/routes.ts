@@ -98,6 +98,13 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Ticket & Support',
     description: 'Create and manage support tickets',
   },
+  SETTINGS: {
+    path: '/dashboard/settings',
+    page: 'settings',
+    requiresAuth: true,
+    title: 'Settings',
+    description: 'Platform settings and configuration',
+  },
   CUSTOMER_MANAGEMENT: {
     path: '/dashboard/customer-management',
     page: 'customer-management',
