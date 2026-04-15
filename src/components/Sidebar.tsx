@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useCampaign } from '../hooks/useCampaign';
 import LanguageSwitcher from './LanguageSwitcher';
-import { LayoutDashboard, Send, BarChart3, Wallet, Ticket, UserCog, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Send, BarChart3, Wallet, Ticket, UserCog, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface SidebarItem {
   id: string;
@@ -90,6 +90,7 @@ const Sidebar: React.FC = () => {
     { id: 'reports', icon: <BarChart3 className='h-5 w-5' />, label: 'reports', translationKey: 'dashboard.reports', href: '/dashboard/reports', onClick: () => navigateToPage('/dashboard/reports') },
     { id: 'wallet', icon: <Wallet className='h-5 w-5' />, label: 'Wallet and Charge', translationKey: 'dashboard.wallet', href: '/dashboard/wallet', onClick: () => navigateToPage('/dashboard/wallet') },
     { id: 'support', icon: <Ticket className='h-5 w-5' />, label: 'Ticket and Support', translationKey: 'dashboard.support', href: '/dashboard/support', onClick: () => navigateToPage('/dashboard/support') },
+    { id: 'settings', icon: <Settings className='h-5 w-5' />, label: 'Settings', translationKey: 'dashboard.settings', href: '/dashboard/settings', onClick: () => navigateToPage('/dashboard/settings') },
     { id: 'customer-discount-management', icon: <UserCog className='h-5 w-5' />, label: 'Customer & Discount Management', translationKey: 'dashboard.customerDiscountManagement', href: '/dashboard/customer-management', showForAgency: true, onClick: () => navigateToPage('/dashboard/customer-management') },
   ];
 
