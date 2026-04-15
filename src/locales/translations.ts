@@ -3,7 +3,7 @@ export const translations = {
     // --- Admin (new) ---
     adminCommon: {
       backToSardis: 'Back to Sardis',
-      sessionExpired: 'your session has expired, redirecting to login page.'
+      sessionExpired: 'your session has expired, redirecting to login page.',
     },
     adminSardis: {
       title: 'Sardis (Admin)',
@@ -18,7 +18,7 @@ export const translations = {
         },
         customers: {
           title: 'Customer Management',
-          description: 'Customers shares and performance report'
+          description: 'Customers shares and performance report',
         },
         segmentPriceFactors: {
           title: 'Segment Price Factors',
@@ -26,7 +26,7 @@ export const translations = {
         },
         shortLinks: {
           title: 'Short Link Management',
-          description: 'Upload CSV to create short links'
+          description: 'Upload CSV to create short links',
         },
         support: {
           title: 'Tickets & Support',
@@ -147,20 +147,20 @@ export const translations = {
         scenarioNamePlaceholder: 'Enter a scenario name (optional)',
         selectPlaceholder: 'Select a domain',
         upload: 'Upload CSV',
-        uploading: 'Uploading…'
+        uploading: 'Uploading…',
       },
       domain: {
         jo1n: 'jo1n.ir',
-        joinsahel: 'joinsahel.ir'
+        joinsahel: 'joinsahel.ir',
       },
       messages: {
         success: 'Short links created successfully',
         error: 'Failed to create short links',
         validationFileRequired: 'Please choose a CSV file',
-        validationScenarioNameRequired: 'Please enter a scenario name'
+        validationScenarioNameRequired: 'Please enter a scenario name',
       },
       result: {
-        scenarioId: 'Scenario ID: {id}'
+        scenarioId: 'Scenario ID: {id}',
       },
       download: {
         title: 'Download Short Links by Scenario',
@@ -169,7 +169,7 @@ export const translations = {
         download: 'Download CSV',
         downloading: 'Downloading…',
         success: 'Download started',
-        error: 'Failed to generate CSV'
+        error: 'Failed to generate CSV',
       },
       downloadWithClicks: {
         title: 'Download Short Links with Clicks by Scenario',
@@ -178,7 +178,7 @@ export const translations = {
         download: 'Download CSV',
         downloading: 'Downloading…',
         success: 'Download started',
-        error: 'Failed to generate CSV'
+        error: 'Failed to generate CSV',
       },
       downloadWithClicksRange: {
         title: 'Download Short Links with Clicks by Scenario Range',
@@ -189,17 +189,18 @@ export const translations = {
         download: 'Download CSV',
         downloading: 'Downloading…',
         success: 'Download started',
-        error: 'Failed to generate CSV'
+        error: 'Failed to generate CSV',
       },
       downloadByName: {
         title: 'Download Short Links With Clicks by Scenario Name',
         scenarioNameRegexLabel: 'Scenario Name Regex',
-        scenarioNameRegexPlaceholder: 'Enter scenario name regex (e.g., .*sahel_11.*)',
+        scenarioNameRegexPlaceholder:
+          'Enter scenario name regex (e.g., .*sahel_11.*)',
         download: 'Download Excel',
         downloading: 'Downloading…',
         success: 'Download started',
-        error: 'Failed to generate Excel'
-      }
+        error: 'Failed to generate Excel',
+      },
     },
     adminLineNumbers: {
       managementTitle: 'Line Number Management',
@@ -335,7 +336,8 @@ export const translations = {
           titleMax: 'Title must be at most 80 characters',
           descriptionRequired: 'Description is required',
           descriptionMax: 'Description must be at most 1000 characters',
-          invalidType: 'Invalid file type. Allowed: jpg, png, pdf, docx, xlsx, zip',
+          invalidType:
+            'Invalid file type. Allowed: jpg, png, pdf, docx, xlsx, zip',
           maxSize: 'File size must be less than 10 MB',
         },
         replyTitle: 'Reply to Ticket',
@@ -345,8 +347,7 @@ export const translations = {
       },
 
       // Filters
-      filterTitlePlaceholder: 'Filter by title...'
-      ,
+      filterTitlePlaceholder: 'Filter by title...',
       // Sort controls
       sortBy: 'Sort by',
       sortNewest: 'Newest',
@@ -357,6 +358,7 @@ export const translations = {
       targetedSend: 'targeted send',
       reports: 'Reports',
       wallet: 'Wallet and Charge',
+      settings: 'Settings',
       customerManagement: 'Customer Management',
       discountManagement: 'Discount Management',
       customerDiscountManagement: 'Customer & Discount Management',
@@ -418,7 +420,7 @@ export const translations = {
         approved: 'Approved',
         running: 'Running',
         total: 'Total',
-      }
+      },
     },
 
     // Campaign Creation
@@ -590,7 +592,7 @@ export const translations = {
         contentLabel: 'Content',
         contentPlaceholder: 'Describe your request (<= 1000 chars)',
         fileLabel: 'Attachment (optional)',
-        success: 'Ticket created successfully'
+        success: 'Ticket created successfully',
       },
       table: {
         row: 'Row',
@@ -598,8 +600,8 @@ export const translations = {
         content: 'Content',
         createdAt: 'Created At',
         details: 'Details',
-        noRecords: 'No records'
-      }
+        noRecords: 'No records',
+      },
     },
 
     // Admin Tickets
@@ -613,19 +615,20 @@ export const translations = {
       subtitle: 'Simple, transparent pricing that grows with you',
       intro: {
         title: 'How Pricing Works',
-        description: 'To use Jadhbe\'s features, you need to top up your account. By charging your digital wallet, you can access all Jadhbe services including landing page design and optimization, marketing lead tracking, customer journey analysis, and marketing automation. The cost of each service is calculated based on usage volume (number of active campaigns, number of processed segments, and analytical features), and the legal tax (10%) is transparently deducted from your charge. By purchasing more credit, you will also benefit from discounts on Basic, Pro, and Enterprise plans.',
+        description:
+          "To use Jadhbe's features, you need to top up your account. By charging your digital wallet, you can access all Jadhbe services including landing page design and optimization, marketing lead tracking, customer journey analysis, and marketing automation. The cost of each service is calculated based on usage volume (number of active campaigns, number of processed segments, and analytical features), and the legal tax (10%) is transparently deducted from your charge. By purchasing more credit, you will also benefit from discounts on Basic, Pro, and Enterprise plans.",
         payAsYouGo: {
           title: 'Pay As You Go',
-          description: 'Charged based on actual usage'
+          description: 'Charged based on actual usage',
         },
         transparent: {
           title: 'Transparent Fees',
-          description: '10% tax included in all transactions'
+          description: '10% tax included in all transactions',
         },
         volume: {
           title: 'Volume Discounts',
-          description: 'Save more with higher credit purchases'
-        }
+          description: 'Save more with higher credit purchases',
+        },
       },
       plans: {
         title: 'Choose Your Plan',
@@ -639,8 +642,8 @@ export const translations = {
             campaigns: 'Up to 10 active campaigns',
             segments: 'Basic segmentation',
             analytics: 'Standard analytics',
-            support: 'Email support'
-          }
+            support: 'Email support',
+          },
         },
         pro: {
           name: 'Pro',
@@ -651,8 +654,8 @@ export const translations = {
             segments: 'Advanced segmentation',
             analytics: 'Advanced analytics & tracking',
             automation: 'Marketing automation',
-            support: 'Priority support'
-          }
+            support: 'Priority support',
+          },
         },
         enterprise: {
           name: 'Enterprise',
@@ -664,16 +667,16 @@ export const translations = {
             analytics: 'Enterprise analytics',
             automation: 'Full automation suite',
             support: 'Dedicated account manager',
-            custom: 'Custom integrations'
-          }
-        }
+            custom: 'Custom integrations',
+          },
+        },
       },
       cta: {
         title: 'Ready to get started?',
         description: 'Create your account today and start your first campaign',
         signup: 'Sign Up Now',
-        contact: 'Contact Sales'
-      }
+        contact: 'Contact Sales',
+      },
     },
   },
 
@@ -681,11 +684,12 @@ export const translations = {
     // --- Admin (new) ---
     adminCommon: {
       backToSardis: 'بازگشت به ساردیس',
-      sessionExpired: 'نشست شما منقضی شده است، در حال انتقال به صفحه ورود.'
+      sessionExpired: 'نشست شما منقضی شده است، در حال انتقال به صفحه ورود.',
     },
     adminSardis: {
       title: 'ساردیس (مدیریت ادمین)',
-      subtitle: 'صفحه اصلی مدیریت ادمین. از منو برای دسترسی به بخش‌ها استفاده کنید.',
+      subtitle:
+        'صفحه اصلی مدیریت ادمین. از منو برای دسترسی به بخش‌ها استفاده کنید.',
       cards: {
         lineNumbers: {
           description: 'ایجاد، مدیریت، بروزرسانی و گزارش شماره‌های خط',
@@ -696,7 +700,7 @@ export const translations = {
         },
         customers: {
           title: 'مدیریت مشتریان',
-          description: 'گزارش سهم‌ها و عملکرد مشتریان'
+          description: 'گزارش سهم‌ها و عملکرد مشتریان',
         },
         segmentPriceFactors: {
           title: 'ضریب قیمت سگمنت',
@@ -704,11 +708,11 @@ export const translations = {
         },
         shortLinks: {
           title: 'مدیریت لینک کوتاه',
-          description: 'آپلود CSV برای ساخت لینک‌های کوتاه'
+          description: 'آپلود CSV برای ساخت لینک‌های کوتاه',
         },
         support: {
           title: 'پشتیبانی',
-          description: 'مدیریت و پاسخ به تیکت‌های مشتریان'
+          description: 'مدیریت و پاسخ به تیکت‌های مشتریان',
         },
       },
     },
@@ -726,7 +730,7 @@ export const translations = {
           systemIncome: 'درآمد ما (سیستم)',
           tax: 'مالیات',
           details: 'جزئیات',
-          discounts: 'شارژهای هدیه'
+          discounts: 'شارژهای هدیه',
         },
       },
       totals: {
@@ -825,20 +829,20 @@ export const translations = {
         scenarioNamePlaceholder: 'نام سناریو را وارد کنید (اختیاری)',
         selectPlaceholder: 'انتخاب دامنه',
         upload: 'آپلود CSV',
-        uploading: 'در حال آپلود…'
+        uploading: 'در حال آپلود…',
       },
       domain: {
         jo1n: 'jo1n.ir',
-        joinsahel: 'joinsahel.ir'
+        joinsahel: 'joinsahel.ir',
       },
       messages: {
         success: 'لینک‌های کوتاه با موفقیت ایجاد شد',
         error: 'ایجاد لینک‌های کوتاه ناموفق بود',
         validationFileRequired: 'لطفاً فایل CSV را انتخاب کنید',
-        validationScenarioNameRequired: 'لطفاً نام سناریو را وارد کنید'
+        validationScenarioNameRequired: 'لطفاً نام سناریو را وارد کنید',
       },
       result: {
-        scenarioId: 'شناسه سناریو: {id}'
+        scenarioId: 'شناسه سناریو: {id}',
       },
       download: {
         title: 'دانلود لینک‌های کوتاه بر اساس سناریو',
@@ -847,7 +851,7 @@ export const translations = {
         download: 'دانلود CSV',
         downloading: 'در حال دانلود…',
         success: 'دانلود آغاز شد',
-        error: 'تولید CSV ناموفق بود'
+        error: 'تولید CSV ناموفق بود',
       },
       downloadWithClicks: {
         title: 'دانلود لینک‌های کوتاه دارای کلیک بر اساس سناریو',
@@ -856,7 +860,7 @@ export const translations = {
         download: 'دانلود CSV',
         downloading: 'در حال دانلود…',
         success: 'دانلود آغاز شد',
-        error: 'تولید CSV ناموفق بود'
+        error: 'تولید CSV ناموفق بود',
       },
       downloadWithClicksRange: {
         title: 'دانلود لینک‌های کوتاه دارای کلیک بر اساس بازه سناریو',
@@ -867,17 +871,18 @@ export const translations = {
         download: 'دانلود CSV',
         downloading: 'در حال دانلود…',
         success: 'دانلود آغاز شد',
-        error: 'تولید CSV ناموفق بود'
+        error: 'تولید CSV ناموفق بود',
       },
       downloadByName: {
         title: 'دانلود لینک‌های کوتاه دارای کلیک بر اساس نام سناریو',
         scenarioNameRegexLabel: 'عبارت منظم نام سناریو',
-        scenarioNameRegexPlaceholder: 'عبارت منظم نام سناریو را وارد کنید (مثلاً .*sahel_11.*)',
+        scenarioNameRegexPlaceholder:
+          'عبارت منظم نام سناریو را وارد کنید (مثلاً .*sahel_11.*)',
         download: 'دانلود اکسل',
         downloading: 'در حال دانلود…',
         success: 'دانلود آغاز شد',
-        error: 'تولید فایل اکسل ناموفق بود'
-      }
+        error: 'تولید فایل اکسل ناموفق بود',
+      },
     },
     adminLineNumbers: {
       managementTitle: 'مدیریت شماره خط',
@@ -1007,13 +1012,15 @@ export const translations = {
         downloadTimeout: 'دانلود ضمیمه زمان‌بر شد. لطفاً دوباره تلاش کنید.',
         placeholders: {
           ticketTitle: 'یک عنوان کوتاه وارد کنید (حداکثر ۸۰ کاراکتر)',
-          description: 'مشکل یا درخواست خود را توضیح دهید (حداکثر ۱۰۰۰ کاراکتر)',
+          description:
+            'مشکل یا درخواست خود را توضیح دهید (حداکثر ۱۰۰۰ کاراکتر)',
         },
         validation: {
           titleMax: 'عنوان باید حداکثر ۸۰ کاراکتر باشد',
           descriptionRequired: 'متن تیکت الزامی است',
           descriptionMax: 'متن تیکت باید حداکثر ۱۰۰۰ کاراکتر باشد',
-          invalidType: 'نوع فایل نامعتبر است. فرمت‌های مجاز: jpg, png, pdf, docx, xlsx, zip',
+          invalidType:
+            'نوع فایل نامعتبر است. فرمت‌های مجاز: jpg, png, pdf, docx, xlsx, zip',
           maxSize: 'حجم فایل باید کمتر از ۱۰ مگابایت باشد',
         },
         replyTitle: 'پاسخ دادن',
@@ -1023,8 +1030,7 @@ export const translations = {
       },
 
       // Filters
-      filterTitlePlaceholder: 'فیلتر بر اساس عنوان...'
-      ,
+      filterTitlePlaceholder: 'فیلتر بر اساس عنوان...',
       // Sort controls
       sortBy: 'مرتب‌سازی بر اساس',
       sortNewest: 'جدیدترین',
@@ -1035,6 +1041,7 @@ export const translations = {
       targetedSend: 'مدیریت ارسال‌ها',
       reports: 'گزارش و تحلیل',
       wallet: 'مدیریت مالی',
+      settings: 'تنظیمات',
       customerManagement: 'مدیریت مشتریان',
       discountManagement: 'مدیریت تخفیف',
       customerDiscountManagement: 'مدیریت مشتری',
@@ -1089,7 +1096,7 @@ export const translations = {
           job: 'شغل',
           agencyRefererCode: 'کد معرف شما',
           parentAgency: 'آژانس والد',
-        }
+        },
       },
       campaignStats: {
         campaignsSummary: 'خلاصه ارسال‌ها',
@@ -1157,7 +1164,8 @@ export const translations = {
       hero: {
         badge: 'پلتفرم پیشرو بازاریابی هوشمند و داده‌محور',
         title: 'تصمیم‌های بازاریابی دقیق‌تر، با بینش داده‌محور',
-        subtitle: 'از داده‌ها و ابزارهای هوشمند برای شناخت بهتر مشتریان، بهینه‌سازی مسیر جذب و طراحی لندینگ‌های بهتر استفاده کنید',
+        subtitle:
+          'از داده‌ها و ابزارهای هوشمند برای شناخت بهتر مشتریان، بهینه‌سازی مسیر جذب و طراحی لندینگ‌های بهتر استفاده کنید',
         cta: 'ورود به جاذبه',
         signin: 'ورود',
       },
@@ -1173,19 +1181,23 @@ export const translations = {
           'ویژگی‌های قدرتمند طراحی شده برای کمک به موفقیت شما در بازاریابی هوشمند و داده‌محور',
         targeted: {
           title: 'ارسال‌های عملکردی مبتنی بر داده',
-          description: 'ارسال‌های خود را بر اساس داده‌های رفتاری و تقسیم‌بندی هوشمند طراحی کنید و به نتیجهٔ بهتر برسید',
+          description:
+            'ارسال‌های خود را بر اساس داده‌های رفتاری و تقسیم‌بندی هوشمند طراحی کنید و به نتیجهٔ بهتر برسید',
         },
         segmentation: {
           title: 'بخش‌بندی داده‌محور',
-          description: 'کاربران را بر اساس رفتار، علاقه‌مندی و چرخهٔ عمر تقسیم‌بندی کنید تا اثرگذاری ارسال‌ها افزایش یابد',
+          description:
+            'کاربران را بر اساس رفتار، علاقه‌مندی و چرخهٔ عمر تقسیم‌بندی کنید تا اثرگذاری ارسال‌ها افزایش یابد',
         },
         analytics: {
           title: 'تحلیل داده و قیف‌های بازاریابی',
-          description: 'مسیر کاربر تا اقدام نهایی را بررسی کنید و نقاط افت را با ابزارهای تحلیلی ما شناسایی کنید',
+          description:
+            'مسیر کاربر تا اقدام نهایی را بررسی کنید و نقاط افت را با ابزارهای تحلیلی ما شناسایی کنید',
         },
         compliance: {
           title: 'اتومیشن بازاریابی و پیگیری هوشمند',
-          description: 'فلوهای خودکار برای پیگیری سرنخ‌ها و مشتریان تعریف کنید و در زمان مناسب با آن‌ها تعامل داشته باشید',
+          description:
+            'فلوهای خودکار برای پیگیری سرنخ‌ها و مشتریان تعریف کنید و در زمان مناسب با آن‌ها تعامل داشته باشید',
         },
       },
       howItWorks: {
@@ -1193,20 +1205,24 @@ export const translations = {
         subtitle: 'در سه مرحله ساده با بازاریابی هوشمند و داده‌محور شروع کنید',
         step1: {
           title: 'ثبت‌نام کنید و اطلاعات کسب‌وکار خود را وارد کنید',
-          description: 'امکان اتصال داده‌های موجود و تعریف اهداف بازاریابی شما فراهم است',
+          description:
+            'امکان اتصال داده‌های موجود و تعریف اهداف بازاریابی شما فراهم است',
         },
         step2: {
           title: 'مسیرهای بازاریابی و لندینگ‌های خود را طراحی کنید',
-          description: 'با کمک ابزارهای تحلیل و پیشنهاد هوش مصنوعی محتوای مناسب، زمان‌بندی و تقسیم‌بندی را انتخاب کنید',
+          description:
+            'با کمک ابزارهای تحلیل و پیشنهاد هوش مصنوعی محتوای مناسب، زمان‌بندی و تقسیم‌بندی را انتخاب کنید',
         },
         step3: {
           title: 'پیاده‌سازی و پایش نتایج',
-          description: 'عملکرد ارسال‌ها و مسیر مشتری را در لحظه بررسی کنید و با ابزار اتومیشن بازاریابی به‌طور خودکار بهینه‌سازی کنید',
+          description:
+            'عملکرد ارسال‌ها و مسیر مشتری را در لحظه بررسی کنید و با ابزار اتومیشن بازاریابی به‌طور خودکار بهینه‌سازی کنید',
         },
       },
       cta: {
         title: 'آماده‌اید بازاریابی داده‌محور را تجربه کنید؟',
-        subtitle: 'به صدها شرکت و آژانسی بپیوندید که برای تصمیم‌گیری‌های بازاریابی از جاذبه استفاده می‌کنند',
+        subtitle:
+          'به صدها شرکت و آژانسی بپیوندید که برای تصمیم‌گیری‌های بازاریابی از جاذبه استفاده می‌کنند',
         button: 'ورود به حساب / ثبت‌نام',
       },
     },
@@ -1260,7 +1276,7 @@ export const translations = {
         contentLabel: 'متن تیکت',
         contentPlaceholder: 'درخواست خود را توضیح دهید (حداکثر ۱۰۰۰ کاراکتر)',
         fileLabel: 'ضمیمه (اختیاری)',
-        success: 'تیکت با موفقیت ایجاد شد'
+        success: 'تیکت با موفقیت ایجاد شد',
       },
       table: {
         row: 'ردیف',
@@ -1268,8 +1284,8 @@ export const translations = {
         content: 'متن',
         createdAt: 'تاریخ ایجاد',
         details: 'جزئیات',
-        noRecords: 'رکوردی یافت نشد'
-      }
+        noRecords: 'رکوردی یافت نشد',
+      },
     },
 
     // Admin Tickets
@@ -1283,19 +1299,20 @@ export const translations = {
       subtitle: 'قیمت‌گذاری ساده و شفاف که با شما رشد می‌کند',
       intro: {
         title: 'نحوه قیمت‌گذاری',
-        description: 'برای استفاده از امکانات جاذبه، لازم است حساب خود را در جاذبه شارژ کنید. شما می‌توانید با شارژ کیف پول دیجیتال خود، از همهٔ خدمات جاذبه مانند طراحی و بهبود لندینگ‌ها، ترکینگ لیدهای بازاریابی، تحلیل مسیر مشتریان و اتومیشن بازاریابی بهره‌مند شوید. هزینهٔ هر سرویس بر اساس حجم استفاده (تعداد ارسال‌های فعال، تعداد سگمنت‌های پردازش‌شده، و امکانات تحلیلی) محاسبه می‌شود و مالیات قانونی (٪۱۰) به‌صورت شفاف از شارژ کسر می‌شود. با خرید اعتبار بیشتر، از شارژهای هدیه پلن‌های Basic، Pro و Enterprise نیز بهره‌مند خواهید شد.',
+        description:
+          'برای استفاده از امکانات جاذبه، لازم است حساب خود را در جاذبه شارژ کنید. شما می‌توانید با شارژ کیف پول دیجیتال خود، از همهٔ خدمات جاذبه مانند طراحی و بهبود لندینگ‌ها، ترکینگ لیدهای بازاریابی، تحلیل مسیر مشتریان و اتومیشن بازاریابی بهره‌مند شوید. هزینهٔ هر سرویس بر اساس حجم استفاده (تعداد ارسال‌های فعال، تعداد سگمنت‌های پردازش‌شده، و امکانات تحلیلی) محاسبه می‌شود و مالیات قانونی (٪۱۰) به‌صورت شفاف از شارژ کسر می‌شود. با خرید اعتبار بیشتر، از شارژهای هدیه پلن‌های Basic، Pro و Enterprise نیز بهره‌مند خواهید شد.',
         payAsYouGo: {
           title: 'پرداخت بر اساس استفاده',
-          description: 'محاسبه بر اساس میزان استفاده واقعی'
+          description: 'محاسبه بر اساس میزان استفاده واقعی',
         },
         transparent: {
           title: 'هزینه‌های شفاف',
-          description: 'مالیات ۱۰٪ در همه تراکنش‌ها لحاظ شده است'
+          description: 'مالیات ۱۰٪ در همه تراکنش‌ها لحاظ شده است',
         },
         volume: {
           title: 'تخفیف حجمی',
-          description: 'با خرید اعتبار بیشتر، بیشتر صرفه‌جویی کنید'
-        }
+          description: 'با خرید اعتبار بیشتر، بیشتر صرفه‌جویی کنید',
+        },
       },
       plans: {
         title: 'پلن خود را انتخاب کنید',
@@ -1309,8 +1326,8 @@ export const translations = {
             campaigns: 'تا ۱۰ کمپین فعال',
             segments: 'سگمنت‌بندی پایه',
             analytics: 'تحلیل‌های استاندارد',
-            support: 'پشتیبانی ایمیلی'
-          }
+            support: 'پشتیبانی ایمیلی',
+          },
         },
         pro: {
           name: 'حرفه‌ای',
@@ -1321,8 +1338,8 @@ export const translations = {
             segments: 'سگمنت‌بندی پیشرفته',
             analytics: 'تحلیل و ردیابی پیشرفته',
             automation: 'اتومیشن بازاریابی',
-            support: 'پشتیبانی اولویت‌دار'
-          }
+            support: 'پشتیبانی اولویت‌دار',
+          },
         },
         enterprise: {
           name: 'سازمانی',
@@ -1334,16 +1351,17 @@ export const translations = {
             analytics: 'تحلیل‌های سازمانی',
             automation: 'مجموعه کامل اتومیشن',
             support: 'مدیر اختصاصی حساب',
-            custom: 'یکپارچه‌سازی‌های سفارشی'
-          }
-        }
+            custom: 'یکپارچه‌سازی‌های سفارشی',
+          },
+        },
       },
       cta: {
         title: 'آماده شروع هستید؟',
-        description: 'همین امروز حساب خود را ایجاد کنید و اولین کمپین خود را شروع کنید',
+        description:
+          'همین امروز حساب خود را ایجاد کنید و اولین کمپین خود را شروع کنید',
         signup: 'ثبت‌نام کنید',
-        contact: 'تماس با فروش'
-      }
+        contact: 'تماس با فروش',
+      },
     },
   },
 };
