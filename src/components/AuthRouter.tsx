@@ -19,6 +19,7 @@ import { ROUTES, getRouteByPath } from '../config/routes';
 import { useTranslation } from '../hooks/useTranslation';
 import AdminCustomerManagementPage from '../pages/AdminCustomerManagementPage';
 import SupportPage from '../pages/SupportPage';
+import SettingsPage from '../pages/SettingsPage';
 import AdminTicketsPage from '../pages/AdminTicketsPage';
 import PricingPage from '../pages/PricingPage';
 import TermsPage from '../pages/TermsPage';
@@ -26,7 +27,31 @@ import AdminShortLinkManagementPage from '../pages/AdminShortLinkManagementPage'
 import AdminSegmentPriceFactorsPage from '../pages/AdminSegmentPriceFactorsPage';
 import LandingPage from '../pages/LandingPage';
 
-type PageType = 'home' | 'landing' | 'login' | 'signup' | 'forgotPassword' | 'resetPassword' | 'dashboard' | 'campaign-creation' | 'wallet' | 'reports' | 'customer-management' | 'contact' | 'terms' | 'pricing' | 'admin-login' | 'admin-sardis' | 'admin-line-numbers' | 'admin-campaigns' | 'admin-customers' | 'support' | 'admin-tickets' | 'admin-short-links' | 'admin-segment-price-factors';
+type PageType =
+  | 'home'
+  | 'landing'
+  | 'login'
+  | 'signup'
+  | 'forgotPassword'
+  | 'resetPassword'
+  | 'dashboard'
+  | 'campaign-creation'
+  | 'wallet'
+  | 'reports'
+  | 'customer-management'
+  | 'contact'
+  | 'terms'
+  | 'pricing'
+  | 'admin-login'
+  | 'admin-sardis'
+  | 'admin-line-numbers'
+  | 'admin-campaigns'
+  | 'admin-customers'
+  | 'support'
+  | 'settings'
+  | 'admin-tickets'
+  | 'admin-short-links'
+  | 'admin-segment-price-factors';
 
 const AuthRouter: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PageType>(() => {
@@ -67,7 +92,10 @@ const AuthRouter: React.FC = () => {
     window.addEventListener('navigation', handleNavigation as EventListener);
 
     return () => {
-      window.removeEventListener('navigation', handleNavigation as EventListener);
+      window.removeEventListener(
+        'navigation',
+        handleNavigation as EventListener
+      );
     };
   }, []);
 
@@ -81,9 +109,15 @@ const AuthRouter: React.FC = () => {
         window.location.href = ROUTES.ADMIN_LOGIN.path;
       }, 2000);
     };
-    window.addEventListener('admin-session-expired', onExpired as EventListener);
+    window.addEventListener(
+      'admin-session-expired',
+      onExpired as EventListener
+    );
     return () => {
-      window.removeEventListener('admin-session-expired', onExpired as EventListener);
+      window.removeEventListener(
+        'admin-session-expired',
+        onExpired as EventListener
+      );
     };
   }, [sessionExpired]);
 
@@ -107,17 +141,30 @@ const AuthRouter: React.FC = () => {
   // Blocking overlay on session expiration
   if (sessionExpired) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 text-white text-center select-none">
-        <div className="max-w-md p-6 bg-gray-900 rounded shadow-lg">
-          <div className="text-lg font-semibold mb-2">{t('adminCommon.sessionExpired')}</div>
-          <div className="text-sm opacity-80">Please wait…</div>
+      <div className='fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 text-white text-center select-none'>
+        <div className='max-w-md p-6 bg-gray-900 rounded shadow-lg'>
+          <div className='text-lg font-semibold mb-2'>
+            {t('adminCommon.sessionExpired')}
+          </div>
+          <div className='text-sm opacity-80'>Please wait…</div>
         </div>
       </div>
     );
   }
 
   // If user is not authenticated and trying to access protected routes, redirect to home
-  if (!isAuthenticated && ['dashboard', 'campaign-creation', 'wallet', 'reports', 'customer-management'].includes(currentPage)) {
+  if (
+    !isAuthenticated &&
+    [
+      'dashboard',
+      'campaign-creation',
+      'wallet',
+      'reports',
+      'customer-management',
+      'settings',
+      'support',
+    ].includes(currentPage)
+  ) {
     window.location.href = ROUTES.HOME.path;
     return null;
   }
@@ -210,6 +257,8 @@ const AuthRouter: React.FC = () => {
       return <PricingPage />;
     case 'support':
       return <SupportPage />;
+    case 'settings':
+      return <SettingsPage />;
 
     case 'admin-login':
       return <AdminLoginPage />;
