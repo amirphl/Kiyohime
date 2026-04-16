@@ -1,6 +1,6 @@
 import React from 'react';
 import MessageMediaCard from './MessageMediaCard';
-import { CampaignMediaAttachment } from '../../../types/campaign';
+import { CampaignMediaType } from '../../../types/campaign';
 
 interface RubikaMessageCardProps {
   title: string;
@@ -10,12 +10,18 @@ interface RubikaMessageCardProps {
   mediaHelp: string;
   removeLabel: string;
   text: string;
-  mediaAttachment?: CampaignMediaAttachment | null;
+  previewUrl?: string | null;
+  previewName?: string | null;
+  previewType?: CampaignMediaType | null;
   onTextChange: (value: string) => void;
-  onMediaChange: (payload: CampaignMediaAttachment) => void;
+  onMediaChange: (payload: { file: File; previewUrl: string; name: string; type: CampaignMediaType }) => void;
   onMediaClear: () => void;
+  onMediaDownload?: () => void;
+  downloadLabel: string;
   maxCharactersLabel: string;
   maxCharacters: number;
+  isUploading?: boolean;
+  onMediaError?: (message: string) => void;
 }
 
 const RubikaMessageCard: React.FC<RubikaMessageCardProps> = props => (
