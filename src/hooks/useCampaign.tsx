@@ -1,5 +1,18 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
-import { CustomerLevel, CampaignContent, CampaignBudget, CampaignPayment, CampaignData } from '../types/campaign';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+  useEffect,
+} from 'react';
+import {
+  CustomerLevel,
+  CampaignContent,
+  CampaignBudget,
+  CampaignPayment,
+  CampaignData,
+} from '../types/campaign';
 import { registerCampaignClearFunction } from './useAuth';
 import { clearLevelSelection } from '../types/segment';
 
@@ -29,13 +42,19 @@ interface CampaignContextType {
 
   // Campaign status
   hasExistingCampaign: boolean;
-  getCampaignProgress: () => { completedSteps: number; totalSteps: number; progress: number };
+  getCampaignProgress: () => {
+    completedSteps: number;
+    totalSteps: number;
+    progress: number;
+  };
 
   // Reset
   resetCampaign: () => void;
 }
 
-const CampaignContext = createContext<CampaignContextType | undefined>(undefined);
+const CampaignContext = createContext<CampaignContextType | undefined>(
+  undefined
+);
 
 export const useCampaign = () => {
   const context = useContext(CampaignContext);
@@ -49,7 +68,9 @@ interface CampaignProviderProps {
   children: ReactNode;
 }
 
-export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) => {
+export const CampaignProvider: React.FC<CampaignProviderProps> = ({
+  children,
+}) => {
   // Initialize state from localStorage or defaults
   const [currentStep, setCurrentStep] = useState<number>(() => {
     const savedStep = localStorage.getItem('campaign_creation_step');
@@ -66,15 +87,22 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         if (!parsedData.content.shortLinkDomain) {
           parsedData.content.shortLinkDomain = 'jo1n.ir';
         }
-        if (!('lineNumber' in parsedData.content)) parsedData.content.lineNumber = '';
+        if (!('lineNumber' in parsedData.content))
+          parsedData.content.lineNumber = '';
         if (parsedData.level) {
-          if (!('jobCategory' in parsedData.level)) parsedData.level.jobCategory = '';
+          if (!('jobCategory' in parsedData.level))
+            parsedData.level.jobCategory = '';
           if (!('job' in parsedData.level)) parsedData.level.job = '';
-          if (!('platform' in parsedData.level)) parsedData.level.platform = 'sms';
+          if (!('platform' in parsedData.level))
+            parsedData.level.platform = 'sms';
         }
         if (parsedData.content) {
-          if (!('activeService' in parsedData.content)) parsedData.content.activeService = '';
-          if (!('mediaAttachment' in parsedData.content)) parsedData.content.mediaAttachment = null;
+          if (!('platformSettingsId' in parsedData.content))
+            parsedData.content.platformSettingsId = null;
+          if (!('mediaUuid' in parsedData.content))
+            parsedData.content.mediaUuid = null;
+          if ('mediaAttachment' in parsedData.content)
+            delete parsedData.content.mediaAttachment;
         }
         return parsedData;
       } catch (error) {
@@ -104,8 +132,8 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         scheduleAt: undefined,
         shortLinkDomain: 'jo1n.ir',
         lineNumber: '',
-        activeService: '',
-        mediaAttachment: null,
+        platformSettingsId: null,
+        mediaUuid: null,
       },
       budget: {
         totalBudget: 0,
@@ -124,7 +152,10 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
 
   // Auto-save campaign data to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('campaign_creation_data', JSON.stringify(campaignData));
+    localStorage.setItem(
+      'campaign_creation_data',
+      JSON.stringify(campaignData)
+    );
   }, [campaignData]);
 
   // Auto-save current step to localStorage whenever it changes
@@ -220,11 +251,11 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
       uuid: '', // Reset UUID
       level: {
         campaignTitle: '',
-        level1: '',       // Level 1
-        level2s: [],      // Level 2s
-        level3s: [],      // Level 3s
+        level1: '', // Level 1
+        level2s: [], // Level 2s
+        level3s: [], // Level 3s
         platform: 'sms',
-        tags: [],         // Union of tags from selected level3s
+        tags: [], // Union of tags from selected level3s
         capacityTooLow: false,
         capacity: undefined,
         jobCategory: '',
@@ -237,8 +268,8 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         scheduleAt: undefined,
         shortLinkDomain: 'jo1n.ir',
         lineNumber: '',
-        activeService: '',
-        mediaAttachment: null,
+        platformSettingsId: null,
+        mediaUuid: null,
       },
       budget: {
         totalBudget: 0,
@@ -258,7 +289,10 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
   }, []);
 
   const saveCampaignData = useCallback(() => {
-    localStorage.setItem('campaign_creation_data', JSON.stringify(campaignData));
+    localStorage.setItem(
+      'campaign_creation_data',
+      JSON.stringify(campaignData)
+    );
     localStorage.setItem('campaign_creation_step', currentStep.toString());
   }, [campaignData, currentStep]);
 
@@ -279,11 +313,11 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
       uuid: '',
       level: {
         campaignTitle: '',
-        level1: '',       // Level 1
-        level2s: [],      // Level 2s
-        level3s: [],      // Level 3s
+        level1: '', // Level 1
+        level2s: [], // Level 2s
+        level3s: [], // Level 3s
         platform: 'sms',
-        tags: [],         // Union of tags from selected level3s
+        tags: [], // Union of tags from selected level3s
         capacityTooLow: false,
         capacity: undefined,
         jobCategory: '',
@@ -296,8 +330,8 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
         scheduleAt: undefined,
         shortLinkDomain: 'jo1n.ir',
         lineNumber: '',
-        activeService: '',
-        mediaAttachment: null,
+        platformSettingsId: null,
+        mediaUuid: null,
       },
       budget: {
         totalBudget: 0,
@@ -309,7 +343,6 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
       },
     });
     setError(null);
-
   }, [clearCampaignData]);
 
   // Register the clear function with auth context for logout scenarios
@@ -318,7 +351,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
 
     // Cleanup function
     return () => {
-      registerCampaignClearFunction(() => { }); // Clear the reference
+      registerCampaignClearFunction(() => {}); // Clear the reference
     };
   }, [clearAllCampaignData]);
 
@@ -332,20 +365,37 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
 
     // Check each step for completion
     // Step 1: Campaign title, level1, and level3s required
-    const isAgency = typeof window !== 'undefined' ? localStorage.getItem('account_type') === 'marketing_agency' : false;
-    if (campaignData.level.campaignTitle && campaignData.level.level1 && campaignData.level.level3s.length > 0 && (!isAgency || (campaignData.level.jobCategory && campaignData.level.job))) {
-      completedSteps++;
-    }
-    if (campaignData.content.text && (!campaignData.content.insertLink || (campaignData.content.insertLink && campaignData.content.link))) {
+    const isAgency =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('account_type') === 'marketing_agency'
+        : false;
+    if (
+      campaignData.level.campaignTitle &&
+      campaignData.level.level1 &&
+      campaignData.level.level3s.length > 0 &&
+      (!isAgency || (campaignData.level.jobCategory && campaignData.level.job))
+    ) {
       completedSteps++;
     }
     if (
-      (campaignData.level.platform === 'sms' ? campaignData.content.lineNumber : campaignData.content.activeService) &&
+      campaignData.content.text &&
+      (!campaignData.content.insertLink ||
+        (campaignData.content.insertLink && campaignData.content.link))
+    ) {
+      completedSteps++;
+    }
+    if (
+      (campaignData.level.platform === 'sms'
+        ? campaignData.content.lineNumber
+        : campaignData.content.platformSettingsId) &&
       campaignData.budget.totalBudget > 0
     ) {
       completedSteps++;
     }
-    if (campaignData.payment.paymentMethod && campaignData.payment.termsAccepted) {
+    if (
+      campaignData.payment.paymentMethod &&
+      campaignData.payment.termsAccepted
+    ) {
       completedSteps++;
     }
 
@@ -354,7 +404,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({ children }) 
     return {
       completedSteps,
       totalSteps,
-      progress: Math.round(progress)
+      progress: Math.round(progress),
     };
   }, [campaignData]);
 
