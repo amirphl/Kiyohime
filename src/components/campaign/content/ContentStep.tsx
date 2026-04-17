@@ -1,8 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useCampaign } from '../../../hooks/useCampaign';
 import { useAuth } from '../../../hooks/useAuth';
+import { useToast } from '../../../hooks/useToast';
+import { apiService } from '../../../services/api';
 import StepHeader from '../../ui/StepHeader';
 import Button from '../../ui/Button';
 import LinkInsertionCard from './LinkInsertionCard';
@@ -14,13 +16,17 @@ import BaleMessageCard from './BaleMessageCard';
 import SplusMessageCard from './SplusMessageCard';
 import LineNumberCard from './LineNumberCard';
 import ShortLinkDomainCard from './ShortLinkDomainCard';
-import ActiveServiceCard from './ActiveServiceCard';
-import { CampaignMediaAttachment } from '../../../types/campaign';
+import PlatformSettingsCard from './PlatformSettingsCard';
+import PlatformSettingsCta from './PlatformSettingsCta';
+import { CampaignMediaType } from '../../../types/campaign';
 import { useUrlValidation } from './useUrlValidation';
 import { useLinkCharacter } from './useLinkCharacter';
 import { useScheduleTime } from './useScheduleTime';
 import { contentI18n } from './contentTranslations';
 import { useLineNumbers } from './useLineNumbers';
+import { useMediaUpload } from '../../../hooks/useMediaUpload';
+import { usePlatformSettingsList } from '../../../hooks/usePlatformSettingsList';
+import { useNavigation } from '../../../contexts/NavigationContext';
 
 const ContentStep: React.FC = () => {
   const { campaignData, updateContent } = useCampaign();
@@ -29,7 +35,25 @@ const ContentStep: React.FC = () => {
   const isEnglish = language === 'en';
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const { accessToken } = useAuth();
+  const { showError } = useToast();
+  const showErrorRef = useRef(showError);
+  const { uploadMedia, isUploading } = useMediaUpload(accessToken);
+  const { navigate } = useNavigation();
   const platform = campaignData.level.platform || 'sms';
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewName, setPreviewName] = useState<string | null>(null);
+  const [previewType, setPreviewType] = useState<CampaignMediaType | null>(
+    null
+  );
+  const { options: platformOptions, error: platformOptionsError } =
+    usePlatformSettingsList(
+      accessToken,
+      platform === 'sms' ? 'bale' : platform
+    );
+
+  useEffect(() => {
+    showErrorRef.current = showError;
+  }, [showError]);
 
   // Custom hooks for business logic
   const { linkError, handleLinkChange, clearError } = useUrlValidation(
@@ -90,44 +114,126 @@ const ContentStep: React.FC = () => {
     updateContent({ shortLinkDomain: value });
   };
 
-  const handleActiveServiceChange = (value: string) => {
-    updateContent({ activeService: value });
-  };
-
-  const handleMediaChange = (payload: CampaignMediaAttachment) => {
+  const handlePlatformSettingsChange = (value: string) => {
+    const parsed = Number(value);
     updateContent({
-      mediaAttachment: {
-        dataUrl: payload.dataUrl,
-        type: payload.type,
-        name: payload.name,
-      },
+      platformSettingsId: Number.isFinite(parsed) ? parsed : null,
     });
   };
 
-  const handleMediaClear = () => {
-    updateContent({
-      mediaAttachment: null,
-    });
+  const handleMediaChange = async (payload: {
+    file: File;
+    previewUrl: string;
+    name: string;
+    type: CampaignMediaType;
+  }) => {
+    setPreviewUrl(payload.previewUrl);
+    setPreviewName(payload.name);
+    setPreviewType(payload.type);
+    updateContent({ mediaUuid: null });
+    const uuid = await uploadMedia(payload.file);
+    if (!uuid) {
+      setPreviewUrl(null);
+      setPreviewName(null);
+      setPreviewType(null);
+      updateContent({ mediaUuid: null });
+      return;
+    }
+    updateContent({ mediaUuid: uuid });
   };
 
-  const { lineNumberOptions, isLoading: isLoadingLineNumbers, error: lineNumbersError } = useLineNumbers(accessToken);
-  const serviceOptions = [
-    { value: 'service_alpha', label: 'Service Alpha' },
-    { value: 'service_beta', label: 'Service Beta' },
-    { value: 'service_gamma', label: 'Service Gamma' },
-  ];
+  const handleMediaClear = useCallback(() => {
+    setPreviewUrl(null);
+    setPreviewName(null);
+    setPreviewType(null);
+    updateContent({ mediaUuid: null });
+  }, [updateContent]);
+
+  const handleMediaDownload = useCallback(async () => {
+    if (!campaignData.content.mediaUuid) return;
+    if (!accessToken) {
+      showError('Please log in again');
+      return;
+    }
+    apiService.setAccessToken(accessToken);
+    const res = await apiService.downloadMultimedia(
+      campaignData.content.mediaUuid
+    );
+    if (!res.success || !res.blob) {
+      showError(res.message || 'Failed to download media');
+      return;
+    }
+    const url = URL.createObjectURL(res.blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = res.filename || 'media';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, [accessToken, campaignData.content.mediaUuid, showError]);
 
   useEffect(() => {
+    if (!campaignData.content.mediaUuid) return;
+    if (!accessToken) return;
+    let isActive = true;
+    apiService.setAccessToken(accessToken);
+    apiService
+      .previewMultimedia(campaignData.content.mediaUuid)
+      .then(res => {
+        if (!isActive) return;
+        if (!res.success || !res.blob) {
+          showErrorRef.current(res.message || 'Failed to load preview');
+          return;
+        }
+        const url = URL.createObjectURL(res.blob);
+        setPreviewUrl(url);
+        setPreviewType('image');
+        setPreviewName(res.filename || 'media');
+      })
+      .catch(() => {
+        if (isActive) showErrorRef.current('Failed to load preview');
+      });
+    return () => {
+      isActive = false;
+    };
+  }, [accessToken, campaignData.content.mediaUuid]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const {
+    lineNumberOptions,
+    isLoading: isLoadingLineNumbers,
+    error: lineNumbersError,
+  } = useLineNumbers(accessToken);
+  useEffect(() => {
     if (platform === 'sms') {
-      if (campaignData.content.activeService || campaignData.content.mediaAttachment) {
-        updateContent({ activeService: '', mediaAttachment: null });
+      if (
+        campaignData.content.platformSettingsId ||
+        campaignData.content.mediaUuid
+      ) {
+        handleMediaClear();
+        updateContent({ platformSettingsId: null });
       }
       return;
     }
     if (campaignData.content.lineNumber) {
       updateContent({ lineNumber: '' });
     }
-  }, [campaignData.content.activeService, campaignData.content.lineNumber, campaignData.content.mediaAttachment, platform, updateContent]);
+  }, [
+    campaignData.content.platformSettingsId,
+    campaignData.content.lineNumber,
+    campaignData.content.mediaUuid,
+    platform,
+    updateContent,
+    handleMediaClear,
+  ]);
   const handleReset = () => {
     clearError();
     resetLinkCharacter();
@@ -139,8 +245,8 @@ const ContentStep: React.FC = () => {
       scheduleAt: undefined,
       shortLinkDomain: 'jo1n.ir',
       lineNumber: '',
-      activeService: '',
-      mediaAttachment: null,
+      platformSettingsId: null,
+      mediaUuid: null,
     });
   };
 
@@ -153,12 +259,20 @@ const ContentStep: React.FC = () => {
       mediaHelp: t.mediaHelp,
       removeLabel: t.removeMedia,
       text: campaignData.content.text,
-      mediaAttachment: campaignData.content.mediaAttachment,
+      previewUrl,
+      previewName,
+      previewType,
       onTextChange: handleTextChange,
       onMediaChange: handleMediaChange,
       onMediaClear: handleMediaClear,
+      onMediaDownload: campaignData.content.mediaUuid
+        ? handleMediaDownload
+        : undefined,
+      downloadLabel: t.downloadMedia,
       maxCharactersLabel: t.maxCharactersLabel,
       maxCharacters: 1000,
+      isUploading,
+      onMediaError: showError,
     };
 
     switch (platform) {
@@ -202,12 +316,12 @@ const ContentStep: React.FC = () => {
           />
           {campaignData.content.insertLink && (
             // <div className='mt-6'>
-              <ShortLinkDomainCard
-                value={campaignData.content.shortLinkDomain || 'jo1n.ir'}
-                onChange={handleShortLinkDomainChange}
-                title={t.shortLinkDomain}
-                placeholder={t.shortLinkDomainPlaceholder}
-              />
+            <ShortLinkDomainCard
+              value={campaignData.content.shortLinkDomain || 'jo1n.ir'}
+              onChange={handleShortLinkDomainChange}
+              title={t.shortLinkDomain}
+              placeholder={t.shortLinkDomainPlaceholder}
+            />
             // </div>
           )}
         </div>
@@ -276,13 +390,33 @@ const ContentStep: React.FC = () => {
               priceFactorLabel={t.linePriceFactor}
             />
           ) : (
-            <ActiveServiceCard
-              value={campaignData.content.activeService || ''}
-              options={serviceOptions}
-              onChange={handleActiveServiceChange}
-              title={t.activeServices}
-              placeholder={t.activeServicesPlaceholder}
-            />
+            <div className='space-y-2'>
+              {platformOptionsError && (
+                <div className='text-xs text-red-600'>
+                  {platformOptionsError}
+                </div>
+              )}
+              {!platformOptionsError && platformOptions.length === 0 ? (
+                <PlatformSettingsCta
+                  label={t.createPlatformInSettings}
+                  actionRequiredLabel={t.platformSettingsActionRequired}
+                  goToSettingsLabel={t.platformSettingsGoToSettings}
+                  onClick={() => navigate('/dashboard/settings')}
+                />
+              ) : (
+                <PlatformSettingsCard
+                  value={
+                    campaignData.content.platformSettingsId
+                      ? String(campaignData.content.platformSettingsId)
+                      : ''
+                  }
+                  options={platformOptions}
+                  onChange={handlePlatformSettingsChange}
+                  title={t.platformSettings}
+                  placeholder={t.platformSettingsPlaceholder}
+                />
+              )}
+            </div>
           )}
         </div>
 
