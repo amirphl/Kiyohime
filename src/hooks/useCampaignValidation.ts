@@ -2,8 +2,12 @@ import { useMemo } from 'react';
 import { CampaignData } from '../types/campaign';
 import { validateCampaignContent } from '../utils/campaignUtils';
 
-export const useCampaignValidation = (campaignData: CampaignData, currentStep: number) => {
-  const accountType = typeof window !== 'undefined' ? localStorage.getItem('account_type') : null;
+export const useCampaignValidation = (
+  campaignData: CampaignData,
+  currentStep: number
+) => {
+  const accountType =
+    typeof window !== 'undefined' ? localStorage.getItem('account_type') : null;
   const isAgency = accountType === 'marketing_agency';
   const MIN_BUDGET = 100000;
   const MAX_BUDGET = 160000000;
@@ -14,7 +18,8 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
       level.campaignTitle &&
       level.platform &&
       level.level1 &&
-      level.level3s && level.level3s.length > 0 &&
+      level.level3s &&
+      level.level3s.length > 0 &&
       level.capacityTooLow !== true &&
       (!isAgency || (level.jobCategory && level.job))
     );
@@ -22,17 +27,22 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
 
   const step2Valid = useMemo(() => {
     const { content, level } = campaignData;
-    const contentValid = validateCampaignContent(content, level.platform).isValid;
+    const contentValid = validateCampaignContent(
+      content,
+      level.platform
+    ).isValid;
     if (level.platform === 'sms') {
       return contentValid && !!content.lineNumber;
     }
-    return contentValid && !!content.activeService;
+    return contentValid && !!content.platformSettingsId;
   }, [campaignData]);
 
   const step3Valid = useMemo(() => {
     const { budget, content, level } = campaignData;
     return (
-      (level.platform === 'sms' ? !!content.lineNumber : !!content.activeService) &&
+      (level.platform === 'sms'
+        ? !!content.lineNumber
+        : !!content.platformSettingsId) &&
       budget.totalBudget >= MIN_BUDGET &&
       budget.totalBudget <= MAX_BUDGET
     );
@@ -43,12 +53,15 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
     return payment.hasEnoughBalance === true;
   }, [campaignData]);
 
-  const stepValidation = useMemo(() => ({
-    step1: (): boolean => step1Valid,
-    step2: (): boolean => step2Valid,
-    step3: (): boolean => step3Valid,
-    step4: (): boolean => step4Valid,
-  }), [step1Valid, step2Valid, step3Valid, step4Valid]);
+  const stepValidation = useMemo(
+    () => ({
+      step1: (): boolean => step1Valid,
+      step2: (): boolean => step2Valid,
+      step3: (): boolean => step3Valid,
+      step4: (): boolean => step4Valid,
+    }),
+    [step1Valid, step2Valid, step3Valid, step4Valid]
+  );
 
   const isStepCompleted = (step: number): boolean => {
     switch (step) {
@@ -83,7 +96,9 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
     switch (step) {
       case 1:
         if (!step1Valid) {
-          errors.push('Please configure campaign title and select audience criteria');
+          errors.push(
+            'Please configure campaign title and select audience criteria'
+          );
           if (!campaignData.level.platform) {
             errors.push('Please select a platform');
           }
@@ -98,7 +113,10 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
       case 2:
         if (!step2Valid) {
           const { content } = campaignData;
-          const validation = validateCampaignContent(content, campaignData.level.platform);
+          const validation = validateCampaignContent(
+            content,
+            campaignData.level.platform
+          );
           if (!validation.isValid && validation.error) {
             errors.push(validation.error);
           }
@@ -106,7 +124,7 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
             if (!campaignData.content.lineNumber) {
               errors.push('Please select a line number');
             }
-          } else if (!campaignData.content.activeService) {
+          } else if (!campaignData.content.platformSettingsId) {
             errors.push('Please select an active service');
           }
         }
@@ -117,7 +135,7 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
             if (!campaignData.content.lineNumber) {
               errors.push('Please select a line number');
             }
-          } else if (!campaignData.content.activeService) {
+          } else if (!campaignData.content.platformSettingsId) {
             errors.push('Please select an active service');
           } else if (campaignData.budget.totalBudget <= 0) {
             errors.push('Please set a total budget greater than 0');
@@ -142,4 +160,4 @@ export const useCampaignValidation = (campaignData: CampaignData, currentStep: n
     canFinishCampaign,
     getStepErrors,
   };
-}; 
+};
