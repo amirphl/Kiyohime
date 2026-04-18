@@ -9,6 +9,7 @@ import BudgetInputCard from './BudgetInputCard';
 import BudgetSelector from './BudgetSelector';
 import MessageCountCard from './MessageCountCard';
 import { useMessageCount } from './useMessageCount';
+import { usePlatformSettingsList } from '../../../hooks/usePlatformSettingsList';
 import { budgetI18n } from './budgetTranslations';
 
 const BudgetStep: React.FC = () => {
@@ -17,6 +18,7 @@ const BudgetStep: React.FC = () => {
   const { language } = useLanguage();
   const t = budgetI18n[language as keyof typeof budgetI18n] || budgetI18n.en;
   const { accessToken } = useAuth();
+  usePlatformSettingsList(accessToken, platform === 'sms' ? 'bale' : platform);
   const currencyLabel = language === 'en' ? 'Toman' : 'تومان';
   const MIN_TEXT_BUDGET = 100000;
   const MAX_BUDGET = 160000000;
@@ -43,7 +45,7 @@ const BudgetStep: React.FC = () => {
       normalized >= MIN_TEXT_BUDGET &&
       normalized <= MAX_BUDGET &&
       ((platform === 'sms' && campaignData.content.lineNumber) ||
-        (platform !== 'sms' && campaignData.content.activeService))
+        (platform !== 'sms' && campaignData.content.platformSettingsId))
     ) {
       calculateDebounced(campaignData.content.lineNumber, normalized);
     }
@@ -61,7 +63,7 @@ const BudgetStep: React.FC = () => {
         rounded >= MIN_TEXT_BUDGET &&
         rounded <= MAX_BUDGET &&
         ((platform === 'sms' && campaignData.content.lineNumber) ||
-          (platform !== 'sms' && campaignData.content.activeService))
+          (platform !== 'sms' && campaignData.content.platformSettingsId))
       ) {
         calculateDebounced(campaignData.content.lineNumber, rounded);
       }
@@ -69,7 +71,7 @@ const BudgetStep: React.FC = () => {
     [
       MAX_BUDGET,
       campaignData.content.lineNumber,
-      campaignData.content.activeService,
+      campaignData.content.platformSettingsId,
       calculateDebounced,
       platform,
       updateBudget,
@@ -131,7 +133,9 @@ const BudgetStep: React.FC = () => {
             lineNumber={
               platform === 'sms'
                 ? campaignData.content.lineNumber || ''
-                : campaignData.content.activeService || ''
+                : campaignData.content.platformSettingsId
+                  ? String(campaignData.content.platformSettingsId)
+                  : ''
             }
             totalBudget={campaignData.budget.totalBudget}
             title={t.estimatedMessages}
