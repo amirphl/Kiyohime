@@ -122,7 +122,10 @@ const DashboardPage: React.FC = () => {
       const res = await apiService.getProfile();
       if (res.success && res.data) {
         const customer = (res.data as any).customer;
-        const parent = (res.data as any).parent_agency ?? (res.data as any).parentAgency ?? null;
+        const parent =
+          (res.data as any).parent_agency ??
+          (res.data as any).parentAgency ??
+          null;
         setProfileData({ customer, parent });
       } else {
         setProfileError(res.message || 'Failed to load profile');
@@ -160,9 +163,8 @@ const DashboardPage: React.FC = () => {
 
   const isAgency = user?.account_type === 'marketing_agency';
   const calcT =
-    calculatorTranslations[
-      language as keyof typeof calculatorTranslations
-    ] || calculatorTranslations.en;
+    calculatorTranslations[language as keyof typeof calculatorTranslations] ||
+    calculatorTranslations.en;
   const formatNum = (n: number) =>
     n.toLocaleString(language === 'fa' ? 'fa-IR' : 'en-US');
 
@@ -176,7 +178,11 @@ const DashboardPage: React.FC = () => {
         // Convert to Tehran local then format in Shamsi
         const tehranMs = jsDate.getTime() + 3.5 * 60 * 60 * 1000;
         const tehranDate = new Date(tehranMs);
-        const dobj = new DateObject({ date: tehranDate, calendar: persian, locale: persian_fa });
+        const dobj = new DateObject({
+          date: tehranDate,
+          calendar: persian,
+          locale: persian_fa,
+        });
         return dobj.format('YYYY/MM/DD HH:mm:ss');
       }
       // For EN (and others): show user's local time
@@ -208,7 +214,7 @@ const DashboardPage: React.FC = () => {
     (async () => {
       try {
         if (accessToken) apiService.setAccessToken(accessToken);
-      } catch { }
+      } catch {}
       const res = await apiService.listCampaigns({
         page: 1,
         limit: 20,
@@ -293,7 +299,7 @@ const DashboardPage: React.FC = () => {
         {!isReportsView ? (
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
             {user && (
-              <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
+              <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200 md:col-span-2 lg:col-span-1'>
                 <button
                   onClick={() => {
                     setShowProfileModal(true);
@@ -308,8 +314,7 @@ const DashboardPage: React.FC = () => {
             {/* Campaigns Summary Card */}
             <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
               <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                {t('dashboard.campaignStats.campaignsSummary') ||
-                  'Campaigns Summary'}
+                {t('dashboard.campaignStats.campaignsSummary')}
               </h3>
               <div className='text-sm text-gray-700'>
                 {summaryLoading ? (
@@ -317,26 +322,29 @@ const DashboardPage: React.FC = () => {
                 ) : summaryError ? (
                   <div className='text-red-600'>{summaryError}</div>
                 ) : summaryData ? (
-                  <div className='space-y-2'>
-                    {/* <div>
-                      <strong>
-                        {t('dashboard.campaignStats.approved') || 'Approved'}:
-                      </strong>{' '}
-                      {formatNum(summaryData.approved_count)}
-                    </div>
-                    <div>
-                      <strong>
-                        {t('dashboard.campaignStats.running') || 'Running'}:
-                      </strong>{' '}
-                      {formatNum(summaryData.running_count)}
-                    </div> */}
-                    <div>
-                      <strong>
-                        {t('dashboard.campaignStats.total') || 'Total'}:
-                      </strong>{' '}
-                      {formatNum(summaryData.total)}
-                    </div>
-                  </div>
+                  // <div className='space-y-2'>
+                  //   <div>
+                  //     <strong>
+                  //       {t('dashboard.campaignStats.approved') || 'Approved'}:
+                  //     </strong>{' '}
+                  //     {formatNum(summaryData.approved_count)}
+                  //   </div>
+                  //   <div>
+                  //     <strong>
+                  //       {t('dashboard.campaignStats.running') || 'Running'}:
+                  //     </strong>{' '}
+                  //     {formatNum(summaryData.running_count)}
+                  //   </div>
+                  //   <div>
+                  //     <strong>
+                  //       {t('dashboard.campaignStats.total') || 'Total'}:
+                  //     </strong>{' '}
+                  //     {formatNum(summaryData.total)}
+                  //   </div>
+                  // </div>
+                  <p className='text-3xl font-bold text-primary-600'>
+                    {formatNum(summaryData.total)}
+                  </p>
                 ) : (
                   <div className='text-gray-600'>No data</div>
                 )}
