@@ -37,7 +37,7 @@ export const useCostCalculation = (
     const content = campaignData.content.text;
     const scheduleat = campaignData.content.scheduleAt;
     const line_number = campaignData.content.lineNumber;
-    const active_service = campaignData.content.activeService;
+    const platform_settings_id = campaignData.content.platformSettingsId;
     const budget = campaignData.budget.totalBudget;
 
     if (!title || !level1 || !content || !budget) {
@@ -48,7 +48,7 @@ export const useCostCalculation = (
       return;
     }
 
-    if (platform !== 'sms' && !active_service) {
+    if (platform !== 'sms' && !platform_settings_id) {
       return;
     }
 
@@ -64,7 +64,7 @@ export const useCostCalculation = (
       content,
       scheduleat || '',
       line_number || '',
-      active_service || '',
+      platform_settings_id ? String(platform_settings_id) : '',
       String(budget),
     ].join('|');
 
