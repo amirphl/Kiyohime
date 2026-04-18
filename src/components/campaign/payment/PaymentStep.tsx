@@ -76,7 +76,9 @@ const PaymentStep: React.FC = () => {
     campaignData.level.level1 &&
     campaignData.content.text &&
     campaignData.budget.totalBudget &&
-    (platform === 'sms' ? campaignData.content.lineNumber : campaignData.content.activeService)
+    (platform === 'sms'
+      ? campaignData.content.lineNumber
+      : campaignData.content.platformSettingsId)
   );
   const costPerMessage =
     total !== undefined && messageCount && messageCount > 0
@@ -84,7 +86,9 @@ const PaymentStep: React.FC = () => {
       : undefined;
   const linePriceFactor =
     platform === 'sms'
-      ? lineNumberOptions.find(opt => opt.value === campaignData.content.lineNumber)?.priceFactor
+      ? lineNumberOptions.find(
+          opt => opt.value === campaignData.content.lineNumber
+        )?.priceFactor
       : undefined;
 
   return (
