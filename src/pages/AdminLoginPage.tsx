@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import adminApi from '../services/adminApi';
 import { AdminCaptchaInitResponse } from '../types/admin';
 import { useLanguage } from '../hooks/useLanguage';
@@ -26,7 +26,9 @@ const AdminLoginPage: React.FC = () => {
   const { language } = useLanguage();
   const { showError } = useToast();
   const { navigate } = useNavigation();
-  const [loading, setLoading] = useState(false);
+  const showErrorRef = useRef(showError);
+  const [captchaLoading, setCaptchaLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [captcha, setCaptcha] = useState<AdminCaptchaInitResponse | null>(null);
   const [username, setUsername] = useState('');
@@ -36,9 +38,13 @@ const AdminLoginPage: React.FC = () => {
   const masterSrc = useMemo(() => toDataSrc(captcha?.master_image_base64), [captcha]);
   const thumbSrc = useMemo(() => toDataSrc(captcha?.thumb_image_base64), [captcha]);
 
+  useEffect(() => {
+    showErrorRef.current = showError;
+  }, [showError]);
+
   const loadCaptcha = useCallback(async (force: boolean = false) => {
     setError(null);
-    setLoading(true);
+    setCaptchaLoading(true);
 
     try {
       if (force) {
@@ -49,7 +55,6 @@ const AdminLoginPage: React.FC = () => {
       if (captchaInitCache) {
         setCaptcha(captchaInitCache);
         setAngle(0);
-        setLoading(false);
         return;
       }
 
@@ -57,7 +62,6 @@ const AdminLoginPage: React.FC = () => {
         const data = await captchaInitInFlight;
         setCaptcha(data);
         setAngle(0);
-        setLoading(false);
         return;
       }
 
@@ -76,12 +80,12 @@ const AdminLoginPage: React.FC = () => {
     } catch (e: any) {
       const msg = e?.message || 'Failed to initialize captcha';
       setError(msg);
-      showError(msg);
+      showErrorRef.current(msg);
     } finally {
-      setLoading(false);
+      setCaptchaLoading(false);
       captchaInitInFlight = null;
     }
-  }, [showError]);
+  }, []);
 
   useEffect(() => {
     // If admin already logged in, redirect to Sardis and skip captcha
@@ -94,31 +98,32 @@ const AdminLoginPage: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (captchaLoading || submitting) return;
     setError(null);
     if (!captcha) {
       const msg = 'Captcha not ready';
       setError(msg);
-      showError(msg);
+      showErrorRef.current(msg);
       return;
     }
     if (!username.trim() || !password.trim()) {
       const msg = 'Username and password are required';
       setError(msg);
-      showError(msg);
+      showErrorRef.current(msg);
       return;
     }
-    setLoading(true);
+    setSubmitting(true);
     const resp = await adminApi.verifyLogin({
       challenge_id: captcha.challenge_id,
       username: username.trim(),
       password: password,
       user_angle: clampAngle0to360(angle),
     });
-    setLoading(false);
+    setSubmitting(false);
     if (!resp.success) {
       const msg = resp.message || 'Login failed';
       setError(msg);
-      showError(msg);
+      showErrorRef.current(msg);
       // Re-init captcha on any login error (force refresh)
       loadCaptcha(true);
       return;
@@ -188,16 +193,23 @@ const AdminLoginPage: React.FC = () => {
                 />
                 <span className="w-16 text-right text-sm">{angle}°</span>
               </div>
-              <button type="button" onClick={() => loadCaptcha(true)} className="text-sm text-blue-600">Reload Captcha</button>
+              <button
+                type="button"
+                onClick={() => loadCaptcha(true)}
+                disabled={captchaLoading || submitting}
+                className="text-sm text-blue-600 disabled:opacity-50"
+              >
+                Reload Captcha
+              </button>
             </div>
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={captchaLoading || submitting}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded py-2 disabled:opacity-60"
           >
-            {loading ? 'Signing in…' : 'Sign in'}
+            {submitting ? 'Signing in…' : captchaLoading ? 'Loading captcha…' : 'Sign in'}
           </button>
         </form>
       </div>
