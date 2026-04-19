@@ -26,7 +26,7 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<boolean>(false);
-  const [customerId, setCustomerId] = useState<number | null>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [customerId, setCustomerId] = useState<number | null>(null);
   const [maskedPhone, setMaskedPhone] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent) => {

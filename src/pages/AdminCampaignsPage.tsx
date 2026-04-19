@@ -72,7 +72,7 @@ const AdminCampaignsPage: React.FC = () => {
     if (didInitRef.current) return;
     didInitRef.current = true;
     load(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, []);
 
   const onApply = useCallback(() => {

@@ -250,7 +250,7 @@ const DashboardPage: React.FC = () => {
     }
     // fetch once, no retries
     fetchCampaignsSummary();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, [isReportsView, user, accessToken]);
 
   return (

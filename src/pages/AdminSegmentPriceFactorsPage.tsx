@@ -70,7 +70,7 @@ const AdminSegmentPriceFactorsPage: React.FC = () => {
     initRef.current = true;
     loadLevel3Options();
     loadFactors();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, []);
 
   const validate = (): string | null => {

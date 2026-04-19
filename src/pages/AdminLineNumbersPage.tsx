@@ -88,7 +88,7 @@ const AdminLineNumbersPage: React.FC = () => {
     didInitRef.current = true;
     loadList();
     loadReport();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, []);
 
   const onChange = (field: keyof AdminCreateLineNumberRequest, value: any) => {

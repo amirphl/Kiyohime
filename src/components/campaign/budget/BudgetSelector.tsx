@@ -63,7 +63,7 @@ const BudgetSelector: React.FC<BudgetSelectorProps> = ({
       cancelled = true;
     };
     // Run on mount; in StrictMode the effect runs twice, cleanup cancels the first.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, []);
 
   const availableMax = useMemo(() => {
