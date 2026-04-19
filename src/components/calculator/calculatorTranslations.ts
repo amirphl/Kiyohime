@@ -57,7 +57,7 @@ export const calculatorTranslations: Record<'en' | 'fa', CalculatorTranslations>
   },
   fa: {
     openCalculator: 'ماشین‌حساب',
-    title: 'ماشین‌حساب شما',
+    title: '',
     amountLabel: 'میزان شارژ مشتری (تومان)',
     amountPlaceholder: 'مثلاً 300000000',
     amountPreview: 'نمایش:',
