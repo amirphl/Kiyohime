@@ -42,16 +42,18 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
     campaign: GetSMSCampaignResponse
   ): CampaignData => {
     const platformValue =
-      ((campaign as any).platform as CampaignData['level']['platform']) ||
+      ((campaign as any).platform as CampaignData['segment']['platform']) ||
       'sms';
     const capacityValue =
       typeof campaign.num_audience === 'number' ? campaign.num_audience : 0;
 
-    const level: CampaignData['level'] = {
+    const segment: CampaignData['segment'] = {
       campaignTitle: campaign.title || '',
       level1: campaign.level1 || '',
       level2s: Array.isArray(campaign.level2s) ? campaign.level2s : [],
       level3s: Array.isArray(campaign.level3s) ? campaign.level3s : [],
+      targetAudienceExcelFileUuid:
+        campaign.target_audience_excel_file_uuid ?? null,
       platform: platformValue,
       tags: Array.isArray(campaign.tags) ? campaign.tags : [],
       capacityTooLow: capacityValue > 0 && capacityValue < 500,
@@ -85,7 +87,7 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
 
     return {
       uuid: campaign.uuid || '',
-      level,
+      segment,
       content,
       budget,
       payment: { paymentMethod: '', termsAccepted: false },
@@ -96,13 +98,15 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
     localStorage.setItem('campaign_creation_data', JSON.stringify(draft));
     localStorage.setItem('campaign_creation_step', '1');
     saveLevelSelection({
-      campaignTitle: draft.level.campaignTitle || '',
-      level1s: draft.level.level1 ? [draft.level.level1] : [],
-      level2s: draft.level.level2s || [],
-      level3s: draft.level.level3s || [],
+      campaignTitle: draft.segment.campaignTitle || '',
+      level1s: draft.segment.level1 ? [draft.segment.level1] : [],
+      level2s: draft.segment.level2s || [],
+      level3s: draft.segment.level3s || [],
+      targetAudienceExcelFileUuid:
+        draft.segment.targetAudienceExcelFileUuid ?? null,
       metadata: {},
-      tags: draft.level.tags || [],
-      count: draft.level.capacity || 0,
+      tags: draft.segment.tags || [],
+      count: draft.segment.capacity || 0,
       lastUpdated: new Date().toISOString(),
     });
   };

@@ -64,7 +64,14 @@ const Sidebar: React.FC = () => {
     const existingData = localStorage.getItem('campaign_creation_data');
     if (existingData) {
       try {
-        JSON.parse(existingData);
+        const parsed = JSON.parse(existingData);
+        if (!parsed.segment && parsed.level) {
+          const { level, ...currentData } = parsed;
+          localStorage.setItem(
+            'campaign_creation_data',
+            JSON.stringify({ ...currentData, segment: level })
+          );
+        }
         navigate('/campaign-creation');
         return;
       } catch {
@@ -74,8 +81,29 @@ const Sidebar: React.FC = () => {
     resetCampaign();
     const initialCampaignData = {
       uuid: '',
-      segment: { campaignTitle: '', segment: '', subsegments: [], sex: '', city: [], jobCategory: '', job: '' },
-      content: { insertLink: false, link: '', text: '', scheduleAt: undefined, shortLinkDomain: 'jo1n.ir', lineNumber: '' },
+      segment: {
+        campaignTitle: '',
+        level1: '',
+        level2s: [],
+        level3s: [],
+        targetAudienceExcelFileUuid: null,
+        platform: 'sms',
+        tags: [],
+        capacityTooLow: false,
+        capacity: undefined,
+        jobCategory: '',
+        job: '',
+      },
+      content: {
+        insertLink: false,
+        link: '',
+        text: '',
+        scheduleAt: undefined,
+        shortLinkDomain: 'jo1n.ir',
+        lineNumber: '',
+        platformSettingsId: null,
+        mediaUuid: null,
+      },
       budget: { totalBudget: 0, estimatedMessages: undefined },
       payment: { paymentMethod: '', termsAccepted: false },
     };
