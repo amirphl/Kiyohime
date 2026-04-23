@@ -88,7 +88,11 @@ const CampaignCreationPage: React.FC = () => {
             (() => {
               try {
                 const parsed = JSON.parse(savedData);
-                return parsed.uuid && parsed.uuid !== '';
+                const storedCampaign = {
+                  ...parsed,
+                  segment: parsed.segment ?? parsed.level,
+                };
+                return storedCampaign.uuid && storedCampaign.uuid !== '';
               } catch {
                 return false;
               }
@@ -426,7 +430,7 @@ const CampaignCreationPage: React.FC = () => {
                 }`}
               >
                 <Check className='h-4 w-4' />
-                {isFinishing ? t('common.loading') : t('common.finish')}
+                {isFinishing ? t('common.loading') : t('common.finish2')}
               </Button>
             )}
           </div>

@@ -33,6 +33,10 @@ import { useLanguage } from '../../../hooks/useLanguage';
 import CategoryJobFields from '../../CategoryJobFields';
 import Button from '../../ui/Button';
 import { useToast } from '../../../hooks/useToast';
+import { useMediaUpload } from '../../../hooks/useMediaUpload';
+import TargetAudienceExcelFileUploadCard, {
+  isTargetAudienceExcelFile,
+} from './TargetAudienceExcelFileUploadCard';
 
 const LevelStep: React.FC = () => {
   const { language } = useLanguage();
@@ -48,6 +52,7 @@ const LevelStep: React.FC = () => {
   } = useCampaign();
   const { accessToken, user } = useAuth();
   const { showError } = useToast();
+  const { uploadMedia, isUploading } = useMediaUpload(accessToken);
   const showErrorRef = useRef(showError);
   const categories = (jobCategoryI18n[language as JobCategoryLocale] ||
     jobCategoryI18n.en) as Record<string, readonly string[]>;
@@ -55,23 +60,25 @@ const LevelStep: React.FC = () => {
 
   // Local state for selections
   const [campaignTitle, setCampaignTitle] = useState<string>(
-    campaignData.level.campaignTitle || ''
+    campaignData.segment.campaignTitle || ''
   );
   const [platform, setPlatform] = useState<CampaignPlatform>(
-    campaignData.level.platform || 'sms'
+    campaignData.segment.platform || 'sms'
   );
-  const [level1, setLevel1] = useState<string>(campaignData.level.level1 || '');
+  const [level1, setLevel1] = useState<string>(
+    campaignData.segment.level1 || ''
+  );
   const [level2s, setLevel2s] = useState<string[]>(
-    campaignData.level.level2s || []
+    campaignData.segment.level2s || []
   );
   const [level3s, setLevel3s] = useState<string[]>(
-    campaignData.level.level3s || []
+    campaignData.segment.level3s || []
   );
   const [capacity, setCapacity] = useState<number>(0);
   const [jobCategory, setJobCategory] = useState<string>(
-    campaignData.level.jobCategory || ''
+    campaignData.segment.jobCategory || ''
   );
-  const [job, setJob] = useState<string>(campaignData.level.job || '');
+  const [job, setJob] = useState<string>(campaignData.segment.job || '');
   const [jobErrors, setJobErrors] = useState<{
     category?: string;
     job?: string;
@@ -79,6 +86,13 @@ const LevelStep: React.FC = () => {
   const [segmentPriceFactors, setSegmentPriceFactors] = useState<
     Record<string, number>
   >({});
+  const [targetAudienceExcelFileName, setTargetAudienceExcelFileName] =
+    useState<string | null>(null);
+  const isTargetAudienceExcelFileModeByValue = (value: unknown): boolean =>
+    value !== null && value !== undefined;
+  const isTargetAudienceExcelFileMode = isTargetAudienceExcelFileModeByValue(
+    campaignData.segment.targetAudienceExcelFileUuid
+  );
 
   // Track if initialization has already happened
   const initializedRef = useRef(false);
@@ -98,31 +112,81 @@ const LevelStep: React.FC = () => {
 
   const hasLocalDraftCampaign = useCallback(() => {
     const current = campaignDataRef.current;
+    const currentSegment = current?.segment || {};
+    const hasDraftData = (candidate: any): boolean => {
+      const segment = candidate?.segment || candidate?.level || {};
+      const content = candidate?.content || {};
+      const budget = candidate?.budget || {};
+      return (
+        !!candidate?.uuid ||
+        !!segment.campaignTitle ||
+        !!segment.level1 ||
+        (Array.isArray(segment.level2s) && segment.level2s.length > 0) ||
+        (Array.isArray(segment.level3s) && segment.level3s.length > 0) ||
+        isTargetAudienceExcelFileModeByValue(
+          segment.targetAudienceExcelFileUuid
+        ) ||
+        !!segment.jobCategory ||
+        !!segment.job ||
+        !!content.text ||
+        !!content.link ||
+        !!content.scheduleAt ||
+        !!content.lineNumber ||
+        !!content.platformSettingsId ||
+        !!content.mediaUuid ||
+        (typeof budget.totalBudget === 'number' && budget.totalBudget > 0)
+      );
+    };
+
     const inState =
-      !!current.uuid ||
-      !!current.level.campaignTitle ||
-      !!current.level.level1 ||
-      (current.level.level3s && current.level.level3s.length > 0);
+      hasDraftData(current) ||
+      !!campaignTitle ||
+      !!level1 ||
+      (Array.isArray(level2s) && level2s.length > 0) ||
+      (Array.isArray(level3s) && level3s.length > 0) ||
+      !!jobCategory ||
+      !!job ||
+      isTargetAudienceExcelFileModeByValue(
+        currentSegment.targetAudienceExcelFileUuid // NOTE: vs current.segment
+      ) ||
+      !!targetAudienceExcelFileName;
     if (inState) return true;
 
     try {
       const stored = localStorage.getItem('campaign_creation_data');
-      if (!stored) return false;
-      const parsed = JSON.parse(stored);
-      if (parsed?.uuid) return true;
-      const level = parsed?.level || {};
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (hasDraftData(parsed)) return true;
+      }
+      const savedSelection = loadLevelSelection();
+      if (!savedSelection) return false;
       return (
-        !!level.campaignTitle ||
-        !!level.level1 ||
-        (Array.isArray(level.level3s) && level.level3s.length > 0)
+        !!savedSelection.campaignTitle ||
+        savedSelection.level1s.length > 0 ||
+        savedSelection.level2s.length > 0 ||
+        savedSelection.level3s.length > 0 ||
+        isTargetAudienceExcelFileModeByValue(
+          savedSelection.targetAudienceExcelFileUuid
+        )
       );
     } catch {
       return false;
     }
-  }, []);
+  }, [
+    campaignTitle,
+    job,
+    jobCategory,
+    level1,
+    level2s,
+    level3s,
+    targetAudienceExcelFileName,
+  ]);
 
   const normalizeLastInitiatedCampaign = useCallback(
     (payload: any): CampaignData | null => {
+      // Never override in-progress local edits with server data.
+      if (hasLocalDraftCampaign()) return null;
+
       const campaign = payload?.item ?? payload?.data ?? payload;
       if (!campaign || typeof campaign !== 'object') return null;
 
@@ -141,11 +205,13 @@ const LevelStep: React.FC = () => {
             ? campaign.capacity
             : undefined;
 
-      const level = {
+      const segment = {
         campaignTitle: campaign.title || '',
         level1: campaign.level1 || '',
         level2s: Array.isArray(campaign.level2s) ? campaign.level2s : [],
         level3s: Array.isArray(campaign.level3s) ? campaign.level3s : [],
+        targetAudienceExcelFileUuid:
+          campaign.target_audience_excel_file_uuid ?? null,
         platform: platformValue,
         tags: Array.isArray(campaign.tags) ? campaign.tags : [],
         capacityTooLow:
@@ -182,13 +248,13 @@ const LevelStep: React.FC = () => {
 
       return {
         uuid: campaign.uuid || '',
-        level,
+        segment,
         content,
         budget,
         payment: { paymentMethod: '', termsAccepted: false },
       };
     },
-    []
+    [hasLocalDraftCampaign]
   );
 
   // Ensure API service has token
@@ -213,6 +279,9 @@ const LevelStep: React.FC = () => {
     let canceled = false;
 
     const fetchLastInitiatedCampaign = async () => {
+      // TODO: Not reviewed
+      if (hasLocalDraftCampaign()) return;
+
       apiService.setAccessToken(accessToken);
       const response = await apiService.getLastInitiatedCampaign();
       //   console.log('0- Fetched last initiated campaign response:', response);
@@ -234,6 +303,10 @@ const LevelStep: React.FC = () => {
       if (!normalized || !normalized.uuid) return;
       //   console.log('4- Normalized campaign data:', normalized);
 
+      // TODO: Not reviewed
+      // Avoid overriding if user created a draft while normalization/persist work is happening.
+      if (hasLocalDraftCampaign()) return;
+
       try {
         localStorage.setItem(
           'campaign_creation_data',
@@ -241,13 +314,15 @@ const LevelStep: React.FC = () => {
         );
         localStorage.setItem('campaign_creation_step', '1');
         saveLevelSelection({
-          campaignTitle: normalized.level.campaignTitle || '',
-          level1s: normalized.level.level1 ? [normalized.level.level1] : [],
-          level2s: normalized.level.level2s || [],
-          level3s: normalized.level.level3s || [],
+          campaignTitle: normalized.segment.campaignTitle || '',
+          level1s: normalized.segment.level1 ? [normalized.segment.level1] : [],
+          level2s: normalized.segment.level2s || [],
+          level3s: normalized.segment.level3s || [],
+          targetAudienceExcelFileUuid:
+            normalized.segment.targetAudienceExcelFileUuid ?? null,
           metadata: {},
-          tags: normalized.level.tags || [],
-          count: normalized.level.capacity || 0,
+          tags: normalized.segment.tags || [],
+          count: normalized.segment.capacity || 0,
           lastUpdated: new Date().toISOString(),
         });
       } catch (storageError) {
@@ -255,18 +330,23 @@ const LevelStep: React.FC = () => {
       }
 
       setCampaignUuid(normalized.uuid);
-      updateLevel(normalized.level);
+      updateLevel(normalized.segment);
       updateContent(normalized.content);
       updateBudget(normalized.budget);
 
-      setCampaignTitle(normalized.level.campaignTitle || '');
-      setPlatform(normalized.level.platform || 'sms');
-      setLevel1(normalized.level.level1 || '');
-      setLevel2s(normalized.level.level2s || []);
-      setLevel3s(normalized.level.level3s || []);
-      setCapacity(normalized.level.capacity || 0);
-      setJobCategory(normalized.level.jobCategory || '');
-      setJob(normalized.level.job || '');
+      setCampaignTitle(normalized.segment.campaignTitle || '');
+      setPlatform(normalized.segment.platform || 'sms');
+      setLevel1(normalized.segment.level1 || '');
+      setLevel2s(normalized.segment.level2s || []);
+      setLevel3s(normalized.segment.level3s || []);
+      setTargetAudienceExcelFileName(
+        normalized.segment.targetAudienceExcelFileUuid
+          ? t.segmentationByTargetAudienceExcelFileUploaded
+          : null
+      );
+      setCapacity(normalized.segment.capacity || 0);
+      setJobCategory(normalized.segment.jobCategory || '');
+      setJob(normalized.segment.job || '');
 
       lastInitiatedFetchedRef.current = true;
     };
@@ -287,7 +367,16 @@ const LevelStep: React.FC = () => {
       canceled = true;
       lastInitiatedInFlightRef.current = false;
     };
-  }, [accessToken, hasLocalDraftCampaign, normalizeLastInitiatedCampaign]);
+  }, [
+    accessToken,
+    hasLocalDraftCampaign,
+    normalizeLastInitiatedCampaign,
+    setCampaignUuid,
+    t.segmentationByTargetAudienceExcelFileUploaded,
+    updateBudget,
+    updateContent,
+    updateLevel,
+  ]);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -325,19 +414,26 @@ const LevelStep: React.FC = () => {
   // Loads from dedicated level selection storage, with fallback to campaignData
   useEffect(() => {
     if (!audienceSpec || initializedRef.current) return;
+    const hasLocalDraft = hasLocalDraftCampaign();
+    if (!hasLocalDraft) {
+      initializedRef.current = true;
+      return;
+    }
 
     // Try to load from dedicated level selection storage first
     const savedSelection = loadLevelSelection();
 
     if (savedSelection) {
       // Always restore campaignTitle if it exists
-      if (savedSelection.campaignTitle) {
+      if (!campaignTitle && savedSelection.campaignTitle) {
         setCampaignTitle(savedSelection.campaignTitle);
         updateLevel({ campaignTitle: savedSelection.campaignTitle });
       }
 
       // Restore level selections if they exist
       if (
+        !level1 &&
+        level3s.length === 0 &&
         savedSelection.level1s.length > 0 &&
         savedSelection.level3s.length > 0
       ) {
@@ -346,11 +442,117 @@ const LevelStep: React.FC = () => {
         setLevel3s(savedSelection.level3s);
         setCapacity(savedSelection.count);
       }
+
+      // Restore target audience excel mode/upload state.
+      if (
+        campaignData.segment.targetAudienceExcelFileUuid == null &&
+        savedSelection.targetAudienceExcelFileUuid != null
+      ) {
+        const excelFileUuid = savedSelection.targetAudienceExcelFileUuid;
+        setTargetAudienceExcelFileName(
+          excelFileUuid ? t.segmentationByTargetAudienceExcelFileUploaded : null
+        );
+        updateLevel({
+          targetAudienceExcelFileUuid: excelFileUuid,
+        });
+      }
     }
 
     // Mark as initialized
     initializedRef.current = true;
-  }, [audienceSpec, updateLevel]);
+  }, [
+    audienceSpec,
+    campaignData.segment.targetAudienceExcelFileUuid,
+    campaignTitle,
+    hasLocalDraftCampaign, // TODO: Not reviewed
+    level1,
+    level3s.length,
+    t.segmentationByTargetAudienceExcelFileUploaded,
+    updateLevel,
+  ]);
+
+  const ensureDefaultLevelSelection = useCallback(() => {
+    const hasLocalDraft = hasLocalDraftCampaign(); // TODO: Not reviewed
+    if (!hasLocalDraft) return;
+    if (
+      !isTargetAudienceExcelFileModeByValue(
+        campaignData.segment.targetAudienceExcelFileUuid
+      )
+    ) {
+      return;
+    }
+    if (!audienceSpec) return;
+
+    const level1Options = getLevel1Options(audienceSpec);
+    if (level1Options.length === 0) return;
+
+    const nextLevel1 = level1 || level1Options[0].value;
+    const level2Options = getLevel2Options(audienceSpec, nextLevel1);
+    const nextLevel2s =
+      level2s.length > 0
+        ? level2s
+        : level2Options.slice(0, 1).map(opt => opt.value);
+
+    const nextLevel3Set = new Set<string>(level3s);
+    if (nextLevel3Set.size === 0 && nextLevel2s.length > 0) {
+      const firstLevel3Options = getLevel3Options(
+        audienceSpec,
+        nextLevel1,
+        nextLevel2s[0]
+      );
+      if (firstLevel3Options.length > 0) {
+        nextLevel3Set.add(firstLevel3Options[0].value);
+      }
+    }
+    const nextLevel3s = Array.from(nextLevel3Set);
+
+    const hasChanged =
+      nextLevel1 !== level1 ||
+      nextLevel2s.length !== level2s.length ||
+      nextLevel2s.some((item, idx) => item !== level2s[idx]) ||
+      nextLevel3s.length !== level3s.length ||
+      nextLevel3s.some((item, idx) => item !== level3s[idx]);
+
+    if (!hasChanged) return;
+
+    setLevel1(nextLevel1);
+    setLevel2s(nextLevel2s);
+    setLevel3s(nextLevel3s);
+  }, [
+    audienceSpec,
+    campaignData.segment.targetAudienceExcelFileUuid,
+    hasLocalDraftCampaign, // TODO: Not reviewed
+    level1,
+    level2s,
+    level3s,
+  ]);
+
+  useEffect(() => {
+    if (!isTargetAudienceExcelFileMode) return;
+    ensureDefaultLevelSelection();
+  }, [ensureDefaultLevelSelection, isTargetAudienceExcelFileMode]);
+
+  useEffect(() => {
+    const targetAudienceExcelFileUuid =
+      campaignData.segment.targetAudienceExcelFileUuid;
+    if (targetAudienceExcelFileUuid == null) {
+      setTargetAudienceExcelFileName(null);
+      return;
+    }
+    if (!targetAudienceExcelFileUuid) {
+      setTargetAudienceExcelFileName(null);
+      return;
+    }
+    if (!targetAudienceExcelFileName) {
+      setTargetAudienceExcelFileName(
+        t.segmentationByTargetAudienceExcelFileUploaded
+      );
+    }
+  }, [
+    campaignData.segment.targetAudienceExcelFileUuid,
+    targetAudienceExcelFileName,
+    t.segmentationByTargetAudienceExcelFileUploaded,
+  ]);
 
   // Auto-select single level3s and calculate capacity/tags when level2s or level3s change
   // Stores to dedicated localStorage: level1s, level2s, level3s, metadata, tags, count
@@ -426,6 +628,8 @@ const LevelStep: React.FC = () => {
       level1s: [level1],
       level2s: level2s,
       level3s: l3Array,
+      targetAudienceExcelFileUuid:
+        campaignData.segment.targetAudienceExcelFileUuid ?? null,
       metadata: metadata,
       tags: Array.from(tags),
       count: totalCapacity,
@@ -442,6 +646,8 @@ const LevelStep: React.FC = () => {
       level1: level1, // Level 1 selection
       level2s: level2s, // Level 2 selections
       level3s: l3Array, // Level 3 selections
+      targetAudienceExcelFileUuid:
+        campaignData.segment.targetAudienceExcelFileUuid ?? null,
       tags: Array.from(tags), // Union of tags from selected level3s
       capacity: totalCapacity,
       capacityTooLow: capacityTooLow,
@@ -453,6 +659,7 @@ const LevelStep: React.FC = () => {
     level1,
     level2s,
     level3s,
+    campaignData.segment.targetAudienceExcelFileUuid,
     campaignTitle,
     jobCategory,
     job,
@@ -462,6 +669,48 @@ const LevelStep: React.FC = () => {
   const handleCampaignTitleChange = (value: string) => {
     setCampaignTitle(value);
     updateLevel({ campaignTitle: value });
+  };
+
+  const handleSegmentationModeChange = (
+    mode: 'target-audience-excel-file' | 'levels'
+  ) => {
+    if (mode === 'levels') {
+      setTargetAudienceExcelFileName(null);
+      updateLevel({ targetAudienceExcelFileUuid: null });
+      return;
+    }
+
+    updateLevel({
+      targetAudienceExcelFileUuid:
+        campaignData.segment.targetAudienceExcelFileUuid ?? '',
+    });
+    ensureDefaultLevelSelection();
+  };
+
+  const handleTargetAudienceExcelFileUpload = async (file: File) => {
+    if (!isTargetAudienceExcelFile(file)) {
+      showError(t.segmentationByTargetAudienceExcelFileInvalidType);
+      return;
+    }
+
+    if (campaignData.segment.targetAudienceExcelFileUuid == null) {
+      updateLevel({ targetAudienceExcelFileUuid: '' });
+    }
+    setTargetAudienceExcelFileName(file.name);
+    ensureDefaultLevelSelection();
+
+    const uuid = await uploadMedia(file);
+    if (!uuid) {
+      updateLevel({ targetAudienceExcelFileUuid: '' });
+      return;
+    }
+
+    updateLevel({ targetAudienceExcelFileUuid: uuid });
+  };
+
+  const handleTargetAudienceExcelFileClear = () => {
+    setTargetAudienceExcelFileName(null);
+    updateLevel({ targetAudienceExcelFileUuid: '' });
   };
 
   const handleLevel1Change = (value: string) => {
@@ -536,6 +785,7 @@ const LevelStep: React.FC = () => {
     setLevel2s([]);
     setLevel3s([]);
     setCapacity(0);
+    setTargetAudienceExcelFileName(null);
     clearLevelSelection();
     // Platform-specific settings selection from content step must be reset on platform switch.
     updateContent({ platformSettingsId: null });
@@ -544,6 +794,7 @@ const LevelStep: React.FC = () => {
       level1: '',
       level2s: [],
       level3s: [],
+      targetAudienceExcelFileUuid: null,
       tags: [],
       capacity: 0,
       capacityTooLow: false,
@@ -551,12 +802,20 @@ const LevelStep: React.FC = () => {
   };
 
   const handleReset = () => {
+    if (!hasLocalDraftCampaign()) return;
+
+    // TODO: Not reviewed
+    // Keep form empty after reset instead of re-hydrating from last initiated campaign.
+    lastInitiatedFetchedRef.current = true;
+    lastInitiatedInFlightRef.current = false;
+
     setCampaignTitle('');
     setPlatform('sms');
     setLevel1('');
     setLevel2s([]);
     setLevel3s([]);
     setCapacity(0);
+    setTargetAudienceExcelFileName(null);
     setJobCategory('');
     setJob('');
     setJobErrors({});
@@ -568,12 +827,16 @@ const LevelStep: React.FC = () => {
       level1: '',
       level2s: [],
       level3s: [],
+      targetAudienceExcelFileUuid: null,
       tags: [],
       capacity: 0,
       capacityTooLow: false,
       jobCategory: '',
       job: '',
     });
+
+    localStorage.removeItem('campaign_creation_data');
+    localStorage.removeItem('campaign_creation_step');
   };
 
   const level1Options = getLevel1Options(audienceSpec || null);
@@ -640,63 +903,121 @@ const LevelStep: React.FC = () => {
           </div>
         )}
 
-        {/* Level 1 Selection */}
         <div className='md:col-span-2'>
-          {specError ? (
-            <div className='text-sm text-red-600'>{specError}</div>
-          ) : loadingSpec ? (
-            <div className='text-sm text-gray-600'>{t.loading}</div>
-          ) : (
-            <LevelOneCard
-              label={t.level1Label || 'Level 1'}
-              labelDescription={t.level1Description || ''}
-              placeholder={t.level1Placeholder || 'Select Level 1'}
-              options={level1Options}
-              value={level1}
-              onChange={handleLevel1Change}
-            />
-          )}
-        </div>
-
-        {/* Level 2 and Level 3 Selection */}
-        {level1 && !specError && !loadingSpec && (
-          <div className='md:col-span-2'>
-            <LevelTwoCard
-              spec={audienceSpec || null}
-              level1={level1}
-              label={t.level2Label}
-              help={t.level2Help}
-              options={level2Options}
-              selectedLevel2s={level2s}
-              selectedLevel3s={level3s}
-              onToggleLevel2={handleLevel2Toggle}
-              onToggleLevel3={handleLevel3Toggle}
-              validationMessage={t.level2Validation}
-            />
-            <SegmentPriceFactorsCard
-              level3s={level3s}
-              segmentPriceFactors={segmentPriceFactors}
-              label={t.segmentPriceFactors}
-              notSetLabel={t.notSet}
-            />
+          <div className='bg-white shadow-sm border border-gray-200 rounded-lg p-4'>
+            <p className='text-sm font-medium text-gray-900 mb-3'>
+              {t.segmentationMode}
+            </p>
+            <div className='flex flex-col gap-3 md:flex-row md:items-center md:gap-6'>
+              <label className='inline-flex items-center gap-2 text-sm text-gray-700'>
+                <input
+                  type='radio'
+                  name='segmentationMode'
+                  checked={!isTargetAudienceExcelFileMode}
+                  onChange={() => handleSegmentationModeChange('levels')}
+                />
+                <span>{t.segmentationByLevels}</span>
+              </label>
+              <label className='inline-flex items-center gap-2 text-sm text-gray-700'>
+                <input
+                  type='radio'
+                  name='segmentationMode'
+                  checked={isTargetAudienceExcelFileMode}
+                  onChange={() =>
+                    handleSegmentationModeChange('target-audience-excel-file')
+                  }
+                />
+                <span>{t.segmentationByTargetAudienceExcelFile}</span>
+              </label>
+            </div>
           </div>
-        )}
-
-        {/* Capacity Display */}
-        <div className='md:col-span-2'>
-          <CapacityCard
-            title={t.campaignCapacity}
-            help={t.campaignCapacityHelp}
-            isLoading={false}
-            capacity={capacity}
-            fallbackCapacity={capacity}
-            unitsLabel={t.users}
-            calculatingLabel={t.calculating}
-            notSetLabel={t.notSet}
-            lowCapacityLabel={t.capacityTooLow}
-            error={null}
-          />
         </div>
+
+        {isTargetAudienceExcelFileMode ? (
+          <div className='md:col-span-2'>
+            <TargetAudienceExcelFileUploadCard
+              label={t.segmentationByTargetAudienceExcelFileTitle}
+              help={t.segmentationByTargetAudienceExcelFileHelp}
+              uploadingLabel={t.segmentationByTargetAudienceExcelFileUploading}
+              uploadedLabel={t.segmentationByTargetAudienceExcelFileUploaded}
+              removeLabel={t.segmentationByTargetAudienceExcelFileRemove}
+              fileName={targetAudienceExcelFileName}
+              isUploading={isUploading}
+              onUpload={handleTargetAudienceExcelFileUpload}
+              onClear={handleTargetAudienceExcelFileClear}
+            />
+            {!isUploading &&
+              (!campaignData.segment.targetAudienceExcelFileUuid ||
+                !campaignData.segment.targetAudienceExcelFileUuid.trim()) && (
+                <p className='text-sm text-red-600 mt-2'>
+                  {t.segmentationByTargetAudienceExcelFileRequired}
+                </p>
+              )}
+            {specError && (
+              <p className='text-sm text-red-600 mt-2'>{specError}</p>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Level 1 Selection */}
+            <div className='md:col-span-2'>
+              {specError ? (
+                <div className='text-sm text-red-600'>{specError}</div>
+              ) : loadingSpec ? (
+                <div className='text-sm text-gray-600'>{t.loading}</div>
+              ) : (
+                <LevelOneCard
+                  label={t.level1Label || 'Level 1'}
+                  labelDescription={t.level1Description || ''}
+                  placeholder={t.level1Placeholder || 'Select Level 1'}
+                  options={level1Options}
+                  value={level1}
+                  onChange={handleLevel1Change}
+                />
+              )}
+            </div>
+
+            {/* Level 2 and Level 3 Selection */}
+            {level1 && !specError && !loadingSpec && (
+              <div className='md:col-span-2'>
+                <LevelTwoCard
+                  spec={audienceSpec || null}
+                  level1={level1}
+                  label={t.level2Label}
+                  help={t.level2Help}
+                  options={level2Options}
+                  selectedLevel2s={level2s}
+                  selectedLevel3s={level3s}
+                  onToggleLevel2={handleLevel2Toggle}
+                  onToggleLevel3={handleLevel3Toggle}
+                  validationMessage={t.level2Validation}
+                />
+                <SegmentPriceFactorsCard
+                  level3s={level3s}
+                  segmentPriceFactors={segmentPriceFactors}
+                  label={t.segmentPriceFactors}
+                  notSetLabel={t.notSet}
+                />
+              </div>
+            )}
+
+            {/* Capacity Display */}
+            <div className='md:col-span-2'>
+              <CapacityCard
+                title={t.campaignCapacity}
+                help={t.campaignCapacityHelp}
+                isLoading={false}
+                capacity={capacity}
+                fallbackCapacity={capacity}
+                unitsLabel={t.users}
+                calculatingLabel={t.calculating}
+                notSetLabel={t.notSet}
+                lowCapacityLabel={t.capacityTooLow}
+                error={null}
+              />
+            </div>
+          </>
+        )}
 
         <div className='md:col-span-2 flex items-center'>
           <Button variant='outline' onClick={handleReset}>
