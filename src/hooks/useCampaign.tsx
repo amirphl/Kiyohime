@@ -7,7 +7,7 @@ import React, {
   useEffect,
 } from 'react';
 import {
-  CustomerLevel,
+  CampaignSegment,
   CampaignContent,
   CampaignBudget,
   CampaignPayment,
@@ -27,7 +27,7 @@ interface CampaignContextType {
   goToStep: (step: number) => void;
 
   // Data management
-  updateLevel: (data: Partial<CustomerLevel>) => void;
+  updateLevel: (data: Partial<CampaignSegment>) => void;
   updateContent: (data: Partial<CampaignContent>) => void;
   updateBudget: (data: Partial<CampaignBudget>) => void;
   updatePayment: (data: Partial<CampaignPayment>) => void;
@@ -68,6 +68,94 @@ interface CampaignProviderProps {
   children: ReactNode;
 }
 
+type StoredCampaignData = Partial<CampaignData> & {
+  level?: Partial<CampaignSegment>;
+};
+
+const createDefaultCampaignData = (): CampaignData => ({
+  uuid: '',
+  segment: {
+    campaignTitle: '',
+    level1: '',
+    level2s: [],
+    level3s: [],
+    targetAudienceExcelFileUuid: null,
+    platform: 'sms',
+    tags: [],
+    capacityTooLow: false,
+    capacity: undefined,
+    jobCategory: '',
+    job: '',
+  },
+  content: {
+    insertLink: false,
+    link: '',
+    text: '',
+    scheduleAt: undefined,
+    shortLinkDomain: 'jo1n.ir',
+    lineNumber: '',
+    platformSettingsId: null,
+    mediaUuid: null,
+  },
+  budget: {
+    totalBudget: 0,
+    estimatedMessages: undefined,
+  },
+  payment: {
+    paymentMethod: '',
+    termsAccepted: false,
+  },
+});
+
+const normalizeStoredCampaignData = (data: StoredCampaignData): CampaignData => {
+  const defaults = createDefaultCampaignData();
+  const storedSegment = data.segment ?? data.level ?? {};
+  const { mediaAttachment: _mediaAttachment, ...storedContent } =
+    (data.content ?? {}) as Partial<CampaignContent> & {
+      mediaAttachment?: unknown;
+    };
+
+  return {
+    uuid: typeof data.uuid === 'string' ? data.uuid : defaults.uuid,
+    segment: {
+      ...defaults.segment,
+      ...storedSegment,
+      level2s: Array.isArray(storedSegment.level2s)
+        ? storedSegment.level2s
+        : defaults.segment.level2s,
+      level3s: Array.isArray(storedSegment.level3s)
+        ? storedSegment.level3s
+        : defaults.segment.level3s,
+      tags: Array.isArray(storedSegment.tags)
+        ? storedSegment.tags
+        : defaults.segment.tags,
+      targetAudienceExcelFileUuid:
+        storedSegment.targetAudienceExcelFileUuid ?? null,
+      platform: storedSegment.platform || defaults.segment.platform,
+      jobCategory: storedSegment.jobCategory || defaults.segment.jobCategory,
+      job: storedSegment.job || defaults.segment.job,
+    },
+    content: {
+      ...defaults.content,
+      ...storedContent,
+      shortLinkDomain:
+        storedContent.shortLinkDomain || defaults.content.shortLinkDomain,
+      lineNumber: storedContent.lineNumber ?? defaults.content.lineNumber,
+      platformSettingsId:
+        storedContent.platformSettingsId ?? defaults.content.platformSettingsId,
+      mediaUuid: storedContent.mediaUuid ?? defaults.content.mediaUuid,
+    },
+    budget: {
+      ...defaults.budget,
+      ...(data.budget ?? {}),
+    },
+    payment: {
+      ...defaults.payment,
+      ...(data.payment ?? {}),
+    },
+  };
+};
+
 export const CampaignProvider: React.FC<CampaignProviderProps> = ({
   children,
 }) => {
@@ -82,70 +170,13 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
-        // Backfill shortLinkDomain and lineNumber for existing stored drafts
-        if (!parsedData.content) parsedData.content = {};
-        if (!parsedData.content.shortLinkDomain) {
-          parsedData.content.shortLinkDomain = 'jo1n.ir';
-        }
-        if (!('lineNumber' in parsedData.content))
-          parsedData.content.lineNumber = '';
-        if (parsedData.level) {
-          if (!('jobCategory' in parsedData.level))
-            parsedData.level.jobCategory = '';
-          if (!('job' in parsedData.level)) parsedData.level.job = '';
-          if (!('platform' in parsedData.level))
-            parsedData.level.platform = 'sms';
-        }
-        if (parsedData.content) {
-          if (!('platformSettingsId' in parsedData.content))
-            parsedData.content.platformSettingsId = null;
-          if (!('mediaUuid' in parsedData.content))
-            parsedData.content.mediaUuid = null;
-          if ('mediaAttachment' in parsedData.content)
-            delete parsedData.content.mediaAttachment;
-        }
-        return parsedData;
+        return normalizeStoredCampaignData(parsedData);
       } catch (error) {
         console.warn('Failed to parse saved campaign data:', error);
       }
     }
 
-    // Default campaign data
-    const defaultData = {
-      uuid: '',
-      level: {
-        campaignTitle: '',
-        level1: '',
-        level2s: [],
-        level3s: [],
-        platform: 'sms',
-        tags: [],
-        capacityTooLow: false,
-        capacity: undefined,
-        jobCategory: '',
-        job: '',
-      },
-      content: {
-        insertLink: false,
-        link: '',
-        text: '',
-        scheduleAt: undefined,
-        shortLinkDomain: 'jo1n.ir',
-        lineNumber: '',
-        platformSettingsId: null,
-        mediaUuid: null,
-      },
-      budget: {
-        totalBudget: 0,
-        estimatedMessages: undefined,
-      },
-      payment: {
-        paymentMethod: '',
-        termsAccepted: false,
-      },
-    };
-
-    return defaultData;
+    return createDefaultCampaignData();
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -183,12 +214,12 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
     }
   }, []);
 
-  const updateLevel = useCallback((data: Partial<CustomerLevel>) => {
+  const updateLevel = useCallback((data: Partial<CampaignSegment>) => {
     setCampaignData(prev => {
       const updatedData = {
         ...prev,
-        level: {
-          ...prev.level,
+        segment: {
+          ...prev.segment,
           ...data,
         },
       };
@@ -249,11 +280,12 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
     setCurrentStep(1);
     setCampaignData({
       uuid: '', // Reset UUID
-      level: {
+      segment: {
         campaignTitle: '',
         level1: '', // Level 1
         level2s: [], // Level 2s
         level3s: [], // Level 3s
+        targetAudienceExcelFileUuid: null,
         platform: 'sms',
         tags: [], // Union of tags from selected level3s
         capacityTooLow: false,
@@ -311,11 +343,12 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
     setCurrentStep(1);
     setCampaignData({
       uuid: '',
-      level: {
+      segment: {
         campaignTitle: '',
         level1: '', // Level 1
         level2s: [], // Level 2s
         level3s: [], // Level 3s
+        targetAudienceExcelFileUuid: null,
         platform: 'sms',
         tags: [], // Union of tags from selected level3s
         capacityTooLow: false,
@@ -369,11 +402,19 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
       typeof window !== 'undefined'
         ? localStorage.getItem('account_type') === 'marketing_agency'
         : false;
+    const targetAudienceExcelFileUuid =
+      campaignData.segment.targetAudienceExcelFileUuid;
+    const isTargetAudienceExcelFileMode = targetAudienceExcelFileUuid != null;
+    const excelFileUploaded =
+      typeof targetAudienceExcelFileUuid === 'string' &&
+      targetAudienceExcelFileUuid.trim().length > 0;
     if (
-      campaignData.level.campaignTitle &&
-      campaignData.level.level1 &&
-      campaignData.level.level3s.length > 0 &&
-      (!isAgency || (campaignData.level.jobCategory && campaignData.level.job))
+      campaignData.segment.campaignTitle &&
+      campaignData.segment.level1 &&
+      campaignData.segment.level3s.length > 0 &&
+      (!isTargetAudienceExcelFileMode || excelFileUploaded) &&
+      (!isAgency ||
+        (campaignData.segment.jobCategory && campaignData.segment.job))
     ) {
       completedSteps++;
     }
@@ -385,7 +426,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
       completedSteps++;
     }
     if (
-      (campaignData.level.platform === 'sms'
+      (campaignData.segment.platform === 'sms'
         ? campaignData.content.lineNumber
         : campaignData.content.platformSettingsId) &&
       campaignData.budget.totalBudget > 0

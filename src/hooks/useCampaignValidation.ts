@@ -13,20 +13,26 @@ export const useCampaignValidation = (
   const MAX_BUDGET = 160000000;
   // Precompute step validation booleans with memoization
   const step1Valid = useMemo(() => {
-    const { level } = campaignData;
+    const { segment } = campaignData;
+    const isTargetAudienceExcelFileMode =
+      segment.targetAudienceExcelFileUuid != null;
+    const excelFileUploaded =
+      typeof segment.targetAudienceExcelFileUuid === 'string' &&
+      segment.targetAudienceExcelFileUuid.trim().length > 0;
+    const hasValidLevelSelection =
+      !!segment.level1 && !!segment.level3s && segment.level3s.length > 0;
     return !!(
-      level.campaignTitle &&
-      level.platform &&
-      level.level1 &&
-      level.level3s &&
-      level.level3s.length > 0 &&
-      level.capacityTooLow !== true &&
-      (!isAgency || (level.jobCategory && level.job))
+      segment.campaignTitle &&
+      segment.platform &&
+      (!isTargetAudienceExcelFileMode || excelFileUploaded) &&
+      (isTargetAudienceExcelFileMode || hasValidLevelSelection) &&
+      (isTargetAudienceExcelFileMode || segment.capacityTooLow !== true) &&
+      (!isAgency || (segment.jobCategory && segment.job))
     );
   }, [campaignData, isAgency]);
 
   const step2Valid = useMemo(() => {
-    const { content, level } = campaignData;
+    const { content, segment: level } = campaignData;
     const contentValid = validateCampaignContent(
       content,
       level.platform
@@ -38,7 +44,7 @@ export const useCampaignValidation = (
   }, [campaignData]);
 
   const step3Valid = useMemo(() => {
-    const { budget, content, level } = campaignData;
+    const { budget, content, segment: level } = campaignData;
     return (
       (level.platform === 'sms'
         ? !!content.lineNumber
@@ -96,17 +102,39 @@ export const useCampaignValidation = (
     switch (step) {
       case 1:
         if (!step1Valid) {
-          errors.push(
-            'Please configure campaign title and select audience criteria'
-          );
-          if (!campaignData.level.platform) {
+          errors.push('Please configure campaign title and audience criteria');
+          if (!campaignData.segment.campaignTitle) {
+            errors.push('Please enter a campaign title');
+          }
+          if (!campaignData.segment.platform) {
             errors.push('Please select a platform');
           }
-          if (isAgency && !campaignData.level.jobCategory) {
+          if (
+            campaignData.segment.targetAudienceExcelFileUuid == null &&
+            (!campaignData.segment.level1 ||
+              !campaignData.segment.level3s ||
+              campaignData.segment.level3s.length === 0)
+          ) {
+            errors.push('Please select audience levels');
+          }
+          if (
+            campaignData.segment.targetAudienceExcelFileUuid == null &&
+            campaignData.segment.capacityTooLow === true
+          ) {
+            errors.push('Audience capacity is too low');
+          }
+          if (isAgency && !campaignData.segment.jobCategory) {
             errors.push('Please select a category');
           }
-          if (isAgency && !campaignData.level.job) {
+          if (isAgency && !campaignData.segment.job) {
             errors.push('Please select a job');
+          }
+          if (
+            campaignData.segment.targetAudienceExcelFileUuid != null &&
+            (!campaignData.segment.targetAudienceExcelFileUuid ||
+              !campaignData.segment.targetAudienceExcelFileUuid.trim())
+          ) {
+            errors.push('Please upload your Excel file');
           }
         }
         break;
@@ -115,12 +143,12 @@ export const useCampaignValidation = (
           const { content } = campaignData;
           const validation = validateCampaignContent(
             content,
-            campaignData.level.platform
+            campaignData.segment.platform
           );
           if (!validation.isValid && validation.error) {
             errors.push(validation.error);
           }
-          if (campaignData.level.platform === 'sms') {
+          if (campaignData.segment.platform === 'sms') {
             if (!campaignData.content.lineNumber) {
               errors.push('Please select a line number');
             }
@@ -131,7 +159,7 @@ export const useCampaignValidation = (
         break;
       case 3:
         if (!step3Valid) {
-          if (campaignData.level.platform === 'sms') {
+          if (campaignData.segment.platform === 'sms') {
             if (!campaignData.content.lineNumber) {
               errors.push('Please select a line number');
             }

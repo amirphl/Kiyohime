@@ -179,21 +179,31 @@ export const serializeCampaignPayload = (
     finalize?: boolean;
   }
 ) => {
-  const platform = campaignData.level.platform || 'sms';
+  const platform = campaignData.segment.platform || 'sms';
+  const targetAudienceExcelFileUuid =
+    campaignData.segment.targetAudienceExcelFileUuid;
+
+  const normalizedTargetAudienceExcelFileUuid =
+    typeof targetAudienceExcelFileUuid === 'string' &&
+    targetAudienceExcelFileUuid.trim()
+      ? targetAudienceExcelFileUuid.trim()
+      : null;
+
   const payload: UpdateSMSCampaignRequest = {
-    title: campaignData.level.campaignTitle || undefined,
-    level1: campaignData.level.level1 || undefined,
+    title: campaignData.segment.campaignTitle || undefined,
+    level1: campaignData.segment.level1 || undefined,
     level2s:
-      campaignData.level.level2s && campaignData.level.level2s.length > 0
-        ? campaignData.level.level2s
+      campaignData.segment.level2s && campaignData.segment.level2s.length > 0
+        ? campaignData.segment.level2s
         : undefined,
     level3s:
-      campaignData.level.level3s && campaignData.level.level3s.length > 0
-        ? campaignData.level.level3s
+      campaignData.segment.level3s && campaignData.segment.level3s.length > 0
+        ? campaignData.segment.level3s
         : undefined,
+    target_audience_excel_file_uuid: normalizedTargetAudienceExcelFileUuid,
     tags:
-      campaignData.level.tags && campaignData.level.tags.length > 0
-        ? campaignData.level.tags
+      campaignData.segment.tags && campaignData.segment.tags.length > 0
+        ? campaignData.segment.tags
         : undefined,
     line_number:
       platform === 'sms'
@@ -202,8 +212,8 @@ export const serializeCampaignPayload = (
           : null
         : null,
     short_link_domain: campaignData.content.shortLinkDomain || 'jo1n.ir',
-    job_category: campaignData.level.jobCategory || undefined,
-    job: campaignData.level.job || undefined,
+    job_category: campaignData.segment.jobCategory || undefined,
+    job: campaignData.segment.job || undefined,
     platform,
     platform_settings_id:
       platform === 'sms'

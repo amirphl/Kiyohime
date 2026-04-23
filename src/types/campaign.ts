@@ -1,10 +1,11 @@
 // Campaign Types and Interfaces
 
-export interface CustomerLevel {
+export interface CampaignSegment {
   campaignTitle: string;
   level1: string; // Level 1 selection (single)
   level2s: string[]; // Level 2 selections (multiple)
   level3s: string[]; // Level 3 selections (multiple)
+  targetAudienceExcelFileUuid?: string | null; // Excel segmentation upload UUID
   platform: CampaignPlatform;
   tags?: string[]; // Union of tags from selected level3s
   capacityTooLow?: boolean;
@@ -45,7 +46,7 @@ export interface CampaignPayment {
 
 export interface CampaignData {
   uuid: string;
-  level: CustomerLevel;
+  segment: CampaignSegment;
   content: CampaignContent;
   budget: CampaignBudget;
   payment: CampaignPayment;
@@ -60,6 +61,7 @@ export interface CreateCampaignPayload {
   level1?: string; // Level 1 selection (single)
   level2s?: string[]; // Level 2 selections (multiple)
   level3s?: string[]; // Level 3 selections (multiple)
+  target_audience_excel_file_uuid?: string | null;
   tags?: string[]; // Union of tags from selected level3s
   adlink?: string;
   content?: string;
@@ -101,6 +103,7 @@ export interface CalculateCampaignCapacityRequest {
   level1?: string; // Level 1 selection (single)
   level2s?: string[]; // Level 2 selections (multiple)
   level3s?: string[]; // Level 3 selections (multiple)
+  target_audience_excel_file_uuid?: string | null;
   tags?: string[]; // Union of tags from selected level3s
   adlink?: string;
   content?: string;
@@ -127,6 +130,7 @@ export interface CalculateCampaignCostRequest {
   level1?: string; // Level 1 selection (single)
   level2s?: string[]; // Level 2 selections (multiple)
   level3s?: string[]; // Level 3 selections (multiple)
+  target_audience_excel_file_uuid?: string | null;
   tags?: string[]; // Union of tags from selected level3s
   adlink?: string;
   content?: string;
@@ -146,6 +150,7 @@ export interface CalculateCampaignCostV2Request {
   level1?: string;
   level2s?: string[];
   level3s?: string[];
+  target_audience_excel_file_uuid?: string | null;
   tags?: string[];
   adlink?: string;
   content?: string;
@@ -188,6 +193,7 @@ export interface UpdateSMSCampaignRequest {
   level1?: string; // Level 1 selection (single)
   level2s?: string[]; // Level 2 selections (multiple)
   level3s?: string[]; // Level 3 selections (multiple)
+  target_audience_excel_file_uuid?: string | null;
   tags?: string[]; // Union of tags from selected level3s
   adlink?: string;
   content?: string;
@@ -267,6 +273,7 @@ export interface GetSMSCampaignResponse {
   level1?: string;
   level2s?: string[];
   level3s?: string[];
+  target_audience_excel_file_uuid?: string | null;
   tags?: string[];
   sex?: string;
   city?: string[];
