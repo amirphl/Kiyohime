@@ -14,7 +14,9 @@ import { budgetI18n } from './budgetTranslations';
 
 const BudgetStep: React.FC = () => {
   const { campaignData, updateBudget } = useCampaign();
-  const platform = campaignData.level.platform || 'sms';
+  const platform = campaignData.segment.platform || 'sms';
+  const isTargetAudienceExcelFileMode =
+    campaignData.segment.targetAudienceExcelFileUuid !== null;
   const { language } = useLanguage();
   const t = budgetI18n[language as keyof typeof budgetI18n] || budgetI18n.en;
   const { accessToken } = useAuth();
@@ -145,6 +147,7 @@ const BudgetStep: React.FC = () => {
             enterBudgetText={t.enterBudgetToSee}
             sentLabel={t.sentCountLabel}
             capacityLabel={t.capacityCountLabel}
+            showCapacity={!isTargetAudienceExcelFileMode}
           />
         </div>
 

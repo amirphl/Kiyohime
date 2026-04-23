@@ -27,12 +27,14 @@ export const useCostCalculation = (
   }, [accessToken]);
 
   const calculateCosts = useCallback(async () => {
-    const platform = campaignData.level.platform || 'sms';
-    const title = campaignData.level.campaignTitle;
-    const level1 = campaignData.level.level1;
-    const level2s = campaignData.level.level2s || [];
-    const level3s = campaignData.level.level3s || [];
-    const tags = campaignData.level.tags || [];
+    const platform = campaignData.segment.platform || 'sms';
+    const title = campaignData.segment.campaignTitle;
+    const level1 = campaignData.segment.level1;
+    const level2s = campaignData.segment.level2s || [];
+    const level3s = campaignData.segment.level3s || [];
+    const target_audience_excel_file_uuid =
+      campaignData.segment.targetAudienceExcelFileUuid || null;
+    const tags = campaignData.segment.tags || [];
     const adlink = campaignData.content.link;
     const content = campaignData.content.text;
     const scheduleat = campaignData.content.scheduleAt;
@@ -59,6 +61,7 @@ export const useCostCalculation = (
       level1,
       [...level2s].sort().join(','),
       [...level3s].sort().join(','),
+      target_audience_excel_file_uuid || '',
       [...tags].sort().join(','),
       adlink || '',
       content,

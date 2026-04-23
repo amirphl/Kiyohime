@@ -41,7 +41,7 @@ const ContentStep: React.FC = () => {
   const showErrorRef = useRef(showError);
   const { uploadMedia, isUploading } = useMediaUpload(accessToken);
   const { navigate } = useNavigation();
-  const platform = campaignData.level.platform || 'sms';
+  const platform = campaignData.segment.platform || 'sms';
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewName, setPreviewName] = useState<string | null>(null);
   const [previewType, setPreviewType] = useState<CampaignMediaType | null>(

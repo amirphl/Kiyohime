@@ -18,7 +18,7 @@ const PaymentStep: React.FC = () => {
   const { language } = useLanguage();
   const t = paymentI18n[language as keyof typeof paymentI18n] || paymentI18n.en;
   const currencyLabel = language === 'en' ? 'Toman' : 'تومان';
-  const platform = campaignData.level.platform || 'sms';
+  const platform = campaignData.segment.platform || 'sms';
 
   // Ensure API service has token
   useEffect(() => {
@@ -73,7 +73,7 @@ const PaymentStep: React.FC = () => {
   };
 
   const hasRequiredData = !!(
-    campaignData.level.level1 &&
+    campaignData.segment.level1 &&
     campaignData.content.text &&
     campaignData.budget.totalBudget &&
     (platform === 'sms'

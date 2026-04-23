@@ -55,13 +55,13 @@ export const useMessageCount = (campaignData: CampaignData) => {
           includeBudget: true,
         });
         payload.line_number =
-          campaignData.level.platform === 'sms'
+          campaignData.segment.platform === 'sms'
             ? lineNumber
               ? lineNumber
               : null
             : null;
         payload.platform_settings_id =
-          campaignData.level.platform === 'sms'
+          campaignData.segment.platform === 'sms'
             ? null
             : (campaignData.content.platformSettingsId ?? null);
         payload.budget = budget;
@@ -112,7 +112,7 @@ export const useMessageCount = (campaignData: CampaignData) => {
   // One-time initial calculate if both fields are pre-filled
   useEffect(() => {
     if (initialCalculatedRef.current) return;
-    const platform = campaignData.level.platform || 'sms';
+    const platform = campaignData.segment.platform || 'sms';
     const hasIdentifier =
       platform === 'sms'
         ? !!campaignData.content.lineNumber
@@ -125,7 +125,7 @@ export const useMessageCount = (campaignData: CampaignData) => {
       );
     }
   }, [
-    campaignData.level.platform,
+    campaignData.segment.platform,
     campaignData.content.lineNumber,
     campaignData.content.platformSettingsId,
     campaignData.budget.totalBudget,

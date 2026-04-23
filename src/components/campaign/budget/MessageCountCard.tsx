@@ -16,6 +16,7 @@ interface MessageCountCardProps {
   enterBudgetText: string;
   sentLabel: string;
   capacityLabel: string;
+  showCapacity?: boolean;
 }
 
 const MessageCountCard: React.FC<MessageCountCardProps> = ({
@@ -32,6 +33,7 @@ const MessageCountCard: React.FC<MessageCountCardProps> = ({
   enterBudgetText,
   sentLabel,
   capacityLabel,
+  showCapacity = true,
 }) => {
   const renderContent = () => {
     if (isLoading) {
@@ -52,14 +54,16 @@ const MessageCountCard: React.FC<MessageCountCardProps> = ({
               {messageCount.toLocaleString()}
             </span>
           </div>
-          <div className='flex items-center justify-between text-sm text-gray-700'>
-            <span>{capacityLabel}</span>
-            <span className='font-semibold text-indigo-600 text-lg'>
-              {typeof maxMessageCount === 'number'
-                ? maxMessageCount.toLocaleString()
-                : '-'}
-            </span>
-          </div>
+          {showCapacity && (
+            <div className='flex items-center justify-between text-sm text-gray-700'>
+              <span>{capacityLabel}</span>
+              <span className='font-semibold text-indigo-600 text-lg'>
+                {typeof maxMessageCount === 'number'
+                  ? maxMessageCount.toLocaleString()
+                  : '-'}
+              </span>
+            </div>
+          )}
         </div>
       );
     }
