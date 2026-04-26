@@ -189,6 +189,13 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Segment Price Factors',
     description: 'Admin segment price factor management',
   },
+  ADMIN_PLATFORM_SETTINGS: {
+    path: '/satrap/sardis/platform-settings',
+    page: 'admin-platform-settings',
+    requiresAuth: false,
+    title: 'Platform Settings',
+    description: 'Admin platform settings management',
+  },
 };
 
 export const getRouteByPath = (path: string): RouteConfig | null => {
