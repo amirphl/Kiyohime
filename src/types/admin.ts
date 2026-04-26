@@ -88,6 +88,9 @@ export interface AdminGetCampaignResponse {
   id: number;
   uuid: string;
   status: string;
+  platform?: string | null;
+  mediaUuid?: string | null;
+  platformSettingsId?: number | null;
   created_at: string;
   updated_at?: string | null;
   title?: string | null;
@@ -127,8 +130,18 @@ export interface AdminRejectCampaignResponse {
   message: string;
 }
 
+export interface AdminCancelCampaignRequest {
+  campaign_id: number;
+  comment: string;
+}
+
+export interface AdminCancelCampaignResponse {
+  message: string;
+}
+
 // Admin Segment Price Factors
 export interface AdminCreateSegmentPriceFactorRequest {
+  platform: AdminPlatformKey;
   level3: string;
   price_factor: number;
 }
@@ -138,6 +151,7 @@ export interface AdminCreateSegmentPriceFactorResponse {
 }
 
 export interface AdminSegmentPriceFactorItem {
+  platform: AdminPlatformKey;
   level3: string;
   price_factor: number;
   created_at: string;
@@ -294,4 +308,55 @@ export interface AdminSetCustomerActiveStatusRequest {
 export interface AdminSetCustomerActiveStatusResponse {
   message: string;
   is_active: boolean;
-} 
+}
+
+// Admin Platform Settings
+export type AdminPlatformKey = 'rubika' | 'bale' | 'splus' | 'sms' | string;
+export type AdminPlatformSettingsStatus =
+  | 'initialized'
+  | 'in-progress'
+  | 'active'
+  | 'inactive'
+  | string;
+
+export interface AdminPlatformSettingsItem {
+  id: number;
+  uuid: string;
+  customer_id: number;
+  platform: AdminPlatformKey;
+  name?: string | null;
+  description?: string | null;
+  multimedia_uuid?: string | null;
+  metadata?: Record<string, any> | null;
+  status: AdminPlatformSettingsStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminListPlatformSettingsResponse {
+  message: string;
+  items: AdminPlatformSettingsItem[];
+}
+
+export interface AdminChangePlatformSettingsStatusRequest {
+  id: number;
+  status: 'in-progress' | 'active' | 'inactive';
+}
+
+export interface AdminChangePlatformSettingsStatusResponse {
+  message: string;
+  id: number;
+  status: 'in-progress' | 'active' | 'inactive';
+}
+
+export interface AdminAddPlatformSettingsMetadataRequest {
+  id: number;
+  key: string;
+  value: string;
+}
+
+export interface AdminAddPlatformSettingsMetadataResponse {
+  message: string;
+  id: number;
+  metadata: Record<string, any>;
+}
