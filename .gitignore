@@ -163,3 +163,5 @@ cert/
 certs/
 
 data/
+
+*.mp4
