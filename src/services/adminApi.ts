@@ -19,6 +19,9 @@ import {
   AdminChangePlatformSettingsStatusResponse,
   AdminAddPlatformSettingsMetadataRequest,
   AdminAddPlatformSettingsMetadataResponse,
+  AdminChargeWalletByAdminRequest,
+  AdminChargeWalletByAdminResponse,
+  AdminListCustomersResponse,
 } from '../types/admin';
 
 // Separate storage keys to avoid clash with normal user tokens
@@ -403,6 +406,66 @@ class AdminApiService {
       return { success: true, message: data?.message || 'OK', data: (data?.data || {}) as import('../types/admin').AdminCustomersSharesResponse };
     } catch (e) {
       return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } };
+    }
+  }
+
+  async listCustomersByAdmin(): Promise<ApiResponse<AdminListCustomersResponse>> {
+    const url = getApiUrl('/admin/customer-management');
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return { success: false, message: data?.message || 'Failed to retrieve customers list', error: data?.error } as any;
+      }
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: (data?.data || { items: [], total: 0 }) as AdminListCustomersResponse,
+      };
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } } as any;
+    }
+  }
+
+  async chargeWalletByAdmin(payload: AdminChargeWalletByAdminRequest): Promise<ApiResponse<AdminChargeWalletByAdminResponse>> {
+    const url = getApiUrl('/admin/payments/charge-wallet');
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized', error: { code: 'UNAUTHORIZED', details: null } } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return { success: false, message: data?.message || 'Wallet charging by admin failed', error: data?.error } as any;
+      }
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: (data?.data || {}) as AdminChargeWalletByAdminResponse,
+      };
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } } as any;
     }
   }
 
