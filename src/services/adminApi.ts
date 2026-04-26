@@ -1,6 +1,25 @@
 import { ApiResponse } from './api';
 import { getApiUrl } from '../config/environment';
-import { AdminCaptchaInitResponse, AdminCaptchaVerifyRequest, AdminLoginResponse, AdminCreateLineNumberRequest, AdminLineNumberDTO, AdminUpdateLineNumbersRequest, AdminLineNumberReportItem, AdminListCampaignsFilter, AdminListCampaignsResponse, AdminApproveCampaignResponse, AdminRejectCampaignResponse } from '../types/admin';
+import {
+  AdminCaptchaInitResponse,
+  AdminCaptchaVerifyRequest,
+  AdminLoginResponse,
+  AdminCreateLineNumberRequest,
+  AdminLineNumberDTO,
+  AdminUpdateLineNumbersRequest,
+  AdminLineNumberReportItem,
+  AdminListCampaignsFilter,
+  AdminListCampaignsResponse,
+  AdminApproveCampaignResponse,
+  AdminCancelCampaignRequest,
+  AdminCancelCampaignResponse,
+  AdminRejectCampaignResponse,
+  AdminListPlatformSettingsResponse,
+  AdminChangePlatformSettingsStatusRequest,
+  AdminChangePlatformSettingsStatusResponse,
+  AdminAddPlatformSettingsMetadataRequest,
+  AdminAddPlatformSettingsMetadataResponse,
+} from '../types/admin';
 
 // Separate storage keys to avoid clash with normal user tokens
 const ADMIN_ACCESS_TOKEN_KEY = 'admin_access_token';
@@ -328,6 +347,37 @@ class AdminApiService {
     }
   }
 
+  async cancelCampaign(payload: AdminCancelCampaignRequest): Promise<ApiResponse<AdminCancelCampaignResponse>> {
+    const url = getApiUrl('/admin/campaigns/cancel');
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(this.getAccessToken() ? { Authorization: `Bearer ${this.getAccessToken()}` } : {}),
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          message: 'Unauthorized',
+          error: { code: 'UNAUTHORIZED', details: null },
+        } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return { success: false, message: data?.message || 'Cancel failed', error: data?.error };
+      }
+      return { success: true, message: data?.message || 'OK', data: data?.data as AdminCancelCampaignResponse };
+    } catch (e) {
+      return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } };
+    }
+  }
+
   async getCustomersShares(params: { start_date?: string; end_date?: string } = {}): Promise<ApiResponse<import('../types/admin').AdminCustomersSharesResponse>> {
     const qs = new URLSearchParams();
     if (params.start_date) qs.set('start_date', params.start_date);
@@ -538,8 +588,9 @@ class AdminApiService {
     }
   }
 
-  async listLevel3Options(): Promise<ApiResponse<import('../types/admin').AdminListLevel3OptionsResponse>> {
-    const url = getApiUrl('/admin/segment-price-factors/level3-options');
+  async listLevel3Options(platform?: string): Promise<ApiResponse<import('../types/admin').AdminListLevel3OptionsResponse>> {
+    const query = platform ? `?platform=${encodeURIComponent(platform)}` : '';
+    const url = getApiUrl(`/admin/segment-price-factors/level3-options${query}`);
     try {
       const resp = await fetch(url, {
         method: 'GET',
@@ -563,8 +614,9 @@ class AdminApiService {
     }
   }
 
-  async listSegmentPriceFactors(): Promise<ApiResponse<import('../types/admin').AdminListSegmentPriceFactorsResponse>> {
-    const url = getApiUrl('/admin/segment-price-factors');
+  async listSegmentPriceFactors(platform?: string): Promise<ApiResponse<import('../types/admin').AdminListSegmentPriceFactorsResponse>> {
+    const query = platform ? `?platform=${encodeURIComponent(platform)}` : '';
+    const url = getApiUrl(`/admin/segment-price-factors${query}`);
     try {
       const resp = await fetch(url, {
         method: 'GET',
@@ -612,6 +664,227 @@ class AdminApiService {
       return { success: true, message: data?.message || 'OK', data: (data?.data || {}) as import('../types/admin').AdminCreateSegmentPriceFactorResponse };
     } catch (e) {
       return { success: false, message: 'An error occurred', error: { code: 'NETWORK_ERROR', details: null } } as any;
+    }
+  }
+
+  async listPlatformSettingsByAdmin(): Promise<
+    ApiResponse<AdminListPlatformSettingsResponse>
+  > {
+    const url = getApiUrl('/admin/platform-settings');
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken()
+            ? { Authorization: `Bearer ${this.getAccessToken()}` }
+            : {}),
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          message: 'Unauthorized',
+          error: { code: 'UNAUTHORIZED', details: null },
+        } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return {
+          success: false,
+          message: data?.message || 'Failed to list platform settings',
+          error: data?.error,
+        } as any;
+      }
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: (data?.data || { items: [] }) as AdminListPlatformSettingsResponse,
+      };
+    } catch {
+      return {
+        success: false,
+        message: 'An error occurred',
+        error: { code: 'NETWORK_ERROR', details: null },
+      } as any;
+    }
+  }
+
+  async changePlatformSettingsStatusByAdmin(
+    payload: AdminChangePlatformSettingsStatusRequest
+  ): Promise<ApiResponse<AdminChangePlatformSettingsStatusResponse>> {
+    const url = getApiUrl('/admin/platform-settings/status');
+    try {
+      const resp = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(this.getAccessToken()
+            ? { Authorization: `Bearer ${this.getAccessToken()}` }
+            : {}),
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          message: 'Unauthorized',
+          error: { code: 'UNAUTHORIZED', details: null },
+        } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return {
+          success: false,
+          message: data?.message || 'Failed to change platform settings status',
+          error: data?.error,
+        } as any;
+      }
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: (data?.data || {}) as AdminChangePlatformSettingsStatusResponse,
+      };
+    } catch {
+      return {
+        success: false,
+        message: 'An error occurred',
+        error: { code: 'NETWORK_ERROR', details: null },
+      } as any;
+    }
+  }
+
+  async addPlatformSettingsMetadataByAdmin(
+    payload: AdminAddPlatformSettingsMetadataRequest
+  ): Promise<ApiResponse<AdminAddPlatformSettingsMetadataResponse>> {
+    const url = getApiUrl('/admin/platform-settings/metadata');
+    try {
+      const resp = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(this.getAccessToken()
+            ? { Authorization: `Bearer ${this.getAccessToken()}` }
+            : {}),
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          message: 'Unauthorized',
+          error: { code: 'UNAUTHORIZED', details: null },
+        } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return {
+          success: false,
+          message:
+            data?.message || 'Failed to update platform settings metadata',
+          error: data?.error,
+        } as any;
+      }
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data:
+          (data?.data || {}) as AdminAddPlatformSettingsMetadataResponse,
+      };
+    } catch {
+      return {
+        success: false,
+        message: 'An error occurred',
+        error: { code: 'NETWORK_ERROR', details: null },
+      } as any;
+    }
+  }
+
+  async downloadMultimediaByAdmin(
+    uuid: string
+  ): Promise<{ success: boolean; message: string; blob?: Blob; filename?: string }> {
+    const url = getApiUrl(`/admin/media/${encodeURIComponent(uuid)}`);
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          ...(this.getAccessToken()
+            ? { Authorization: `Bearer ${this.getAccessToken()}` }
+            : {}),
+        },
+        signal: AbortSignal.timeout(30000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized' };
+      }
+      if (!resp.ok) {
+        let message = 'Failed to download multimedia';
+        try {
+          const data = await resp.json();
+          message = data?.message || message;
+        } catch {
+          // ignore JSON parse errors for binary/non-JSON error payloads
+        }
+        return { success: false, message };
+      }
+      const blob = await resp.blob();
+      const cd = resp.headers.get('Content-Disposition') || '';
+      const filenameMatch = cd.match(/filename\*?=(?:UTF-8''|")?([^";]+)/i);
+      const filename = filenameMatch
+        ? decodeURIComponent(filenameMatch[1]).replace(/"/g, '')
+        : 'multimedia';
+      return { success: true, message: 'OK', blob, filename };
+    } catch {
+      return { success: false, message: 'An error occurred' };
+    }
+  }
+
+  async previewMultimediaByAdmin(
+    uuid: string
+  ): Promise<{ success: boolean; message: string; blob?: Blob; filename?: string }> {
+    const url = getApiUrl(`/admin/media/${encodeURIComponent(uuid)}/preview`);
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          ...(this.getAccessToken()
+            ? { Authorization: `Bearer ${this.getAccessToken()}` }
+            : {}),
+        },
+        signal: AbortSignal.timeout(30000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return { success: false, message: 'Unauthorized' };
+      }
+      if (!resp.ok) {
+        let message = 'Failed to generate preview';
+        try {
+          const data = await resp.json();
+          message = data?.message || message;
+        } catch {
+          // ignore JSON parse errors for binary/non-JSON error payloads
+        }
+        return { success: false, message };
+      }
+      const blob = await resp.blob();
+      const cd = resp.headers.get('Content-Disposition') || '';
+      const filenameMatch = cd.match(/filename\*?=(?:UTF-8''|")?([^";]+)/i);
+      const filename = filenameMatch
+        ? decodeURIComponent(filenameMatch[1]).replace(/"/g, '')
+        : 'preview';
+      return { success: true, message: 'OK', blob, filename };
+    } catch {
+      return { success: false, message: 'An error occurred' };
     }
   }
 
