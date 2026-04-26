@@ -13,6 +13,7 @@ export interface EnvironmentConfig {
   features: {
     smsMarketing: boolean;
     analytics: boolean;
+    autoSelectMissingPlatformSettings: boolean;
   };
 
   // API endpoints (same for all configurations)
@@ -83,6 +84,9 @@ const localConfig: EnvironmentConfig = {
   features: {
     smsMarketing: true,
     analytics: true,
+    autoSelectMissingPlatformSettings:
+      process.env.REACT_APP_ENABLE_AUTO_SELECT_MISSING_PLATFORM_SETTINGS !==
+      'false',
   },
 
   endpoints: {
