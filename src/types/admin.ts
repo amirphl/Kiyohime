@@ -299,6 +299,29 @@ export interface AdminCustomerDiscountHistoryResponse {
   items: AdminCustomerDiscountHistoryItem[];
 }
 
+// Admin Payments
+export interface AdminChargeWalletByAdminRequest {
+  customer_id: number;
+  amount_with_tax: number;
+}
+
+export interface AdminChargeWalletByAdminResponse {
+  message: string;
+  success: boolean;
+  payment_request_id: number;
+  invoice_number: string;
+  reference_number: string;
+  customer_id: number;
+  admin_id: number;
+  amount_with_tax: number;
+}
+
+export interface AdminListCustomersResponse {
+  message: string;
+  items: AdminCustomerDetailDTO[];
+  total: number;
+}
+
 // Admin Set Customer Active Status
 export interface AdminSetCustomerActiveStatusRequest {
   customer_id: number;
