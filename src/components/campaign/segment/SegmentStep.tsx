@@ -30,9 +30,10 @@ const LevelStep: React.FC = () => {
     const t =
         campaignLevelI18n[language as keyof typeof campaignLevelI18n] ||
         campaignLevelI18n.en;
-    const { campaignData, updateLevel } = useCampaign();
+    const { campaignData, updateLevel, updateContent } = useCampaign();
     const { accessToken, user } = useAuth();
     const { showError } = useToast();
+    const showErrorRef = useRef(showError);
     const categories = (jobCategoryI18n[language as JobCategoryLocale] || jobCategoryI18n.en) as Record<string, readonly string[]>;
     const isAgency = user?.account_type === 'marketing_agency';
 
@@ -50,8 +51,6 @@ const LevelStep: React.FC = () => {
 
     // Track if initialization has already happened
     const initializedRef = useRef(false);
-    const priceFactorFetchedRef = useRef(false);
-
     // Fetch audience spec on mount
     const { spec: audienceSpec, loading: loadingSpec, error: specError } = useAudienceSpec(platform);
 
@@ -63,13 +62,20 @@ const LevelStep: React.FC = () => {
     }, [accessToken]);
 
     useEffect(() => {
-        if (!accessToken || priceFactorFetchedRef.current) return;
-        priceFactorFetchedRef.current = true;
+        showErrorRef.current = showError;
+    }, [showError]);
+
+    useEffect(() => {
+        if (!accessToken) return;
+        let canceled = false;
+        setSegmentPriceFactors({});
 
         const fetchPriceFactors = async () => {
             const response = await apiService.listLatestSegmentPriceFactors(platform);
+            if (canceled) return;
+
             if (!response.success || !response.data) {
-                showError(response.message || 'Failed to load segment price factors');
+                showErrorRef.current(response.message || 'Failed to load segment price factors');
                 return;
             }
             const items = response.data.items || [];
@@ -83,7 +89,11 @@ const LevelStep: React.FC = () => {
         };
 
         fetchPriceFactors();
-    }, [accessToken, platform, showError]);
+
+        return () => {
+            canceled = true;
+        };
+    }, [accessToken, platform]);
 
     // Initialize from localStorage when spec is loaded (only once)
     // Loads from dedicated level selection storage, with fallback to campaignData
@@ -273,6 +283,8 @@ const LevelStep: React.FC = () => {
         setLevel3s([]);
         setCapacity(0);
         clearLevelSelection();
+        // Platform-specific settings selection from content step must be reset on platform switch.
+        updateContent({ platformSettingsId: null });
         updateLevel({
             platform: value,
             level1: '',
