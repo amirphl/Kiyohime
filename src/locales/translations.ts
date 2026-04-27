@@ -32,6 +32,10 @@ export const translations = {
           title: 'Platform Settings',
           description: 'Review and manage platform settings statuses',
         },
+        payments: {
+          title: 'Payments',
+          description: 'Directly charge customer wallets',
+        },
         support: {
           title: 'Tickets & Support',
           description: 'Manage and reply to customer tickets',
@@ -717,6 +721,10 @@ export const translations = {
         platformSettings: {
           title: 'تنظیمات کانال‌ها',
           description: 'مشاهده و مدیریت تنظیمات کانال‌ها',
+        },
+        payments: {
+          title: 'پرداخت',
+          description: 'شارژ مستقیم کیف پول مشتریان',
         },
         support: {
           title: 'پشتیبانی',
