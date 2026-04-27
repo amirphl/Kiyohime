@@ -196,6 +196,13 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Platform Settings',
     description: 'Admin platform settings management',
   },
+  ADMIN_PAYMENTS: {
+    path: '/satrap/sardis/payments',
+    page: 'admin-payments',
+    requiresAuth: false,
+    title: 'Admin Payments',
+    description: 'Direct wallet charging by admin',
+  },
 };
 
 export const getRouteByPath = (path: string): RouteConfig | null => {
