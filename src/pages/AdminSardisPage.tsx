@@ -41,10 +41,10 @@ const AdminSardisPage: React.FC = () => {
           <div className="font-medium">{t.adminSardis?.cards?.support?.title || 'Tickets & Support'}</div>
           <div className="text-xs text-gray-500 mt-1">{t.adminSardis?.cards?.support?.description || 'Manage and reply to customer tickets'}</div>
         </button>
-        <div className="border rounded px-4 py-3 text-left opacity-60 cursor-not-allowed">
-          <div className="font-medium">Finance</div>
-          <div className="text-xs text-gray-500 mt-1">{t.common?.comingSoon || 'Coming soon'}</div>
-        </div>
+        <button className="border rounded px-4 py-3 text-left hover:bg-gray-50" onClick={() => go('/satrap/sardis/payments')}>
+          <div className="font-medium">{t.adminSardis?.cards?.payments?.title || 'Payments'}</div>
+          <div className="text-xs text-gray-500 mt-1">{t.adminSardis?.cards?.payments?.description || 'Directly charge customer wallets'}</div>
+        </button>
         <button className="border rounded px-4 py-3 text-left hover:bg-gray-50" onClick={() => go('/satrap/sardis/short-links')}>
           <div className="font-medium">{t.adminSardis?.cards?.shortLinks?.title || 'Short Link Management'}</div>
           <div className="text-xs text-gray-500 mt-1">{t.adminSardis?.cards?.shortLinks?.description || 'Upload CSV to create short links'}</div>
