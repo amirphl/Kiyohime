@@ -28,6 +28,10 @@ export const translations = {
           title: 'Short Link Management',
           description: 'Upload CSV to create short links',
         },
+        platformSettings: {
+          title: 'Platform Settings',
+          description: 'Review and manage platform settings statuses',
+        },
         support: {
           title: 'Tickets & Support',
           description: 'Manage and reply to customer tickets',
@@ -709,6 +713,10 @@ export const translations = {
         shortLinks: {
           title: 'مدیریت لینک کوتاه',
           description: 'آپلود CSV برای ساخت لینک‌های کوتاه',
+        },
+        platformSettings: {
+          title: 'تنظیمات کانال‌ها',
+          description: 'مشاهده و مدیریت تنظیمات کانال‌ها',
         },
         support: {
           title: 'پشتیبانی',
