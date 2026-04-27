@@ -27,6 +27,7 @@ import AdminShortLinkManagementPage from '../pages/AdminShortLinkManagementPage'
 import AdminSegmentPriceFactorsPage from '../pages/AdminSegmentPriceFactorsPage';
 import LandingPage from '../pages/LandingPage';
 import AdminPlatformSettingsPage from '../pages/AdminPlatformSettingsPage';
+import AdminPaymentsPage from '../pages/AdminPaymentsPage';
 
 type PageType =
   | 'home'
@@ -53,7 +54,8 @@ type PageType =
   | 'admin-tickets'
   | 'admin-short-links'
   | 'admin-segment-price-factors'
-  | 'admin-platform-settings';
+  | 'admin-platform-settings'
+  | 'admin-payments';
 
 const AuthRouter: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PageType>(() => {
@@ -296,6 +298,8 @@ const AuthRouter: React.FC = () => {
       return <AdminSegmentPriceFactorsPage />;
     case 'admin-platform-settings':
       return <AdminPlatformSettingsPage />;
+    case 'admin-payments':
+      return <AdminPaymentsPage />;
 
     default:
       return <HomePage />;
