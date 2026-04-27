@@ -82,8 +82,9 @@ export const usePlatformSettingsList = (accessToken: string | null, platform: Pl
   const filteredItems = useMemo(() => {
     const normalizedPlatform = platform.trim().toLowerCase();
     return items.filter(item => {
-      console.log('Checking item platform:', item.platform, 'against', normalizedPlatform);
-      return item.platform?.trim().toLowerCase() === normalizedPlatform;
+      const normalizedItemPlatform = item.platform?.trim().toLowerCase();
+      const normalizedStatus = item.status?.trim().toLowerCase();
+      return normalizedItemPlatform === normalizedPlatform && normalizedStatus === 'active';
     });
   }, [items, platform]);
 
