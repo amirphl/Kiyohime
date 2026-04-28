@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
 import Card from '../../ui/Card';
+import Button from '../../ui/Button';
 import FormField from '../../ui/FormField';
 import { CampaignMediaType } from '../../../types/campaign';
 
@@ -12,6 +13,13 @@ interface MessageMediaCardProps {
   mediaHelp: string;
   removeLabel: string;
   text: string;
+  insertLink: boolean;
+  textAreaRef: React.RefObject<HTMLTextAreaElement>;
+  linkCharacterInserted: boolean;
+  onInsertLinkCharacter: () => void;
+  insertLinkCharacterLabel: string;
+  linkCharacterInsertedLabel: string;
+  linkCharacterInsertedMessage: string;
   previewUrl?: string | null;
   previewName?: string | null;
   previewType?: CampaignMediaType | null;
@@ -46,6 +54,13 @@ const MessageMediaCard: React.FC<MessageMediaCardProps> = ({
   mediaHelp,
   removeLabel,
   text,
+  insertLink,
+  textAreaRef,
+  linkCharacterInserted,
+  onInsertLinkCharacter,
+  insertLinkCharacterLabel,
+  linkCharacterInsertedLabel,
+  linkCharacterInsertedMessage,
   previewUrl,
   previewName,
   previewType,
@@ -59,14 +74,21 @@ const MessageMediaCard: React.FC<MessageMediaCardProps> = ({
   isUploading,
   onMediaError,
 }) => {
+  const linkDisplay = 'jo1n.ir/xxxxxx';
+  const toDisplay = (text || '').replace(/🔗/g, linkDisplay);
   const remaining = Math.max(0, maxCharacters - (text?.length || 0));
   const remainingLabel = useMemo(
     () => maxCharactersLabel.replace('{count}', String(remaining)),
     [maxCharactersLabel, remaining]
   );
+  const hasLinkMarker = (text || '').includes('🔗');
 
   const handleTextChange = (value: string) => {
-    const nextValue = value.length > maxCharacters ? value.slice(0, maxCharacters) : value;
+    const normalized = value.replace(new RegExp(linkDisplay, 'g'), '🔗');
+    const nextValue =
+      normalized.length > maxCharacters
+        ? normalized.slice(0, maxCharacters)
+        : normalized;
     onTextChange(nextValue);
   };
 
@@ -104,11 +126,34 @@ const MessageMediaCard: React.FC<MessageMediaCardProps> = ({
           label={label}
           type='textarea'
           placeholder={placeholder}
-          value={text}
+          value={toDisplay}
           onChange={handleTextChange}
           required
           rows={8}
+          ref={textAreaRef}
         />
+        {insertLink && !hasLinkMarker && (
+          <p className='text-sm text-red-600'>{linkCharacterInsertedMessage}</p>
+        )}
+        {insertLink && (
+          <div className='mt-2'>
+            <Button
+              variant='outline'
+              onClick={onInsertLinkCharacter}
+              size='sm'
+              disabled={linkCharacterInserted || !text}
+            >
+              {linkCharacterInserted
+                ? linkCharacterInsertedLabel
+                : insertLinkCharacterLabel}
+            </Button>
+            {linkCharacterInserted && (
+              <p className='text-sm text-green-600 mt-2'>
+                {linkCharacterInsertedMessage}
+              </p>
+            )}
+          </div>
+        )}
         <p className='text-sm text-gray-500'>{remainingLabel}</p>
 
         <div className='space-y-2'>
