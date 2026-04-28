@@ -10,6 +10,13 @@ interface RubikaMessageCardProps {
   mediaHelp: string;
   removeLabel: string;
   text: string;
+  insertLink: boolean;
+  textAreaRef: React.RefObject<HTMLTextAreaElement>;
+  linkCharacterInserted: boolean;
+  onInsertLinkCharacter: () => void;
+  insertLinkCharacterLabel: string;
+  linkCharacterInsertedLabel: string;
+  linkCharacterInsertedMessage: string;
   previewUrl?: string | null;
   previewName?: string | null;
   previewType?: CampaignMediaType | null;
