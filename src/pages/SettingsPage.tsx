@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
@@ -9,6 +9,8 @@ import PlatformSettingsTable from './settings/components/PlatformSettingsTable';
 import PlatformSettingsForm from './settings/components/PlatformSettingsForm';
 import PlatformSettingsModal from './settings/components/PlatformSettingsModal';
 import { settingsTranslations } from './settings/translations';
+import { config } from '../config/environment';
+import { consumeSettingsPlatformIntent } from '../utils/platformSettingsNavigation';
 
 const SettingsPage: React.FC = () => {
   const { language } = useLanguage();
@@ -44,6 +46,13 @@ const SettingsPage: React.FC = () => {
   const filteredItems = state.items.filter(
     item => item.platform === state.selectedPlatform
   );
+
+  useEffect(() => {
+    if (!config.features.autoSelectMissingPlatformSettings) return;
+    const platformIntent = consumeSettingsPlatformIntent();
+    if (!platformIntent || platformIntent === state.selectedPlatform) return;
+    setPlatform(platformIntent);
+  }, [setPlatform, state.selectedPlatform]);
 
   return (
     <div className='p-8'>
