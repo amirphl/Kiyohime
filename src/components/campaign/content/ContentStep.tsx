@@ -27,6 +27,8 @@ import { useLineNumbers } from './useLineNumbers';
 import { useMediaUpload } from '../../../hooks/useMediaUpload';
 import { usePlatformSettingsList } from '../../../hooks/usePlatformSettingsList';
 import { useNavigation } from '../../../contexts/NavigationContext';
+import { config } from '../../../config/environment';
+import { storeSettingsPlatformIntent } from '../../../utils/platformSettingsNavigation';
 
 const ContentStep: React.FC = () => {
   const { campaignData, updateContent } = useCampaign();
@@ -259,10 +261,17 @@ const ContentStep: React.FC = () => {
       mediaHelp: t.mediaHelp,
       removeLabel: t.removeMedia,
       text: campaignData.content.text,
+      insertLink: campaignData.content.insertLink,
+      textAreaRef,
+      linkCharacterInserted,
       previewUrl,
       previewName,
       previewType,
       onTextChange: handleTextChange,
+      onInsertLinkCharacter: handleInsertLinkCharacter,
+      insertLinkCharacterLabel: t.insertLinkCharacter,
+      linkCharacterInsertedLabel: t.linkCharacterInserted,
+      linkCharacterInsertedMessage: t.linkCharacterInsertedMessage,
       onMediaChange: handleMediaChange,
       onMediaClear: handleMediaClear,
       onMediaDownload: campaignData.content.mediaUuid
@@ -401,7 +410,12 @@ const ContentStep: React.FC = () => {
                   label={t.createPlatformInSettings}
                   actionRequiredLabel={t.platformSettingsActionRequired}
                   goToSettingsLabel={t.platformSettingsGoToSettings}
-                  onClick={() => navigate('/dashboard/settings')}
+                  onClick={() => {
+                    if (config.features.autoSelectMissingPlatformSettings) {
+                      storeSettingsPlatformIntent(platform);
+                    }
+                    navigate('/dashboard/settings');
+                  }}
                 />
               ) : (
                 <PlatformSettingsCard
