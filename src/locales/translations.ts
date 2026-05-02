@@ -434,6 +434,44 @@ export const translations = {
         running: 'Running',
         total: 'Total',
       },
+      pricingCalculation: {
+        openButton: 'Open Pricing Table',
+        modalTitle: 'Pricing Calculation Table',
+        modalSubtitle:
+          'Adjust factors and prices to estimate total cost per platform.',
+        close: 'Close',
+        loading: 'Loading pricing data...',
+        loadFailed: 'Failed to load pricing data',
+        errors: {
+          basePriceListFailed: 'Failed to list platform base prices',
+          pagePriceListFailed: 'Failed to get page prices',
+          unauthorized: 'Unauthorized - Please log in again',
+          network: 'Network error, please try again',
+          generic: 'Failed to load pricing data',
+        },
+        platformLabels: {
+          sms: 'SMS',
+          rubika: 'Rubika',
+          bale: 'Bale',
+          splus: 'Soroush Plus',
+        },
+        columns: {
+          platform: 'Platform',
+          segmentPriceFactor: 'Segment Price Factor',
+          numPages: 'Number of Pages',
+          platformBasePrice: 'Platform Base Price',
+          lineNumberPriceFactor: 'Line Number Price Factor',
+          pagePrice: 'Page Price',
+          totalCost: 'Total Cost',
+        },
+        formula: {
+          title: 'Calculation Formula',
+          sms: 'SMS: Total Cost = (Line Number Price Factor × Number of Pages × Platform Base Price) + (Segment Price Factor × Page Price)',
+          others:
+            'Other platforms: Total Cost = Platform Base Price + (Segment Price Factor × Page Price)',
+          note: 'For non-SMS platforms, page count and line number multiplier are fixed at 1 in this calculation.',
+        },
+      },
     },
 
     // Campaign Creation
@@ -1130,6 +1168,43 @@ export const translations = {
         approved: 'تأیید شده',
         running: 'در حال اجرا',
         total: 'در انتظار ارسال',
+      },
+      pricingCalculation: {
+        openButton: 'تعرفه ارسال ',
+        modalTitle: 'جدول محاسبه قیمت',
+        modalSubtitle: 'برای برآورد هزینه نهایی هر کانال مقادیر را تنظیم کنید.',
+        close: 'بستن',
+        loading: 'در حال دریافت اطلاعات قیمت...',
+        loadFailed: 'دریافت اطلاعات قیمت ناموفق بود',
+        errors: {
+          basePriceListFailed: 'دریافت قیمت‌های پایه کانال‌ها ناموفق بود',
+          pagePriceListFailed: 'دریافت قیمت جاذبه ناموفق بود',
+          unauthorized: 'دسترسی غیرمجاز است. لطفاً دوباره وارد شوید',
+          network: 'خطای شبکه رخ داد. لطفاً دوباره تلاش کنید',
+          generic: 'دریافت اطلاعات قیمت ناموفق بود',
+        },
+        platformLabels: {
+          sms: 'SMS',
+          rubika: 'روبیکا',
+          bale: 'بله',
+          splus: 'سروش پلاس',
+        },
+        columns: {
+          platform: 'کانال',
+          segmentPriceFactor: 'ضریب قیمت سگمنت',
+          numPages: 'تعداد پارت‌های پیام',
+          platformBasePrice: 'قیمت پایه کانال',
+          lineNumberPriceFactor: 'ضریب شماره خط',
+          pagePrice: 'قیمت جاذبه',
+          totalCost: 'هزینه نهایی',
+        },
+        formula: {
+          title: 'فرمول محاسبه',
+          sms: 'SMS: هزینه نهایی = (ضریب شماره خط × تعداد پارت‌های پیام × قیمت پایه کانال) + (ضریب قیمت سگمنت × قیمت جاذبه)',
+          others:
+            'سایر کانال: هزینه نهایی = قیمت پایه کانال + (ضریب قیمت سگمنت × قیمت جاذبه)',
+          note: 'در کانال غیر از SMS، ضریب تعداد پارت‌های پیام و ضریب شماره خط در محاسبه برابر ۱ در نظر گرفته می‌شوند.',
+        },
       },
     },
 
