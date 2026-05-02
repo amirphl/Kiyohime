@@ -47,6 +47,12 @@ const CampaignDetailsModal: React.FC<CampaignDetailsModalProps> = ({
           <InfoItem label={fields.id} value={campaign.id} />
           <InfoItem label={fields.uuid} value={campaign.uuid} />
           <InfoItem label={fields.status} value={campaign.status} />
+          <InfoItem label={fields.platform} value={campaign.platform || '-'} />
+          <InfoItem
+            label={fields.platformSettingsId}
+            value={typeof campaign.platformSettingsId === 'number' ? campaign.platformSettingsId : '-'}
+          />
+          <InfoItem label={fields.mediaUuid} value={campaign.mediaUuid || '-'} />
           <InfoItem label={fields.created} value={formatDateTime(campaign.created_at)} />
           <InfoItem label={fields.updated} value={formatDateTime(campaign.updated_at)} />
           <InfoItem label={fields.title} value={campaign.title || '-'} />
