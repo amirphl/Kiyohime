@@ -89,6 +89,9 @@ export interface AdminCustomerManagementCopy {
     id: string;
     uuid: string;
     status: string;
+    platform: string;
+    platformSettingsId: string;
+    mediaUuid: string;
     created: string;
     updated: string;
     title: string;
@@ -219,6 +222,9 @@ const adminCustomerManagementEn: AdminCustomerManagementCopy = {
     id: 'ID',
     uuid: 'UUID',
     status: 'Status',
+    platform: 'Platform',
+    platformSettingsId: 'Platform Settings ID',
+    mediaUuid: 'Media UUID',
     created: 'Created',
     updated: 'Updated',
     title: 'Title',
@@ -349,6 +355,9 @@ const adminCustomerManagementFa: AdminCustomerManagementCopy = {
     id: 'شناسه',
     uuid: 'شناسه یکتا',
     status: 'وضعیت',
+    platform: 'کانال',
+    platformSettingsId: 'شناسه تنظیمات کانال',
+    mediaUuid: 'شناسه رسانه',
     created: 'تاریخ ایجاد',
     updated: 'تاریخ به‌روزرسانی',
     title: 'عنوان',
