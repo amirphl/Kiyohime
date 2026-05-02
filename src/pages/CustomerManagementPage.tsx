@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
@@ -29,14 +29,18 @@ const CustomerManagementPage: React.FC = () => {
     [language]
   );
   const { showError, showSuccess } = useToast();
-  const calcT = calculatorTranslations[language as keyof typeof calculatorTranslations] || calculatorTranslations.en;
+  const calcT =
+    calculatorTranslations[language as keyof typeof calculatorTranslations] ||
+    calculatorTranslations.en;
 
   const [startDate, setStartDate] = useState<string | undefined>(undefined);
   const [endDate, setEndDate] = useState<string | undefined>(undefined);
   const [nameFilter, setNameFilter] = useState<string>('');
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
   const [isGlobalCreate, setIsGlobalCreate] = useState<boolean>(false);
-  const [createForCustomerId, setCreateForCustomerId] = useState<number | null>(null);
+  const [createForCustomerId, setCreateForCustomerId] = useState<number | null>(
+    null
+  );
   const [createCustomerInfo, setCreateCustomerInfo] = useState<{
     representative_first_name: string;
     representative_last_name: string;
@@ -49,7 +53,6 @@ const CustomerManagementPage: React.FC = () => {
   const [globalCustomerId, setGlobalCustomerId] = useState<number | ''>('');
   const [showCalcModal, setShowCalcModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false);
-  const historyCustomerIdRef = useRef<number | null>(null);
 
   const {
     items,
@@ -67,7 +70,10 @@ const CustomerManagementPage: React.FC = () => {
     fetchDiscounts,
   } = useAgencyDiscounts(accessToken, showError);
 
-  const { customers, fetchCustomers } = useAgencyCustomers(accessToken, showError);
+  const { customers, fetchCustomers } = useAgencyCustomers(
+    accessToken,
+    showError
+  );
 
   const {
     items: historyItems,
@@ -77,35 +83,29 @@ const CustomerManagementPage: React.FC = () => {
     reset: resetHistory,
   } = useDiscountHistory(accessToken, showError);
 
-  const fetchTriggerRef = useRef(0);
-  const [fetchTrigger, setFetchTrigger] = useState(0);
-
-  useEffect(() => {
+  const loadReport = useCallback(() => {
     if (!accessToken) return;
-    if (fetchTrigger === 0) {
-      // Kick off initial fetch once when token is available
-      setFetchTrigger(1);
-      return;
-    }
     fetchReport(
       { startDate, endDate, name: nameFilter },
       agencyCopy.invalidRange
     );
-    fetchDiscounts();
   }, [
     accessToken,
-    agencyCopy.invalidRange,
-    fetchDiscounts,
     fetchReport,
     startDate,
     endDate,
     nameFilter,
-    fetchTrigger,
+    agencyCopy.invalidRange,
   ]);
 
+  useEffect(() => {
+    if (!accessToken) return;
+    loadReport();
+    fetchDiscounts();
+  }, [accessToken, fetchDiscounts, loadReport]);
+
   const handleApplyFilters = () => {
-    fetchTriggerRef.current += 1;
-    setFetchTrigger(fetchTriggerRef.current);
+    loadReport();
   };
 
   const handleOpenGlobalCreate = async () => {
@@ -115,6 +115,8 @@ const CustomerManagementPage: React.FC = () => {
     setNewDiscountName('');
     setNewDiscountRate('');
     setGlobalCustomerId('');
+    setCreateForCustomerId(null);
+    setCreateCustomerInfo(null);
     try {
       await fetchCustomers();
     } catch {
@@ -122,7 +124,14 @@ const CustomerManagementPage: React.FC = () => {
     }
   };
 
-  const handleOpenCreateForCustomer = (customerId: number, info: { representative_first_name: string; representative_last_name: string; company_name?: string | null }) => {
+  const handleOpenCreateForCustomer = (
+    customerId: number,
+    info: {
+      representative_first_name: string;
+      representative_last_name: string;
+      company_name?: string | null;
+    }
+  ) => {
     setCreateForCustomerId(customerId);
     setCreateCustomerInfo(info);
     setIsGlobalCreate(false);
@@ -133,10 +142,13 @@ const CustomerManagementPage: React.FC = () => {
   };
 
   const handleOpenHistory = async (customerId: number) => {
-    historyCustomerIdRef.current = customerId;
     setShowHistoryModal(true);
     resetHistory();
-    await fetchHistory(customerId);
+    try {
+      await fetchHistory(customerId);
+    } catch {
+      // Hook already reports toast errors; keep modal open to preserve UX context.
+    }
   };
 
   const handleSubmitDiscount = async () => {
@@ -228,7 +240,7 @@ const CustomerManagementPage: React.FC = () => {
         />
 
         <ReportTable
-          items={items as any}
+          items={items}
           loading={reportLoading}
           error={reportError}
           currencyLabel={currencyLabel}
@@ -263,7 +275,6 @@ const CustomerManagementPage: React.FC = () => {
           discounts={discounts}
           loading={discountsLoading}
           error={discountsError}
-          currencyLabel={currencyLabel}
           noTransactionsLabel={walletCopy.table.noTransactions}
           commonLoadingLabel={t('common.loading')}
           language={language}
@@ -301,6 +312,7 @@ const CustomerManagementPage: React.FC = () => {
         onClose={() => {
           setShowCreateModal(false);
           setIsGlobalCreate(false);
+          setShowCalcModal(false);
         }}
         onSubmit={handleSubmitDiscount}
         createError={createError}
