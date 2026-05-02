@@ -17,11 +17,14 @@ import { adminPlatformSettingsApi } from './adminPlatformSettings/api';
 import { adminPlatformSettingsTranslations } from './adminPlatformSettings/translations';
 import PlatformSettingsTable from './adminPlatformSettings/components/PlatformSettingsTable';
 import PlatformBasePricesSection from './adminPlatformSettings/components/PlatformBasePricesSection';
+import PagePricesSection from './adminPlatformSettings/components/PagePricesSection';
+import PricingCalculationSection from './adminPlatformSettings/components/PricingCalculationSection';
 import StatusChangeModal from './adminPlatformSettings/components/StatusChangeModal';
 import MetadataModal from './adminPlatformSettings/components/MetadataModal';
 import { useAdminMultimedia } from './adminPlatformSettings/useAdminMultimedia';
 import { useAdminPlatformSettingsMetadata } from './adminPlatformSettings/useAdminPlatformSettingsMetadata';
 import { useAdminPlatformBasePrices } from './adminPlatformSettings/useAdminPlatformBasePrices';
+import { useAdminPagePrices } from './adminPlatformSettings/useAdminPagePrices';
 
 const AdminPlatformSettingsPage: React.FC = () => {
   const { language } = useLanguage();
@@ -117,6 +120,35 @@ const AdminPlatformSettingsPage: React.FC = () => {
       updated: copy.success.basePriceUpdated,
     },
   });
+  const {
+    items: pagePriceItems,
+    loading: pagePricesLoading,
+    error: pagePricesError,
+    load: loadPagePrices,
+    setDraftPrice: setPagePriceDraft,
+    getDraftPrice: getPagePriceDraft,
+    updatePrice: updatePagePrice,
+    updatingByPlatform: updatingPagePriceByPlatform,
+  } = useAdminPagePrices({
+    onError: showError,
+    onSuccess: showSuccess,
+    errors: {
+      listFailed: copy.errors.pagePriceListFailed,
+      updateFailed: copy.errors.pagePriceUpdateFailed,
+      invalidPrice: copy.errors.pagePriceInvalid,
+      validationFailed: copy.errors.pagePriceValidationFailed,
+      platformRequired: copy.errors.pagePricePlatformRequired,
+      platformInvalid: copy.errors.pagePricePlatformInvalid,
+      priceInvalid: copy.errors.pagePriceInvalid,
+      insertFailed: copy.errors.pagePriceInsertFailed,
+      unauthorized: copy.errors.unauthorized,
+      network: copy.errors.networkError,
+      invalidRequest: copy.errors.invalidRequest,
+    },
+    success: {
+      updated: copy.success.pagePriceUpdated,
+    },
+  });
 
   const statusLabel = (status: AdminPlatformSettingsStatus): string => {
     switch (status) {
@@ -155,23 +187,32 @@ const AdminPlatformSettingsPage: React.FC = () => {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const res = await adminPlatformSettingsApi.list();
-    setLoading(false);
-    if (!res.success) {
-      const msg = res.message || copy.errors.listFailed;
-      setError(msg);
-      showError(msg);
+    try {
+      const res = await adminPlatformSettingsApi.list();
+      if (!res.success) {
+        const msg = res.message || copy.errors.listFailed;
+        setError(msg);
+        showError(msg);
+        setItems([]);
+        return;
+      }
+      setItems(res.data?.items || []);
+    } catch {
+      setError(copy.errors.listFailed);
+      showError(copy.errors.listFailed);
       setItems([]);
-      return;
+    } finally {
+      setLoading(false);
     }
-    setItems(res.data?.items || []);
   }, [copy.errors.listFailed, showError]);
 
   useEffect(() => {
     if (didInitRef.current) return;
     didInitRef.current = true;
     load();
-  }, [load]);
+    loadBasePrices();
+    loadPagePrices();
+  }, [load, loadBasePrices, loadPagePrices]);
 
   const openStatusModal = (item: AdminPlatformSettingsItem) => {
     setSelectedItem(item);
@@ -196,6 +237,14 @@ const AdminPlatformSettingsPage: React.FC = () => {
     setMetadataModalOpen(false);
   };
 
+  useEffect(() => {
+    if (!metadataItem) return;
+    const latest = items.find(item => item.id === metadataItem.id);
+    if (latest && latest !== metadataItem) {
+      setMetadataItem(latest);
+    }
+  }, [items, metadataItem]);
+
   const submitStatusChange = async () => {
     if (!selectedItem) return;
     if (!nextStatus) {
@@ -203,26 +252,31 @@ const AdminPlatformSettingsPage: React.FC = () => {
       return;
     }
     setSubmitting(true);
-    const res = await adminPlatformSettingsApi.changeStatus({
-      id: selectedItem.id,
-      status: nextStatus,
-    });
-    setSubmitting(false);
-    if (!res.success) {
-      const msg = res.message || copy.errors.updateFailed;
-      showError(msg);
-      return;
-    }
+    try {
+      const res = await adminPlatformSettingsApi.changeStatus({
+        id: selectedItem.id,
+        status: nextStatus,
+      });
+      if (!res.success) {
+        const msg = res.message || copy.errors.updateFailed;
+        showError(msg);
+        return;
+      }
 
-    setItems(prev =>
-      prev.map(item =>
-        item.id === selectedItem.id
-          ? { ...item, status: res.data?.status || nextStatus }
-          : item
-      )
-    );
-    showSuccess(res.message || copy.success.statusUpdated);
-    closeStatusModal();
+      setItems(prev =>
+        prev.map(item =>
+          item.id === selectedItem.id
+            ? { ...item, status: res.data?.status || nextStatus }
+            : item
+        )
+      );
+      showSuccess(res.message || copy.success.statusUpdated);
+      closeStatusModal();
+    } catch {
+      showError(copy.errors.updateFailed);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -247,8 +301,9 @@ const AdminPlatformSettingsPage: React.FC = () => {
               onClick={() => {
                 load();
                 loadBasePrices();
+                loadPagePrices();
               }}
-              disabled={loading || basePricesLoading}
+              disabled={loading || basePricesLoading || pagePricesLoading}
             >
               {copy.refresh}
             </button>
@@ -284,6 +339,22 @@ const AdminPlatformSettingsPage: React.FC = () => {
           onChangeDraftPrice={setBasePriceDraft}
           onUpdatePrice={updateBasePrice}
           updatingByPlatform={updatingByPlatform}
+        />
+        <PagePricesSection
+          items={pagePriceItems}
+          loading={pagePricesLoading}
+          error={pagePricesError}
+          copy={copy}
+          getDraftPrice={getPagePriceDraft}
+          onChangeDraftPrice={setPagePriceDraft}
+          onUpdatePrice={updatePagePrice}
+          updatingByPlatform={updatingPagePriceByPlatform}
+          formatDateTime={formatDateTime}
+        />
+        <PricingCalculationSection
+          basePriceItems={basePriceItems}
+          pagePriceItems={pagePriceItems}
+          copy={copy}
         />
       </div>
 
