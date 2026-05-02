@@ -13,10 +13,25 @@ interface ToastContainerProps {
   children: React.ReactNode;
 }
 
+const DEFAULT_TOAST_DURATION = 15000;
+const SUCCESS_TOAST_DURATION = 15000;
+const ERROR_TOAST_DURATION = 15000;
+
+const getDefaultToastDuration = (type: ToastType): number => {
+  switch (type) {
+    case 'success':
+      return SUCCESS_TOAST_DURATION;
+    case 'error':
+      return ERROR_TOAST_DURATION;
+    default:
+      return DEFAULT_TOAST_DURATION;
+  }
+};
+
 export const ToastContext = React.createContext<{
   showToast: (type: ToastType, message: string, duration?: number) => void;
 }>({
-  showToast: () => { },
+  showToast: () => {},
 });
 
 export const ToastProvider: React.FC<ToastContainerProps> = ({ children }) => {
@@ -30,7 +45,7 @@ export const ToastProvider: React.FC<ToastContainerProps> = ({ children }) => {
         id,
         type,
         message,
-        duration,
+        duration: duration ?? getDefaultToastDuration(type),
       };
 
       setToasts(prev => [...prev, newToast]);
@@ -46,8 +61,9 @@ export const ToastProvider: React.FC<ToastContainerProps> = ({ children }) => {
     <ToastContext.Provider value={{ showToast }}>
       {children}
       <div
-        className={`fixed top-4 z-50 flex flex-col gap-2 ${isRTL ? 'left-4' : 'right-4'
-          }`}
+        className={`fixed top-4 z-50 flex flex-col gap-2 ${
+          isRTL ? 'left-4' : 'right-4'
+        }`}
       >
         {toasts.map(toast => (
           <Toast
