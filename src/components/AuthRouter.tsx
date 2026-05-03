@@ -26,6 +26,7 @@ import TermsPage from '../pages/TermsPage';
 import AdminShortLinkManagementPage from '../pages/AdminShortLinkManagementPage';
 import AdminSegmentPriceFactorsPage from '../pages/AdminSegmentPriceFactorsPage';
 import LandingPage from '../pages/LandingPage';
+import AdminPlatformSettingsPage from '../pages/AdminPlatformSettingsPage';
 
 type PageType =
   | 'home'
@@ -51,7 +52,8 @@ type PageType =
   | 'settings'
   | 'admin-tickets'
   | 'admin-short-links'
-  | 'admin-segment-price-factors';
+  | 'admin-segment-price-factors'
+  | 'admin-platform-settings';
 
 const AuthRouter: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PageType>(() => {
@@ -96,6 +98,18 @@ const AuthRouter: React.FC = () => {
         'navigation',
         handleNavigation as EventListener
       );
+    };
+  }, []);
+
+  // Keep router state in sync with browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      updateCurrentPage(window.location.pathname);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
@@ -280,6 +294,8 @@ const AuthRouter: React.FC = () => {
       return <AdminShortLinkManagementPage />;
     case 'admin-segment-price-factors':
       return <AdminSegmentPriceFactorsPage />;
+    case 'admin-platform-settings':
+      return <AdminPlatformSettingsPage />;
 
     default:
       return <HomePage />;
