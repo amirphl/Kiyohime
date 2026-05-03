@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import DateObject from 'react-date-object';
@@ -13,6 +13,25 @@ import { Upload, X, Calculator } from 'lucide-react';
 import AgencyCalculatorModal, {
   calculatorTranslations,
 } from '../components/calculator/Calculator';
+import {
+  PricingRowDraft,
+  useDashboardPricingCalculation,
+} from './dashboard/useDashboardPricingCalculation';
+
+type PricingPlatformKey = 'sms' | 'rubika' | 'bale' | 'splus';
+
+const DASHBOARD_SUPPORTED_PLATFORMS: PricingPlatformKey[] = [
+  'sms',
+  'rubika',
+  'bale',
+  'splus',
+];
+
+const toPositiveNumber = (value: string, fallback = 1): number => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return parsed;
+};
 
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
@@ -32,6 +51,7 @@ const DashboardPage: React.FC = () => {
     file?: string;
   }>({});
   const [showCalcModal, setShowCalcModal] = useState(false);
+  const [showPricingCalcModal, setShowPricingCalcModal] = useState(false);
   // Profile modal state
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -167,6 +187,100 @@ const DashboardPage: React.FC = () => {
     calculatorTranslations.en;
   const formatNum = (n: number) =>
     n.toLocaleString(language === 'fa' ? 'fa-IR' : 'en-US');
+  const pricingTableCopy = {
+    openButton: t('dashboard.pricingCalculation.openButton'),
+    modalTitle: t('dashboard.pricingCalculation.modalTitle'),
+    modalSubtitle: t('dashboard.pricingCalculation.modalSubtitle'),
+    close: t('dashboard.pricingCalculation.close'),
+    platformLabels: {
+      sms: t('dashboard.pricingCalculation.platformLabels.sms'),
+      rubika: t('dashboard.pricingCalculation.platformLabels.rubika'),
+      bale: t('dashboard.pricingCalculation.platformLabels.bale'),
+      splus: t('dashboard.pricingCalculation.platformLabels.splus'),
+    },
+    columns: {
+      platform: t('dashboard.pricingCalculation.columns.platform'),
+      segmentPriceFactor: t(
+        'dashboard.pricingCalculation.columns.segmentPriceFactor'
+      ),
+      numPages: t('dashboard.pricingCalculation.columns.numPages'),
+      platformBasePrice: t(
+        'dashboard.pricingCalculation.columns.platformBasePrice'
+      ),
+      lineNumberPriceFactor: t(
+        'dashboard.pricingCalculation.columns.lineNumberPriceFactor'
+      ),
+      pagePrice: t('dashboard.pricingCalculation.columns.pagePrice'),
+      totalCost: t('dashboard.pricingCalculation.columns.totalCost'),
+    },
+    formula: {
+      title: t('dashboard.pricingCalculation.formula.title'),
+      sms: t('dashboard.pricingCalculation.formula.sms'),
+      others: t('dashboard.pricingCalculation.formula.others'),
+      note: t('dashboard.pricingCalculation.formula.note'),
+    },
+    loading: t('dashboard.pricingCalculation.loading'),
+    loadFailed: t('dashboard.pricingCalculation.loadFailed'),
+    errors: {
+      basePriceListFailed: t(
+        'dashboard.pricingCalculation.errors.basePriceListFailed'
+      ),
+      pagePriceListFailed: t(
+        'dashboard.pricingCalculation.errors.pagePriceListFailed'
+      ),
+      unauthorized: t('dashboard.pricingCalculation.errors.unauthorized'),
+      network: t('dashboard.pricingCalculation.errors.network'),
+      generic: t('dashboard.pricingCalculation.errors.generic'),
+    },
+  };
+
+  const {
+    loading: pricingCalcLoading,
+    error: pricingCalcError,
+    drafts: pricingDrafts,
+    loadOnce: loadPricingDataOnce,
+    setDraftValue: setPricingDraftValue,
+  } = useDashboardPricingCalculation({
+    accessToken,
+    showError,
+    i18nErrors: pricingTableCopy.errors,
+  });
+
+  const totalsByPlatform = useMemo(() => {
+    return DASHBOARD_SUPPORTED_PLATFORMS.reduce(
+      (acc, platform) => {
+        const row = pricingDrafts[platform];
+        const segmentPriceFactor = toPositiveNumber(row.segmentPriceFactor);
+        const numPages = toPositiveNumber(row.numPages);
+        const platformBasePrice = toPositiveNumber(row.platformBasePrice, 0);
+        const lineNumberPriceFactor = toPositiveNumber(
+          row.lineNumberPriceFactor
+        );
+        const pagePrice = toPositiveNumber(row.pagePrice, 0);
+
+        acc[platform] =
+          platform === 'sms'
+            ? lineNumberPriceFactor * numPages * platformBasePrice +
+              segmentPriceFactor * pagePrice
+            : platformBasePrice + segmentPriceFactor * pagePrice;
+        return acc;
+      },
+      {} as Record<PricingPlatformKey, number>
+    );
+  }, [pricingDrafts]);
+
+  const openPricingCalculationModal = async () => {
+    setShowPricingCalcModal(true);
+    await loadPricingDataOnce();
+  };
+
+  const handlePricingDraftChange = (
+    platform: PricingPlatformKey,
+    key: keyof PricingRowDraft,
+    value: string
+  ) => {
+    setPricingDraftValue(platform, key, value);
+  };
 
   const isReportsView = window.location.pathname === '/dashboard/reports';
 
@@ -174,12 +288,10 @@ const DashboardPage: React.FC = () => {
     if (!iso) return '-';
     try {
       const jsDate = new Date(iso);
+      if (Number.isNaN(jsDate.getTime())) return '-';
       if (language === 'fa') {
-        // Convert to Tehran local then format in Shamsi
-        const tehranMs = jsDate.getTime() + 3.5 * 60 * 60 * 1000;
-        const tehranDate = new Date(tehranMs);
         const dobj = new DateObject({
-          date: tehranDate,
+          date: jsDate,
           calendar: persian,
           locale: persian_fa,
         });
@@ -215,18 +327,24 @@ const DashboardPage: React.FC = () => {
       try {
         if (accessToken) apiService.setAccessToken(accessToken);
       } catch {}
-      const res = await apiService.listCampaigns({
-        page: 1,
-        limit: 20,
-        orderby: 'newest',
-      });
-      if (!mounted) return;
-      if (res.success && res.data) {
-        setCampaigns(res.data.items || []);
-      } else {
-        setReportsError(res.message || 'Failed to load campaigns');
+      try {
+        const res = await apiService.listCampaigns({
+          page: 1,
+          limit: 20,
+          orderby: 'newest',
+        });
+        if (!mounted) return;
+        if (res.success && res.data) {
+          setCampaigns(res.data.items || []);
+        } else {
+          setReportsError(res.message || 'Failed to load campaigns');
+        }
+      } catch (e) {
+        if (!mounted) return;
+        setReportsError(e instanceof Error ? e.message : 'Network error');
+      } finally {
+        if (mounted) setLoadingReports(false);
       }
-      setLoadingReports(false);
     })();
     return () => {
       mounted = false;
@@ -405,6 +523,18 @@ const DashboardPage: React.FC = () => {
                 </button>
               </div>
             )}
+            <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200 md:col-span-2 lg:col-span-1'>
+              {/* <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                {pricingTableCopy.modalTitle}
+              </h3> */}
+              <button
+                onClick={openPricingCalculationModal}
+                className='btn-primary flex items-center justify-center w-full'
+              >
+                <Calculator className='h-4 w-4 mr-2' />{' '}
+                {pricingTableCopy.openButton}
+              </button>
+            </div>
           </div>
         ) : (
           <div className='bg-white rounded-lg shadow-sm border border-gray-200'>
@@ -745,6 +875,199 @@ const DashboardPage: React.FC = () => {
         translations={calcT}
         dir={isRTL ? 'rtl' : 'ltr'}
       />
+
+      {showPricingCalcModal && (
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
+          <div className='bg-white rounded-lg w-full max-w-6xl p-6 max-h-[90vh] overflow-auto'>
+            <div
+              className={`flex justify-between items-center mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}
+            >
+              <div>
+                <h3 className='text-lg font-medium text-gray-900'>
+                  {pricingTableCopy.modalTitle}
+                </h3>
+                <p className='text-sm text-gray-600 mt-1'>
+                  {pricingTableCopy.modalSubtitle}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowPricingCalcModal(false)}
+                className='text-gray-400 hover:text-gray-600'
+              >
+                <X className='h-5 w-5' />
+              </button>
+            </div>
+
+            {pricingCalcLoading ? (
+              <div className='text-center text-gray-600 py-8'>
+                {pricingTableCopy.loading}
+              </div>
+            ) : pricingCalcError ? (
+              <div className='text-center text-red-600 py-8'>
+                {pricingCalcError}
+              </div>
+            ) : (
+              <>
+                <div className='overflow-auto'>
+                  <table className='min-w-full text-sm'>
+                    <thead className='bg-gray-50'>
+                      <tr>
+                        <th className='border px-3 py-2 text-center'>
+                          {pricingTableCopy.columns.platform}
+                        </th>
+                        <th className='border px-3 py-2 text-center'>
+                          {pricingTableCopy.columns.segmentPriceFactor}
+                        </th>
+                        <th className='border px-3 py-2 text-center'>
+                          {pricingTableCopy.columns.numPages}
+                        </th>
+                        <th className='border px-3 py-2 text-center'>
+                          {pricingTableCopy.columns.platformBasePrice}
+                        </th>
+                        <th className='border px-3 py-2 text-center'>
+                          {pricingTableCopy.columns.lineNumberPriceFactor}
+                        </th>
+                        <th className='border px-3 py-2 text-center'>
+                          {pricingTableCopy.columns.pagePrice}
+                        </th>
+                        <th className='border px-3 py-2 text-center'>
+                          {pricingTableCopy.columns.totalCost}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {DASHBOARD_SUPPORTED_PLATFORMS.map(platform => {
+                        const row = pricingDrafts[platform];
+                        if (!row) return null;
+                        return (
+                          <tr
+                            key={platform}
+                            className='odd:bg-white even:bg-gray-50'
+                          >
+                            <td className='border px-3 py-2 text-center font-medium'>
+                              {pricingTableCopy.platformLabels[platform]}
+                            </td>
+                            <td className='border px-3 py-2 text-center'>
+                              <input
+                                type='number'
+                                min='1'
+                                step='1'
+                                value={row.segmentPriceFactor}
+                                onChange={e =>
+                                  handlePricingDraftChange(
+                                    platform,
+                                    'segmentPriceFactor',
+                                    e.target.value
+                                  )
+                                }
+                                className='w-full max-w-[160px] rounded border border-gray-300 px-2 py-1 text-center'
+                              />
+                            </td>
+                            <td className='border px-3 py-2 text-center'>
+                              <input
+                                type='number'
+                                min='1'
+                                step='1'
+                                value={row.numPages}
+                                onChange={e =>
+                                  handlePricingDraftChange(
+                                    platform,
+                                    'numPages',
+                                    e.target.value
+                                  )
+                                }
+                                className='w-full max-w-[160px] rounded border border-gray-300 px-2 py-1 text-center'
+                              />
+                            </td>
+                            <td className='border px-3 py-2 text-center'>
+                              <input
+                                type='number'
+                                min='0'
+                                step='1'
+                                value={row.platformBasePrice}
+                                onChange={e =>
+                                  handlePricingDraftChange(
+                                    platform,
+                                    'platformBasePrice',
+                                    e.target.value
+                                  )
+                                }
+                                className='w-full max-w-[180px] rounded border border-gray-300 px-2 py-1 text-center'
+                              />
+                            </td>
+                            <td className='border px-3 py-2 text-center'>
+                              <input
+                                type='number'
+                                min='1'
+                                step='1'
+                                value={row.lineNumberPriceFactor}
+                                onChange={e =>
+                                  handlePricingDraftChange(
+                                    platform,
+                                    'lineNumberPriceFactor',
+                                    e.target.value
+                                  )
+                                }
+                                className='w-full max-w-[180px] rounded border border-gray-300 px-2 py-1 text-center'
+                              />
+                            </td>
+                            <td className='border px-3 py-2 text-center'>
+                              <input
+                                type='number'
+                                min='0'
+                                step='1'
+                                value={row.pagePrice}
+                                onChange={e =>
+                                  handlePricingDraftChange(
+                                    platform,
+                                    'pagePrice',
+                                    e.target.value
+                                  )
+                                }
+                                className='w-full max-w-[180px] rounded border border-gray-300 px-2 py-1 text-center'
+                              />
+                            </td>
+                            <td className='border px-3 py-2 text-center font-semibold text-primary-700'>
+                              {formatNum(
+                                Math.round(totalsByPlatform[platform] || 0)
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <div className='mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4'>
+                  <h4 className='text-sm font-semibold text-gray-900 mb-2'>
+                    {pricingTableCopy.formula.title}
+                  </h4>
+                  <p className='text-sm text-gray-700'>
+                    {pricingTableCopy.formula.sms}
+                  </p>
+                  <p className='text-sm text-gray-700 mt-1'>
+                    {pricingTableCopy.formula.others}
+                  </p>
+                  <p className='text-xs text-gray-500 mt-2'>
+                    {pricingTableCopy.formula.note}
+                  </p>
+                </div>
+              </>
+            )}
+
+            {!pricingCalcLoading && !pricingCalcError && (
+              <div className='flex justify-end mt-4'>
+                <button
+                  className='btn-secondary'
+                  onClick={() => setShowPricingCalcModal(false)}
+                >
+                  {pricingTableCopy.close}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
