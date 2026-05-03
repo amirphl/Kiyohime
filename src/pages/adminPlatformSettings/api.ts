@@ -6,10 +6,20 @@ import {
   AdminChangePlatformSettingsStatusRequest,
   AdminChangePlatformSettingsStatusResponse,
   AdminListPlatformBasePricesResponse,
+  AdminGetPagePricesResponse,
+  AdminUpdatePagePriceRequest,
+  AdminUpdatePagePriceResponse,
   AdminListPlatformSettingsResponse,
   AdminUpdatePlatformBasePriceRequest,
   AdminUpdatePlatformBasePriceResponse,
 } from '../../types/admin';
+
+type AdminMultimediaResponse = {
+  success: boolean;
+  message: string;
+  blob?: Blob;
+  filename?: string;
+};
 
 export const adminPlatformSettingsApi = {
   list: () =>
@@ -32,7 +42,18 @@ export const adminPlatformSettingsApi = {
     adminApi.updatePlatformBasePriceByAdmin(payload) as Promise<
       ApiResponse<AdminUpdatePlatformBasePriceResponse>
     >,
-  previewMultimedia: (uuid: string) => adminApi.previewMultimediaByAdmin(uuid),
+  listPagePrices: () =>
+    adminApi.getCampaignPagePricesByAdmin() as Promise<
+      ApiResponse<AdminGetPagePricesResponse>
+    >,
+  updatePagePrice: (payload: AdminUpdatePagePriceRequest) =>
+    adminApi.updateCampaignPagePriceByAdmin(payload) as Promise<
+      ApiResponse<AdminUpdatePagePriceResponse>
+    >,
+  previewMultimedia: (uuid: string) =>
+    adminApi.previewMultimediaByAdmin(uuid) as Promise<AdminMultimediaResponse>,
   downloadMultimedia: (uuid: string) =>
-    adminApi.downloadMultimediaByAdmin(uuid),
+    adminApi.downloadMultimediaByAdmin(
+      uuid
+    ) as Promise<AdminMultimediaResponse>,
 };
