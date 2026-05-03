@@ -7,10 +7,19 @@ import { adminPaymentsTranslations } from '../translations';
 import { useAdminDepositReceipts } from '../hooks/useAdminDepositReceipts';
 import { adminPaymentsApi } from '../api';
 import { downloadBlob } from '../../wallet/utils/download';
-import { AdminUpdateDepositReceiptStatusRequest, DepositReceiptItem } from '../../../types/payments';
+import {
+  AdminUpdateDepositReceiptStatusRequest,
+  DepositReceiptItem,
+} from '../../../types/payments';
 import ConfirmationModal from '../../../components/ConfirmationModal';
 
-const AdminDepositReceiptsSection: React.FC = () => {
+interface AdminDepositReceiptsSectionProps {
+  onReceiptStatusUpdated?: () => void;
+}
+
+const AdminDepositReceiptsSection: React.FC<
+  AdminDepositReceiptsSectionProps
+> = ({ onReceiptStatusUpdated }) => {
   const { language } = useLanguage();
   const copy = useMemo(
     () =>
@@ -19,23 +28,44 @@ const AdminDepositReceiptsSection: React.FC = () => {
     [language]
   );
   const { showError, showSuccess } = useToast();
+  const parseCustomerId = (value: string): number | undefined => {
+    if (!value) return undefined;
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+  };
+  const formatDateTime = (value: string): string => {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? '-' : parsed.toLocaleString();
+  };
 
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [langFilter, setLangFilter] = useState<string>('');
   const [customerId, setCustomerId] = useState<string>('');
-  const [pendingAction, setPendingAction] = useState<{ receipt: DepositReceiptItem; action: 'approve' | 'reject' } | null>(null);
+  const [pendingAction, setPendingAction] = useState<{
+    receipt: DepositReceiptItem;
+    action: 'approve' | 'reject';
+  } | null>(null);
   const [pendingReason, setPendingReason] = useState('');
-  const { items, loading, error, refresh, mutateStatus } = useAdminDepositReceipts({
-    status: statusFilter || undefined,
-    lang: langFilter || undefined,
-    customer_id: customerId ? Number(customerId) : undefined,
-  });
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const { items, loading, error, refresh, mutateStatus } =
+    useAdminDepositReceipts({
+      status: statusFilter || undefined,
+      lang: langFilter || undefined,
+      customer_id: parseCustomerId(customerId),
+    });
 
-  const handleRefresh = () => refresh({ status: statusFilter || undefined, lang: langFilter || undefined, customer_id: customerId ? Number(customerId) : undefined });
+  const handleRefresh = () =>
+    refresh({
+      status: statusFilter || undefined,
+      lang: langFilter || undefined,
+      customer_id: parseCustomerId(customerId),
+    });
 
   const handleDownload = async (receipt: DepositReceiptItem) => {
     try {
-      const res = await adminPaymentsApi.downloadDepositReceiptFile(receipt.uuid);
+      const res = await adminPaymentsApi.downloadDepositReceiptFile(
+        receipt.uuid
+      );
       if (!res.success || !res.blob) {
         showError(res.message || copy.receipts.errors.downloadFailed);
         return;
@@ -48,28 +78,46 @@ const AdminDepositReceiptsSection: React.FC = () => {
     }
   };
 
-  const handleStatus = async (receipt: DepositReceiptItem, action: 'approve' | 'reject') => {
+  const handleStatus = async (
+    receipt: DepositReceiptItem,
+    action: 'approve' | 'reject'
+  ) => {
     setPendingAction({ receipt, action });
     setPendingReason('');
   };
 
   const confirmPendingAction = async () => {
     if (!pendingAction) return;
+    if (updatingStatus) return;
     const payload: AdminUpdateDepositReceiptStatusRequest = {
       receipt_uuid: pendingAction.receipt.uuid,
       action: pendingAction.action,
-      reason: pendingAction.action === 'reject' ? (pendingReason || undefined) : undefined,
+      reason:
+        pendingAction.action === 'reject'
+          ? pendingReason || undefined
+          : undefined,
     };
-    const res = await adminPaymentsApi.updateDepositReceiptStatus(payload);
-    if (!res.success) {
-      showError(res.message || copy.receipts.errors.updateFailed);
-    } else {
-      showSuccess(copy.receipts.success.statusUpdated);
-      mutateStatus(pendingAction.receipt.uuid, payload.action === 'approve' ? 'approved' : 'rejected');
-      handleRefresh();
+    setUpdatingStatus(true);
+    try {
+      const res = await adminPaymentsApi.updateDepositReceiptStatus(payload);
+      if (!res.success) {
+        showError(res.message || copy.receipts.errors.updateFailed);
+      } else {
+        showSuccess(copy.receipts.success.statusUpdated);
+        mutateStatus(
+          pendingAction.receipt.uuid,
+          payload.action === 'approve' ? 'approved' : 'rejected'
+        );
+        handleRefresh();
+        onReceiptStatusUpdated?.();
+      }
+    } catch {
+      showError(copy.receipts.errors.updateFailed);
+    } finally {
+      setUpdatingStatus(false);
+      setPendingAction(null);
+      setPendingReason('');
     }
-    setPendingAction(null);
-    setPendingReason('');
   };
 
   return (
@@ -105,7 +153,12 @@ const AdminDepositReceiptsSection: React.FC = () => {
             onChange={e => setCustomerId(e.target.value)}
             className='w-32 rounded border border-gray-300 px-2 py-1'
           />
-          <Button size='sm' variant='outline' onClick={handleRefresh} disabled={loading}>
+          <Button
+            size='sm'
+            variant='outline'
+            onClick={handleRefresh}
+            disabled={loading}
+          >
             {copy.receipts.refresh}
           </Button>
         </div>
@@ -122,7 +175,9 @@ const AdminDepositReceiptsSection: React.FC = () => {
               {/* <th className='px-3 py-2'>{copy.receipts.table.lang}</th> */}
               <th className='px-3 py-2'>{copy.receipts.table.created}</th>
               <th className='px-3 py-2'>{copy.receipts.table.preview}</th>
-              <th className='px-3 py-2 min-w-[200px]'>{copy.receipts.table.reason}</th>
+              <th className='px-3 py-2 min-w-[200px]'>
+                {copy.receipts.table.reason}
+              </th>
               <th className='px-3 py-2'>{copy.receipts.table.download}</th>
               <th className='px-3 py-2'>{copy.receipts.table.approve}</th>
               <th className='px-3 py-2'>{copy.receipts.table.reject}</th>
@@ -131,10 +186,13 @@ const AdminDepositReceiptsSection: React.FC = () => {
           <tbody className='divide-y divide-gray-100'>
             {items.map(item => (
               <tr key={item.uuid} className='bg-white'>
-                <td className='px-3 py-2'>{item.amount.toLocaleString()} {item.currency}</td>
+                <td className='px-3 py-2'>
+                  {item.amount.toLocaleString()} {item.currency}
+                </td>
                 <td className='px-3 py-2 capitalize'>{item.status}</td>
-                {/* <td className='px-3 py-2'>{itemshow confirmation modal for approve/reject in @.lang}</td> */}
-                <td className='px-3 py-2'>{new Date(item.created_at as any).toLocaleString()}</td>
+                <td className='px-3 py-2'>
+                  {formatDateTime(item.created_at)}
+                </td>
                 <td className='px-3 py-2'>
                   {item.preview_base64 ? (
                     item.preview_type?.startsWith('image/') ? (
@@ -151,10 +209,16 @@ const AdminDepositReceiptsSection: React.FC = () => {
                   )}
                 </td>
                 <td className='px-3 py-2 min-w-[200px]'>
-                  {item.rejection_note || item.status_reason || <span className='text-gray-400'>-</span>}
+                  {item.rejection_note || item.status_reason || (
+                    <span className='text-gray-400'>-</span>
+                  )}
                 </td>
                 <td className='px-3 py-2'>
-                  <Button size='sm' variant='outline' onClick={() => handleDownload(item)}>
+                  <Button
+                    size='sm'
+                    variant='outline'
+                    onClick={() => handleDownload(item)}
+                  >
                     <Download className='h-4 w-4' />
                   </Button>
                 </td>
@@ -182,8 +246,8 @@ const AdminDepositReceiptsSection: React.FC = () => {
             ))}
             {items.length === 0 && !loading && (
               <tr>
-                <td className='px-3 py-4 text-center text-gray-500' colSpan={8}>
-                  {copy.info.noCustomersFound}
+                <td className='px-3 py-4 text-center text-gray-500' colSpan={9}>
+                  {copy.receipts.noData}
                 </td>
               </tr>
             )}
@@ -194,7 +258,10 @@ const AdminDepositReceiptsSection: React.FC = () => {
       <ConfirmationModal
         isOpen={!!pendingAction}
         onConfirm={confirmPendingAction}
-        onCancel={() => setPendingAction(null)}
+        onCancel={() => {
+          if (updatingStatus) return;
+          setPendingAction(null);
+        }}
         title={
           pendingAction?.action === 'approve'
             ? copy.receipts.table.approve
@@ -206,7 +273,7 @@ const AdminDepositReceiptsSection: React.FC = () => {
             : copy.receipts.table.reject
         }
         cancelText={copy.receipts.cancel || 'Close'}
-        loading={false}
+        loading={updatingStatus}
       >
         <div className='space-y-3'>
           <p className='text-sm text-gray-700'>
@@ -216,7 +283,9 @@ const AdminDepositReceiptsSection: React.FC = () => {
           </p>
           {pendingAction?.action === 'reject' && (
             <div className='space-y-1'>
-              <label className='text-xs text-gray-600'>{copy.receipts.table.reason}</label>
+              <label className='text-xs text-gray-600'>
+                {copy.receipts.table.reason}
+              </label>
               <textarea
                 className='w-full rounded border border-gray-300 px-2 py-1 text-sm'
                 rows={3}
