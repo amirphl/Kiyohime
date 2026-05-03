@@ -7,9 +7,15 @@ import {
 } from '../../types/admin';
 import {
   AdminListDepositReceiptsParams,
+  AdminListTransactionsParams,
+  AdminListTransactionsResponse,
+  AdminAddInvoiceToTransactionRequest,
   AdminUpdateDepositReceiptStatusRequest,
   ListDepositReceiptsResponse,
 } from '../../types/payments';
+import { UploadMultimediaResponse } from '../../types/campaign';
+
+type AdminMutationResponse = { success: boolean; message: string };
 
 export const adminPaymentsApi = {
   listCustomers: () =>
@@ -29,5 +35,19 @@ export const adminPaymentsApi = {
   updateDepositReceiptStatus: (
     payload: AdminUpdateDepositReceiptStatusRequest
   ) =>
-    adminApi.updateDepositReceiptStatus(payload) as Promise<ApiResponse<any>>,
+    adminApi.updateDepositReceiptStatus(payload) as Promise<
+      ApiResponse<AdminMutationResponse>
+    >,
+  listTransactions: (params: AdminListTransactionsParams) =>
+    adminApi.listTransactions(params) as Promise<
+      ApiResponse<AdminListTransactionsResponse>
+    >,
+  uploadMultimediaByAdmin: (customerId: number, file: File) =>
+    adminApi.uploadMultimediaByAdmin(customerId, file) as Promise<
+      ApiResponse<UploadMultimediaResponse>
+    >,
+  addInvoiceToTransaction: (payload: AdminAddInvoiceToTransactionRequest) =>
+    adminApi.addInvoiceToTransaction(payload) as Promise<
+      ApiResponse<AdminMutationResponse>
+    >,
 };
