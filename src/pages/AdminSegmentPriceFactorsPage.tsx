@@ -11,6 +11,9 @@ import DateObject from 'react-date-object';
 import persian from 'react-date-object/calendars/persian';
 import persian_fa from 'react-date-object/locales/persian_fa';
 
+const PLATFORM_OPTIONS = ['sms', 'splus', 'rubika', 'bale'] as const;
+type SegmentPriceFactorPlatform = (typeof PLATFORM_OPTIONS)[number];
+
 const AdminSegmentPriceFactorsPage: React.FC = () => {
   const { language } = useLanguage();
   const copy = useMemo(
@@ -32,15 +35,16 @@ const AdminSegmentPriceFactorsPage: React.FC = () => {
   const [loadingFactors, setLoadingFactors] = useState(false);
   const [factorsError, setFactorsError] = useState<string | null>(null);
 
+  const [platform, setPlatform] = useState<SegmentPriceFactorPlatform>('sms');
   const [level3, setLevel3] = useState<string>('');
   const [priceFactor, setPriceFactor] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
   const initRef = useRef(false);
 
-  const loadLevel3Options = async () => {
+  const loadLevel3Options = async (platformValue: SegmentPriceFactorPlatform = platform) => {
     setLoadingOptions(true);
     setOptionsError(null);
-    const resp = await adminApi.listLevel3Options();
+    const resp = await adminApi.listLevel3Options(platformValue);
     setLoadingOptions(false);
     if (!resp.success) {
       const msg = resp.message || copy.errors.loadOptions;
@@ -51,10 +55,10 @@ const AdminSegmentPriceFactorsPage: React.FC = () => {
     setLevel3Options(resp.data?.items || []);
   };
 
-  const loadFactors = async () => {
+  const loadFactors = async (platformValue: SegmentPriceFactorPlatform = platform) => {
     setLoadingFactors(true);
     setFactorsError(null);
-    const resp = await adminApi.listSegmentPriceFactors();
+    const resp = await adminApi.listSegmentPriceFactors(platformValue);
     setLoadingFactors(false);
     if (!resp.success) {
       const msg = resp.message || copy.errors.loadFactors;
@@ -74,6 +78,7 @@ const AdminSegmentPriceFactorsPage: React.FC = () => {
   }, []);
 
   const validate = (): string | null => {
+    if (!PLATFORM_OPTIONS.includes(platform)) return copy.errors.missingPlatform;
     if (!level3) return copy.errors.missingLevel3;
     const num = Number(priceFactor);
     if (!Number.isFinite(num) || num <= 0) return copy.errors.invalidPriceFactor;
@@ -88,6 +93,7 @@ const AdminSegmentPriceFactorsPage: React.FC = () => {
     }
     setSubmitting(true);
     const resp = await adminApi.createSegmentPriceFactor({
+      platform,
       level3,
       price_factor: Number(priceFactor),
     });
@@ -137,6 +143,25 @@ const AdminSegmentPriceFactorsPage: React.FC = () => {
 
       <div className="bg-white rounded-lg shadow p-4 border mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">{copy.platformLabel}</label>
+            <select
+              className="w-full border rounded px-3 py-2"
+              value={platform}
+              onChange={(e) => {
+                const nextPlatform = e.target.value as SegmentPriceFactorPlatform;
+                setPlatform(nextPlatform);
+                setLevel3('');
+                loadLevel3Options(nextPlatform);
+                loadFactors(nextPlatform);
+              }}
+            >
+              <option value="">{copy.platformPlaceholder}</option>
+              {PLATFORM_OPTIONS.map((item) => (
+                <option key={item} value={item}>{item.toUpperCase()}</option>
+              ))}
+            </select>
+          </div>
           <div>
             <label className="block text-sm font-medium mb-1">{copy.level3Label}</label>
             <select
@@ -199,6 +224,7 @@ const AdminSegmentPriceFactorsPage: React.FC = () => {
           <table className="min-w-full border text-sm">
             <thead className="bg-gray-50">
               <tr>
+                <th className={`border px-2 py-2 ${isRTL ? 'text-right' : 'text-left'}`}>{copy.columns.platform}</th>
                 <th className={`border px-2 py-2 ${isRTL ? 'text-right' : 'text-left'}`}>{copy.columns.level3}</th>
                 <th className={`border px-2 py-2 ${isRTL ? 'text-right' : 'text-left'}`}>{copy.columns.priceFactor}</th>
                 <th className={`border px-2 py-2 ${isRTL ? 'text-right' : 'text-left'}`}>{copy.columns.createdAt}</th>
@@ -207,19 +233,20 @@ const AdminSegmentPriceFactorsPage: React.FC = () => {
             <tbody>
               {loadingFactors ? (
                 <tr>
-                  <td className="px-2 py-3 border text-center" colSpan={3}>
+                  <td className="px-2 py-3 border text-center" colSpan={4}>
                     {t.common?.loading || 'Loading...'}
                   </td>
                 </tr>
               ) : factors.length === 0 ? (
                 <tr>
-                  <td className="px-2 py-3 border text-center" colSpan={3}>
+                  <td className="px-2 py-3 border text-center" colSpan={4}>
                     {copy.empty}
                   </td>
                 </tr>
               ) : (
                 factors.map(item => (
-                  <tr key={`${item.level3}-${item.created_at}`}>
+                  <tr key={`${item.platform}-${item.level3}-${item.created_at}`}>
+                    <td className={`px-2 py-2 border ${isRTL ? 'text-right' : 'text-left'}`}>{item.platform}</td>
                     <td className={`px-2 py-2 border ${isRTL ? 'text-right' : 'text-left'}`}>{item.level3}</td>
                     <td className={`px-2 py-2 border ${isRTL ? 'text-right' : 'text-left'}`}>{item.price_factor}</td>
                     <td className={`px-2 py-2 border ${isRTL ? 'text-right' : 'text-left'}`}>{formatDate(item.created_at)}</td>
