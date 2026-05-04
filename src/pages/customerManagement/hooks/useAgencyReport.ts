@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import apiService from '../../../services/api';
+import { normalizeCustomerId } from '../utils';
 
-interface AgencyReportItem {
-  customer_id?: number;
+export interface AgencyReportItem {
+  customer_id: number;
   representative_first_name: string;
   representative_last_name: string;
   company_name: string;
@@ -16,7 +17,10 @@ interface FetchParams {
   name?: string;
 }
 
-export const useAgencyReport = (accessToken: string | null, onError?: (msg: string) => void) => {
+export const useAgencyReport = (
+  accessToken: string | null,
+  onError?: (msg: string) => void
+) => {
   const onErrorRef = useRef(onError);
   const [items, setItems] = useState<AgencyReportItem[]>([]);
   const [sumTotalSent, setSumTotalSent] = useState<number>(0);
@@ -30,6 +34,14 @@ export const useAgencyReport = (accessToken: string | null, onError?: (msg: stri
 
   const fetchReport = useCallback(
     async (params: FetchParams, invalidRangeMessage?: string) => {
+      if (!accessToken) {
+        setItems([]);
+        setSumTotalSent(0);
+        setSumTotalShare(0);
+        setError(null);
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       setError(null);
       try {
@@ -45,14 +57,24 @@ export const useAgencyReport = (accessToken: string | null, onError?: (msg: stri
             return;
           }
         }
-        if (accessToken) apiService.setAccessToken(accessToken);
+        apiService.setAccessToken(accessToken);
         const res = await apiService.getAgencyCustomerReport({
           start_date: startDate,
           end_date: endDate,
           name: name || undefined,
         });
         if (res.success && res.data) {
-          setItems(res.data.items || []);
+          const normalizedItems = (res.data.items || [])
+            .map(item => {
+              const customerId = normalizeCustomerId(item.customer_id);
+              if (!customerId) return null;
+              return {
+                ...item,
+                customer_id: customerId,
+              };
+            })
+            .filter((item): item is AgencyReportItem => item !== null);
+          setItems(normalizedItems);
           setSumTotalSent(res.data.sum_total_sent || 0);
           setSumTotalShare(res.data.sum_total_agency_share_with_tax || 0);
         } else {
