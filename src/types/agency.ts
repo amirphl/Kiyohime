@@ -1,4 +1,5 @@
 export interface AgencyCustomerReportItem {
+	customer_id: number;
 	representative_first_name: string;
 	representative_last_name: string;
 	company_name: string;
