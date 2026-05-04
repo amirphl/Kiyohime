@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import apiService from '../../../services/api';
+import { normalizeCustomerId } from '../utils';
 
 export interface AgencyDiscountItem {
   customer_id: number;
@@ -10,7 +11,10 @@ export interface AgencyDiscountItem {
   created_at: string;
 }
 
-export const useAgencyDiscounts = (accessToken: string | null, onError?: (msg: string) => void) => {
+export const useAgencyDiscounts = (
+  accessToken: string | null,
+  onError?: (msg: string) => void
+) => {
   const onErrorRef = useRef(onError);
   const [discounts, setDiscounts] = useState<AgencyDiscountItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -21,13 +25,33 @@ export const useAgencyDiscounts = (accessToken: string | null, onError?: (msg: s
   }, [onError]);
 
   const fetchDiscounts = useCallback(async () => {
+    if (!accessToken) {
+      setDiscounts([]);
+      setError(null);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      if (accessToken) apiService.setAccessToken(accessToken);
+      apiService.setAccessToken(accessToken);
       const res = await apiService.listAgencyActiveDiscounts();
       if (res.success && res.data) {
-        setDiscounts(res.data.items || []);
+        const normalized = (res.data.items || [])
+          .map(item => {
+            const rawItem = item as AgencyDiscountItem & {
+              customerId?: unknown;
+              id?: unknown;
+            };
+            const customerId = normalizeCustomerId(rawItem.customer_id);
+            if (!customerId) return null;
+            return {
+              ...item,
+              customer_id: customerId,
+            };
+          })
+          .filter((item): item is AgencyDiscountItem => item !== null);
+        setDiscounts(normalized);
       } else {
         const msg = res.message || 'Failed to load discounts';
         setError(msg);
