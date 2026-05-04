@@ -66,6 +66,18 @@ const DepositReceiptSection: React.FC<DepositReceiptSectionProps> = ({
 
   const amountValid = isValidDepositAmount(amount);
   const taxedAmount = amountValid ? Math.round(amount * 1.1) : null;
+  const getLocalizedStatus = (status: string) => {
+    const trimmed = status?.trim();
+    if (!trimmed) return '-';
+    const normalized =
+      trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+    return copy.statuses[trimmed] || copy.statuses[normalized] || trimmed;
+  };
+  const getLocalizedRejectionReason = (reason?: string | null) => {
+    const trimmed = reason?.trim();
+    if (!trimmed) return null;
+    return copy.depositRejectionReasons[trimmed] || trimmed;
+  };
 
   const handleFileSelect = async (file: File) => {
     if (!file) return;
@@ -299,7 +311,9 @@ const DepositReceiptSection: React.FC<DepositReceiptSectionProps> = ({
                   <td className='px-3 py-2'>
                     {item.amount.toLocaleString()} {currencyLabel}
                   </td>
-                  <td className='px-3 py-2 capitalize'>{item.status}</td>
+                  <td className='px-3 py-2'>
+                    {getLocalizedStatus(item.status)}
+                  </td>
                   <td className='px-3 py-2'>
                     {new Date(item.created_at).toLocaleString()}
                   </td>
@@ -324,9 +338,9 @@ const DepositReceiptSection: React.FC<DepositReceiptSectionProps> = ({
                     )}
                   </td>
                   <td className='px-3 py-2 min-w-[200px]'>
-                    {item.rejection_note || item.status_reason || (
-                      <span className='text-gray-400'>-</span>
-                    )}
+                    {getLocalizedRejectionReason(
+                      item.rejection_note || item.status_reason
+                    ) || <span className='text-gray-400'>-</span>}
                   </td>
                   <td className='px-3 py-2'>
                     <Button
