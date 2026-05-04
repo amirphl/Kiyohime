@@ -33,3 +33,32 @@ export const formatNormalizedDiscountRate = (
   const text = value.toFixed(decimals);
   return includePercentSign ? `${text}%` : text;
 };
+
+interface CustomerDisplayInput {
+  representative_first_name?: string | null;
+  representative_last_name?: string | null;
+  company_name?: string | null;
+}
+
+const safeDisplayPart = (value?: string | null) => {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : '-';
+};
+
+export const formatCustomerDisplay = (customer: CustomerDisplayInput) =>
+  [
+    safeDisplayPart(customer.representative_first_name),
+    safeDisplayPart(customer.representative_last_name),
+    safeDisplayPart(customer.company_name),
+  ].join(' - ');
+
+export const normalizeCustomerId = (value: unknown): number | undefined => {
+  if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = Number.parseInt(value, 10);
+    if (Number.isFinite(parsed) && parsed > 0) return parsed;
+  }
+  return undefined;
+};
