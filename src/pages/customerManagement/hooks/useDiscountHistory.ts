@@ -9,7 +9,10 @@ export interface DiscountHistoryItem {
   agency_share_with_tax: number;
 }
 
-export const useDiscountHistory = (accessToken: string | null, onError?: (msg: string) => void) => {
+export const useDiscountHistory = (
+  accessToken: string | null,
+  onError?: (msg: string) => void
+) => {
   const onErrorRef = useRef(onError);
   const [items, setItems] = useState<DiscountHistoryItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -21,10 +24,22 @@ export const useDiscountHistory = (accessToken: string | null, onError?: (msg: s
 
   const fetchHistory = useCallback(
     async (customerId: number) => {
+      if (!accessToken) {
+        setItems([]);
+        setError(null);
+        setLoading(false);
+        return;
+      }
+      if (!(customerId > 0)) {
+        const msg = 'Invalid customer id';
+        setError(msg);
+        onErrorRef.current?.(msg);
+        return;
+      }
       setLoading(true);
       setError(null);
       try {
-        if (accessToken) apiService.setAccessToken(accessToken);
+        apiService.setAccessToken(accessToken);
         const res = await apiService.listAgencyCustomerDiscounts(customerId);
         if (res.success && res.data) {
           setItems(res.data.items || []);
