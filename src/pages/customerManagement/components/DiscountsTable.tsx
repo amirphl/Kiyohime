@@ -1,6 +1,10 @@
 import React from 'react';
 import Button from '../../../components/ui/Button';
-import { formatDatetime, formatNormalizedDiscountRate } from '../utils';
+import {
+  formatCustomerDisplay,
+  formatDatetime,
+  formatNormalizedDiscountRate,
+} from '../utils';
 import { AgencyDiscountItem } from '../hooks/useAgencyDiscounts';
 
 interface DiscountsTableProps {
@@ -46,7 +50,7 @@ const DiscountsTable: React.FC<DiscountsTableProps> = ({
               #
             </th>
             <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-              {copy.companyName}
+              {copy.discountCustomer}
             </th>
             <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
               {copy.discountRate}
@@ -88,7 +92,7 @@ const DiscountsTable: React.FC<DiscountsTableProps> = ({
                   {idx + 1}
                 </td>
                 <td className='px-4 py-2 text-sm text-gray-900 text-center'>
-                  {d.company_name ?? ''}
+                  {formatCustomerDisplay(d)}
                 </td>
                 <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                   {formatNormalizedDiscountRate(d.discount_rate)}
