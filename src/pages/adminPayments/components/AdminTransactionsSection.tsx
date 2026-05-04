@@ -187,10 +187,10 @@ const AdminTransactionsSection: React.FC<AdminTransactionsSectionProps> = ({
 
   useEffect(() => {
     if (refreshSignal === undefined) return;
-    loadTransactions();
+    refresh();
     // refreshSignal intentionally triggers list recall after receipt status updates.
     // Use stable `refresh` to avoid callback-identity loops from `loadTransactions`.
-  }, [refreshSignal, loadTransactions]);
+  }, [refreshSignal, refresh]);
 
   return (
     <div className='rounded-lg border border-gray-200 bg-white p-4 shadow-sm space-y-4'>
