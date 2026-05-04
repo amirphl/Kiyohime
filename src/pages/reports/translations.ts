@@ -77,6 +77,9 @@ export interface ReportsTranslations {
     clickRate: string;
     totalClicks: string;
     totalSentSuccessfully: string;
+    totalSentRecords: string;
+    totalFailedRecords: string;
+    inactiveChannelNumbers: string;
     numAudience: string;
     linkShortener: string;
     cancelCampaign: string;
@@ -179,6 +182,9 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       clickRate: 'Click Rate',
       totalClicks: 'Total Clicks',
       totalSentSuccessfully: 'Total Sent Successfully',
+      totalSentRecords: 'Total Sent Records',
+      totalFailedRecords: 'Total Failed Records',
+      inactiveChannelNumbers: 'Inactive numbers for this channel',
       numAudience: 'Total',
       linkShortener: 'Link Shortener',
       cancelCampaign: 'Cancel Campaign',
@@ -279,6 +285,9 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       clickRate: 'نرخ کلیک (تعداد کلیک / تعداد پیام های رسیده)',
       totalClicks: 'مجموع کلیک',
       totalSentSuccessfully: 'تعداد پیام‌های رسیده',
+      totalSentRecords: 'تعداد پیام‌های ارسالی',
+      totalFailedRecords: 'تعداد پیام‌های خطا خورده',
+      inactiveChannelNumbers: 'تعداد شماره‌های غیرفعال برای این کانال',
       numAudience: 'تعداد پیام های ارسالی',
       linkShortener: 'کوتاه کننده لینک',
       cancelCampaign: 'لغو',
