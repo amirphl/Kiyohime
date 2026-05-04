@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import apiService from '../../../services/api';
+import { AgencyCustomerListItem } from '../../../types/agency';
 
 export interface AgencyCustomerOption {
   customer_id: number;
@@ -8,7 +9,10 @@ export interface AgencyCustomerOption {
   company_name?: string | null;
 }
 
-export const useAgencyCustomers = (accessToken: string | null, onError?: (msg: string) => void) => {
+export const useAgencyCustomers = (
+  accessToken: string | null,
+  onError?: (msg: string) => void
+) => {
   const onErrorRef = useRef(onError);
   const [customers, setCustomers] = useState<AgencyCustomerOption[]>([]);
 
@@ -17,11 +21,28 @@ export const useAgencyCustomers = (accessToken: string | null, onError?: (msg: s
   }, [onError]);
 
   const fetchCustomers = useCallback(async () => {
+    if (!accessToken) {
+      setCustomers([]);
+      return;
+    }
     try {
-      if (accessToken) apiService.setAccessToken(accessToken);
+      apiService.setAccessToken(accessToken);
       const res = await apiService.listAgencyCustomers();
       if (res.success && res.data) {
-        setCustomers(res.data.items || []);
+        const normalized: AgencyCustomerOption[] = (res.data.items || [])
+          .filter(
+            (item: AgencyCustomerListItem) =>
+              Number.isFinite(item.customer_id) && item.customer_id > 0
+          )
+          .map((item: AgencyCustomerListItem) => ({
+            customer_id: item.customer_id,
+            representative_first_name:
+              item.representative_first_name?.trim() || '',
+            representative_last_name:
+              item.representative_last_name?.trim() || '',
+            company_name: item.company_name,
+          }));
+        setCustomers(normalized);
       } else {
         const msg = res.message || 'Failed to list customers';
         onErrorRef.current?.(msg);
