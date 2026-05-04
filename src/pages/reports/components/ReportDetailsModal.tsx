@@ -52,6 +52,24 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
     if (Array.isArray(value)) return value.length > 0;
     return Boolean(value);
   }, [campaign.statistics]);
+  const getNumericStat = (value: unknown): number | null => {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'string' && value.trim() !== '') {
+      const parsed = Number(value);
+      if (Number.isFinite(parsed)) return parsed;
+    }
+    return null;
+  };
+  const aggregatedTotalRecords = getNumericStat(
+    campaign.statistics?.aggregatedTotalRecords
+  );
+  const aggregatedTotalSent = getNumericStat(
+    campaign.statistics?.aggregatedTotalSent
+  );
+  const aggregatedFailedCount =
+    aggregatedTotalRecords !== null && aggregatedTotalSent !== null
+      ? aggregatedTotalRecords - aggregatedTotalSent
+      : null;
 
   const getExportErrorMessage = (message?: string) => {
     const code = (message || '').trim().toUpperCase();
@@ -297,10 +315,22 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
                   </div>
                 </div> */}
               {/* <div className="flex flex-col gap-3 w-full"> */}
-              {infoRow(copy.modal.numAudience, campaign.num_audience ?? '-')}
+              {infoRow(
+                copy.modal.totalSentRecords,
+                aggregatedTotalRecords ?? '-'
+              )}
               {infoRow(
                 copy.modal.totalSentSuccessfully,
-                campaign.statistics?.aggregatedTotalSent ?? '-'
+                aggregatedTotalSent ?? '-'
+              )}
+              {infoRow(
+                copy.modal.totalFailedRecords,
+                aggregatedFailedCount ?? '-'
+              )}
+              {infoRow(
+                copy.modal.inactiveChannelNumbers,
+                // TODO: Replace with backend field when inactive channel number count is available.
+                'TODO'
               )}
               {hasAdlink &&
                 infoRow(
