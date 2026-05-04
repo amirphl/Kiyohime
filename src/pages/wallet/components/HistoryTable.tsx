@@ -126,15 +126,19 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   };
 
   const resolveInvoiceAction = (row: HistoryRow): InvoiceAction => {
-    const hasPositiveAmount = row.amount > 0;
+    if (!accessToken || row.kind !== 'charge-free') return 'disabled';
     const hasInvoiceUUID = Boolean(row.source.customer_invoice_uuid);
-    if (!hasPositiveAmount || !accessToken) return 'disabled';
     if (hasInvoiceUUID) return 'download';
     return 'notify';
   };
 
   const handleDownloadInvoice = async (row: HistoryRow) => {
-    if (!accessToken || !row.source.customer_invoice_uuid || row.amount <= 0)
+    if (
+      row.kind !== 'charge-free' ||
+      !accessToken ||
+      !row.source.customer_invoice_uuid ||
+      row.amount < 0
+    )
       return;
     setLoadingActionId(row.id);
     apiService.setAccessToken(accessToken);
@@ -162,7 +166,11 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   };
 
   const handleNotifyInvoiceIssue = async (row: HistoryRow) => {
-    if (!accessToken || row.amount <= 0 || row.source.customer_invoice_uuid)
+    if (
+      row.kind !== 'charge-free' ||
+      !accessToken ||
+      row.source.customer_invoice_uuid
+    )
       return;
     setLoadingActionId(row.id);
     apiService.setAccessToken(accessToken);
@@ -278,16 +286,20 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                     {`${row.amount.toLocaleString()} ${currencyLabel}`}
                   </td>
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
-                    <Button
-                      size='sm'
-                      variant='outline'
-                      onClick={() => handleInvoiceAction(row)}
-                      disabled={isRowActionDisabled(row)}
-                      aria-label={getInvoiceActionLabel(row)}
-                      title={getInvoiceActionLabel(row)}
-                    >
-                      {renderInvoiceIcon(row)}
-                    </Button>
+                    {row.kind === 'charge-free' ? (
+                      <Button
+                        size='sm'
+                        variant='outline'
+                        onClick={() => handleInvoiceAction(row)}
+                        disabled={isRowActionDisabled(row)}
+                        aria-label={getInvoiceActionLabel(row)}
+                        title={getInvoiceActionLabel(row)}
+                      >
+                        {renderInvoiceIcon(row)}
+                      </Button>
+                    ) : (
+                      <span className='text-gray-400'>-</span>
+                    )}
                   </td>
                 </tr>
               );
