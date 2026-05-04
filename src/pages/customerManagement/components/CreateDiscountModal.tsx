@@ -4,6 +4,7 @@ import Button from '../../../components/ui/Button';
 import AgencyCalculatorModal from '../../../components/calculator/Calculator';
 import { AgencyReportTranslations } from '../translations';
 import { calculatorTranslations } from '../../../components/calculator/Calculator';
+import { formatCustomerDisplay } from '../utils';
 
 interface CustomerInfo {
   representative_first_name: string;
@@ -64,6 +65,13 @@ const CreateDiscountModal: React.FC<CreateDiscountModalProps> = ({
   copy,
 }) => {
   if (!isOpen) return null;
+  const hasCustomerSelection =
+    !isGlobal || typeof globalCustomerId === 'number';
+  const canSubmit =
+    hasCustomerSelection &&
+    newDiscountName.trim().length > 0 &&
+    newDiscountRate.trim().length > 0 &&
+    !submitting;
 
   return (
     <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
@@ -98,8 +106,7 @@ const CreateDiscountModal: React.FC<CreateDiscountModalProps> = ({
                 <option value=''>--</option>
                 {customers.map(c => (
                   <option key={c.customer_id} value={c.customer_id}>
-                    {`${c.representative_first_name || ''} ${c.representative_last_name || ''}`.trim()}{' '}
-                    {c.company_name ? `- ${c.company_name}` : ''}
+                    {formatCustomerDisplay(c)}
                   </option>
                 ))}
               </select>
@@ -109,11 +116,7 @@ const CreateDiscountModal: React.FC<CreateDiscountModalProps> = ({
             <div className='p-3 bg-gray-50 rounded border text-sm text-gray-700'>
               <div>
                 <span className='font-medium'>{copy.discountCustomer}:</span>{' '}
-                {`${selectedCustomerInfo.representative_first_name || ''} ${selectedCustomerInfo.representative_last_name || ''}`.trim()}
-              </div>
-              <div>
-                <span className='font-medium'>{copy.companyName}:</span>{' '}
-                {selectedCustomerInfo.company_name ?? '-'}
+                {formatCustomerDisplay(selectedCustomerInfo)}
               </div>
             </div>
           )}
@@ -146,7 +149,7 @@ const CreateDiscountModal: React.FC<CreateDiscountModalProps> = ({
             <Button variant='outline' onClick={onClose} disabled={submitting}>
               {copy.discountCancel}
             </Button>
-            <Button variant='primary' onClick={onSubmit} disabled={submitting}>
+            <Button variant='primary' onClick={onSubmit} disabled={!canSubmit}>
               {copy.discountCreate}
             </Button>
           </div>
