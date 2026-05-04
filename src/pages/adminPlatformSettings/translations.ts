@@ -55,6 +55,38 @@ export interface AdminPlatformSettingsCopy {
       actions: string;
     };
   };
+  pagePrices: {
+    title: string;
+    subtitle: string;
+    update: string;
+    platformLabels: {
+      sms: string;
+      rubika: string;
+      bale: string;
+      splus: string;
+    };
+    columns: {
+      platform: string;
+      currentPrice: string;
+      updatedAt: string;
+      newPrice: string;
+      actions: string;
+    };
+  };
+  pricingCalculation: {
+    title: string;
+    subtitle: string;
+    note: string;
+    columns: {
+      platform: string;
+      segmentPriceFactor: string;
+      numPages: string;
+      platformBasePrice: string;
+      lineNumberPriceFactor: string;
+      pagePrice: string;
+      totalCost: string;
+    };
+  };
   modal: {
     title: string;
     currentStatus: string;
@@ -76,11 +108,22 @@ export interface AdminPlatformSettingsCopy {
     basePriceListFailed: string;
     basePriceUpdateFailed: string;
     basePriceInvalid: string;
+    pagePriceListFailed: string;
+    pagePriceUpdateFailed: string;
+    pagePriceInvalid: string;
+    pagePriceValidationFailed: string;
+    pagePricePlatformRequired: string;
+    pagePricePlatformInvalid: string;
+    pagePriceInsertFailed: string;
+    unauthorized: string;
+    networkError: string;
+    invalidRequest: string;
   };
   success: {
     statusUpdated: string;
     metadataUpdated: string;
     basePriceUpdated: string;
+    pagePriceUpdated: string;
   };
   common: {
     loading: string;
@@ -145,6 +188,38 @@ const en: AdminPlatformSettingsCopy = {
       actions: 'Actions',
     },
   },
+  pagePrices: {
+    title: 'Campaign Page Prices',
+    subtitle: 'Review and update page prices for each platform.',
+    update: 'Update',
+    platformLabels: {
+      sms: 'SMS',
+      rubika: 'Rubika',
+      bale: 'Bale',
+      splus: 'Soroush Plus',
+    },
+    columns: {
+      platform: 'Platform',
+      currentPrice: 'Current Price',
+      updatedAt: 'Last Updated',
+      newPrice: 'New Price',
+      actions: 'Actions',
+    },
+  },
+  pricingCalculation: {
+    title: 'Pricing Calculation Table',
+    subtitle: 'Adjust factors and prices to estimate total cost per platform.',
+    note: 'SMS uses segment/page and line-number factors; other platforms use fixed multipliers of 1 for pages and line-number factor.',
+    columns: {
+      platform: 'Platform',
+      segmentPriceFactor: 'Segment Price Factor',
+      numPages: 'Number of Pages',
+      platformBasePrice: 'Platform Base Price',
+      lineNumberPriceFactor: 'Line Number Price Factor',
+      pagePrice: 'Page Price',
+      totalCost: 'Total Cost',
+    },
+  },
   modal: {
     title: 'Change Platform Setting Status',
     currentStatus: 'Current Status',
@@ -167,11 +242,22 @@ const en: AdminPlatformSettingsCopy = {
     basePriceListFailed: 'Failed to list platform base prices',
     basePriceUpdateFailed: 'Failed to update platform base price',
     basePriceInvalid: 'Price must be greater than 0',
+    pagePriceListFailed: 'Failed to list page prices',
+    pagePriceUpdateFailed: 'Failed to update page price',
+    pagePriceInvalid: 'Price must be greater than 0',
+    pagePriceValidationFailed: 'Validation failed for page price update',
+    pagePricePlatformRequired: 'Platform is required',
+    pagePricePlatformInvalid: 'Platform is invalid',
+    pagePriceInsertFailed: 'Failed to insert page price',
+    unauthorized: 'Unauthorized',
+    networkError: 'Network error occurred',
+    invalidRequest: 'Invalid request',
   },
   success: {
     statusUpdated: 'Platform setting status updated',
     metadataUpdated: 'Platform settings metadata updated',
     basePriceUpdated: 'Platform base price updated',
+    pagePriceUpdated: 'Page price updated',
   },
   common: {
     loading: 'Loading...',
@@ -236,6 +322,39 @@ const fa: AdminPlatformSettingsCopy = {
       actions: 'اقدامات',
     },
   },
+  pagePrices: {
+    title: 'قیمت جاذبه',
+    subtitle: 'قیمت جاذبه برای هر کانال را مشاهده و بروزرسانی کنید.',
+    update: 'بروزرسانی',
+    platformLabels: {
+      sms: 'SMS',
+      rubika: 'روبیکا',
+      bale: 'بله',
+      splus: 'سروش پلاس',
+    },
+    columns: {
+      platform: 'کانال',
+      currentPrice: 'قیمت فعلی',
+      updatedAt: 'آخرین بروزرسانی',
+      newPrice: 'قیمت جدید',
+      actions: 'اقدامات',
+    },
+  },
+  pricingCalculation: {
+    title: 'جدول محاسبه قیمت',
+    subtitle:
+      'برای برآورد هزینه نهایی هر کانال، ضرایب و قیمت‌ها را تغییر دهید.',
+    note: 'برای SMS ضرایب تعداد پارت و شماره خط اعمال می‌شود؛ برای سایر کانال‌ها ضریب تعداد پارت و ضریب شماره خط برابر ۱ در نظر گرفته می‌شود.',
+    columns: {
+      platform: 'کانال',
+      segmentPriceFactor: 'ضریب قیمت سگمنت',
+      numPages: 'تعداد پارت',
+      platformBasePrice: 'قیمت پایه کانال',
+      lineNumberPriceFactor: 'ضریب قیمت شماره خط',
+      pagePrice: 'قیمت جاذبه',
+      totalCost: 'هزینه نهایی',
+    },
+  },
   modal: {
     title: 'تغییر وضعیت تنظیمات کانال',
     currentStatus: 'وضعیت فعلی',
@@ -258,11 +377,22 @@ const fa: AdminPlatformSettingsCopy = {
     basePriceListFailed: 'دریافت قیمت‌های پایه کانال ناموفق بود',
     basePriceUpdateFailed: 'بروزرسانی قیمت پایه کانال ناموفق بود',
     basePriceInvalid: 'قیمت باید بزرگ‌تر از صفر باشد',
+    pagePriceListFailed: 'دریافت قیمت جاذبه ناموفق بود',
+    pagePriceUpdateFailed: 'بروزرسانی قیمت جاذبه ناموفق بود',
+    pagePriceInvalid: 'قیمت باید بزرگ‌تر از صفر باشد',
+    pagePriceValidationFailed: 'اعتبارسنجی قیمت جاذبه ناموفق بود',
+    pagePricePlatformRequired: 'انتخاب کانال الزامی است',
+    pagePricePlatformInvalid: 'کانال انتخاب‌شده نامعتبر است',
+    pagePriceInsertFailed: 'ثبت قیمت جاذبه ناموفق بود',
+    unauthorized: 'دسترسی غیرمجاز',
+    networkError: 'خطای شبکه رخ داد',
+    invalidRequest: 'درخواست نامعتبر است',
   },
   success: {
     statusUpdated: 'وضعیت تنظیمات کانال بروزرسانی شد',
     metadataUpdated: 'متادیتای تنظیمات کانال بروزرسانی شد',
     basePriceUpdated: 'قیمت پایه کانال بروزرسانی شد',
+    pagePriceUpdated: 'قیمت جاذبه بروزرسانی شد',
   },
   common: {
     loading: 'در حال بارگذاری...',
