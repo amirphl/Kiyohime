@@ -23,14 +23,15 @@ export const useAdminMultimedia = ({
   downloadErrorFallback,
 }: UseAdminMultimediaParams) => {
   const [previewsByUuid, setPreviewsByUuid] = useState<PreviewState>({});
-  const [previewLoadingByUuid, setPreviewLoadingByUuid] = useState<LoadingState>(
-    {}
-  );
+  const [previewLoadingByUuid, setPreviewLoadingByUuid] =
+    useState<LoadingState>({});
   const [downloadLoadingByUuid, setDownloadLoadingByUuid] =
     useState<LoadingState>({});
 
   const previewErrorRef = useRef(onPreviewError);
   const downloadErrorRef = useRef(onDownloadError);
+  const mountedRef = useRef(true);
+  const downloadLoadingRef = useRef<LoadingState>({});
 
   useEffect(() => {
     previewErrorRef.current = onPreviewError;
@@ -40,10 +41,25 @@ export const useAdminMultimedia = ({
     downloadErrorRef.current = onDownloadError;
   }, [onDownloadError]);
 
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    downloadLoadingRef.current = downloadLoadingByUuid;
+  }, [downloadLoadingByUuid]);
+
   const uniqueUuids = useMemo(
     () =>
       Array.from(
-        new Set(multimediaUuids.filter((uuid): uuid is string => Boolean(uuid)))
+        new Set(
+          multimediaUuids
+            .map(uuid => uuid?.trim())
+            .filter((uuid): uuid is string => Boolean(uuid))
+        )
       ),
     [multimediaUuids]
   );
@@ -52,19 +68,34 @@ export const useAdminMultimedia = ({
     async (uuid: string) => {
       if (!uuid) return;
       if (previewUrlCache.has(uuid)) {
-        setPreviewsByUuid(prev => ({ ...prev, [uuid]: previewUrlCache.get(uuid) }));
+        if (!mountedRef.current) return;
+        setPreviewsByUuid(prev => ({
+          ...prev,
+          [uuid]: previewUrlCache.get(uuid),
+        }));
         return;
       }
 
       if (previewRequestInFlight.has(uuid)) {
-        setPreviewLoadingByUuid(prev => ({ ...prev, [uuid]: true }));
-        await previewRequestInFlight.get(uuid);
+        if (mountedRef.current) {
+          setPreviewLoadingByUuid(prev => ({ ...prev, [uuid]: true }));
+        }
+        const inFlight = previewRequestInFlight.get(uuid);
+        if (inFlight) {
+          await inFlight;
+        }
+        if (!mountedRef.current) return;
         setPreviewLoadingByUuid(prev => ({ ...prev, [uuid]: false }));
-        setPreviewsByUuid(prev => ({ ...prev, [uuid]: previewUrlCache.get(uuid) }));
+        setPreviewsByUuid(prev => ({
+          ...prev,
+          [uuid]: previewUrlCache.get(uuid),
+        }));
         return;
       }
 
-      setPreviewLoadingByUuid(prev => ({ ...prev, [uuid]: true }));
+      if (mountedRef.current) {
+        setPreviewLoadingByUuid(prev => ({ ...prev, [uuid]: true }));
+      }
 
       const request = (async () => {
         const res = await adminPlatformSettingsApi.previewMultimedia(uuid);
@@ -72,6 +103,10 @@ export const useAdminMultimedia = ({
           previewUrlCache.set(uuid, null);
           previewErrorRef.current(res.message || previewErrorFallback);
           return;
+        }
+        const previousUrl = previewUrlCache.get(uuid);
+        if (previousUrl && previousUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(previousUrl);
         }
         const url = URL.createObjectURL(res.blob);
         previewUrlCache.set(uuid, url);
@@ -86,8 +121,12 @@ export const useAdminMultimedia = ({
 
       previewRequestInFlight.set(uuid, request);
       await request;
+      if (!mountedRef.current) return;
       setPreviewLoadingByUuid(prev => ({ ...prev, [uuid]: false }));
-      setPreviewsByUuid(prev => ({ ...prev, [uuid]: previewUrlCache.get(uuid) }));
+      setPreviewsByUuid(prev => ({
+        ...prev,
+        [uuid]: previewUrlCache.get(uuid),
+      }));
     },
     [previewErrorFallback]
   );
@@ -102,9 +141,11 @@ export const useAdminMultimedia = ({
   const downloadByUuid = useCallback(
     async (uuid?: string | null) => {
       if (!uuid) return;
-      if (downloadLoadingByUuid[uuid]) return;
+      if (downloadLoadingRef.current[uuid]) return;
 
-      setDownloadLoadingByUuid(prev => ({ ...prev, [uuid]: true }));
+      if (mountedRef.current) {
+        setDownloadLoadingByUuid(prev => ({ ...prev, [uuid]: true }));
+      }
       try {
         const res = await adminPlatformSettingsApi.downloadMultimedia(uuid);
         if (!res.success || !res.blob) {
@@ -122,11 +163,25 @@ export const useAdminMultimedia = ({
       } catch {
         downloadErrorRef.current(downloadErrorFallback);
       } finally {
-        setDownloadLoadingByUuid(prev => ({ ...prev, [uuid]: false }));
+        if (mountedRef.current) {
+          setDownloadLoadingByUuid(prev => ({ ...prev, [uuid]: false }));
+        }
       }
     },
-    [downloadErrorFallback, downloadLoadingByUuid]
+    [downloadErrorFallback]
   );
+
+  useEffect(() => {
+    return () => {
+      previewUrlCache.forEach(url => {
+        if (url && url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
+      previewUrlCache.clear();
+      previewRequestInFlight.clear();
+    };
+  }, []);
 
   return {
     previewsByUuid,
