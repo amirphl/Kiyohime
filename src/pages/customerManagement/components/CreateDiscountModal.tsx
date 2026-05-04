@@ -2,6 +2,8 @@ import React from 'react';
 import { Calculator } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import AgencyCalculatorModal from '../../../components/calculator/Calculator';
+import { AgencyReportTranslations } from '../translations';
+import { calculatorTranslations } from '../../../components/calculator/Calculator';
 
 interface CustomerInfo {
   representative_first_name: string;
@@ -12,7 +14,12 @@ interface CustomerInfo {
 interface CreateDiscountModalProps {
   isOpen: boolean;
   isGlobal: boolean;
-  customers: Array<{ customer_id: number; representative_first_name: string; representative_last_name: string; company_name?: string | null }>;
+  customers: Array<{
+    customer_id: number;
+    representative_first_name: string;
+    representative_last_name: string;
+    company_name?: string | null;
+  }>;
   selectedCustomerInfo: CustomerInfo | null;
   globalCustomerId: number | '';
   onSelectCustomer: (id: number | '') => void;
@@ -25,12 +32,12 @@ interface CreateDiscountModalProps {
   createError: string | null;
   submitting: boolean;
   language: string;
-  calcTranslations: any;
+  calcTranslations: typeof calculatorTranslations.en;
   calcOpen: boolean;
   onCalcOpen: () => void;
   onCalcClose: () => void;
   onCalcApply: (percent: number) => void;
-  copy: any;
+  copy: AgencyReportTranslations;
 }
 
 const CreateDiscountModal: React.FC<CreateDiscountModalProps> = ({
@@ -63,10 +70,11 @@ const CreateDiscountModal: React.FC<CreateDiscountModalProps> = ({
       <div className='bg-white rounded-lg max-w-md w-full p-6 relative'>
         <div className='flex items-center justify-between mb-4'>
           <h4 className='text-lg font-medium text-gray-900'>
-            {copy.discountCreateTitle}
+            {copy.discountGlobalCreate}
           </h4>
           <Button variant='outline' onClick={onCalcOpen}>
-            <Calculator className='h-4 w-4 mr-2' /> {calcTranslations.openCalculator}
+            <Calculator className='h-4 w-4 mr-2' />{' '}
+            {calcTranslations.openCalculator}
           </Button>
         </div>
         {createError && (
@@ -100,15 +108,11 @@ const CreateDiscountModal: React.FC<CreateDiscountModalProps> = ({
           {!isGlobal && selectedCustomerInfo && (
             <div className='p-3 bg-gray-50 rounded border text-sm text-gray-700'>
               <div>
-                <span className='font-medium'>
-                  {copy.discountCustomer}:
-                </span>{' '}
+                <span className='font-medium'>{copy.discountCustomer}:</span>{' '}
                 {`${selectedCustomerInfo.representative_first_name || ''} ${selectedCustomerInfo.representative_last_name || ''}`.trim()}
               </div>
               <div>
-                <span className='font-medium'>
-                  {copy.companyName}:
-                </span>{' '}
+                <span className='font-medium'>{copy.companyName}:</span>{' '}
                 {selectedCustomerInfo.company_name ?? '-'}
               </div>
             </div>
@@ -139,11 +143,7 @@ const CreateDiscountModal: React.FC<CreateDiscountModalProps> = ({
             />
           </div>
           <div className='flex justify-end gap-2'>
-            <Button
-              variant='outline'
-              onClick={onClose}
-              disabled={submitting}
-            >
+            <Button variant='outline' onClick={onClose} disabled={submitting}>
               {copy.discountCancel}
             </Button>
             <Button variant='primary' onClick={onSubmit} disabled={submitting}>
