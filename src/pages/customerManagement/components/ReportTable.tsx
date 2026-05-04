@@ -1,11 +1,12 @@
 import React from 'react';
 import Button from '../../../components/ui/Button';
+import { formatCustomerDisplay } from '../utils';
 
 interface ReportItem {
-  customer_id?: number;
+  customer_id: number;
   representative_first_name: string;
   representative_last_name: string;
-  company_name: string;
+  company_name?: string | null;
   total_sent: number;
   total_agency_share_with_tax: number;
 }
@@ -100,15 +101,12 @@ const ReportTable: React.FC<ReportTableProps> = ({
           </tr>
         ) : (
           items.map((it, idx) => (
-            <tr
-              key={`${it.representative_first_name}-${it.representative_last_name}-${idx}`}
-            >
+            <tr key={`${it.customer_id}-${idx}`}>
               <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                 {idx + 1}
               </td>
               <td className='px-4 py-2 text-sm text-gray-900 text-center'>
-                {it.representative_first_name || '-'}{' '}
-                {it.representative_last_name || '-'}
+                {formatCustomerDisplay(it)}
               </td>
               <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                 {it.company_name || '-'}
@@ -123,9 +121,10 @@ const ReportTable: React.FC<ReportTableProps> = ({
               <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                 <Button
                   variant='outline'
-                  disabled={it.customer_id === undefined}
+                  disabled={!(it.customer_id && it.customer_id > 0)}
                   onClick={() =>
-                    it.customer_id !== undefined &&
+                    it.customer_id &&
+                    it.customer_id > 0 &&
                     onCreateForCustomer(it.customer_id, {
                       representative_first_name: it.representative_first_name,
                       representative_last_name: it.representative_last_name,
@@ -139,9 +138,10 @@ const ReportTable: React.FC<ReportTableProps> = ({
               <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                 <Button
                   variant='outline'
-                  disabled={it.customer_id === undefined}
+                  disabled={!(it.customer_id && it.customer_id > 0)}
                   onClick={() =>
-                    it.customer_id !== undefined &&
+                    it.customer_id &&
+                    it.customer_id > 0 &&
                     onViewHistory(it.customer_id)
                   }
                 >
