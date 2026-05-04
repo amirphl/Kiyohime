@@ -1,13 +1,12 @@
 import React from 'react';
 import Button from '../../../components/ui/Button';
-import { formatDatetime } from '../utils';
+import { formatDatetime, formatNormalizedDiscountRate } from '../utils';
 import { AgencyDiscountItem } from '../hooks/useAgencyDiscounts';
 
 interface DiscountsTableProps {
   discounts: AgencyDiscountItem[];
   loading: boolean;
   error: string | null;
-  currencyLabel: string;
   noTransactionsLabel: string;
   commonLoadingLabel: string;
   language: string;
@@ -28,7 +27,6 @@ const DiscountsTable: React.FC<DiscountsTableProps> = ({
   discounts,
   loading,
   error,
-  currencyLabel,
   noTransactionsLabel,
   commonLoadingLabel,
   language,
@@ -67,19 +65,19 @@ const DiscountsTable: React.FC<DiscountsTableProps> = ({
         <tbody className='bg-white divide-y divide-gray-200'>
           {loading ? (
             <tr>
-              <td colSpan={7} className='px-4 py-6 text-center text-gray-600'>
+              <td colSpan={6} className='px-4 py-6 text-center text-gray-600'>
                 {commonLoadingLabel}
               </td>
             </tr>
           ) : error ? (
             <tr>
-              <td colSpan={7} className='px-4 py-6 text-center text-red-600'>
+              <td colSpan={6} className='px-4 py-6 text-center text-red-600'>
                 {error}
               </td>
             </tr>
           ) : discounts.length === 0 ? (
             <tr>
-              <td colSpan={7} className='px-4 py-6 text-center text-gray-500'>
+              <td colSpan={6} className='px-4 py-6 text-center text-gray-500'>
                 {noTransactionsLabel}
               </td>
             </tr>
@@ -93,12 +91,7 @@ const DiscountsTable: React.FC<DiscountsTableProps> = ({
                   {d.company_name ?? ''}
                 </td>
                 <td className='px-4 py-2 text-sm text-gray-900 text-center'>
-                  {(() => {
-                    const rate = Number(d.discount_rate);
-                    if (!Number.isFinite(rate) || rate >= 1) return '-';
-                    const value = (100 * rate) / (1 - rate);
-                    return Math.ceil(value).toString();
-                  })()}
+                  {formatNormalizedDiscountRate(d.discount_rate)}
                 </td>
                 <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                   {formatDatetime(d.created_at, language)}
