@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
@@ -83,34 +83,31 @@ const CustomerManagementPage: React.FC = () => {
     reset: resetHistory,
   } = useDiscountHistory(accessToken, showError);
 
-  const loadReport = useCallback(() => {
+  useEffect(() => {
+    if (!accessToken) return;
+    fetchReport({}, agencyCopy.invalidRange);
+    fetchDiscounts();
+    fetchCustomers();
+  }, [
+    accessToken,
+    fetchReport,
+    fetchDiscounts,
+    fetchCustomers,
+    agencyCopy.invalidRange,
+  ]);
+
+  const handleApplyFilters = () => {
     if (!accessToken) return;
     fetchReport(
       { startDate, endDate, name: nameFilter },
       agencyCopy.invalidRange
     );
-  }, [
-    accessToken,
-    fetchReport,
-    startDate,
-    endDate,
-    nameFilter,
-    agencyCopy.invalidRange,
-  ]);
-
-  useEffect(() => {
-    if (!accessToken) return;
-    loadReport();
-    fetchDiscounts();
-  }, [accessToken, fetchDiscounts, loadReport]);
-
-  const handleApplyFilters = () => {
-    loadReport();
   };
 
   const handleOpenGlobalCreate = async () => {
     setShowCreateModal(true);
     setIsGlobalCreate(true);
+    setShowCalcModal(false);
     setCreateError(null);
     setNewDiscountName('');
     setNewDiscountRate('');
@@ -132,13 +129,19 @@ const CustomerManagementPage: React.FC = () => {
       company_name?: string | null;
     }
   ) => {
+    if (!(customerId > 0)) {
+      showError('Customer is missing or invalid');
+      return;
+    }
     setCreateForCustomerId(customerId);
     setCreateCustomerInfo(info);
     setIsGlobalCreate(false);
     setShowCreateModal(true);
+    setShowCalcModal(false);
     setCreateError(null);
     setNewDiscountName('');
     setNewDiscountRate('');
+    setGlobalCustomerId('');
   };
 
   const handleOpenHistory = async (customerId: number) => {
@@ -174,7 +177,7 @@ const CustomerManagementPage: React.FC = () => {
           : null
         : createForCustomerId;
       if (targetCustomerId === null) {
-        const msg = 'Missing customer id';
+        const msg = 'Please select a customer';
         setCreateError(msg);
         showError(msg);
         return;
@@ -313,6 +316,7 @@ const CustomerManagementPage: React.FC = () => {
           setShowCreateModal(false);
           setIsGlobalCreate(false);
           setShowCalcModal(false);
+          setCreateError(null);
         }}
         onSubmit={handleSubmitDiscount}
         createError={createError}
