@@ -56,6 +56,7 @@ export interface WalletTranslations {
   depositColumnRejection: string;
   depositColumnLang: string;
   depositColumnPreview: string;
+  depositRejectionReasons: Record<string, string>;
   depositConfirmTitle: string;
   depositConfirmBody: string;
   depositDownloadFile: string;
@@ -138,6 +139,11 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     depositColumnRejection: 'Note',
     depositColumnLang: 'Lang',
     depositColumnPreview: 'Preview',
+    depositRejectionReasons: {
+      'Submitted by customer': 'Submitted by customer',
+      'Rejected by admin': 'Rejected by admin',
+      'Approved and credited': 'Approved and credited',
+    },
     depositConfirmTitle: 'Submit deposit receipt?',
     depositConfirmBody:
       'We will send your receipt for manual review. Continue?',
@@ -189,6 +195,8 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     },
     statuses: {
       Pending: 'Pending',
+      Approved: 'Approved',
+      Rejected: 'Rejected',
       Completed: 'Completed',
       Failed: 'Failed',
       Cancelled: 'Cancelled',
@@ -253,9 +261,14 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     depositColumnUpdate: 'به‌روزرسانی',
     depositColumnDelete: 'حذف',
     depositColumnProforma: 'پیش‌فاکتور',
-    depositColumnRejection: 'وضعیت',
+    depositColumnRejection: 'پیام ادمین',
     depositColumnLang: 'زبان',
     depositColumnPreview: 'پیش‌نمایش',
+    depositRejectionReasons: {
+      'Submitted by customer': 'در انتظار تایید',
+      'Rejected by admin': 'رد شده',
+      'Approved and credited': 'تایید شده',
+    },
     depositConfirmTitle: 'فیش واریز ارسال شود؟',
     depositConfirmBody: 'فیش برای بررسی مالی ارسال می‌شود. ادامه می‌دهید؟',
     depositDownloadFile: 'دانلود',
@@ -306,7 +319,9 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       'Discharge Agency Share with Tax': 'واریز سهم آژانس با مالیات',
     },
     statuses: {
-      Pending: 'در انتظار',
+      Pending: 'در انتظار تایید',
+      Approved: 'تایید شده',
+      Rejected: 'رد شده',
       Completed: 'تکمیل‌شده',
       Failed: 'ناموفق',
       Cancelled: 'لغو شده',
