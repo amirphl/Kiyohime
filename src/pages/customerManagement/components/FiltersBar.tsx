@@ -7,6 +7,8 @@ import gregorian from 'react-date-object/calendars/gregorian';
 import gregorian_en from 'react-date-object/locales/gregorian_en';
 import Button from '../../../components/ui/Button';
 import { Filter } from 'lucide-react';
+import { AgencyReportTranslations } from '../translations';
+import DateObject from 'react-date-object';
 
 interface FiltersBarProps {
   language: string;
@@ -18,7 +20,10 @@ interface FiltersBarProps {
   onNameChange: (value: string) => void;
   onApply: () => void;
   loading: boolean;
-  copy: any;
+  copy: Pick<
+    AgencyReportTranslations,
+    'startDate' | 'endDate' | 'name' | 'namePlaceholder' | 'applyFilters'
+  >;
 }
 
 const FiltersBar: React.FC<FiltersBarProps> = ({
@@ -48,7 +53,7 @@ const FiltersBar: React.FC<FiltersBarProps> = ({
             locale={language === 'fa' ? persian_fa : gregorian_en}
             plugins={[<TimePicker hideSeconds={false} />]}
             value={startDate ? new Date(startDate) : undefined}
-            onChange={(val: any) => {
+            onChange={(val: DateObject | null) => {
               if (!val) {
                 onStartChange(undefined);
                 return;
@@ -77,7 +82,7 @@ const FiltersBar: React.FC<FiltersBarProps> = ({
             locale={language === 'fa' ? persian_fa : gregorian_en}
             plugins={[<TimePicker hideSeconds={false} />]}
             value={endDate ? new Date(endDate) : undefined}
-            onChange={(val: any) => {
+            onChange={(val: DateObject | null) => {
               if (!val) {
                 onEndChange(undefined);
                 return;
