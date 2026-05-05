@@ -438,6 +438,14 @@ const AdminTransactionsSection: React.FC<AdminTransactionsSectionProps> = ({
                   value: selectedCustomerTx.customer?.company_phone,
                 },
                 {
+                  label: copy.transactions.customerInfo.companyAddress,
+                  value: selectedCustomerTx.customer?.company_address,
+                },
+                {
+                  label: copy.transactions.customerInfo.postalCode,
+                  value: selectedCustomerTx.customer?.postal_code,
+                },
+                {
                   label: copy.transactions.customerInfo.nationalId,
                   value: selectedCustomerTx.customer?.national_id,
                 },
