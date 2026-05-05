@@ -1,7 +1,8 @@
 import React from 'react';
 import Button from '../../../components/ui/Button';
 import { DiscountHistoryItem } from '../hooks/useDiscountHistory';
-import { formatDatetime } from '../utils';
+import { formatDatetime, formatNormalizedDiscountRate } from '../utils';
+import { AgencyReportTranslations } from '../translations';
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -10,7 +11,14 @@ interface HistoryModalProps {
   items: DiscountHistoryItem[];
   onClose: () => void;
   language: string;
-  copy: any;
+  copy: Pick<
+    AgencyReportTranslations,
+    | 'discountHistoryTitle'
+    | 'discountRate'
+    | 'totalSent'
+    | 'totalShare'
+    | 'discountExpiresAt'
+  >;
   common: {
     close: string;
     loading: string;
@@ -45,9 +53,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
           </Button>
         </div>
         {loading ? (
-          <div className='text-center text-gray-600 py-8'>
-            {common.loading}
-          </div>
+          <div className='text-center text-gray-600 py-8'>{common.loading}</div>
         ) : error ? (
           <div className='text-center text-red-600 py-8'>{error}</div>
         ) : (
@@ -92,7 +98,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
                         {idx + 1}
                       </td>
                       <td className='px-4 py-2 text-sm text-gray-900 text-center'>
-                        {h.discount_rate.toFixed(2)}
+                        {formatNormalizedDiscountRate(h.discount_rate)}
                       </td>
                       <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                         {h.total_sent.toLocaleString()}
