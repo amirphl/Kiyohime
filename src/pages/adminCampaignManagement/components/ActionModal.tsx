@@ -1,14 +1,18 @@
 import React from 'react';
 import { AdminGetCampaignResponse } from '../../../types/admin';
+import { CampaignActionType } from '../constants';
 import { AdminCampaignManagementCopy } from '../translations';
+import { requiresComment } from '../utils';
 
 interface ActionModalProps {
-  actionType: 'approve' | 'reject' | 'cancel' | null;
+  actionType: CampaignActionType | null;
   actionCampaign: AdminGetCampaignResponse | null;
   actionComment: string;
   actionError: string | null;
   actionSubmitting: boolean;
   copy: AdminCampaignManagementCopy;
+  resolveStatusLabel: (status?: string | null) => string;
+  formatDateTime: (value?: string | null) => string;
   onClose: () => void;
   onCommentChange: (value: string) => void;
   onSubmit: () => void;
@@ -21,25 +25,32 @@ const ActionModal: React.FC<ActionModalProps> = ({
   actionError,
   actionSubmitting,
   copy,
+  resolveStatusLabel,
+  formatDateTime,
   onClose,
   onCommentChange,
   onSubmit,
 }) => {
   if (!actionType || !actionCampaign) return null;
 
-  const isCommentRequired = actionType === 'reject' || actionType === 'cancel';
+  const renderArray = (value?: string[] | null): string =>
+    Array.isArray(value) && value.length > 0 ? value.join(', ') : '-';
+
+  const isCommentRequired = requiresComment(actionType);
   const modalTitle =
     actionType === 'approve'
       ? copy.modal.approveTitle
       : actionType === 'reject'
         ? copy.modal.rejectTitle
         : copy.modal.cancelTitle;
+
   const submitText =
     actionType === 'approve'
       ? copy.modal.approve
       : actionType === 'reject'
         ? copy.modal.reject
         : copy.modal.cancel;
+
   const submitClass =
     actionType === 'approve'
       ? 'bg-green-600 hover:bg-green-700'
@@ -48,62 +59,150 @@ const ActionModal: React.FC<ActionModalProps> = ({
         : 'bg-amber-600 hover:bg-amber-700';
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded shadow-lg w-full max-w-lg p-5">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold">{modalTitle}</h2>
-          <button className="text-gray-500" onClick={onClose} aria-label={copy.modal.closeLabel}>
+    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40'>
+      <div className='max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded bg-white p-5 shadow-lg'>
+        <div className='mb-3 flex items-center justify-between'>
+          <h2 className='text-lg font-semibold'>{modalTitle}</h2>
+          <button
+            className='text-gray-500'
+            onClick={onClose}
+            aria-label={copy.modal.closeLabel}
+          >
             ✕
           </button>
         </div>
 
-        <div className="space-y-3">
-          <div className="text-sm text-gray-700">
+        <div className='space-y-3'>
+          <div className='grid grid-cols-1 gap-x-6 gap-y-2 text-sm text-gray-700 md:grid-cols-2'>
             <div>
-              <span className="font-medium">{copy.modal.uuid}:</span>{' '}
-              <span className="font-mono break-all">{actionCampaign.uuid}</span>
+              <span className='font-medium'>{copy.table.headers.id}:</span>{' '}
+              {typeof actionCampaign.id === 'number' ? actionCampaign.id : '-'}
             </div>
             <div>
-              <span className="font-medium">{copy.modal.title}:</span> {actionCampaign.title || '-'}
+              <span className='font-medium'>{copy.modal.uuid}:</span>{' '}
+              <span className='font-mono break-all'>{actionCampaign.uuid}</span>
             </div>
             <div>
-              <span className="font-medium">{copy.modal.currentStatus}:</span> {actionCampaign.status}
+              <span className='font-medium'>
+                {copy.table.headers.scheduleAt}:
+              </span>{' '}
+              {formatDateTime(actionCampaign.scheduleat) || '-'}
             </div>
             <div>
-              <span className="font-medium">{copy.modal.platform}:</span> {actionCampaign.platform || '-'}
+              <span className='font-medium'>{copy.modal.title}:</span>{' '}
+              {actionCampaign.title || '-'}
             </div>
             <div>
-              <span className="font-medium">{copy.modal.platformSettingsId}:</span>{' '}
-              {typeof actionCampaign.platformSettingsId === 'number' ? actionCampaign.platformSettingsId : '-'}
+              <span className='font-medium'>{copy.modal.currentStatus}:</span>{' '}
+              {resolveStatusLabel(actionCampaign.status)}
             </div>
             <div>
-              <span className="font-medium">{copy.modal.mediaUuid}:</span> {actionCampaign.mediaUuid || '-'}
+              <span className='font-medium'>{copy.modal.platform}:</span>{' '}
+              {actionCampaign.platform || '-'}
+            </div>
+            <div>
+              <span className='font-medium'>
+                {copy.table.headers.createdAt}:
+              </span>{' '}
+              {formatDateTime(actionCampaign.created_at) || '-'}
+            </div>
+            <div>
+              <span className='font-medium'>
+                {copy.table.headers.updatedAt}:
+              </span>{' '}
+              {formatDateTime(actionCampaign.updated_at) || '-'}
+            </div>
+            <div>
+              <span className='font-medium'>
+                {copy.modal.platformSettingsId}:
+              </span>{' '}
+              {typeof actionCampaign.platformSettingsId === 'number'
+                ? actionCampaign.platformSettingsId
+                : '-'}
+            </div>
+            <div>
+              <span className='font-medium'>{copy.modal.mediaUuid}:</span>{' '}
+              {actionCampaign.mediaUuid || '-'}
+            </div>
+            <div>
+              <span className='font-medium'>{copy.table.headers.segment}:</span>{' '}
+              {actionCampaign.level1 || '-'}
+            </div>
+            <div>
+              <span className='font-medium'>
+                {copy.table.headers.subsegment}:
+              </span>{' '}
+              {renderArray(actionCampaign.level2s)}
+            </div>
+            <div className='md:col-span-2'>
+              <span className='font-medium'>{copy.table.headers.adLink}:</span>{' '}
+              <span className='break-all'>{actionCampaign.adlink || '-'}</span>
+            </div>
+            <div className='md:col-span-2 whitespace-pre-wrap break-words'>
+              <span className='font-medium'>{copy.table.headers.content}:</span>{' '}
+              {actionCampaign.content || '-'}
+            </div>
+            <div>
+              <span className='font-medium'>
+                {copy.table.headers.lineNumber}:
+              </span>{' '}
+              {actionCampaign.line_number || '-'}
+            </div>
+            <div>
+              <span className='font-medium'>{copy.table.headers.budget}:</span>{' '}
+              {typeof actionCampaign.budget === 'number'
+                ? actionCampaign.budget.toLocaleString()
+                : '-'}
+            </div>
+            <div>
+              <span className='font-medium'>{copy.table.headers.sex}:</span>{' '}
+              {actionCampaign.sex || '-'}
+            </div>
+            <div>
+              <span className='font-medium'>{copy.table.headers.city}:</span>{' '}
+              {renderArray(actionCampaign.city)}
+            </div>
+            <div className='md:col-span-2 whitespace-pre-wrap break-words'>
+              <span className='font-medium'>{copy.table.headers.comment}:</span>{' '}
+              {actionCampaign.comment || '-'}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
-              {isCommentRequired ? copy.modal.commentLabelRequired : copy.modal.commentLabelOptional}
+            <label className='mb-1 block text-sm font-medium'>
+              {isCommentRequired
+                ? copy.modal.commentLabelRequired
+                : copy.modal.commentLabelOptional}
             </label>
             <textarea
-              className="w-full border rounded px-3 py-2 min-h-[100px]"
+              className='min-h-[100px] w-full rounded border px-3 py-2'
               value={actionComment}
-              onChange={(e) => onCommentChange(e.target.value)}
+              onChange={e => onCommentChange(e.target.value)}
               maxLength={1000}
             />
-            <div className="text-xs text-gray-500 mt-1">{copy.modal.maxChars}</div>
+            <div className='mt-1 text-xs text-gray-500'>
+              {copy.modal.maxChars}
+            </div>
           </div>
 
-          {actionError && <div className="text-sm text-red-600">{actionError}</div>}
+          {actionError ? (
+            <div className='text-sm text-red-600'>{actionError}</div>
+          ) : null}
 
-          <div className="flex justify-end gap-3 pt-2">
-            <button className="px-4 py-2 rounded border" onClick={onClose} disabled={actionSubmitting}>
+          <div className='flex justify-end gap-3 pt-2'>
+            <button
+              className='rounded border px-4 py-2'
+              onClick={onClose}
+              disabled={actionSubmitting}
+            >
               {copy.common.cancel}
             </button>
             <button
-              className={`${submitClass} text-white px-4 py-2 rounded disabled:opacity-60`}
+              className={`${submitClass} rounded px-4 py-2 text-white disabled:opacity-60`}
               onClick={onSubmit}
-              disabled={actionSubmitting || (isCommentRequired && !actionComment.trim())}
+              disabled={
+                actionSubmitting || (isCommentRequired && !actionComment.trim())
+              }
             >
               {actionSubmitting ? copy.modal.submitting : submitText}
             </button>
