@@ -149,6 +149,15 @@ export interface AdminCancelCampaignResponse {
   message: string;
 }
 
+export interface AdminRescheduleCampaignRequest {
+  campaign_id: number;
+  schedule_at: string; // RFC3339 UTC (+00:00)
+}
+
+export interface AdminRescheduleCampaignResponse {
+  message: string;
+}
+
 // Admin Segment Price Factors
 export interface AdminCreateSegmentPriceFactorRequest {
   platform: AdminPlatformKey;
