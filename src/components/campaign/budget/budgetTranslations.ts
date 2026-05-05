@@ -48,6 +48,43 @@ const budgetEn = {
     estimatedReach: 'Estimated Reach',
     estimatedReachMessage: 'This shows how many people your campaign can reach based on your budget and targeting criteria.',
     budgetSummaryHelp: 'Review your budget allocation and estimated campaign reach before proceeding to payment.',
+    
+    // Test message
+    testMessageTitle: 'Send Test Message',
+    testMessageDescription:
+        'Send one best-effort test message to your representative mobile number.',
+    testMessageSendAction: 'Send Test Message',
+    testMessageSending: 'Sending...',
+    testMessageNoSideEffect:
+        'This action does not change campaign state or saved campaign data.',
+    testMessageSuccess: 'Test message was attempted successfully.',
+    testMessageNetworkError:
+        'Network error. Please check your connection and try again.',
+    testMessageUnknownError:
+        'Unable to send test message. Please try again.',
+    testMessageAuthenticationRequired:
+        'Authentication is missing. Please log in again.',
+    testMessageMissingCampaign:
+        'Campaign must be created first before sending a test message.',
+    testMessageContentRequired:
+        'Campaign content is required before sending a test message.',
+    testMessageAdlinkRequired:
+        'Ad link is required when link insertion is enabled.',
+    testMessagePlatformSettingsRequired:
+        'Please choose an active platform settings item for non-SMS campaigns.',
+    testMessageLineNumberRequired:
+        'Please choose a line number for SMS campaigns.',
+    testMessageRequirementContent: 'Campaign has non-empty content',
+    testMessageRequirementAdlink:
+        'Campaign has non-empty ad link when link insertion is enabled',
+    testMessageRequirementPlatformSettings:
+        'Campaign has active platform settings for non-SMS platform',
+    testMessageRequirementPlatformSettingsNotNeeded:
+        'Platform settings are not required for SMS platform',
+    testMessageRequirementLineNumber:
+        'Campaign has line number for SMS platform',
+    testMessageRequirementLineNumberNotNeeded:
+        'Line number is not required for non-SMS platform',
     reset: 'Reset',
 };
 
@@ -101,6 +138,41 @@ const budgetFa = {
     estimatedReach: 'دسترسی تخمینی',
     estimatedReachMessage: 'این نشان می‌دهد که کمپین شما بر اساس بودجه و معیارهای هدف‌گذاری می‌تواند به چند نفر برسد.',
     budgetSummaryHelp: 'قبل از ادامه به پرداخت، تخصیص بودجه و دسترسی تخمینی کمپین خود را بررسی کنید.',
+    testMessageTitle: 'ارسال پیام تست',
+    testMessageDescription:
+        'یک پیام تست به‌صورت best-effort به شماره نماینده شما ارسال می‌شود.',
+    testMessageSendAction: 'ارسال پیام تست',
+    testMessageSending: 'در حال ارسال...',
+    testMessageNoSideEffect:
+        'این عملیات هیچ تغییری در وضعیت یا داده‌های ذخیره‌شده کمپین ایجاد نمی‌کند.',
+    testMessageSuccess: 'تلاش برای ارسال پیام تست با موفقیت انجام شد.',
+    testMessageNetworkError:
+        'خطای شبکه رخ داده است. لطفاً اتصال خود را بررسی کرده و دوباره تلاش کنید.',
+    testMessageUnknownError:
+        'ارسال پیام تست ناموفق بود. لطفاً دوباره تلاش کنید.',
+    testMessageAuthenticationRequired:
+        'اطلاعات احراز هویت یافت نشد. لطفاً دوباره وارد شوید.',
+    testMessageMissingCampaign:
+        'ابتدا باید کمپین ایجاد شده باشد تا ارسال تست انجام شود.',
+    testMessageContentRequired:
+        'برای ارسال تست، محتوای کمپین باید تکمیل شده باشد.',
+    testMessageAdlinkRequired:
+        'وقتی قابلیت لینک فعال است، لینک تبلیغاتی نباید خالی باشد.',
+    testMessagePlatformSettingsRequired:
+        'برای پلتفرم‌های غیر پیامکی، یک سرویس فعال انتخاب کنید.',
+    testMessageLineNumberRequired:
+        'برای پلتفرم پیامکی، انتخاب سرشماره الزامی است.',
+    testMessageRequirementContent: 'کمپین دارای محتوای غیرخالی است',
+    testMessageRequirementAdlink:
+        'در صورت فعال بودن لینک، لینک تبلیغاتی کمپین غیرخالی است',
+    testMessageRequirementPlatformSettings:
+        'برای پلتفرم غیر پیامکی، سرویس فعال انتخاب شده است',
+    testMessageRequirementPlatformSettingsNotNeeded:
+        'برای پلتفرم پیامکی، سرویس پلتفرم لازم نیست',
+    testMessageRequirementLineNumber:
+        'برای پلتفرم پیامکی، سرشماره انتخاب شده است',
+    testMessageRequirementLineNumberNotNeeded:
+        'برای پلتفرم غیر پیامکی، سرشماره لازم نیست',
     reset: 'بازنشانی',
 };
 
