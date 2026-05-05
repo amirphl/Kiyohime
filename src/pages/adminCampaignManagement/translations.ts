@@ -6,6 +6,7 @@ export interface AdminCampaignManagementCopy {
   common: {
     loading: string;
     cancel: string;
+    unknown: string;
   };
   filters: {
     titleLabel: string;
@@ -31,6 +32,9 @@ export interface AdminCampaignManagementCopy {
   table: {
     noData: string;
     headers: {
+      id: string;
+      details: string;
+      reschedule: string;
       row: string;
       status: string;
       platform: string;
@@ -53,12 +57,15 @@ export interface AdminCampaignManagementCopy {
       approve: string;
       reject: string;
       cancel: string;
+      details: string;
+      reschedule: string;
     };
   };
   modal: {
     approveTitle: string;
     rejectTitle: string;
     cancelTitle: string;
+    detailsTitle: string;
     uuid: string;
     title: string;
     currentStatus: string;
@@ -73,6 +80,33 @@ export interface AdminCampaignManagementCopy {
     cancel: string;
     submitting: string;
     closeLabel: string;
+    rescheduleTitle: string;
+    rescheduleDateLabel: string;
+    rescheduleDateHint: string;
+    rescheduleConfirmTitle: string;
+    rescheduleConfirmMessage: string;
+    rescheduleApply: string;
+    rescheduleApplying: string;
+    rescheduleSuccess: string;
+    sections: {
+      overview: string;
+      audience: string;
+      content: string;
+      performance: string;
+      technical: string;
+    };
+    detailFields: {
+      level3s: string;
+      tags: string;
+      totalClicks: string;
+      clickRate: string;
+      segmentPriceFactor: string;
+      lineNumberPriceFactor: string;
+      shortLinkDomain: string;
+      jobCategory: string;
+      job: string;
+      statistics: string;
+    };
   };
   errors: {
     listFailed: string;
@@ -80,6 +114,22 @@ export interface AdminCampaignManagementCopy {
     rejectFailed: string;
     cancelFailed: string;
     missingNumericId: string;
+    invalidStartDate: string;
+    invalidEndDate: string;
+    invalidDateRange: string;
+    commentRequired: string;
+    rescheduleFailed: string;
+    rescheduleNotAllowed: string;
+    rescheduleDateRequired: string;
+    rescheduleDateInvalid: string;
+    rescheduleDateTooSoon: string;
+    rescheduleOutsideAllowedHours: string;
+    rescheduleCampaignNotFound: string;
+    rescheduleInvalidState: string;
+    rescheduleUtcRequired: string;
+    rescheduleValidationFailed: string;
+    unauthorized: string;
+    network: string;
   };
 }
 
@@ -89,6 +139,7 @@ const en: AdminCampaignManagementCopy = {
   common: {
     loading: 'Loading...',
     cancel: 'Cancel',
+    unknown: 'Unknown',
   },
   filters: {
     titleLabel: 'Title',
@@ -114,6 +165,9 @@ const en: AdminCampaignManagementCopy = {
   table: {
     noData: 'No campaigns found',
     headers: {
+      id: 'ID',
+      details: 'Details',
+      reschedule: 'Reschedule',
       row: '#',
       status: 'Status',
       platform: 'Platform',
@@ -136,12 +190,15 @@ const en: AdminCampaignManagementCopy = {
       approve: 'Approve',
       reject: 'Reject',
       cancel: 'Cancel',
+      details: 'View details',
+      reschedule: 'Reschedule',
     },
   },
   modal: {
     approveTitle: 'Approve Campaign',
     rejectTitle: 'Reject Campaign',
     cancelTitle: 'Cancel Campaign',
+    detailsTitle: 'Campaign Details',
     uuid: 'UUID',
     title: 'Title',
     currentStatus: 'Current Status',
@@ -156,6 +213,35 @@ const en: AdminCampaignManagementCopy = {
     cancel: 'Cancel',
     submitting: 'Submitting…',
     closeLabel: 'Close',
+    rescheduleTitle: 'Reschedule Campaign',
+    rescheduleDateLabel: 'New Schedule Time',
+    rescheduleDateHint:
+      'Select a future time between 08:00 and 21:00 (Tehran local time).',
+    rescheduleConfirmTitle: 'Confirm Reschedule',
+    rescheduleConfirmMessage:
+      'Are you sure you want to reschedule this campaign?',
+    rescheduleApply: 'Continue',
+    rescheduleApplying: 'Rescheduling…',
+    rescheduleSuccess: 'Campaign rescheduled successfully.',
+    sections: {
+      overview: 'Overview',
+      audience: 'Audience & Targeting',
+      content: 'Content & Delivery',
+      performance: 'Performance & Pricing',
+      technical: 'Technical Metadata',
+    },
+    detailFields: {
+      level3s: 'Level 3',
+      tags: 'Tags',
+      totalClicks: 'Clicks',
+      clickRate: 'Click Rate',
+      segmentPriceFactor: 'Segment Price Factor',
+      lineNumberPriceFactor: 'Line Number Price Factor',
+      shortLinkDomain: 'Short Link Domain',
+      jobCategory: 'Job Category',
+      job: 'Job',
+      statistics: 'Statistics',
+    },
   },
   errors: {
     listFailed: 'Failed to list campaigns',
@@ -163,6 +249,26 @@ const en: AdminCampaignManagementCopy = {
     rejectFailed: 'Reject failed',
     cancelFailed: 'Cancel failed',
     missingNumericId: 'Campaign numeric id not available',
+    invalidStartDate: 'Start date is invalid',
+    invalidEndDate: 'End date is invalid',
+    invalidDateRange: 'Start date must be before end date',
+    commentRequired: 'Comment is required',
+    rescheduleFailed: 'Failed to reschedule campaign',
+    rescheduleNotAllowed:
+      'Campaign cannot be rescheduled in its current status',
+    rescheduleDateRequired: 'Please select a schedule time',
+    rescheduleDateInvalid: 'Selected schedule time is invalid',
+    rescheduleDateTooSoon:
+      'Schedule time must be at least 5 minutes in the future',
+    rescheduleOutsideAllowedHours:
+      'Schedule time must be between 08:00 and 21:00',
+    rescheduleCampaignNotFound: 'Campaign not found',
+    rescheduleInvalidState:
+      'Campaign cannot be rescheduled in its current status',
+    rescheduleUtcRequired: 'Schedule time must be in UTC',
+    rescheduleValidationFailed: 'Validation failed for reschedule request',
+    unauthorized: 'Unauthorized',
+    network: 'Network error',
   },
 };
 
@@ -172,6 +278,7 @@ const fa: AdminCampaignManagementCopy = {
   common: {
     loading: 'در حال بارگذاری...',
     cancel: 'انصراف',
+    unknown: 'نامشخص',
   },
   filters: {
     titleLabel: 'عنوان',
@@ -197,6 +304,9 @@ const fa: AdminCampaignManagementCopy = {
   table: {
     noData: 'کمپینی یافت نشد',
     headers: {
+      id: 'شناسه',
+      details: 'جزئیات',
+      reschedule: 'زمان‌بندی مجدد',
       row: '#',
       status: 'وضعیت',
       platform: 'پلتفرم',
@@ -219,12 +329,15 @@ const fa: AdminCampaignManagementCopy = {
       approve: 'تأیید',
       reject: 'رد',
       cancel: 'لغو',
+      details: 'مشاهده جزئیات',
+      reschedule: 'زمان‌بندی مجدد',
     },
   },
   modal: {
     approveTitle: 'تأیید کمپین',
     rejectTitle: 'رد کمپین',
     cancelTitle: 'لغو کمپین',
+    detailsTitle: 'جزئیات کمپین',
     uuid: 'UUID',
     title: 'عنوان',
     currentStatus: 'وضعیت فعلی',
@@ -239,6 +352,34 @@ const fa: AdminCampaignManagementCopy = {
     cancel: 'لغو',
     submitting: 'در حال ارسال…',
     closeLabel: 'بستن',
+    rescheduleTitle: 'زمان‌بندی مجدد کمپین',
+    rescheduleDateLabel: 'زمان جدید ارسال',
+    rescheduleDateHint:
+      'یک زمان آینده بین ۰۸:۰۰ تا ۲۱:۰۰ انتخاب کنید (بر اساس زمان تهران).',
+    rescheduleConfirmTitle: 'تأیید زمان‌بندی مجدد',
+    rescheduleConfirmMessage: 'آیا از زمان‌بندی مجدد این کمپین مطمئن هستید؟',
+    rescheduleApply: 'ادامه',
+    rescheduleApplying: 'در حال زمان‌بندی مجدد…',
+    rescheduleSuccess: 'کمپین با موفقیت زمان‌بندی مجدد شد.',
+    sections: {
+      overview: 'نمای کلی',
+      audience: 'مخاطب و هدف‌گیری',
+      content: 'محتوا و ارسال',
+      performance: 'عملکرد و قیمت‌گذاری',
+      technical: 'فراداده فنی',
+    },
+    detailFields: {
+      level3s: 'سطح ۳',
+      tags: 'برچسب‌ها',
+      totalClicks: 'کلیک‌ها',
+      clickRate: 'نرخ کلیک',
+      segmentPriceFactor: 'ضریب قیمت سگمنت',
+      lineNumberPriceFactor: 'ضریب قیمت شماره خط',
+      shortLinkDomain: 'دامنه لینک کوتاه',
+      jobCategory: 'دسته‌بندی شغلی',
+      job: 'شغل',
+      statistics: 'آمار',
+    },
   },
   errors: {
     listFailed: 'دریافت فهرست ارسال‌ها ناموفق بود',
@@ -246,6 +387,23 @@ const fa: AdminCampaignManagementCopy = {
     rejectFailed: 'رد ناموفق بود',
     cancelFailed: 'لغو ناموفق بود',
     missingNumericId: 'شناسه عددی کمپین در دسترس نیست',
+    invalidStartDate: 'تاریخ شروع معتبر نیست',
+    invalidEndDate: 'تاریخ پایان معتبر نیست',
+    invalidDateRange: 'تاریخ شروع باید قبل از تاریخ پایان باشد',
+    commentRequired: 'وارد کردن توضیح الزامی است',
+    rescheduleFailed: 'زمان‌بندی مجدد کمپین ناموفق بود',
+    rescheduleNotAllowed: 'در وضعیت فعلی امکان زمان‌بندی مجدد کمپین وجود ندارد',
+    rescheduleDateRequired: 'لطفا زمان ارسال را انتخاب کنید',
+    rescheduleDateInvalid: 'زمان انتخاب‌شده معتبر نیست',
+    rescheduleDateTooSoon: 'زمان ارسال باید حداقل ۵ دقیقه در آینده باشد',
+    rescheduleOutsideAllowedHours: 'زمان ارسال باید بین ۰۸:۰۰ تا ۲۱:۰۰ باشد',
+    rescheduleCampaignNotFound: 'کمپین یافت نشد',
+    rescheduleInvalidState:
+      'در وضعیت فعلی امکان زمان‌بندی مجدد کمپین وجود ندارد',
+    rescheduleUtcRequired: 'زمان ارسال باید به صورت UTC باشد',
+    rescheduleValidationFailed: 'اعتبارسنجی درخواست زمان‌بندی مجدد ناموفق بود',
+    unauthorized: 'عدم دسترسی',
+    network: 'خطای شبکه',
   },
 };
 
