@@ -1,0 +1,117 @@
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { useToast } from '../../../hooks/useToast';
+import { apiService } from '../../../services/api';
+import { CampaignData } from '../../../types/campaign';
+import { PlatformSettingsItem } from '../../../types/platformSettings';
+import { handleCampaignFlowError } from '../common/CampaignFlowErrorHandler';
+import { budgetI18n } from './budgetTranslations';
+import {
+  getTestMessageChecks,
+  getTestMessageValidationErrorCode,
+  TestMessageValidationErrorCode,
+} from './testMessageValidation';
+
+interface UseCampaignTestMessageParams {
+  campaignData: CampaignData;
+  activePlatformSettings: PlatformSettingsItem[];
+  accessToken: string | null;
+  language: string;
+}
+
+const getValidationMessage = (
+  errorCode: TestMessageValidationErrorCode,
+  language: 'en' | 'fa'
+) => {
+  const copy = budgetI18n[language];
+  switch (errorCode) {
+    case 'MISSING_CAMPAIGN_UUID':
+      return copy.testMessageMissingCampaign;
+    case 'MISSING_CONTENT':
+      return copy.testMessageContentRequired;
+    case 'MISSING_ADLINK':
+      return copy.testMessageAdlinkRequired;
+    case 'MISSING_PLATFORM_SETTINGS':
+      return copy.testMessagePlatformSettingsRequired;
+    case 'MISSING_LINE_NUMBER':
+      return copy.testMessageLineNumberRequired;
+    default:
+      return copy.testMessageUnknownError;
+  }
+};
+
+export const useCampaignTestMessage = ({
+  campaignData,
+  activePlatformSettings,
+  accessToken,
+  language,
+}: UseCampaignTestMessageParams) => {
+  const { showError, showSuccess } = useToast();
+  const [isSending, setIsSending] = useState(false);
+  const inFlightRef = useRef(false);
+  const normalizedLanguage: 'en' | 'fa' = language === 'fa' ? 'fa' : 'en';
+  const copy = budgetI18n[normalizedLanguage];
+
+  const checks = useMemo(
+    () => getTestMessageChecks(campaignData, activePlatformSettings),
+    [campaignData, activePlatformSettings]
+  );
+  const validationErrorCode = useMemo(
+    () => getTestMessageValidationErrorCode(checks),
+    [checks]
+  );
+  const isReady = validationErrorCode === null;
+
+  const sendTestMessage = useCallback(async () => {
+    if (inFlightRef.current) return;
+
+    if (!accessToken) {
+      showError(copy.testMessageAuthenticationRequired);
+      return;
+    }
+
+    if (validationErrorCode) {
+      showError(getValidationMessage(validationErrorCode, normalizedLanguage));
+      return;
+    }
+
+    inFlightRef.current = true;
+    setIsSending(true);
+
+    try {
+      apiService.setAccessToken(accessToken);
+      const response = await apiService.sendCampaignTestMessage(
+        campaignData.uuid
+      );
+
+      if (response.success) {
+        showSuccess(copy.testMessageSuccess);
+        return;
+      }
+
+      showError(handleCampaignFlowError(response, normalizedLanguage));
+    } catch {
+      showError(copy.testMessageNetworkError);
+    } finally {
+      inFlightRef.current = false;
+      setIsSending(false);
+    }
+  }, [
+    accessToken,
+    campaignData.uuid,
+    copy.testMessageAuthenticationRequired,
+    copy.testMessageNetworkError,
+    copy.testMessageSuccess,
+    normalizedLanguage,
+    showError,
+    showSuccess,
+    validationErrorCode,
+  ]);
+
+  return {
+    isSending,
+    isReady,
+    checks,
+    validationErrorCode,
+    sendTestMessage,
+  };
+};
