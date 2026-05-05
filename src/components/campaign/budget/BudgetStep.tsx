@@ -11,6 +11,7 @@ import MessageCountCard from './MessageCountCard';
 import { useMessageCount } from './useMessageCount';
 import { usePlatformSettingsList } from '../../../hooks/usePlatformSettingsList';
 import { budgetI18n } from './budgetTranslations';
+import TestMessageSection from './TestMessageSection';
 
 const BudgetStep: React.FC = () => {
   const { campaignData, updateBudget } = useCampaign();
@@ -20,7 +21,10 @@ const BudgetStep: React.FC = () => {
   const { language } = useLanguage();
   const t = budgetI18n[language as keyof typeof budgetI18n] || budgetI18n.en;
   const { accessToken } = useAuth();
-  usePlatformSettingsList(accessToken, platform === 'sms' ? 'bale' : platform);
+  const { items: activePlatformSettings } = usePlatformSettingsList(
+    accessToken,
+    platform === 'sms' ? 'bale' : platform
+  );
   const currencyLabel = language === 'en' ? 'Toman' : 'تومان';
   const MIN_TEXT_BUDGET = 100000;
   const MAX_BUDGET = 160000000;
@@ -156,6 +160,8 @@ const BudgetStep: React.FC = () => {
             {t.reset}
           </Button>
         </div>
+
+        <TestMessageSection activePlatformSettings={activePlatformSettings} />
       </div>
     </div>
   );
