@@ -10,6 +10,12 @@ interface ReportItem {
   total_agency_share_with_tax: number;
 }
 
+interface CustomerInfo {
+  representative_first_name: string;
+  representative_last_name: string;
+  company_name?: string | null;
+}
+
 interface ReportTableProps {
   items: ReportItem[];
   loading: boolean;
@@ -28,14 +34,8 @@ interface ReportTableProps {
     discountCreateAction: string;
     discountHistoryAction: string;
   };
-  onCreateForCustomer: (
-    customerId: number,
-    info: { representative_first_name: string; representative_last_name: string; company_name?: string | null }
-  ) => void;
-  onViewHistory: (
-    customerId: number,
-    info: { representative_first_name: string; representative_last_name: string; company_name?: string | null }
-  ) => void;
+  onCreateForCustomer: (customerId: number, info: CustomerInfo) => void;
+  onViewHistory: (customerId: number) => void;
 }
 
 const ReportTable: React.FC<ReportTableProps> = ({
@@ -82,30 +82,33 @@ const ReportTable: React.FC<ReportTableProps> = ({
       <tbody className='bg-white divide-y divide-gray-200'>
         {loading ? (
           <tr>
-            <td colSpan={8} className='px-4 py-6 text-center text-gray-600'>
+            <td colSpan={7} className='px-4 py-6 text-center text-gray-600'>
               {commonLoadingLabel}
             </td>
           </tr>
         ) : error ? (
           <tr>
-            <td colSpan={8} className='px-4 py-6 text-center text-red-600'>
+            <td colSpan={7} className='px-4 py-6 text-center text-red-600'>
               {error}
             </td>
           </tr>
         ) : items.length === 0 ? (
           <tr>
-            <td colSpan={8} className='px-4 py-6 text-center text-gray-500'>
+            <td colSpan={7} className='px-4 py-6 text-center text-gray-500'>
               {noTransactionsLabel}
             </td>
           </tr>
         ) : (
           items.map((it, idx) => (
-            <tr key={`${it.representative_first_name}-${it.representative_last_name}-${idx}`}>
+            <tr
+              key={`${it.representative_first_name}-${it.representative_last_name}-${idx}`}
+            >
               <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                 {idx + 1}
               </td>
               <td className='px-4 py-2 text-sm text-gray-900 text-center'>
-                {it.representative_first_name || '-'}{' '}{it.representative_last_name || '-'}
+                {it.representative_first_name || '-'}{' '}
+                {it.representative_last_name || '-'}
               </td>
               <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                 {it.company_name || '-'}
@@ -120,6 +123,7 @@ const ReportTable: React.FC<ReportTableProps> = ({
               <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                 <Button
                   variant='outline'
+                  disabled={it.customer_id === undefined}
                   onClick={() =>
                     it.customer_id !== undefined &&
                     onCreateForCustomer(it.customer_id, {
@@ -135,13 +139,10 @@ const ReportTable: React.FC<ReportTableProps> = ({
               <td className='px-4 py-2 text-sm text-gray-900 text-center'>
                 <Button
                   variant='outline'
+                  disabled={it.customer_id === undefined}
                   onClick={() =>
                     it.customer_id !== undefined &&
-                    onViewHistory(it.customer_id, {
-                      representative_first_name: it.representative_first_name,
-                      representative_last_name: it.representative_last_name,
-                      company_name: it.company_name,
-                    })
+                    onViewHistory(it.customer_id)
                   }
                 >
                   {copy.discountHistoryAction}
