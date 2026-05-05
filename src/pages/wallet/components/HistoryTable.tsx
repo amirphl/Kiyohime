@@ -148,7 +148,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
         row.source.customer_invoice_uuid
       );
       if (!resp.success || !resp.blob) {
-        const errorCode = resp.error?.code || resp.message;
+        const errorCode = resp.message;
         showError(
           getInvoiceErrorMessage(errorCode) || copy.invoiceErrors.downloadFailed
         );
