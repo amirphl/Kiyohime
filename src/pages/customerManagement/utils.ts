@@ -5,11 +5,10 @@ import persian_fa from 'react-date-object/locales/persian_fa';
 export const formatDatetime = (iso: string, language: string) => {
   try {
     const jsDate = new Date(iso);
+    if (Number.isNaN(jsDate.getTime())) return iso;
     if (language === 'fa') {
-      const tehranMs = jsDate.getTime() + 3.5 * 60 * 60 * 1000;
-      const tehranDate = new Date(tehranMs);
       const dobj = new DateObject({
-        date: tehranDate,
+        date: jsDate,
         calendar: persian,
         locale: persian_fa,
       });
@@ -19,4 +18,18 @@ export const formatDatetime = (iso: string, language: string) => {
   } catch {
     return iso;
   }
+};
+
+export const formatNormalizedDiscountRate = (
+  rate: number,
+  options?: { decimals?: number; includePercentSign?: boolean }
+) => {
+  const decimals = options?.decimals ?? 2;
+  const includePercentSign = options?.includePercentSign ?? false;
+  if (!Number.isFinite(rate) || rate < 0 || rate >= 1) return '-';
+
+  // Backend stores rates as E / (E + 100); convert back to user-facing E.
+  const value = (100 * rate) / (1 - rate);
+  const text = value.toFixed(decimals);
+  return includePercentSign ? `${text}%` : text;
 };
