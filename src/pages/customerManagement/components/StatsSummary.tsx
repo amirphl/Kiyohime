@@ -1,10 +1,11 @@
 import React from 'react';
+import { AgencyReportTranslations } from '../translations';
 
 interface StatsSummaryProps {
   totalSent: number;
   totalShare: number;
   currencyLabel: string;
-  copy: any;
+  copy: Pick<AgencyReportTranslations, 'totalSentAll' | 'totalShareAll'>;
 }
 
 const StatsSummary: React.FC<StatsSummaryProps> = ({
