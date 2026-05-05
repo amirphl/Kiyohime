@@ -113,6 +113,8 @@ export interface AdminPaymentsCopy {
       email: string;
       companyName: string;
       companyPhone: string;
+      companyAddress: string;
+      postalCode: string;
       nationalId: string;
       accountType: string;
       missingValue: string;
@@ -259,6 +261,8 @@ const en: AdminPaymentsCopy = {
       email: 'Email',
       companyName: 'Company Name',
       companyPhone: 'Company Phone',
+      companyAddress: 'Company Address',
+      postalCode: 'Postal Code',
       nationalId: 'National ID',
       accountType: 'Account Type',
       missingValue: '-',
@@ -405,6 +409,8 @@ const fa: AdminPaymentsCopy = {
       email: 'ایمیل',
       companyName: 'نام شرکت',
       companyPhone: 'تلفن شرکت',
+      companyAddress: 'آدرس شرکت',
+      postalCode: 'کد پستی',
       nationalId: 'شناسه ملی',
       accountType: 'نوع حساب',
       missingValue: '-',
