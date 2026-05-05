@@ -224,6 +224,10 @@ export interface UpdateSMSCampaignResponse {
   message: string;
 }
 
+export interface SendCampaignTestMessageResponse {
+  [key: string]: unknown;
+}
+
 export interface CampaignStep {
   id: number;
   title: string;
