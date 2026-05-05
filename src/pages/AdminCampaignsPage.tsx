@@ -5,24 +5,30 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { ROUTES } from '../config/routes';
+import { useNavigation } from '../contexts/NavigationContext';
 import { useLanguage } from '../hooks/useLanguage';
 import { useToast } from '../hooks/useToast';
-import { useNavigation } from '../contexts/NavigationContext';
-import { ROUTES } from '../config/routes';
 import {
   AdminGetCampaignResponse,
   AdminListCampaignsFilter,
-  AdminListCampaignsResponse,
 } from '../types/admin';
-import { adminCampaignManagementApi } from './adminCampaignManagement/api';
-import { getAdminCampaignManagementCopy } from './adminCampaignManagement/translations';
-import FiltersBar from './adminCampaignManagement/components/FiltersBar';
-import CampaignsTable from './adminCampaignManagement/components/CampaignsTable';
 import ActionModal from './adminCampaignManagement/components/ActionModal';
-
-const isWaitingForApproval = (status?: string | null): boolean =>
-  status === 'waiting_for_approval' || status === 'waiting-for-approval';
-const isApproved = (status?: string | null): boolean => status === 'approved';
+import CampaignDetailsModal from './adminCampaignManagement/components/CampaignDetailsModal';
+import RescheduleCampaignModal from './adminCampaignManagement/components/RescheduleCampaignModal';
+import CampaignsTable from './adminCampaignManagement/components/CampaignsTable';
+import FiltersBar from './adminCampaignManagement/components/FiltersBar';
+import { CampaignActionType } from './adminCampaignManagement/constants';
+import { useCampaignActions } from './adminCampaignManagement/hooks/useCampaignActions';
+import { useCampaignFilters } from './adminCampaignManagement/hooks/useCampaignFilters';
+import { useCampaignList } from './adminCampaignManagement/hooks/useCampaignList';
+import { useCampaignReschedule } from './adminCampaignManagement/hooks/useCampaignReschedule';
+import { getAdminCampaignManagementCopy } from './adminCampaignManagement/translations';
+import {
+  formatCampaignDateTime,
+  getActionResultStatus,
+  getTranslatedStatus,
+} from './adminCampaignManagement/utils';
 
 const AdminCampaignsPage: React.FC = () => {
   const { language } = useLanguage();
@@ -30,250 +36,144 @@ const AdminCampaignsPage: React.FC = () => {
     () => getAdminCampaignManagementCopy(language),
     [language]
   );
-  const { showError } = useToast();
+  const { showError, showSuccess } = useToast();
   const { navigate } = useNavigation();
 
+  const { items, loading, error, setItems, setError, loadCampaigns } =
+    useCampaignList({
+      copy,
+      showError,
+    });
+
+  const {
+    title,
+    status,
+    start,
+    end,
+    setTitle,
+    setStatus,
+    setStart,
+    setEnd,
+    statusOptions,
+    getAppliedParams,
+  } = useCampaignFilters({
+    copy,
+    onInvalid: message => {
+      setError(message);
+      showError(message);
+    },
+  });
+
   const didInitRef = useRef(false);
-  const listInFlightRef = useRef(false);
-
-  const [title, setTitle] = useState<string>('');
-  const [status, setStatus] = useState<AdminListCampaignsFilter['status']>();
-  const [start, setStart] = useState<string>('');
-  const [end, setEnd] = useState<string>('');
-
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [items, setItems] = useState<AdminGetCampaignResponse[]>([]);
-
-  const [actionCampaign, setActionCampaign] =
+  const [detailsCampaign, setDetailsCampaign] =
     useState<AdminGetCampaignResponse | null>(null);
-  const [actionType, setActionType] = useState<
-    'approve' | 'reject' | 'cancel' | null
-  >(null);
-  const [actionComment, setActionComment] = useState<string>('');
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [actionSubmitting, setActionSubmitting] = useState<boolean>(false);
 
-  const statusOptions = useMemo(
-    () =>
-      [
-        { value: '', label: copy.filters.all },
-        { value: 'initiated', label: copy.filters.statuses.initiated },
-        { value: 'in-progress', label: copy.filters.statuses.inProgress },
-        {
-          value: 'waiting-for-approval',
-          label: copy.filters.statuses.waitingForApproval,
-        },
-        { value: 'approved', label: copy.filters.statuses.approved },
-        { value: 'rejected', label: copy.filters.statuses.rejected },
-        { value: 'running', label: copy.filters.statuses.running },
-        { value: 'cancelled', label: copy.filters.statuses.cancelled },
-        {
-          value: 'cancelled-by-admin',
-          label: copy.filters.statuses.cancelledByAdmin,
-        },
-        { value: 'expired', label: copy.filters.statuses.expired },
-        { value: 'executed', label: copy.filters.statuses.executed },
-      ] as Array<{
-        value: AdminListCampaignsFilter['status'] | '';
-        label: string;
-      }>,
+  const runLoadCampaigns = useCallback(
+    async (filters: AdminListCampaignsFilter) => {
+      await loadCampaigns(filters);
+    },
+    [loadCampaigns]
+  );
+
+  const handleActionSuccess = useCallback(
+    (campaignUuid: string, actionType: CampaignActionType) => {
+      const nextStatus = getActionResultStatus(actionType);
+      setItems(current =>
+        current.map(item =>
+          item.uuid === campaignUuid
+            ? {
+                ...item,
+                status: nextStatus,
+              }
+            : item
+        )
+      );
+    },
+    [setItems]
+  );
+
+  const {
+    actionCampaign,
+    actionType,
+    actionComment,
+    actionError,
+    actionSubmitting,
+    setActionComment,
+    openActionModal,
+    closeActionModal,
+    submitAction,
+  } = useCampaignActions({
+    copy,
+    showError,
+    onActionSuccess: (campaign, nextAction) => {
+      handleActionSuccess(campaign.uuid, nextAction);
+    },
+  });
+
+  const {
+    campaign: rescheduleCampaign,
+    selectedDate: rescheduleSelectedDate,
+    enInputValue: rescheduleEnInputValue,
+    minFutureDate,
+    minLocalDateTimeValue,
+    validationError: rescheduleValidationError,
+    confirmOpen: rescheduleConfirmOpen,
+    submitting: rescheduleSubmitting,
+    openRescheduleModal,
+    closeRescheduleModal,
+    onEnDateTimeChange,
+    onFaDateTimeChange,
+    requestRescheduleConfirmation,
+    cancelConfirmation,
+    submitReschedule,
+  } = useCampaignReschedule({
+    copy,
+    showError,
+    showSuccess,
+    onRescheduled: (campaignUuid, scheduleAtUtc) => {
+      setItems(current =>
+        current.map(item =>
+          item.uuid === campaignUuid
+            ? {
+                ...item,
+                scheduleat: scheduleAtUtc,
+              }
+            : item
+        )
+      );
+    },
+  });
+
+  const resolveStatusLabel = useCallback(
+    (rawStatus?: string | null) => getTranslatedStatus(rawStatus, copy),
     [copy]
   );
 
   const formatDateTime = useCallback(
-    (value?: string | null) => {
-      if (!value) return '';
-      const parsed = new Date(value);
-      if (Number.isNaN(parsed.getTime())) return value;
-      if (language === 'fa') {
-        return new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
-          timeZone: 'Asia/Tehran',
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        }).format(parsed);
-      }
-      return parsed.toLocaleString();
-    },
+    (value?: string | null) => formatCampaignDateTime(value, language),
     [language]
   );
+  const columnAlignClass = language === 'fa' ? 'text-right' : 'text-left';
 
-  const buildParams = useCallback((): AdminListCampaignsFilter => {
-    const params: AdminListCampaignsFilter = {};
-    if (title.trim()) params.title = title.trim();
-    if (status) params.status = status;
+  const handleApplyFilters = useCallback(async () => {
+    const params = getAppliedParams();
+    if (!params) return;
 
-    if (start) {
-      const startDate = new Date(start);
-      if (!Number.isNaN(startDate.getTime()))
-        params.start_date = startDate.toISOString();
-    }
-    if (end) {
-      const endDate = new Date(end);
-      if (!Number.isNaN(endDate.getTime()))
-        params.end_date = endDate.toISOString();
-    }
-
-    return params;
-  }, [title, status, start, end]);
-
-  const loadCampaigns = useCallback(
-    async (useFilters: boolean) => {
-      if (listInFlightRef.current) return;
-      listInFlightRef.current = true;
-      setLoading(true);
-      setError(null);
-
-      const response = await adminCampaignManagementApi.listCampaigns(
-        useFilters ? buildParams() : {}
-      );
-
-      listInFlightRef.current = false;
-      setLoading(false);
-
-      if (!response.success) {
-        const message = response.message || copy.errors.listFailed;
-        setError(message);
-        setItems([]);
-        showError(message);
-        return;
-      }
-
-      const data = (response.data || {
-        items: [],
-      }) as AdminListCampaignsResponse;
-      setItems(Array.isArray(data.items) ? data.items : []);
-    },
-    [buildParams, copy.errors.listFailed, showError]
-  );
+    await runLoadCampaigns(params);
+  }, [getAppliedParams, runLoadCampaigns]);
 
   useEffect(() => {
     if (didInitRef.current) return;
     didInitRef.current = true;
-    loadCampaigns(false);
-  }, [loadCampaigns]);
-
-  const openActionModal = useCallback(
-    (
-      campaign: AdminGetCampaignResponse,
-      action: 'approve' | 'reject' | 'cancel'
-    ) => {
-      setActionCampaign(campaign);
-      setActionType(action);
-      setActionComment('');
-      setActionError(null);
-    },
-    []
-  );
-
-  const closeActionModal = useCallback(() => {
-    setActionCampaign(null);
-    setActionType(null);
-    setActionComment('');
-    setActionError(null);
-    setActionSubmitting(false);
-  }, []);
-
-  const submitAction = useCallback(async () => {
-    if (!actionCampaign || !actionType || actionSubmitting) return;
-
-    const campaignId =
-      typeof actionCampaign.id === 'number' && actionCampaign.id > 0
-        ? actionCampaign.id
-        : null;
-    if (!campaignId) {
-      setActionError(copy.errors.missingNumericId);
-      showError(copy.errors.missingNumericId);
-      return;
-    }
-
-    setActionSubmitting(true);
-    setActionError(null);
-
-    const trimmedComment = actionComment.trim();
-    if (
-      (actionType === 'reject' || actionType === 'cancel') &&
-      !trimmedComment
-    ) {
-      setActionSubmitting(false);
-      setActionError(copy.modal.commentLabelRequired);
-      showError(copy.modal.commentLabelRequired);
-      return;
-    }
-
-    const response =
-      actionType === 'approve'
-        ? await adminCampaignManagementApi.approveCampaign(
-            campaignId,
-            trimmedComment || undefined
-          )
-        : actionType === 'reject'
-          ? await adminCampaignManagementApi.rejectCampaign(
-              campaignId,
-              trimmedComment
-            )
-          : await adminCampaignManagementApi.cancelCampaign({
-              campaign_id: campaignId,
-              comment: trimmedComment,
-            });
-
-    setActionSubmitting(false);
-
-    if (!response.success) {
-      const message =
-        response.message ||
-        (actionType === 'approve'
-          ? copy.errors.approveFailed
-          : actionType === 'reject'
-            ? copy.errors.rejectFailed
-            : copy.errors.cancelFailed);
-      setActionError(message);
-      showError(message);
-      return;
-    }
-
-    setItems(current =>
-      current.map(item =>
-        item.uuid === actionCampaign.uuid
-          ? {
-              ...item,
-              status:
-                actionType === 'approve'
-                  ? 'approved'
-                  : actionType === 'reject'
-                    ? 'rejected'
-                    : 'cancelled',
-            }
-          : item
-      )
-    );
-
-    closeActionModal();
-  }, [
-    actionCampaign,
-    actionComment,
-    actionSubmitting,
-    actionType,
-    closeActionModal,
-    copy.errors.approveFailed,
-    copy.errors.cancelFailed,
-    copy.errors.missingNumericId,
-    copy.errors.rejectFailed,
-    copy.modal.commentLabelRequired,
-    showError,
-  ]);
+    runLoadCampaigns({});
+  }, [runLoadCampaigns]);
 
   return (
-    <div className='p-4 max-w-[1400px] mx-auto'>
-      <div className='flex items-center justify-between mb-4'>
+    <div className='mx-auto max-w-[1400px] p-4'>
+      <div className='mb-4 flex items-center justify-between'>
         <h1 className='text-2xl font-semibold'>{copy.title}</h1>
         <button
-          className='bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded'
+          className='rounded bg-gray-200 px-3 py-2 text-gray-800 hover:bg-gray-300'
           onClick={() => navigate(ROUTES.ADMIN_SARDIS.path)}
         >
           {copy.backToSardis}
@@ -292,10 +192,8 @@ const AdminCampaignsPage: React.FC = () => {
         onStatusChange={setStatus}
         onStartChange={setStart}
         onEndChange={setEnd}
-        onApply={() => loadCampaigns(true)}
+        onApply={handleApplyFilters}
       />
-
-      {error && <div className='text-red-600 mb-4'>{error}</div>}
 
       <CampaignsTable
         items={items}
@@ -303,12 +201,12 @@ const AdminCampaignsPage: React.FC = () => {
         error={error}
         copy={copy}
         formatDateTime={formatDateTime}
-        canApproveOrReject={isWaitingForApproval}
-        canCancel={isApproved}
+        resolveStatusLabel={resolveStatusLabel}
         isActionSubmitting={actionSubmitting}
-        onApprove={campaign => openActionModal(campaign, 'approve')}
-        onReject={campaign => openActionModal(campaign, 'reject')}
-        onCancel={campaign => openActionModal(campaign, 'cancel')}
+        columnAlignClass={columnAlignClass}
+        onSelectAction={openActionModal}
+        onOpenDetails={setDetailsCampaign}
+        onOpenReschedule={openRescheduleModal}
       />
 
       <ActionModal
@@ -318,9 +216,39 @@ const AdminCampaignsPage: React.FC = () => {
         actionError={actionError}
         actionSubmitting={actionSubmitting}
         copy={copy}
+        resolveStatusLabel={resolveStatusLabel}
+        formatDateTime={formatDateTime}
         onClose={closeActionModal}
         onCommentChange={setActionComment}
         onSubmit={submitAction}
+      />
+
+      <CampaignDetailsModal
+        campaign={detailsCampaign}
+        copy={copy}
+        resolveStatusLabel={resolveStatusLabel}
+        formatDateTime={formatDateTime}
+        onClose={() => setDetailsCampaign(null)}
+      />
+
+      <RescheduleCampaignModal
+        language={language}
+        campaign={rescheduleCampaign}
+        selectedDate={rescheduleSelectedDate}
+        enInputValue={rescheduleEnInputValue}
+        minFutureDate={minFutureDate}
+        minLocalDateTimeValue={minLocalDateTimeValue}
+        validationError={rescheduleValidationError}
+        confirmOpen={rescheduleConfirmOpen}
+        submitting={rescheduleSubmitting}
+        copy={copy}
+        formatDateTime={formatDateTime}
+        onClose={closeRescheduleModal}
+        onEnDateTimeChange={onEnDateTimeChange}
+        onFaDateTimeChange={onFaDateTimeChange}
+        onRequestConfirm={requestRescheduleConfirmation}
+        onCancelConfirm={cancelConfirmation}
+        onConfirmSubmit={submitReschedule}
       />
     </div>
   );
