@@ -6,6 +6,8 @@ import {
   AdminCancelCampaignResponse,
   AdminListCampaignsFilter,
   AdminListCampaignsResponse,
+  AdminRescheduleCampaignRequest,
+  AdminRescheduleCampaignResponse,
   AdminRejectCampaignResponse,
 } from '../../types/admin';
 import {
@@ -17,17 +19,33 @@ import {
 
 export const adminCampaignManagementApi = {
   listCampaigns: (filter: AdminListCampaignsFilter = {}) =>
-    adminApi.listCampaigns(filter) as Promise<ApiResponse<AdminListCampaignsResponse>>,
+    adminApi.listCampaigns(filter) as Promise<
+      ApiResponse<AdminListCampaignsResponse>
+    >,
   approveCampaign: (campaignId: number, comment?: string | null) =>
-    adminApi.approveCampaign(campaignId, comment) as Promise<ApiResponse<AdminApproveCampaignResponse>>,
+    adminApi.approveCampaign(campaignId, comment) as Promise<
+      ApiResponse<AdminApproveCampaignResponse>
+    >,
   rejectCampaign: (campaignId: number, comment: string) =>
-    adminApi.rejectCampaign(campaignId, comment) as Promise<ApiResponse<AdminRejectCampaignResponse>>,
+    adminApi.rejectCampaign(campaignId, comment) as Promise<
+      ApiResponse<AdminRejectCampaignResponse>
+    >,
   cancelCampaign: (payload: AdminCancelCampaignRequest) =>
-    adminApi.cancelCampaign(payload) as Promise<ApiResponse<AdminCancelCampaignResponse>>,
+    adminApi.cancelCampaign(payload) as Promise<
+      ApiResponse<AdminCancelCampaignResponse>
+    >,
+  rescheduleCampaign: (payload: AdminRescheduleCampaignRequest) =>
+    adminApi.rescheduleCampaign(payload) as Promise<
+      ApiResponse<AdminRescheduleCampaignResponse>
+    >,
   submitDepositReceipt: (payload: SubmitDepositReceiptRequest) =>
-    apiService.submitDepositReceipt(payload) as Promise<ApiResponse<SubmitDepositReceiptResponse>>,
+    apiService.submitDepositReceipt(payload) as Promise<
+      ApiResponse<SubmitDepositReceiptResponse>
+    >,
   listDepositReceipts: (lang?: string) =>
-    apiService.listDepositReceipts(lang) as Promise<ApiResponse<ListDepositReceiptsResponse>>,
+    apiService.listDepositReceipts(lang) as Promise<
+      ApiResponse<ListDepositReceiptsResponse>
+    >,
   downloadDepositReceiptFile: (receiptUuid: string) =>
     apiService.downloadDepositReceiptFile(receiptUuid),
   updateDepositReceiptFile: (
