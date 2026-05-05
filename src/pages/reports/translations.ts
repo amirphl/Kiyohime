@@ -88,6 +88,14 @@ export interface ReportsTranslations {
     cancelError: string;
     cancelNotAllowed: string;
     cancelConfirm: string;
+    exportReport: string;
+    exportingReport: string;
+    exportError: string;
+    exportMissingCampaignUuid: string;
+    exportInvalidCampaignUuid: string;
+    exportUnauthorized: string;
+    exportForbidden: string;
+    exportNotFound: string;
   };
 }
 
@@ -182,6 +190,14 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       cancelError: 'Failed to cancel campaign',
       cancelNotAllowed: 'Only campaigns waiting for approval can be cancelled',
       cancelConfirm: 'Are you sure you want to cancel this campaign?',
+      exportReport: 'Export report',
+      exportingReport: 'Exporting...',
+      exportError: 'Failed to export campaign report',
+      exportMissingCampaignUuid: 'Campaign UUID is required',
+      exportInvalidCampaignUuid: 'Campaign UUID is invalid',
+      exportUnauthorized: 'You are not authorized. Please log in again.',
+      exportForbidden: 'You do not have access to export this campaign report.',
+      exportNotFound: 'Campaign report was not found.',
     },
   },
   fa: {
@@ -274,6 +290,14 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       cancelError: 'لغو کمپین ناموفق بود',
       cancelNotAllowed: 'فقط ارسال‌های در انتظار تایید قابل لغو هستند',
       cancelConfirm: 'آیا از لغو این کمپین مطمئن هستید؟',
+      exportReport: 'خروجی گزارش',
+      exportingReport: 'در حال دریافت خروجی...',
+      exportError: 'دریافت خروجی گزارش کمپین ناموفق بود',
+      exportMissingCampaignUuid: 'شناسه کمپین الزامی است',
+      exportInvalidCampaignUuid: 'شناسه کمپین نامعتبر است',
+      exportUnauthorized: 'احراز هویت ناموفق بود. لطفا دوباره وارد شوید.',
+      exportForbidden: 'شما دسترسی لازم برای دریافت خروجی این گزارش را ندارید.',
+      exportNotFound: 'گزارش کمپین پیدا نشد.',
     },
   },
 };
