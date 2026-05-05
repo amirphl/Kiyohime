@@ -131,6 +131,8 @@ export interface AdminTransactionCustomerInfo {
   email: string;
   company_name?: string | null;
   company_phone?: string | null;
+  company_address?: string | null;
+  postal_code?: string | null;
   national_id?: string | null;
   account_type: string;
 }
