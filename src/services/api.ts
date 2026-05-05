@@ -9,6 +9,7 @@ import {
   GetWalletBalanceResponse,
   UpdateSMSCampaignRequest,
   UpdateSMSCampaignResponse,
+  SendCampaignTestMessageResponse,
   ListSMSCampaignsParams,
   ListSMSCampaignsResponse,
   UploadMultimediaResponse,
@@ -1216,6 +1217,18 @@ class ApiService {
     return this.request<UpdateSMSCampaignResponse>(url, {
       method: 'PUT',
       body: JSON.stringify(campaignData),
+    });
+  }
+
+  async sendCampaignTestMessage(
+    uuid: string
+  ): Promise<ApiResponse<SendCampaignTestMessageResponse>> {
+    const endpoint = config.endpoints.campaigns.testSend.replace(
+      ':uuid',
+      encodeURIComponent(uuid)
+    );
+    return this.request<SendCampaignTestMessageResponse>(endpoint, {
+      method: 'POST',
     });
   }
 
