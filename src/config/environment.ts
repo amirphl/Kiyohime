@@ -32,6 +32,7 @@ export interface EnvironmentConfig {
       calculateCost: string;
       calculateCostV2: string;
       update: string;
+      testSend: string;
       audienceSpec: string;
       lastInitiated: string;
       clone: string;
@@ -107,6 +108,7 @@ const localConfig: EnvironmentConfig = {
       calculateCost: '/campaigns/calculate-cost',
       calculateCostV2: '/campaigns/calculate-cost-v2',
       update: '/campaigns/:uuid',
+      testSend: '/campaigns/:uuid/test-send',
       audienceSpec: '/campaigns/audience-spec',
       lastInitiated: '/campaigns/initiated/last',
       clone: '/campaigns/:uuid/clone',
@@ -164,7 +166,8 @@ const getProductionConfig = (): EnvironmentConfig => {
 
 export const getEnvironmentConfig = (): EnvironmentConfig => {
   const isProd =
-    process.env.REACT_APP_NODE_ENV === 'production' || process.env.NODE_ENV === 'production';
+    process.env.REACT_APP_NODE_ENV === 'production' ||
+    process.env.NODE_ENV === 'production';
   return isProd ? getProductionConfig() : localConfig;
 };
 
@@ -172,7 +175,10 @@ export const config = getEnvironmentConfig();
 
 // Helper functions
 export const isProduction = (): boolean => {
-  return process.env.REACT_APP_NODE_ENV === 'production' || process.env.NODE_ENV === 'production';
+  return (
+    process.env.REACT_APP_NODE_ENV === 'production' ||
+    process.env.NODE_ENV === 'production'
+  );
 };
 
 export const isDevelopment = (): boolean => {
