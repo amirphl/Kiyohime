@@ -1,6 +1,8 @@
 import React from 'react';
 import { AdminGetCampaignResponse } from '../../../types/admin';
+import { CampaignActionType } from '../constants';
 import { AdminCampaignManagementCopy } from '../translations';
+import CampaignRow from './CampaignRow';
 
 interface CampaignsTableProps {
   items: AdminGetCampaignResponse[];
@@ -8,13 +10,30 @@ interface CampaignsTableProps {
   error: string | null;
   copy: AdminCampaignManagementCopy;
   formatDateTime: (value?: string | null) => string;
-  canApproveOrReject: (status?: string | null) => boolean;
-  canCancel: (status?: string | null) => boolean;
+  resolveStatusLabel: (status?: string | null) => string;
   isActionSubmitting: boolean;
-  onApprove: (campaign: AdminGetCampaignResponse) => void;
-  onReject: (campaign: AdminGetCampaignResponse) => void;
-  onCancel: (campaign: AdminGetCampaignResponse) => void;
+  columnAlignClass: 'text-left' | 'text-right';
+  onSelectAction: (
+    campaign: AdminGetCampaignResponse,
+    action: CampaignActionType
+  ) => void;
+  onOpenDetails: (campaign: AdminGetCampaignResponse) => void;
+  onOpenReschedule: (campaign: AdminGetCampaignResponse) => void;
 }
+
+const HEADERS: Array<keyof AdminCampaignManagementCopy['table']['headers']> = [
+  'id',
+  'scheduleAt',
+  'status',
+  'actions',
+  'reschedule',
+  'details',
+  'title',
+  'adLink',
+  'content',
+];
+
+const TABLE_COL_SPAN = HEADERS.length;
 
 const CampaignsTable: React.FC<CampaignsTableProps> = ({
   items,
@@ -22,147 +41,75 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
   error,
   copy,
   formatDateTime,
-  canApproveOrReject,
-  canCancel,
+  resolveStatusLabel,
   isActionSubmitting,
-  onApprove,
-  onReject,
-  onCancel,
-}) => (
-  <div className='overflow-auto'>
-    <table className='min-w-full border text-sm'>
-      <thead className='bg-gray-50'>
-        <tr>
-          <th className='border px-2 py-2'>{copy.table.headers.row}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.scheduleAt}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.status}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.actions}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.platform}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.createdAt}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.updatedAt}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.title}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.segment}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.subsegment}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.adLink}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.content}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.lineNumber}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.budget}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.comment}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.sex}</th>
-          <th className='border px-2 py-2'>{copy.table.headers.city}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {!loading && error ? (
+  columnAlignClass,
+  onSelectAction,
+  onOpenDetails,
+  onOpenReschedule,
+}) => {
+  return (
+    <div className='overflow-x-auto'>
+      <table className='min-w-[1900px] table-fixed border text-sm'>
+        <colgroup>
+          <col className='w-[90px]' />
+          <col className='w-[200px]' />
+          <col className='w-[170px]' />
+          <col className='w-[230px]' />
+          <col className='w-[130px]' />
+          <col className='w-[120px]' />
+          <col className='w-[320px]' />
+          <col className='w-[320px]' />
+          <col className='w-[330px]' />
+        </colgroup>
+        <thead className='bg-gray-50'>
           <tr>
-            <td colSpan={17} className='text-center py-6 text-red-600'>
-              {error}
-            </td>
+            {HEADERS.map(headerKey => (
+              <th
+                key={headerKey}
+                className={`border px-2 py-2 align-top ${columnAlignClass}`}
+              >
+                {copy.table.headers[headerKey]}
+              </th>
+            ))}
           </tr>
-        ) : items.length === 0 && !loading ? (
-          <tr>
-            <td colSpan={17} className='text-center py-6'>
-              {copy.table.noData}
-            </td>
-          </tr>
-        ) : (
-          items.map((item, index) => (
-            <tr key={item.uuid} className='odd:bg-white even:bg-gray-50'>
-              <td className='border px-2 py-2 text-center'>{index + 1}</td>
-              <td className='border px-2 py-2'>
-                {formatDateTime(item.scheduleat)}
-              </td>
-              <td className='border px-2 py-2'>{item.status}</td>
-              <td className='border px-2 py-2 whitespace-nowrap'>
-                <div className='flex gap-2'>
-                  <button
-                    className='px-3 py-1 rounded bg-green-600 text-white disabled:opacity-60'
-                    onClick={() => onApprove(item)}
-                    disabled={
-                      isActionSubmitting || !canApproveOrReject(item.status)
-                    }
-                  >
-                    {copy.table.actions.approve}
-                  </button>
-                  <button
-                    className='px-3 py-1 rounded bg-red-600 text-white disabled:opacity-60'
-                    onClick={() => onReject(item)}
-                    disabled={
-                      isActionSubmitting || !canApproveOrReject(item.status)
-                    }
-                  >
-                    {copy.table.actions.reject}
-                  </button>
-                  <button
-                    className='px-3 py-1 rounded bg-amber-600 text-white disabled:opacity-60'
-                    onClick={() => onCancel(item)}
-                    disabled={isActionSubmitting || !canCancel(item.status)}
-                  >
-                    {copy.table.actions.cancel}
-                  </button>
-                </div>
-              </td>
-              <td className='border px-2 py-2'>{item.platform || ''}</td>
-              <td className='border px-2 py-2'>
-                {formatDateTime(item.created_at)}
-              </td>
-              <td className='border px-2 py-2'>
-                {formatDateTime(item.updated_at)}
-              </td>
+        </thead>
+        <tbody>
+          {!loading && error ? (
+            <tr>
               <td
-                className='border px-2 py-2 max-w-[220px] truncate'
-                title={item.title || ''}
+                colSpan={TABLE_COL_SPAN}
+                className='py-6 text-center text-red-600'
               >
-                {item.title || ''}
-              </td>
-              <td
-                className='border px-2 py-2 max-w-[220px] truncate'
-                title={item.level1 || ''}
-              >
-                {item.level1 || ''}
-              </td>
-              <td
-                className='border px-2 py-2 max-w-[220px] truncate'
-                title={
-                  Array.isArray(item.level2s) ? item.level2s.join(', ') : ''
-                }
-              >
-                {Array.isArray(item.level2s) ? item.level2s.join(', ') : ''}
-              </td>
-              <td
-                className='border px-2 py-2 max-w-[220px] truncate'
-                title={item.adlink || ''}
-              >
-                {item.adlink || ''}
-              </td>
-              <td
-                className='border px-2 py-2 max-w-[220px] truncate'
-                title={item.content || ''}
-              >
-                {item.content || ''}
-              </td>
-              <td className='border px-2 py-2'>{item.line_number || ''}</td>
-              <td className='border px-2 py-2'>
-                {typeof item.budget === 'number'
-                  ? item.budget.toLocaleString()
-                  : ''}
-              </td>
-              <td
-                className='border px-2 py-2 max-w-[220px] truncate'
-                title={item.comment || ''}
-              >
-                {item.comment || ''}
-              </td>
-              <td className='border px-2 py-2'>{item.sex || ''}</td>
-              <td className='border px-2 py-2'>
-                {Array.isArray(item.city) ? item.city.join(', ') : ''}
+                {error}
               </td>
             </tr>
-          ))
-        )}
-      </tbody>
-    </table>
-  </div>
-);
+          ) : !loading && items.length === 0 ? (
+            <tr>
+              <td colSpan={TABLE_COL_SPAN} className='py-6 text-center'>
+                {copy.table.noData}
+              </td>
+            </tr>
+          ) : (
+            items.map(campaign => (
+              <CampaignRow
+                key={campaign.uuid}
+                campaign={campaign}
+                copy={copy}
+                isActionSubmitting={isActionSubmitting}
+                formatDateTime={formatDateTime}
+                resolveStatusLabel={resolveStatusLabel}
+                columnAlignClass={columnAlignClass}
+                onSelectAction={onSelectAction}
+                onOpenDetails={onOpenDetails}
+                onOpenReschedule={onOpenReschedule}
+              />
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+};
 
 export default CampaignsTable;
