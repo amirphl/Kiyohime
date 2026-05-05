@@ -13,6 +13,8 @@ import {
   AdminApproveCampaignResponse,
   AdminCancelCampaignRequest,
   AdminCancelCampaignResponse,
+  AdminRescheduleCampaignRequest,
+  AdminRescheduleCampaignResponse,
   AdminRejectCampaignResponse,
   AdminListPlatformSettingsResponse,
   AdminChangePlatformSettingsStatusRequest,
@@ -582,6 +584,53 @@ class AdminApiService {
         success: true,
         message: data?.message || 'OK',
         data: data?.data as AdminCancelCampaignResponse,
+      };
+    } catch (e) {
+      return {
+        success: false,
+        message: 'An error occurred',
+        error: { code: 'NETWORK_ERROR', details: null },
+      };
+    }
+  }
+
+  async rescheduleCampaign(
+    payload: AdminRescheduleCampaignRequest
+  ): Promise<ApiResponse<AdminRescheduleCampaignResponse>> {
+    const url = getApiUrl('/admin/campaigns/reschedule');
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(this.getAccessToken()
+            ? { Authorization: `Bearer ${this.getAccessToken()}` }
+            : {}),
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          message: 'Unauthorized',
+          error: { code: 'UNAUTHORIZED', details: null },
+        } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return {
+          success: false,
+          message: data?.message || 'Reschedule failed',
+          error: data?.error,
+        };
+      }
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: data?.data as AdminRescheduleCampaignResponse,
       };
     } catch (e) {
       return {
