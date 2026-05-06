@@ -22,6 +22,9 @@ import {
   AdminListPlatformBasePricesResponse,
   AdminUpdatePlatformBasePriceRequest,
   AdminUpdatePlatformBasePriceResponse,
+  AdminGetPagePricesResponse,
+  AdminUpdatePagePriceRequest,
+  AdminUpdatePagePriceResponse,
   AdminChargeWalletRequest,
   AdminChargeWalletResponse,
   AdminListCustomersResponse,
@@ -735,6 +738,177 @@ class AdminApiService {
         data: data?.data,
       };
     } catch (e) {
+      return {
+        success: false,
+        message: 'An error occurred',
+        error: { code: 'NETWORK_ERROR', details: null },
+      };
+    }
+  }
+
+  async listTransactions(params: {
+    page?: number;
+    page_size?: number;
+    start_date?: string;
+    end_date?: string;
+    customer_id?: number;
+  }): Promise<
+    ApiResponse<import('../types/payments').AdminListTransactionsResponse>
+  > {
+    const search = new URLSearchParams();
+    if (params.page) search.set('page', String(params.page));
+    if (params.page_size) search.set('page_size', String(params.page_size));
+    if (params.start_date) search.set('start_date', params.start_date);
+    if (params.end_date) search.set('end_date', params.end_date);
+    if (params.customer_id)
+      search.set('customer_id', String(params.customer_id));
+
+    const url = getApiUrl(
+      `/admin/payments/transactions${search.toString() ? `?${search.toString()}` : ''}`
+    );
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken()
+            ? { Authorization: `Bearer ${this.getAccessToken()}` }
+            : {}),
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          message: 'Unauthorized',
+          error: { code: 'UNAUTHORIZED', details: null },
+        } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return {
+          success: false,
+          message: data?.message || 'Failed to list transactions',
+          error: data?.error,
+        };
+      }
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: data?.data || {
+          items: [],
+          pagination: {
+            current_page: 1,
+            page_size: 20,
+            total_items: 0,
+            total_pages: 1,
+            has_next: false,
+            has_previous: false,
+          },
+        },
+      };
+    } catch {
+      return {
+        success: false,
+        message: 'An error occurred',
+        error: { code: 'NETWORK_ERROR', details: null },
+      };
+    }
+  }
+
+  async uploadMultimediaByAdmin(
+    customerId: number,
+    file: File
+  ): Promise<
+    ApiResponse<import('../types/campaign').UploadMultimediaResponse>
+  > {
+    const url = getApiUrl('/admin/media/upload');
+    try {
+      const form = new FormData();
+      form.append('customer_id', String(customerId));
+      form.append('file', file);
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken()
+            ? { Authorization: `Bearer ${this.getAccessToken()}` }
+            : {}),
+        },
+        body: form,
+        signal: AbortSignal.timeout(120000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          message: 'Unauthorized',
+          error: { code: 'UNAUTHORIZED', details: null },
+        } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return {
+          success: false,
+          message: data?.message || 'Failed to upload multimedia',
+          error: data?.error,
+        };
+      }
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: data?.data,
+      };
+    } catch {
+      return {
+        success: false,
+        message: 'An error occurred',
+        error: { code: 'NETWORK_ERROR', details: null },
+      };
+    }
+  }
+
+  async addInvoiceToTransaction(payload: {
+    transaction_uuid: string;
+    customer_invoice_uuid: string;
+  }): Promise<ApiResponse<{ success: boolean; message: string }>> {
+    const url = getApiUrl('/admin/payments/transactions/invoice');
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(this.getAccessToken()
+            ? { Authorization: `Bearer ${this.getAccessToken()}` }
+            : {}),
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          message: 'Unauthorized',
+          error: { code: 'UNAUTHORIZED', details: null },
+        } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return {
+          success: false,
+          message: data?.message || 'Failed to add invoice to transaction',
+          error: data?.error,
+        };
+      }
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: data?.data || { success: true, message: 'OK' },
+      };
+    } catch {
       return {
         success: false,
         message: 'An error occurred',
@@ -1577,7 +1751,9 @@ class AdminApiService {
       return {
         success: true,
         message: data?.message || 'OK',
-        data: (data?.data || { items: [] }) as AdminListPlatformBasePricesResponse,
+        data: (data?.data || {
+          items: [],
+        }) as AdminListPlatformBasePricesResponse,
       };
     } catch {
       return {
@@ -1625,6 +1801,98 @@ class AdminApiService {
         success: true,
         message: data?.message || 'OK',
         data: (data?.data || {}) as AdminUpdatePlatformBasePriceResponse,
+      };
+    } catch {
+      return {
+        success: false,
+        message: 'An error occurred',
+        error: { code: 'NETWORK_ERROR', details: null },
+      } as any;
+    }
+  }
+
+  async getCampaignPagePricesByAdmin(): Promise<
+    ApiResponse<AdminGetPagePricesResponse>
+  > {
+    const url = getApiUrl('/admin/campaigns/page-prices');
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken()
+            ? { Authorization: `Bearer ${this.getAccessToken()}` }
+            : {}),
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          message: 'Unauthorized',
+          error: { code: 'UNAUTHORIZED', details: null },
+        } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return {
+          success: false,
+          message: data?.message || 'Failed to list page prices',
+          error: data?.error,
+        } as any;
+      }
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: (data?.data || { items: [] }) as AdminGetPagePricesResponse,
+      };
+    } catch {
+      return {
+        success: false,
+        message: 'An error occurred',
+        error: { code: 'NETWORK_ERROR', details: null },
+      } as any;
+    }
+  }
+
+  async updateCampaignPagePriceByAdmin(
+    payload: AdminUpdatePagePriceRequest
+  ): Promise<ApiResponse<AdminUpdatePagePriceResponse>> {
+    const url = getApiUrl('/admin/campaigns/page-prices');
+    try {
+      const resp = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(this.getAccessToken()
+            ? { Authorization: `Bearer ${this.getAccessToken()}` }
+            : {}),
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          message: 'Unauthorized',
+          error: { code: 'UNAUTHORIZED', details: null },
+        } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return {
+          success: false,
+          message: data?.message || 'Failed to update page price',
+          error: data?.error,
+        } as any;
+      }
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: (data?.data || {}) as AdminUpdatePagePriceResponse,
       };
     } catch {
       return {
