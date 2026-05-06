@@ -8,6 +8,8 @@ export interface WalletTableTranslations {
   freeIncrease: string;
   creditIncrease: string;
   invoice: string;
+  invoiceDownload: string;
+  invoiceNotifyIssue: string;
   description: string;
   noTransactions: string;
   createdAt: string;
@@ -80,6 +82,17 @@ export interface WalletTranslations {
   modalTotal: string;
   loading: string;
   invoiceDownloadError: string;
+  invoiceNotifySuccess: string;
+  invoiceErrors: {
+    unauthorized: string;
+    invalidTransactionUuid: string;
+    transactionNotFound: string;
+    forbidden: string;
+    rateLimited: string;
+    alreadyAssigned: string;
+    issueRequestFailed: string;
+    downloadFailed: string;
+  };
 }
 
 export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
@@ -153,6 +166,8 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       freeIncrease: 'Free Increase',
       creditIncrease: 'Credit Increase',
       invoice: 'Invoice',
+      invoiceDownload: 'Download invoice',
+      invoiceNotifyIssue: 'Notify invoice issuer',
       description: 'Description',
       noTransactions: 'No transactions',
       createdAt: 'Created At',
@@ -185,6 +200,19 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     modalTotal: 'Total to Pay:',
     loading: 'Loading...',
     invoiceDownloadError: 'Unable to generate invoice',
+    invoiceNotifySuccess: 'Invoice issue request submitted',
+    invoiceErrors: {
+      unauthorized: 'Please log in again.',
+      invalidTransactionUuid: 'Invalid transaction ID.',
+      transactionNotFound: 'Transaction not found.',
+      forbidden:
+        'You are not allowed to request invoice issuance for this transaction.',
+      rateLimited:
+        'You have already submitted an invoice issue request in the last 24 hours. Please try again later.',
+      alreadyAssigned: 'Invoice is already linked to this transaction.',
+      issueRequestFailed: 'Failed to submit invoice issue request.',
+      downloadFailed: 'Failed to download invoice file.',
+    },
   },
   fa: {
     title: 'مدیریت مالی',
@@ -256,6 +284,8 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       freeIncrease: 'افزایش موجودی آزاد',
       creditIncrease: 'افزایش اعتبار',
       invoice: 'فاکتور',
+      invoiceDownload: 'دانلود فاکتور',
+      invoiceNotifyIssue: 'درخواست فاکتور',
       description: 'توضیحات',
       noTransactions: 'تراکنشی یافت نشد',
       createdAt: 'تاریخ ایجاد',
@@ -288,6 +318,18 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     modalTotal: 'مبلغ قابل پرداخت:',
     loading: 'در حال بارگذاری...',
     invoiceDownloadError: 'امکان دریافت فاکتور نیست',
+    invoiceNotifySuccess: 'درخواست صدور فاکتور ثبت شد',
+    invoiceErrors: {
+      unauthorized: 'لطفاً دوباره وارد شوید.',
+      invalidTransactionUuid: 'شناسه تراکنش نامعتبر است.',
+      transactionNotFound: 'تراکنش پیدا نشد.',
+      forbidden: 'اجازه ثبت درخواست صدور فاکتور برای این تراکنش را ندارید.',
+      rateLimited:
+        'در ۲۴ ساعت گذشته درخواست صدور فاکتور ثبت کرده‌اید. لطفاً بعداً دوباره تلاش کنید.',
+      alreadyAssigned: 'فاکتور برای این تراکنش قبلاً ثبت شده است.',
+      issueRequestFailed: 'ثبت درخواست صدور فاکتور ناموفق بود.',
+      downloadFailed: 'دانلود فایل فاکتور ناموفق بود.',
+    },
   },
 };
 
