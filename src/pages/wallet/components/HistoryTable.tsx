@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { Download } from 'lucide-react';
+import { BellRing, Download } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { TransactionHistoryItem } from '../../../types/payments';
 import apiService from '../../../services/api';
 import { useToast } from '../../../hooks/useToast';
-import { openProformaPreview } from '../utils/proforma';
+import { downloadBlob } from '../utils/download';
 import { WalletCopy } from '../translations';
 
 interface HistoryTableProps {
@@ -24,13 +24,13 @@ interface HistoryTableProps {
 }
 
 type HistoryKind = 'charge-free' | 'charge-credit' | 'agency-share';
+type InvoiceAction = 'download' | 'notify' | 'disabled';
 
 interface HistoryRow {
   id: string;
   source: TransactionHistoryItem;
   kind: HistoryKind;
   amount: number;
-  invoiceEligible: boolean;
 }
 
 const getPositive = (value?: number | null) => Math.max(0, Number(value || 0));
@@ -48,7 +48,6 @@ const buildHistoryRows = (items: TransactionHistoryItem[]): HistoryRow[] => {
         source: item,
         kind: 'charge-free',
         amount: freeInc,
-        invoiceEligible: true,
       });
     }
     if (creditInc > 0) {
@@ -57,7 +56,6 @@ const buildHistoryRows = (items: TransactionHistoryItem[]): HistoryRow[] => {
         source: item,
         kind: 'charge-credit',
         amount: creditInc,
-        invoiceEligible: false,
       });
     }
     if (agencyShare > 0) {
@@ -66,7 +64,6 @@ const buildHistoryRows = (items: TransactionHistoryItem[]): HistoryRow[] => {
         source: item,
         kind: 'agency-share',
         amount: agencyShare,
-        invoiceEligible: true,
       });
     }
 
@@ -81,7 +78,6 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   page,
   hasNext,
   accessToken,
-  language,
   currencyLabel,
   formatDatetime,
   onNext,
@@ -89,8 +85,8 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   copy,
 }) => {
   const { t } = useTranslation();
-  const { showError } = useToast();
-  const [invoiceLoadingId, setInvoiceLoadingId] = useState<string | null>(null);
+  const { showError, showSuccess } = useToast();
+  const [loadingActionId, setLoadingActionId] = useState<string | null>(null);
   const rows = useMemo(() => buildHistoryRows(items), [items]);
 
   const kindLabel = (kind: HistoryKind) => {
@@ -106,27 +102,123 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
     }
   };
 
-  const handleInvoice = async (row: HistoryRow) => {
-    if (!accessToken) return;
-    setInvoiceLoadingId(row.id);
+  const getInvoiceErrorMessage = (errorCodeOrMessage?: string) => {
+    switch (errorCodeOrMessage) {
+      case 'INVALID_TRANSACTION_UUID':
+        return copy.invoiceErrors.invalidTransactionUuid;
+      case 'TRANSACTION_NOT_FOUND':
+        return copy.invoiceErrors.transactionNotFound;
+      case 'FORBIDDEN':
+        return copy.invoiceErrors.forbidden;
+      case 'INVOICE_ISSUE_REQUEST_RATE_LIMITED':
+        return copy.invoiceErrors.rateLimited;
+      case 'INVOICE_ALREADY_ASSIGNED':
+        return copy.invoiceErrors.alreadyAssigned;
+      case 'INVOICE_ISSUE_REQUEST_FAILED':
+        return copy.invoiceErrors.issueRequestFailed;
+      case 'Unauthorized - Please log in again':
+      case 'UNAUTHORIZED':
+      case 'Unauthorized':
+        return copy.invoiceErrors.unauthorized;
+      default:
+        return undefined;
+    }
+  };
+
+  const resolveInvoiceAction = (row: HistoryRow): InvoiceAction => {
+    const hasPositiveAmount = row.amount > 0;
+    const hasInvoiceUUID = Boolean(row.source.customer_invoice_uuid);
+    if (!hasPositiveAmount || !accessToken) return 'disabled';
+    if (hasInvoiceUUID) return 'download';
+    return 'notify';
+  };
+
+  const handleDownloadInvoice = async (row: HistoryRow) => {
+    if (!accessToken || !row.source.customer_invoice_uuid || row.amount <= 0)
+      return;
+    setLoadingActionId(row.id);
     apiService.setAccessToken(accessToken);
+
     try {
-      const taxedAmount = Math.round(row.amount * 1.1);
-      const resp = await apiService.previewProformaInvoiceByAmount(
-        taxedAmount,
-        language
+      const resp = await apiService.downloadMultimedia(
+        row.source.customer_invoice_uuid
       );
-      if (!resp.success || !resp.data) {
-        showError(resp.message || copy.invoiceDownloadError);
+      if (!resp.success || !resp.blob) {
+        const errorCode = resp.error?.code || resp.message;
+        showError(
+          getInvoiceErrorMessage(errorCode) || copy.invoiceErrors.downloadFailed
+        );
         return;
       }
-      const payload = (resp.data as any).data || resp.data;
-      openProformaPreview(payload, language);
+      downloadBlob(resp.blob, resp.filename || `invoice-${row.source.uuid}`);
     } catch (e) {
-      showError(e instanceof Error ? e.message : 'Network error');
+      showError(
+        getInvoiceErrorMessage(e instanceof Error ? e.message : undefined) ||
+          copy.invoiceErrors.downloadFailed
+      );
     } finally {
-      setInvoiceLoadingId(null);
+      setLoadingActionId(null);
     }
+  };
+
+  const handleNotifyInvoiceIssue = async (row: HistoryRow) => {
+    if (!accessToken || row.amount <= 0 || row.source.customer_invoice_uuid)
+      return;
+    setLoadingActionId(row.id);
+    apiService.setAccessToken(accessToken);
+
+    try {
+      const resp = await apiService.notifyInvoiceIssueRequest({
+        transaction_uuid: row.source.uuid,
+      });
+      if (!resp.success) {
+        const errorCode = resp.error?.code || resp.message;
+        showError(
+          getInvoiceErrorMessage(errorCode) ||
+            resp.message ||
+            copy.invoiceErrors.issueRequestFailed
+        );
+        return;
+      }
+      showSuccess(copy.invoiceNotifySuccess);
+    } catch (e) {
+      showError(
+        getInvoiceErrorMessage(e instanceof Error ? e.message : undefined) ||
+          copy.invoiceErrors.issueRequestFailed
+      );
+    } finally {
+      setLoadingActionId(null);
+    }
+  };
+
+  const handleInvoiceAction = async (row: HistoryRow) => {
+    const action = resolveInvoiceAction(row);
+    if (action === 'download') {
+      await handleDownloadInvoice(row);
+      return;
+    }
+    if (action === 'notify') {
+      await handleNotifyInvoiceIssue(row);
+    }
+  };
+
+  const renderInvoiceIcon = (row: HistoryRow) => {
+    const action = resolveInvoiceAction(row);
+    if (action === 'download') return <Download className='h-4 w-4' />;
+    if (action === 'notify') return <BellRing className='h-4 w-4' />;
+    return <Download className='h-4 w-4' />;
+  };
+
+  const isRowActionDisabled = (row: HistoryRow) => {
+    return (
+      resolveInvoiceAction(row) === 'disabled' || loadingActionId === row.id
+    );
+  };
+
+  const getInvoiceActionLabel = (row: HistoryRow) => {
+    const action = resolveInvoiceAction(row);
+    if (action === 'notify') return copy.table.invoiceNotifyIssue;
+    return copy.table.invoiceDownload;
   };
 
   return (
@@ -144,12 +236,6 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
               <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
                 {copy.table.datetime}
               </th>
-              {/* <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                {copy.table.type}
-              </th>
-              <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                {copy.table.status}
-              </th> */}
               <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
                 {copy.table.kind}
               </th>
@@ -159,9 +245,6 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
               <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
                 {copy.table.invoice}
               </th>
-              {/* <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                {copy.table.description}
-              </th> */}
             </tr>
           </thead>
           <tbody className='bg-white divide-y divide-gray-200'>
@@ -188,12 +271,6 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
                     {formatDatetime(row.source.datetime)}
                   </td>
-                  {/* <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
-                    {copy.operationTypes[item.operation] || item.operation}
-                  </td>
-                  <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
-                    {copy.statuses[item.status] || item.status}
-                  </td> */}
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
                     {kindLabel(row.kind)}
                   </td>
@@ -201,24 +278,17 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                     {`${row.amount.toLocaleString()} ${currencyLabel}`}
                   </td>
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
-                    {accessToken && row.invoiceEligible ? (
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        onClick={() => handleInvoice(row)}
-                        disabled={invoiceLoadingId === row.id}
-                        aria-label={copy.table.invoice}
-                        // title={copy.table.invoice}
-                      >
-                        <Download className='h-4 w-4' />
-                      </Button>
-                    ) : (
-                      '-'
-                    )}
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      onClick={() => handleInvoiceAction(row)}
+                      disabled={isRowActionDisabled(row)}
+                      aria-label={getInvoiceActionLabel(row)}
+                      title={getInvoiceActionLabel(row)}
+                    >
+                      {renderInvoiceIcon(row)}
+                    </Button>
                   </td>
-                  {/* <td className='px-4 py-3 text-sm text-gray-500 text-center'>
-                    {item.metadata?.description || '-'}
-                  </td> */}
                 </tr>
               );
             })}
