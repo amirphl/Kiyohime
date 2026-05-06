@@ -5,34 +5,43 @@ import {
   DepositReceiptItem,
 } from '../../../types/payments';
 
-export const useAdminDepositReceipts = (initialParams: AdminListDepositReceiptsParams = {}) => {
+export const useAdminDepositReceipts = (
+  initialParams: AdminListDepositReceiptsParams = {}
+) => {
   const [items, setItems] = useState<DepositReceiptItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const paramsRef = useRef<AdminListDepositReceiptsParams>(initialParams);
-  const inFlight = useRef(false);
+  const requestIdRef = useRef(0);
 
-  const fetchReceipts = useCallback(async (overrides?: AdminListDepositReceiptsParams) => {
-    if (inFlight.current) return;
-    inFlight.current = true;
-    setLoading(true);
-    setError(null);
-    if (overrides) paramsRef.current = { ...paramsRef.current, ...overrides };
-    try {
-      const res = await adminPaymentsApi.listDepositReceipts(paramsRef.current);
-      if (!res.success || !res.data) {
-        setError(res.message || 'Failed to load deposit receipts');
-        setItems([]);
-      } else {
-        setItems(res.data.items || []);
+  const fetchReceipts = useCallback(
+    async (overrides?: AdminListDepositReceiptsParams) => {
+      if (overrides) paramsRef.current = { ...paramsRef.current, ...overrides };
+      const requestId = ++requestIdRef.current;
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await adminPaymentsApi.listDepositReceipts(
+          paramsRef.current
+        );
+        if (requestId !== requestIdRef.current) return;
+        if (!res.success || !res.data) {
+          setError(res.message || 'Failed to load deposit receipts');
+          setItems([]);
+        } else {
+          setItems(res.data.items || []);
+        }
+      } catch (e) {
+        if (requestId !== requestIdRef.current) return;
+        setError(e instanceof Error ? e.message : 'Network error');
+      } finally {
+        if (requestId === requestIdRef.current) {
+          setLoading(false);
+        }
       }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Network error');
-    } finally {
-      setLoading(false);
-      inFlight.current = false;
-    }
-  }, []);
+    },
+    []
+  );
 
   useEffect(() => {
     fetchReceipts();
@@ -51,4 +60,6 @@ export const useAdminDepositReceipts = (initialParams: AdminListDepositReceiptsP
   };
 };
 
-export type UseAdminDepositReceiptsReturn = ReturnType<typeof useAdminDepositReceipts>;
+export type UseAdminDepositReceiptsReturn = ReturnType<
+  typeof useAdminDepositReceipts
+>;
