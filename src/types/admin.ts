@@ -416,3 +416,27 @@ export interface AdminListPlatformBasePricesResponse {
   message: string;
   items: AdminPlatformBasePriceItem[];
 }
+
+// Admin Campaign Page Prices
+export interface AdminUpdatePagePriceRequest {
+  platform: 'sms' | 'rubika' | 'bale' | 'splus';
+  price: number;
+}
+
+export interface AdminUpdatePagePriceResponse {
+  message: string;
+  platform: string;
+  price: number;
+  created_at?: string;
+}
+
+export interface AdminPagePriceItem {
+  platform: string;
+  price: number;
+  created_at?: string;
+}
+
+export interface AdminGetPagePricesResponse {
+  message: string;
+  items: AdminPagePriceItem[];
+}
