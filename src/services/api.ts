@@ -1,9 +1,16 @@
 import {
-  CreateCampaignPayload, CreateSMSCampaignResponse,
-  CalculateCampaignCapacityRequest, CalculateCampaignCapacityResponse,
-  CalculateCampaignCostRequest, CalculateCampaignCostResponse, CalculateCampaignCostV2Request, GetWalletBalanceResponse,
-  UpdateSMSCampaignRequest, UpdateSMSCampaignResponse,
-  ListSMSCampaignsParams, ListSMSCampaignsResponse,
+  CreateCampaignPayload,
+  CreateSMSCampaignResponse,
+  CalculateCampaignCapacityRequest,
+  CalculateCampaignCapacityResponse,
+  CalculateCampaignCostRequest,
+  CalculateCampaignCostResponse,
+  CalculateCampaignCostV2Request,
+  GetWalletBalanceResponse,
+  UpdateSMSCampaignRequest,
+  UpdateSMSCampaignResponse,
+  ListSMSCampaignsParams,
+  ListSMSCampaignsResponse,
   UploadMultimediaResponse,
 } from '../types/campaign';
 import {
@@ -11,12 +18,42 @@ import {
   CreatePlatformSettingsResponse,
   ListPlatformSettingsResponse,
 } from '../types/platformSettings';
-import { config, getApiUrl, isDevelopment, isProduction } from '../config/environment';
-import { GetTransactionHistoryParams, TransactionHistoryResponse } from '../types/payments';
-import { AgencyCustomerReportResponse, ListAgencyActiveDiscountsResponse, ListAgencyCustomerDiscountsResponse, ListAgencyCustomersResponse } from '../types/agency';
-import { ListAudienceSpecResponse, ListActiveLineNumbersResponse, ListLatestSegmentPriceFactorsResponse, GetLastInitiatedCampaignResponse } from '../types/campaign';
-import { SubmitDepositReceiptRequest, SubmitDepositReceiptResponse, ListDepositReceiptsResponse, ProformaPreviewResponse, UpdateDepositReceiptFileRequest } from '../types/payments';
-import { login as authLogin, requestLoginOtp as authRequestLoginOtp, verifyLoginOtp as authVerifyLoginOtp } from './auth/api';
+import {
+  config,
+  getApiUrl,
+  isDevelopment,
+  isProduction,
+} from '../config/environment';
+import {
+  GetTransactionHistoryParams,
+  TransactionHistoryResponse,
+} from '../types/payments';
+import {
+  AgencyCustomerReportResponse,
+  ListAgencyActiveDiscountsResponse,
+  ListAgencyCustomerDiscountsResponse,
+  ListAgencyCustomersResponse,
+} from '../types/agency';
+import {
+  ListAudienceSpecResponse,
+  ListActiveLineNumbersResponse,
+  ListLatestSegmentPriceFactorsResponse,
+  GetLastInitiatedCampaignResponse,
+} from '../types/campaign';
+import {
+  SubmitDepositReceiptRequest,
+  SubmitDepositReceiptResponse,
+  ListDepositReceiptsResponse,
+  ProformaPreviewResponse,
+  UpdateDepositReceiptFileRequest,
+  NotifyInvoiceIssueRequest,
+  NotifyInvoiceIssueResponse,
+} from '../types/payments';
+import {
+  login as authLogin,
+  requestLoginOtp as authRequestLoginOtp,
+  verifyLoginOtp as authVerifyLoginOtp,
+} from './auth/api';
 
 // Updated to match Go backend response structure
 export interface ApiResponse<T = any> {
@@ -29,6 +66,27 @@ export interface ApiResponse<T = any> {
 export interface ErrorDetail {
   code: string;
   details?: any;
+}
+
+export interface PlatformBasePriceItem {
+  platform: string;
+  price: number;
+}
+
+export interface ListPlatformBasePricesResponse {
+  message?: string;
+  items: PlatformBasePriceItem[];
+}
+
+export interface PagePriceItem {
+  platform: string;
+  price: number;
+  created_at?: string;
+}
+
+export interface GetPagePricesResponse {
+  message?: string;
+  items: PagePriceItem[];
 }
 
 // Global 401 handler type
@@ -83,7 +141,7 @@ class ApiService {
         message: 'Invalid URL',
         error: {
           code: 'Invalid URL',
-          details: null
+          details: null,
         },
       };
     }
@@ -103,7 +161,8 @@ class ApiService {
       ...(options.headers as Record<string, string> | undefined),
     };
 
-    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+    const isFormData =
+      typeof FormData !== 'undefined' && options.body instanceof FormData;
     if (isFormData) {
       delete mergedHeaders['Content-Type'];
     }
@@ -135,7 +194,8 @@ class ApiService {
         };
       } else if (response.status === 401) {
         // Unauthorized - check if this is an auth endpoint
-        const isAuthEndpoint = endpoint.includes('/auth/login') ||
+        const isAuthEndpoint =
+          endpoint.includes('/auth/login') ||
           endpoint.includes('/auth/login/otp') ||
           endpoint.includes('/auth/signup') ||
           endpoint.includes('/auth/verify') ||
@@ -157,7 +217,7 @@ class ApiService {
             message: errorMessage,
             error: {
               code: errorMessage,
-              details: data.error?.details
+              details: data.error?.details,
             },
           };
         } else {
@@ -165,7 +225,9 @@ class ApiService {
           if (this.unauthorizedHandler) {
             this.unauthorizedHandler();
           } else {
-            console.warn('No unauthorized handler set - cannot handle 401 automatically');
+            console.warn(
+              'No unauthorized handler set - cannot handle 401 automatically'
+            );
           }
 
           return {
@@ -173,7 +235,7 @@ class ApiService {
             message: 'Unauthorized - Please log in again',
             error: {
               code: 'Unauthorized - Please log in again',
-              details: null
+              details: null,
             },
           };
         }
@@ -192,7 +254,7 @@ class ApiService {
           message: errorMessage,
           error: {
             code: errorMessage,
-            details: data.error?.details
+            details: data.error?.details,
           },
         };
       } else {
@@ -217,15 +279,18 @@ class ApiService {
         message: errorMessage,
         error: {
           code: errorMessage,
-          details: null
+          details: null,
         },
       };
     }
   }
 
-  private async requestBinary(
-    endpoint: string
-  ): Promise<{ success: boolean; message: string; blob?: Blob; filename?: string }> {
+  private async requestBinary(endpoint: string): Promise<{
+    success: boolean;
+    message: string;
+    blob?: Blob;
+    filename?: string;
+  }> {
     const url = getApiUrl(endpoint);
     if (!this.isValidUrl(url)) {
       return { success: false, message: 'Invalid URL' };
@@ -250,7 +315,10 @@ class ApiService {
         if (this.unauthorizedHandler) {
           this.unauthorizedHandler();
         }
-        return { success: false, message: 'Unauthorized - Please log in again' };
+        return {
+          success: false,
+          message: 'Unauthorized - Please log in again',
+        };
       }
 
       if (!response.ok) {
@@ -267,7 +335,9 @@ class ApiService {
       const blob = await response.blob();
       const disposition = response.headers.get('content-disposition') || '';
       const filenameMatch = disposition.match(/filename=([^;]+)/i);
-      const filename = filenameMatch ? filenameMatch[1].replace(/"/g, '') : undefined;
+      const filename = filenameMatch
+        ? filenameMatch[1].replace(/"/g, '')
+        : undefined;
       return { success: true, message: 'Success', blob, filename };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
@@ -317,7 +387,10 @@ class ApiService {
     return authRequestLoginOtp(identifier);
   }
 
-  async verifyLoginOtp(customerId: number, otpCode: string): Promise<ApiResponse> {
+  async verifyLoginOtp(
+    customerId: number,
+    otpCode: string
+  ): Promise<ApiResponse> {
     return authVerifyLoginOtp(customerId, otpCode);
   }
 
@@ -329,7 +402,7 @@ class ApiService {
         message: 'Invalid signup data',
         error: {
           code: 'Invalid signup data',
-          details: null
+          details: null,
         },
       };
     }
@@ -343,7 +416,7 @@ class ApiService {
           message: `Missing required field: ${field}`,
           error: {
             code: `Missing required field: ${field}`,
-            details: null
+            details: null,
           },
         };
       }
@@ -351,11 +424,17 @@ class ApiService {
 
     // If account_type is not marketing_agency, job_category and job are required
     if (signupData.account_type !== 'marketing_agency') {
-      if (!signupData.job_category || typeof signupData.job_category !== 'string') {
+      if (
+        !signupData.job_category ||
+        typeof signupData.job_category !== 'string'
+      ) {
         return {
           success: false,
           message: 'Missing required field: job_category',
-          error: { code: 'Missing required field: job_category', details: null },
+          error: {
+            code: 'Missing required field: job_category',
+            details: null,
+          },
         };
       }
       if (!signupData.job || typeof signupData.job !== 'string') {
@@ -375,7 +454,7 @@ class ApiService {
         message: 'Invalid email format',
         error: {
           code: 'Invalid email format',
-          details: null
+          details: null,
         },
       };
     }
@@ -387,7 +466,7 @@ class ApiService {
         message: 'Password must be at least 8 characters long',
         error: {
           code: 'Password must be at least 8 characters long',
-          details: null
+          details: null,
         },
       };
     }
@@ -399,7 +478,7 @@ class ApiService {
         message: 'Password must contain at least 1 uppercase letter',
         error: {
           code: 'Password must contain at least 1 uppercase letter',
-          details: null
+          details: null,
         },
       };
     }
@@ -410,7 +489,7 @@ class ApiService {
         message: 'Password must contain at least 1 number',
         error: {
           code: 'Password must contain at least 1 number',
-          details: null
+          details: null,
         },
       };
     }
@@ -425,7 +504,9 @@ class ApiService {
         ? this.formatPhoneNumber(signupData.company_phone)
         : undefined,
       // Include job/category fields if present
-      category: signupData.job_category ? String(signupData.job_category) : undefined,
+      category: signupData.job_category
+        ? String(signupData.job_category)
+        : undefined,
       job: signupData.job ? String(signupData.job) : undefined,
     };
 
@@ -466,8 +547,14 @@ class ApiService {
   }
 
   // Get authenticated user's profile
-  async getProfile(): Promise<ApiResponse<{ customer: any; parent_agency?: any; parentAgency?: any }>> {
-    return this.request<{ customer: any; parent_agency?: any; parentAgency?: any }>('/profile', { method: 'GET' });
+  async getProfile(): Promise<
+    ApiResponse<{ customer: any; parent_agency?: any; parentAgency?: any }>
+  > {
+    return this.request<{
+      customer: any;
+      parent_agency?: any;
+      parentAgency?: any;
+    }>('/profile', { method: 'GET' });
   }
 
   async forgotPassword(identifier: string): Promise<ApiResponse> {
@@ -482,7 +569,7 @@ class ApiService {
         message: 'Invalid identifier',
         error: {
           code: 'Invalid identifier',
-          details: null
+          details: null,
         },
       };
     }
@@ -527,7 +614,10 @@ class ApiService {
   }
 
   // Campaign endpoints
-  async listCampaigns(params: ListSMSCampaignsParams, signal?: AbortSignal): Promise<ApiResponse<ListSMSCampaignsResponse>> {
+  async listCampaigns(
+    params: ListSMSCampaignsParams,
+    signal?: AbortSignal
+  ): Promise<ApiResponse<ListSMSCampaignsResponse>> {
     const query = new URLSearchParams();
     query.set('page', String(params.page));
     query.set('limit', String(params.limit));
@@ -547,59 +637,107 @@ class ApiService {
     });
   }
 
-  async createCampaign(campaignData: CreateCampaignPayload): Promise<ApiResponse<CreateSMSCampaignResponse>> {
-    return this.request<CreateSMSCampaignResponse>(config.endpoints.campaigns.create, {
-      method: 'POST',
-      body: JSON.stringify(campaignData),
-    });
+  async createCampaign(
+    campaignData: CreateCampaignPayload
+  ): Promise<ApiResponse<CreateSMSCampaignResponse>> {
+    return this.request<CreateSMSCampaignResponse>(
+      config.endpoints.campaigns.create,
+      {
+        method: 'POST',
+        body: JSON.stringify(campaignData),
+      }
+    );
   }
 
-  async getLastInitiatedCampaign(): Promise<ApiResponse<GetLastInitiatedCampaignResponse>> {
-    return this.request<GetLastInitiatedCampaignResponse>(config.endpoints.campaigns.lastInitiated, {
-      method: 'GET',
-    });
+  async getLastInitiatedCampaign(): Promise<
+    ApiResponse<GetLastInitiatedCampaignResponse>
+  > {
+    return this.request<GetLastInitiatedCampaignResponse>(
+      config.endpoints.campaigns.lastInitiated,
+      {
+        method: 'GET',
+      }
+    );
   }
 
   async cloneCampaign(uuid: string): Promise<ApiResponse<{ uuid: string }>> {
-    const endpoint = config.endpoints.campaigns.clone.replace(':uuid', encodeURIComponent(uuid));
+    const endpoint = config.endpoints.campaigns.clone.replace(
+      ':uuid',
+      encodeURIComponent(uuid)
+    );
     return this.request<{ uuid: string }>(endpoint, {
       method: 'POST',
     });
   }
 
-  async calculateCampaignCapacity(capacityData: CalculateCampaignCapacityRequest): Promise<ApiResponse<CalculateCampaignCapacityResponse>> {
-    return this.request<CalculateCampaignCapacityResponse>(config.endpoints.campaigns.calculateCapacity, {
-      method: 'POST',
-      body: JSON.stringify(capacityData),
-    });
+  async exportCampaignReport(uuid: string): Promise<{
+    success: boolean;
+    message: string;
+    blob?: Blob;
+    filename?: string;
+  }> {
+    const endpoint = `/campaigns/${encodeURIComponent(uuid)}/export`;
+    return this.requestBinary(endpoint);
+  }
+
+  async calculateCampaignCapacity(
+    capacityData: CalculateCampaignCapacityRequest
+  ): Promise<ApiResponse<CalculateCampaignCapacityResponse>> {
+    return this.request<CalculateCampaignCapacityResponse>(
+      config.endpoints.campaigns.calculateCapacity,
+      {
+        method: 'POST',
+        body: JSON.stringify(capacityData),
+      }
+    );
   }
 
   // New campaign cost calculation endpoint for message count
-  async calculateCampaignCost(costData: CalculateCampaignCostRequest): Promise<ApiResponse<CalculateCampaignCostResponse>> {
-    return this.request<CalculateCampaignCostResponse>(config.endpoints.campaigns.calculateCost, {
-      method: 'POST',
-      body: JSON.stringify(costData),
-    });
+  async calculateCampaignCost(
+    costData: CalculateCampaignCostRequest
+  ): Promise<ApiResponse<CalculateCampaignCostResponse>> {
+    return this.request<CalculateCampaignCostResponse>(
+      config.endpoints.campaigns.calculateCost,
+      {
+        method: 'POST',
+        body: JSON.stringify(costData),
+      }
+    );
   }
 
-  async calculateCampaignCostV2(costData: CalculateCampaignCostV2Request): Promise<ApiResponse<CalculateCampaignCostResponse>> {
-    return this.request<CalculateCampaignCostResponse>(config.endpoints.campaigns.calculateCostV2, {
-      method: 'POST',
-      body: JSON.stringify(costData),
-    });
+  async calculateCampaignCostV2(
+    costData: CalculateCampaignCostV2Request
+  ): Promise<ApiResponse<CalculateCampaignCostResponse>> {
+    return this.request<CalculateCampaignCostResponse>(
+      config.endpoints.campaigns.calculateCostV2,
+      {
+        method: 'POST',
+        body: JSON.stringify(costData),
+      }
+    );
   }
 
   // Wallet balance endpoint
   async getWalletBalance(): Promise<ApiResponse<GetWalletBalanceResponse>> {
-    return this.request<GetWalletBalanceResponse>(config.endpoints.wallet.balance, {
-      method: 'GET',
-    });
+    return this.request<GetWalletBalanceResponse>(
+      config.endpoints.wallet.balance,
+      {
+        method: 'GET',
+      }
+    );
   }
 
   // Start wallet charge to obtain Atipay token
-  async startWalletCharge(amount: number, lang?: string): Promise<ApiResponse<{ token: string }>> {
+  async startWalletCharge(
+    amount: number,
+    lang?: string
+  ): Promise<ApiResponse<{ token: string }>> {
     if (!amount || typeof amount !== 'number' || amount <= 0) {
-      return { success: false, message: 'Invalid amount', error: { code: 'Invalid amount', details: null } };
+      return {
+        success: false,
+        message: 'Invalid amount',
+        error: { code: 'Invalid amount', details: null },
+      };
     }
     return this.request<{ token: string }>(`/payments/charge-wallet`, {
       method: 'POST',
@@ -607,28 +745,44 @@ class ApiService {
     });
   }
 
-  async submitDepositReceipt(payload: SubmitDepositReceiptRequest): Promise<ApiResponse<SubmitDepositReceiptResponse>> {
-    return this.request<SubmitDepositReceiptResponse>(`/payments/deposit-receipts`, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
+  async submitDepositReceipt(
+    payload: SubmitDepositReceiptRequest
+  ): Promise<ApiResponse<SubmitDepositReceiptResponse>> {
+    return this.request<SubmitDepositReceiptResponse>(
+      `/payments/deposit-receipts`,
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }
+    );
   }
 
-  async listDepositReceipts(lang?: string): Promise<ApiResponse<ListDepositReceiptsResponse>> {
+  async listDepositReceipts(
+    lang?: string
+  ): Promise<ApiResponse<ListDepositReceiptsResponse>> {
     const query = lang ? `?lang=${encodeURIComponent(lang)}` : '';
-    return this.request<ListDepositReceiptsResponse>(`/payments/deposit-receipts${query}`, {
-      method: 'GET',
-    });
+    return this.request<ListDepositReceiptsResponse>(
+      `/payments/deposit-receipts${query}`,
+      {
+        method: 'GET',
+      }
+    );
   }
 
-  async previewProformaInvoice(receiptUuid: string, lang?: string): Promise<ApiResponse<ProformaPreviewResponse>> {
+  async previewProformaInvoice(
+    receiptUuid: string,
+    lang?: string
+  ): Promise<ApiResponse<ProformaPreviewResponse>> {
     const params = new URLSearchParams();
     params.set('receipt_uuid', receiptUuid);
     if (lang) params.set('lang', lang);
     const query = params.toString() ? `?${params.toString()}` : '';
-    return this.request<ProformaPreviewResponse>(`/payments/proforma/preview${query}`, {
-      method: 'GET',
-    });
+    return this.request<ProformaPreviewResponse>(
+      `/payments/proforma/preview${query}`,
+      {
+        method: 'GET',
+      }
+    );
   }
 
   async previewProformaInvoiceByAmount(
@@ -645,9 +799,12 @@ class ApiService {
     );
   }
 
-  async downloadDepositReceiptFile(
-    receiptUuid: string
-  ): Promise<{ success: boolean; message: string; blob?: Blob; filename?: string }> {
+  async downloadDepositReceiptFile(receiptUuid: string): Promise<{
+    success: boolean;
+    message: string;
+    blob?: Blob;
+    filename?: string;
+  }> {
     const endpoint = `/payments/deposit-receipts/${encodeURIComponent(receiptUuid)}/file`;
     return this.requestBinary(endpoint);
   }
@@ -673,7 +830,9 @@ class ApiService {
   }
 
   // Payments endpoints
-  async getPaymentHistory(params: GetTransactionHistoryParams = {}): Promise<ApiResponse<TransactionHistoryResponse>> {
+  async getPaymentHistory(
+    params: GetTransactionHistoryParams = {}
+  ): Promise<ApiResponse<TransactionHistoryResponse>> {
     const query = new URLSearchParams();
     if (params.page) query.set('page', String(params.page));
     if (params.page_size) query.set('page_size', String(params.page_size));
@@ -682,22 +841,59 @@ class ApiService {
     if (params.type) query.set('type', params.type);
     if (params.status) query.set('status', params.status);
     const endpoint = `/payments/history${query.toString() ? `?${query.toString()}` : ''}`;
-    return this.request<TransactionHistoryResponse>(endpoint, { method: 'GET' });
+    return this.request<TransactionHistoryResponse>(endpoint, {
+      method: 'GET',
+    });
+  }
+
+  async notifyInvoiceIssueRequest(
+    payload: NotifyInvoiceIssueRequest
+  ): Promise<ApiResponse<NotifyInvoiceIssueResponse>> {
+    if (!payload?.transaction_uuid) {
+      return {
+        success: false,
+        message: 'Transaction UUID is required',
+        error: { code: 'INVALID_TRANSACTION_UUID', details: null },
+      };
+    }
+    return this.request<NotifyInvoiceIssueResponse>(
+      '/payments/transactions/invoice-issue-request',
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }
+    );
   }
 
   // Support endpoints
-  async createSupportTicket(params: { title: string; content: string; file?: File | null; }): Promise<ApiResponse> {
+  async createSupportTicket(params: {
+    title: string;
+    content: string;
+    file?: File | null;
+  }): Promise<ApiResponse> {
     // Basic input validation
     const title = (params.title || '').trim();
     const content = (params.content || '').trim();
     if (!content) {
-      return { success: false, message: 'Content is required', error: { code: 'Content is required', details: null } };
+      return {
+        success: false,
+        message: 'Content is required',
+        error: { code: 'Content is required', details: null },
+      };
     }
     if (title.length > 80) {
-      return { success: false, message: 'Title must be less than or equal to 80 characters', error: { code: 'Title too long', details: null } };
+      return {
+        success: false,
+        message: 'Title must be less than or equal to 80 characters',
+        error: { code: 'Title too long', details: null },
+      };
     }
     if (content.length > 1000) {
-      return { success: false, message: 'Description must be at most 1000 characters', error: { code: 'Description too long', details: null } };
+      return {
+        success: false,
+        message: 'Description must be at most 1000 characters',
+        error: { code: 'Description too long', details: null },
+      };
     }
 
     const form = new FormData();
@@ -709,7 +905,11 @@ class ApiService {
 
     const url = getApiUrl('/tickets');
     if (!this.isValidUrl(url)) {
-      return { success: false, message: 'Invalid URL', error: { code: 'Invalid URL', details: null } };
+      return {
+        success: false,
+        message: 'Invalid URL',
+        error: { code: 'Invalid URL', details: null },
+      };
     }
 
     const headers: Record<string, string> = {
@@ -730,23 +930,67 @@ class ApiService {
 
       const contentType = resp.headers.get('content-type') || '';
       if (!contentType.includes('application/json')) {
-        return { success: false, message: 'Invalid response content type', error: { code: 'Invalid response content type', details: null } };
+        return {
+          success: false,
+          message: 'Invalid response content type',
+          error: { code: 'Invalid response content type', details: null },
+        };
       }
       const data = await resp.json();
 
       if (resp.status === 201 || resp.ok) {
-        return { success: true, message: data.message || 'Created successfully', data: data.data };
+        return {
+          success: true,
+          message: data.message || 'Created successfully',
+          data: data.data,
+        };
       }
 
-      const errorMessage = data?.error?.code || data?.message || `HTTP ${resp.status}`;
-      return { success: false, message: errorMessage, error: { code: errorMessage, details: data?.error?.details } };
+      const errorMessage =
+        data?.error?.code || data?.message || `HTTP ${resp.status}`;
+      return {
+        success: false,
+        message: errorMessage,
+        error: { code: errorMessage, details: data?.error?.details },
+      };
     } catch (e) {
-      const msg = this.isProduction() ? 'An error occurred' : (e instanceof Error ? e.message : 'Unknown error');
-      return { success: false, message: msg, error: { code: msg, details: null } };
+      const msg = this.isProduction()
+        ? 'An error occurred'
+        : e instanceof Error
+          ? e.message
+          : 'Unknown error';
+      return {
+        success: false,
+        message: msg,
+        error: { code: msg, details: null },
+      };
     }
   }
 
-  async listSupportTickets(params: { title?: string; start_date?: string; end_date?: string; page?: number; page_size?: number } = {}): Promise<ApiResponse<{ message: string; groups: Array<{ correlation_id: string; items: Array<{ id: number; title: string; content: string; created_at: string; replied_by_admin?: boolean | null; attachments?: Array<string | { filename?: string; name?: string }> }> }> }>> {
+  async listSupportTickets(
+    params: {
+      title?: string;
+      start_date?: string;
+      end_date?: string;
+      page?: number;
+      page_size?: number;
+    } = {}
+  ): Promise<
+    ApiResponse<{
+      message: string;
+      groups: Array<{
+        correlation_id: string;
+        items: Array<{
+          id: number;
+          title: string;
+          content: string;
+          created_at: string;
+          replied_by_admin?: boolean | null;
+          attachments?: Array<string | { filename?: string; name?: string }>;
+        }>;
+      }>;
+    }>
+  > {
     const query = new URLSearchParams();
     if (params.title) query.set('title', params.title);
     if (params.start_date) query.set('start_date', params.start_date);
@@ -757,15 +1001,26 @@ class ApiService {
     return this.request(endpoint, { method: 'GET' });
   }
 
-  async downloadTicketAttachment(ticketId: number, fileIndex: number): Promise<ApiResponse<{ blob: Blob; filename?: string }>> {
+  async downloadTicketAttachment(
+    ticketId: number,
+    fileIndex: number
+  ): Promise<ApiResponse<{ blob: Blob; filename?: string }>> {
     if (!ticketId || ticketId <= 0 || fileIndex < 0) {
-      return { success: false, message: 'Invalid ticket id or file index', error: { code: 'INVALID_PARAMS', details: null } };
+      return {
+        success: false,
+        message: 'Invalid ticket id or file index',
+        error: { code: 'INVALID_PARAMS', details: null },
+      };
     }
 
     const endpoint = `/tickets/${ticketId}/attachments/${fileIndex}`;
     const url = getApiUrl(endpoint);
     if (!this.isValidUrl(url)) {
-      return { success: false, message: 'Invalid URL', error: { code: 'Invalid URL', details: null } };
+      return {
+        success: false,
+        message: 'Invalid URL',
+        error: { code: 'Invalid URL', details: null },
+      };
     }
 
     const headers: Record<string, string> = {
@@ -787,7 +1042,11 @@ class ApiService {
         if (this.unauthorizedHandler) {
           this.unauthorizedHandler();
         }
-        return { success: false, message: 'Unauthorized', error: { code: 'Unauthorized', details: null } };
+        return {
+          success: false,
+          message: 'Unauthorized',
+          error: { code: 'Unauthorized', details: null },
+        };
       }
 
       if (resp.ok) {
@@ -795,35 +1054,72 @@ class ApiService {
         const filenameMatch = disposition.match(/filename="?([^"]+)"?/i);
         const filename = filenameMatch?.[1];
         const blob = await resp.blob();
-        return { success: true, message: 'Downloaded', data: { blob, filename } };
+        return {
+          success: true,
+          message: 'Downloaded',
+          data: { blob, filename },
+        };
       }
 
       const contentType = resp.headers.get('content-type') || '';
       if (contentType.includes('application/json')) {
         const data = await resp.json();
-        const errorMessage = data?.error?.code || data?.message || `HTTP ${resp.status}`;
-        return { success: false, message: errorMessage, error: { code: errorMessage, details: data?.error?.details } };
+        const errorMessage =
+          data?.error?.code || data?.message || `HTTP ${resp.status}`;
+        return {
+          success: false,
+          message: errorMessage,
+          error: { code: errorMessage, details: data?.error?.details },
+        };
       }
 
-      return { success: false, message: `HTTP ${resp.status}`, error: { code: `HTTP ${resp.status}`, details: null } };
+      return {
+        success: false,
+        message: `HTTP ${resp.status}`,
+        error: { code: `HTTP ${resp.status}`, details: null },
+      };
     } catch (e) {
-      const msg = this.isProduction() ? 'An error occurred' : (e instanceof Error ? e.message : 'Unknown error');
-      return { success: false, message: msg, error: { code: msg, details: null } };
+      const msg = this.isProduction()
+        ? 'An error occurred'
+        : e instanceof Error
+          ? e.message
+          : 'Unknown error';
+      return {
+        success: false,
+        message: msg,
+        error: { code: msg, details: null },
+      };
     }
   }
 
   // Create ticket reply (customer response to existing ticket)
-  async createTicketReply(params: { ticket_id: number; content: string; file?: File | null; }): Promise<ApiResponse> {
+  async createTicketReply(params: {
+    ticket_id: number;
+    content: string;
+    file?: File | null;
+  }): Promise<ApiResponse> {
     // Basic input validation
     const content = (params.content || '').trim();
     if (!content) {
-      return { success: false, message: 'Content is required', error: { code: 'Content is required', details: null } };
+      return {
+        success: false,
+        message: 'Content is required',
+        error: { code: 'Content is required', details: null },
+      };
     }
     if (content.length > 1000) {
-      return { success: false, message: 'Content must be at most 1000 characters', error: { code: 'Content too long', details: null } };
+      return {
+        success: false,
+        message: 'Content must be at most 1000 characters',
+        error: { code: 'Content too long', details: null },
+      };
     }
     if (!params.ticket_id || params.ticket_id <= 0) {
-      return { success: false, message: 'Valid ticket ID is required', error: { code: 'Invalid ticket ID', details: null } };
+      return {
+        success: false,
+        message: 'Valid ticket ID is required',
+        error: { code: 'Invalid ticket ID', details: null },
+      };
     }
 
     const form = new FormData();
@@ -835,7 +1131,11 @@ class ApiService {
 
     const url = getApiUrl('/tickets/reply');
     if (!this.isValidUrl(url)) {
-      return { success: false, message: 'Invalid URL', error: { code: 'Invalid URL', details: null } };
+      return {
+        success: false,
+        message: 'Invalid URL',
+        error: { code: 'Invalid URL', details: null },
+      };
     }
 
     const headers: Record<string, string> = {
@@ -856,7 +1156,11 @@ class ApiService {
 
       const contentType = resp.headers.get('content-type') || '';
       if (!contentType.includes('application/json')) {
-        return { success: false, message: 'Invalid response content type', error: { code: 'Invalid response content type', details: null } };
+        return {
+          success: false,
+          message: 'Invalid response content type',
+          error: { code: 'Invalid response content type', details: null },
+        };
       }
       const data = await resp.json();
 
@@ -865,24 +1169,49 @@ class ApiService {
         if (this.unauthorizedHandler) {
           this.unauthorizedHandler();
         }
-        const errorMessage = data?.error?.code || data?.message || 'Unauthorized';
-        return { success: false, message: errorMessage, error: { code: errorMessage, details: data?.error?.details } };
+        const errorMessage =
+          data?.error?.code || data?.message || 'Unauthorized';
+        return {
+          success: false,
+          message: errorMessage,
+          error: { code: errorMessage, details: data?.error?.details },
+        };
       }
 
       if (resp.status === 201 || resp.ok) {
-        return { success: true, message: data.message || 'Reply created successfully', data: data.data };
+        return {
+          success: true,
+          message: data.message || 'Reply created successfully',
+          data: data.data,
+        };
       }
 
-      const errorMessage = data?.error?.code || data?.message || `HTTP ${resp.status}`;
-      return { success: false, message: errorMessage, error: { code: errorMessage, details: data?.error?.details } };
+      const errorMessage =
+        data?.error?.code || data?.message || `HTTP ${resp.status}`;
+      return {
+        success: false,
+        message: errorMessage,
+        error: { code: errorMessage, details: data?.error?.details },
+      };
     } catch (e) {
-      const msg = this.isProduction() ? 'An error occurred' : (e instanceof Error ? e.message : 'Unknown error');
-      return { success: false, message: msg, error: { code: msg, details: null } };
+      const msg = this.isProduction()
+        ? 'An error occurred'
+        : e instanceof Error
+          ? e.message
+          : 'Unknown error';
+      return {
+        success: false,
+        message: msg,
+        error: { code: msg, details: null },
+      };
     }
   }
 
   // Update campaign endpoint
-  async updateCampaign(uuid: string, campaignData: UpdateSMSCampaignRequest): Promise<ApiResponse<UpdateSMSCampaignResponse>> {
+  async updateCampaign(
+    uuid: string,
+    campaignData: UpdateSMSCampaignRequest
+  ): Promise<ApiResponse<UpdateSMSCampaignResponse>> {
     const url = config.endpoints.campaigns.update.replace(':uuid', uuid);
     return this.request<UpdateSMSCampaignResponse>(url, {
       method: 'PUT',
@@ -898,8 +1227,35 @@ class ApiService {
   }
 
   // Campaigns summary endpoint
-  async getCampaignsSummary(): Promise<ApiResponse<{ approved_count: number; running_count: number; total: number }>> {
-    return this.request<{ approved_count: number; running_count: number; total: number }>('/campaigns/summary', { method: 'GET' });
+  async getCampaignsSummary(): Promise<
+    ApiResponse<{
+      approved_count: number;
+      running_count: number;
+      total: number;
+    }>
+  > {
+    return this.request<{
+      approved_count: number;
+      running_count: number;
+      total: number;
+    }>('/campaigns/summary', { method: 'GET' });
+  }
+
+  async getPlatformBasePrices(): Promise<
+    ApiResponse<ListPlatformBasePricesResponse>
+  > {
+    return this.request<ListPlatformBasePricesResponse>(
+      '/platform-base-prices',
+      {
+        method: 'GET',
+      }
+    );
+  }
+
+  async getPagePrices(): Promise<ApiResponse<GetPagePricesResponse>> {
+    return this.request<GetPagePricesResponse>('/campaigns/page-prices', {
+      method: 'GET',
+    });
   }
 
   async getReports(): Promise<ApiResponse> {
@@ -909,49 +1265,99 @@ class ApiService {
   }
 
   // Agency report: customers
-  async getAgencyCustomerReport(params: { start_date?: string; end_date?: string; orderby?: string; name?: string } = {}): Promise<ApiResponse<AgencyCustomerReportResponse>> {
+  async getAgencyCustomerReport(
+    params: {
+      start_date?: string;
+      end_date?: string;
+      orderby?: string;
+      name?: string;
+    } = {}
+  ): Promise<ApiResponse<AgencyCustomerReportResponse>> {
     const query = new URLSearchParams();
     if (params.start_date) query.set('start_date', params.start_date);
     if (params.end_date) query.set('end_date', params.end_date);
     if (params.orderby) query.set('orderby', params.orderby);
     if (params.name) query.set('name', params.name);
     const endpoint = `/reports/agency/customers${query.toString() ? `?${query.toString()}` : ''}`;
-    return this.request<AgencyCustomerReportResponse>(endpoint, { method: 'GET' });
+    return this.request<AgencyCustomerReportResponse>(endpoint, {
+      method: 'GET',
+    });
   }
 
   // Agency active discounts
-  async listAgencyActiveDiscounts(params: { name?: string } = {}): Promise<ApiResponse<ListAgencyActiveDiscountsResponse>> {
+  async listAgencyActiveDiscounts(
+    params: { name?: string } = {}
+  ): Promise<ApiResponse<ListAgencyActiveDiscountsResponse>> {
     const query = new URLSearchParams();
     if (params.name) query.set('name', params.name);
     const endpoint = `/reports/agency/discounts/active${query.toString() ? `?${query.toString()}` : ''}`;
-    return this.request<ListAgencyActiveDiscountsResponse>(endpoint, { method: 'GET' });
+    return this.request<ListAgencyActiveDiscountsResponse>(endpoint, {
+      method: 'GET',
+    });
   }
 
   // Agency customer discount history
-  async listAgencyCustomerDiscounts(customerId: number): Promise<ApiResponse<ListAgencyCustomerDiscountsResponse>> {
+  async listAgencyCustomerDiscounts(
+    customerId: number
+  ): Promise<ApiResponse<ListAgencyCustomerDiscountsResponse>> {
     if (!customerId || customerId <= 0) {
-      return { success: false, message: 'Invalid customer id', error: { code: 'Invalid customer id', details: null } };
+      return {
+        success: false,
+        message: 'Invalid customer id',
+        error: { code: 'Invalid customer id', details: null },
+      };
     }
     const endpoint = `/reports/agency/customers/${customerId}/discounts`;
-    return this.request<ListAgencyCustomerDiscountsResponse>(endpoint, { method: 'GET' });
+    return this.request<ListAgencyCustomerDiscountsResponse>(endpoint, {
+      method: 'GET',
+    });
   }
 
   // List agency customers
-  async listAgencyCustomers(): Promise<ApiResponse<ListAgencyCustomersResponse>> {
-    return this.request<ListAgencyCustomersResponse>(`/reports/agency/customers/list`, { method: 'GET' });
+  async listAgencyCustomers(): Promise<
+    ApiResponse<ListAgencyCustomersResponse>
+  > {
+    return this.request<ListAgencyCustomersResponse>(
+      `/reports/agency/customers/list`,
+      { method: 'GET' }
+    );
   }
 
   // Create agency discount
-  async createAgencyDiscount(payload: { customer_id: number; name: string; discount_rate: number }): Promise<ApiResponse> {
+  async createAgencyDiscount(payload: {
+    customer_id: number;
+    name: string;
+    discount_rate: number;
+  }): Promise<ApiResponse> {
     if (!payload || typeof payload !== 'object') {
-      return { success: false, message: 'Invalid payload', error: { code: 'Invalid payload', details: null } };
+      return {
+        success: false,
+        message: 'Invalid payload',
+        error: { code: 'Invalid payload', details: null },
+      };
     }
     const { customer_id, name, discount_rate } = payload;
     if ((!customer_id && customer_id !== 0) || !name?.trim()) {
-      return { success: false, message: 'Missing required fields', error: { code: 'Missing required fields', details: null } };
+      return {
+        success: false,
+        message: 'Missing required fields',
+        error: { code: 'Missing required fields', details: null },
+      };
     }
-    if (!(discount_rate > 0 && discount_rate <= 100)) {
-      return { success: false, message: 'Rate must be between 0 and 100', error: { code: 'DISCOUNT_RATE_OUT_OF_RANGE', details: null } };
+    // Discount rates are stored/sent as a normalized fraction: percent / (percent + 100)
+    // Valid range therefore includes 0 and is always less than 1.
+    if (
+      !(
+        Number.isFinite(discount_rate) &&
+        discount_rate >= 0 &&
+        discount_rate < 1
+      )
+    ) {
+      return {
+        success: false,
+        message: 'Rate must be between 0 and 1',
+        error: { code: 'DISCOUNT_RATE_OUT_OF_RANGE', details: null },
+      };
     }
     return this.request(`/reports/agency/discounts`, {
       method: 'POST',
@@ -960,7 +1366,9 @@ class ApiService {
   }
 
   // Audience spec endpoint
-  async listAudienceSpec(platform?: string): Promise<ApiResponse<ListAudienceSpecResponse>> {
+  async listAudienceSpec(
+    platform?: string
+  ): Promise<ApiResponse<ListAudienceSpecResponse>> {
     const endpoint = platform
       ? `${config.endpoints.campaigns.audienceSpec}?platform=${encodeURIComponent(platform)}`
       : config.endpoints.campaigns.audienceSpec;
@@ -968,46 +1376,86 @@ class ApiService {
   }
 
   // Active line numbers
-  async listActiveLineNumbers(): Promise<ApiResponse<ListActiveLineNumbersResponse>> {
-    return this.request<ListActiveLineNumbersResponse>(config.endpoints.lineNumbers.active, { method: 'GET' });
+  async listActiveLineNumbers(): Promise<
+    ApiResponse<ListActiveLineNumbersResponse>
+  > {
+    return this.request<ListActiveLineNumbersResponse>(
+      config.endpoints.lineNumbers.active,
+      { method: 'GET' }
+    );
   }
 
   // Segment price factors (latest per level3)
-  async listLatestSegmentPriceFactors(platform?: string): Promise<ApiResponse<ListLatestSegmentPriceFactorsResponse>> {
+  async listLatestSegmentPriceFactors(
+    platform?: string
+  ): Promise<ApiResponse<ListLatestSegmentPriceFactorsResponse>> {
     const endpoint = platform
       ? `${config.endpoints.segmentPriceFactors.listLatest}?platform=${encodeURIComponent(platform)}`
       : config.endpoints.segmentPriceFactors.listLatest;
-    return this.request<ListLatestSegmentPriceFactorsResponse>(endpoint, { method: 'GET' });
+    return this.request<ListLatestSegmentPriceFactorsResponse>(endpoint, {
+      method: 'GET',
+    });
   }
 
-  async uploadMultimedia(file: File): Promise<ApiResponse<UploadMultimediaResponse>> {
+  async uploadMultimedia(
+    file: File
+  ): Promise<ApiResponse<UploadMultimediaResponse>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.request<UploadMultimediaResponse>(config.endpoints.media.upload, {
-      method: 'POST',
-      body: formData,
-    });
+    return this.request<UploadMultimediaResponse>(
+      config.endpoints.media.upload,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
   }
 
-  async downloadMultimedia(uuid: string): Promise<{ success: boolean; message: string; blob?: Blob; filename?: string }> {
-    const endpoint = config.endpoints.media.download.replace(':uuid', encodeURIComponent(uuid));
+  async downloadMultimedia(uuid: string): Promise<{
+    success: boolean;
+    message: string;
+    blob?: Blob;
+    filename?: string;
+  }> {
+    const endpoint = config.endpoints.media.download.replace(
+      ':uuid',
+      encodeURIComponent(uuid)
+    );
     return this.requestBinary(endpoint);
   }
 
-  async previewMultimedia(uuid: string): Promise<{ success: boolean; message: string; blob?: Blob; filename?: string }> {
-    const endpoint = config.endpoints.media.preview.replace(':uuid', encodeURIComponent(uuid));
+  async previewMultimedia(uuid: string): Promise<{
+    success: boolean;
+    message: string;
+    blob?: Blob;
+    filename?: string;
+  }> {
+    const endpoint = config.endpoints.media.preview.replace(
+      ':uuid',
+      encodeURIComponent(uuid)
+    );
     return this.requestBinary(endpoint);
   }
 
-  async listPlatformSettings(): Promise<ApiResponse<ListPlatformSettingsResponse>> {
-    return this.request<ListPlatformSettingsResponse>(config.endpoints.platformSettings.list, { method: 'GET' });
+  async listPlatformSettings(): Promise<
+    ApiResponse<ListPlatformSettingsResponse>
+  > {
+    return this.request<ListPlatformSettingsResponse>(
+      config.endpoints.platformSettings.list,
+      { method: 'GET' }
+    );
   }
 
-  async createPlatformSettings(payload: CreatePlatformSettingsRequest): Promise<ApiResponse<CreatePlatformSettingsResponse>> {
-    return this.request<CreatePlatformSettingsResponse>(config.endpoints.platformSettings.create, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
+  async createPlatformSettings(
+    payload: CreatePlatformSettingsRequest
+  ): Promise<ApiResponse<CreatePlatformSettingsResponse>> {
+    return this.request<CreatePlatformSettingsResponse>(
+      config.endpoints.platformSettings.create,
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }
+    );
   }
 
   // Utility methods
