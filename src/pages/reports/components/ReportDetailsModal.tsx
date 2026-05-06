@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { GetSMSCampaignResponse } from '../../../types/campaign';
 import { ReportsCopy } from '../translations';
+import { apiService } from '../../../services/api';
+import { useAuth } from '../../../hooks/useAuth';
+import { useToast } from '../../../hooks/useToast';
+import { downloadBlob } from '../../wallet/utils/download';
 
 interface ReportDetailsModalProps {
   campaign: GetSMSCampaignResponse;
@@ -26,6 +30,10 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
   formatDateTime,
   copy,
 }) => {
+  const { accessToken } = useAuth();
+  const { showError } = useToast();
+  const [isExporting, setIsExporting] = useState(false);
+
   const normalizeList = (value?: string[] | string) => {
     if (Array.isArray(value)) return value;
     if (typeof value === 'string' && value.trim() !== '') return [value];
@@ -39,6 +47,49 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
   const displayContent = campaign.content
     ? campaign.content.replace(/🔗/g, shortLinkDisplay)
     : '';
+  const hasTrackingResults = useMemo(() => {
+    const value = campaign.statistics?.trackingResults;
+    if (Array.isArray(value)) return value.length > 0;
+    return Boolean(value);
+  }, [campaign.statistics]);
+
+  const getExportErrorMessage = (message?: string) => {
+    const code = (message || '').trim().toUpperCase();
+    if (code.includes('MISSING_CAMPAIGN_UUID'))
+      return copy.modal.exportMissingCampaignUuid;
+    if (code.includes('INVALID_CAMPAIGN_UUID'))
+      return copy.modal.exportInvalidCampaignUuid;
+    if (code.includes('UNAUTHORIZED')) return copy.modal.exportUnauthorized;
+    if (code.includes('FORBIDDEN')) return copy.modal.exportForbidden;
+    if (code.includes('NOT_FOUND')) return copy.modal.exportNotFound;
+    return copy.modal.exportError;
+  };
+
+  const handleExportReport = async () => {
+    if (isExporting) return;
+    if (!campaign.uuid) {
+      showError(copy.modal.exportMissingCampaignUuid);
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      apiService.setAccessToken(accessToken || null);
+      const res = await apiService.exportCampaignReport(campaign.uuid);
+      if (!res.success || !res.blob) {
+        showError(getExportErrorMessage(res.message));
+        return;
+      }
+      downloadBlob(
+        res.blob,
+        res.filename || `campaign_report_${campaign.uuid}.xlsx`
+      );
+    } catch {
+      showError(copy.modal.exportError);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center px-4 py-6 bg-slate-900/70 backdrop-blur-sm'>
@@ -284,12 +335,25 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
           </div>
 
           <div className='px-6 pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-slate-100 bg-slate-50/60'>
-            <button
-              onClick={onClose}
-              className='px-4 py-2 text-sm rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition shadow-sm'
-            >
-              {copy.modal.close}
-            </button>
+            <div className='flex items-center gap-2'>
+              <button
+                onClick={onClose}
+                className='px-4 py-2 text-sm rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition shadow-sm'
+              >
+                {copy.modal.close}
+              </button>
+              {hasTrackingResults && (
+                <button
+                  onClick={handleExportReport}
+                  disabled={isExporting}
+                  className='px-4 py-2 text-sm rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition shadow-sm disabled:opacity-60 disabled:cursor-not-allowed'
+                >
+                  {isExporting
+                    ? copy.modal.exportingReport
+                    : copy.modal.exportReport}
+                </button>
+              )}
+            </div>
             {campaign.status === 'rejected' && (
               <button
                 onClick={onFixAndRestart}
