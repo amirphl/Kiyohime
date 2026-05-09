@@ -1,7 +1,7 @@
 import {
   CreateCampaignPayload, CreateSMSCampaignResponse,
   CalculateCampaignCapacityRequest, CalculateCampaignCapacityResponse,
-  CalculateCampaignCostRequest, CalculateCampaignCostResponse, GetWalletBalanceResponse,
+  CalculateCampaignCostRequest, CalculateCampaignCostResponse, CalculateCampaignCostV2Request, GetWalletBalanceResponse,
   UpdateSMSCampaignRequest, UpdateSMSCampaignResponse,
   ListSMSCampaignsParams, ListSMSCampaignsResponse,
   UploadMultimediaResponse,
@@ -563,6 +563,13 @@ class ApiService {
   // New campaign cost calculation endpoint for message count
   async calculateCampaignCost(costData: CalculateCampaignCostRequest): Promise<ApiResponse<CalculateCampaignCostResponse>> {
     return this.request<CalculateCampaignCostResponse>(config.endpoints.campaigns.calculateCost, {
+      method: 'POST',
+      body: JSON.stringify(costData),
+    });
+  }
+
+  async calculateCampaignCostV2(costData: CalculateCampaignCostV2Request): Promise<ApiResponse<CalculateCampaignCostResponse>> {
+    return this.request<CalculateCampaignCostResponse>(config.endpoints.campaigns.calculateCostV2, {
       method: 'POST',
       body: JSON.stringify(costData),
     });
