@@ -54,6 +54,7 @@ export interface AdminPlatformSettingsCopy {
     downloadFailed: string;
     metadataKeyRequired: string;
     metadataValueRequired: string;
+    metadataKeyNotAllowedForPlatform: string;
     metadataUpdateFailed: string;
   };
   success: {
@@ -122,6 +123,8 @@ const en: AdminPlatformSettingsCopy = {
     downloadFailed: 'Failed to download multimedia',
     metadataKeyRequired: 'Metadata key is required',
     metadataValueRequired: 'Metadata value is required',
+    metadataKeyNotAllowedForPlatform:
+      'Selected metadata key is not allowed for this platform',
     metadataUpdateFailed: 'Failed to update platform settings metadata',
   },
   success: {
@@ -190,6 +193,8 @@ const fa: AdminPlatformSettingsCopy = {
     downloadFailed: 'دانلود رسانه ناموفق بود',
     metadataKeyRequired: 'کلید متادیتا الزامی است',
     metadataValueRequired: 'مقدار متادیتا الزامی است',
+    metadataKeyNotAllowedForPlatform:
+      'کلید متادیتای انتخاب‌شده برای این کانال مجاز نیست',
     metadataUpdateFailed: 'بروزرسانی متادیتای تنظیمات کانال ناموفق بود',
   },
   success: {
