@@ -30,6 +30,7 @@ export interface EnvironmentConfig {
       calculateCosts: string;
       calculateCapacity: string;
       calculateCost: string;
+      calculateCostV2: string;
       update: string;
       audienceSpec: string;
     };
@@ -102,6 +103,7 @@ const localConfig: EnvironmentConfig = {
       calculateCosts: '/campaigns/calculate-costs',
       calculateCapacity: '/campaigns/calculate-capacity',
       calculateCost: '/campaigns/calculate-cost',
+      calculateCostV2: '/campaigns/calculate-cost-v2',
       update: '/campaigns/:uuid',
       audienceSpec: '/campaigns/audience-spec',
     },
