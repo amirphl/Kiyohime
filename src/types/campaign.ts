@@ -136,6 +136,25 @@ export interface CalculateCampaignCostRequest {
   media_uuid?: string | null;
 }
 
+export interface CalculateCampaignCostV2Request {
+  title?: string;
+  level1?: string;
+  level2s?: string[];
+  level3s?: string[];
+  tags?: string[];
+  adlink?: string;
+  content?: string;
+  scheduleat?: string;
+  line_number?: string | null;
+  short_link_domain?: string;
+  job_category?: string;
+  job?: string;
+  platform?: CampaignPlatform;
+  platform_settings_id?: number | null;
+  media_uuid?: string | null;
+  num_messages: number;
+}
+
 // Campaign cost calculation response interface
 export interface CalculateCampaignCostResponse {
   message: string;
