@@ -13,6 +13,13 @@ import { adminPaymentsTranslations } from './adminPayments/translations';
 const MIN_AMOUNT = 1000;
 const MAX_AMOUNT = 1000000000;
 
+const createIdempotencyKey = (): string => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `admin-charge-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+};
+
 const AdminPaymentsPage: React.FC = () => {
   const { language } = useLanguage();
   const copy = useMemo(
@@ -31,6 +38,7 @@ const AdminPaymentsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [amountWithTax, setAmountWithTax] = useState('');
+  const [idempotencyKey] = useState<string>(() => createIdempotencyKey());
   const [submitting, setSubmitting] = useState(false);
   const [chargeResult, setChargeResult] =
     useState<AdminChargeWalletByAdminResponse | null>(null);
@@ -111,6 +119,7 @@ const AdminPaymentsPage: React.FC = () => {
     const res = await adminPaymentsApi.chargeWalletByAdmin({
       customer_id: customerId,
       amount_with_tax: parsedAmount,
+      idempotency_key: idempotencyKey,
     });
     setSubmitting(false);
 
