@@ -1,5 +1,5 @@
 import React from 'react';
-import { AdminPlatformSettingsItem } from '../../../types/admin';
+import { AdminPlatformKey, AdminPlatformSettingsItem } from '../../../types/admin';
 import { AdminPlatformSettingsCopy } from '../translations';
 import { PlatformMetadataKey } from '../useAdminPlatformSettingsMetadata';
 
@@ -15,7 +15,7 @@ interface PlatformSettingsTableProps {
   onDownloadMultimedia: (uuid?: string | null) => void;
   onOpenMetadataModal: (item: AdminPlatformSettingsItem) => void;
   metadataLoadingById: Record<number, boolean>;
-  metadataKeyOptions: PlatformMetadataKey[];
+  getMetadataKeyOptions: (platform: AdminPlatformKey) => PlatformMetadataKey[];
   getMetadataForm: (id: number) => { key: PlatformMetadataKey; value: string };
   onMetadataKeyChange: (id: number, key: PlatformMetadataKey) => void;
   onMetadataValueChange: (id: number, value: string) => void;
@@ -36,7 +36,7 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
   onDownloadMultimedia,
   onOpenMetadataModal,
   metadataLoadingById,
-  metadataKeyOptions,
+  getMetadataKeyOptions,
   getMetadataForm,
   onMetadataKeyChange,
   onMetadataValueChange,
@@ -50,19 +50,15 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
         <thead className='bg-gray-50'>
           <tr>
             <th className='border px-2 py-2'>{copy.table.row}</th>
-            <th className='border px-2 py-2'>{copy.table.id}</th>
-            <th className='border px-2 py-2'>{copy.table.uuid}</th>
             <th className='border px-2 py-2'>{copy.table.customerId}</th>
             <th className='border px-2 py-2'>{copy.table.platform}</th>
             <th className='border px-2 py-2'>{copy.table.name}</th>
             <th className='border px-2 py-2'>{copy.table.description}</th>
-            <th className='border px-2 py-2'>{copy.table.multimediaUuid}</th>
             <th className='border px-2 py-2'>{copy.table.preview}</th>
             <th className='border px-2 py-2'>{copy.table.download}</th>
             <th className='border px-2 py-2'>{copy.table.metadataInfo}</th>
             <th className='border px-2 py-2'>{copy.table.metadata}</th>
             <th className='border px-2 py-2'>{copy.table.status}</th>
-            <th className='border px-2 py-2'>{copy.table.createdAt}</th>
             <th className='border px-2 py-2'>{copy.table.updatedAt}</th>
             <th className='border px-2 py-2'>{copy.table.changeStatus}</th>
           </tr>
@@ -70,35 +66,32 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
         <tbody>
           {loading ? (
             <tr>
-              <td colSpan={16} className='border px-2 py-6 text-center'>
+              <td colSpan={12} className='border px-2 py-6 text-center'>
                 {copy.common.loading}
               </td>
             </tr>
           ) : error ? (
             <tr>
-              <td colSpan={16} className='border px-2 py-6 text-center text-red-600'>
+              <td colSpan={12} className='border px-2 py-6 text-center text-red-600'>
                 {error}
               </td>
             </tr>
           ) : items.length === 0 ? (
             <tr>
-              <td colSpan={16} className='border px-2 py-6 text-center'>
+              <td colSpan={12} className='border px-2 py-6 text-center'>
                 {copy.table.noData}
               </td>
             </tr>
           ) : (
-            items.map((item, index) => (
+            items.map((item, index) => {
+              const metadataKeyOptions = getMetadataKeyOptions(item.platform);
+              return (
               <tr key={item.id} className='odd:bg-white even:bg-gray-50'>
                 <td className='border px-2 py-2 text-center'>{index + 1}</td>
-                <td className='border px-2 py-2 text-center'>{item.id}</td>
-                <td className='border px-2 py-2 font-mono text-xs'>{item.uuid}</td>
                 <td className='border px-2 py-2 text-center'>{item.customer_id}</td>
                 <td className='border px-2 py-2'>{item.platform || copy.common.emptyValue}</td>
                 <td className='border px-2 py-2'>{item.name || copy.common.emptyValue}</td>
                 <td className='border px-2 py-2'>{item.description || copy.common.emptyValue}</td>
-                <td className='border px-2 py-2 font-mono text-xs'>
-                  {item.multimedia_uuid || copy.common.emptyValue}
-                </td>
                 <td className='border px-2 py-2 text-center'>
                   {!item.multimedia_uuid ? (
                     <span className='text-xs text-gray-500'>{copy.common.emptyValue}</span>
@@ -174,7 +167,6 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
                   </div>
                 </td>
                 <td className='border px-2 py-2'>{statusLabel(item.status)}</td>
-                <td className='border px-2 py-2'>{formatDateTime(item.created_at)}</td>
                 <td className='border px-2 py-2'>{formatDateTime(item.updated_at)}</td>
                 <td className='border px-2 py-2 text-center'>
                   <button
@@ -186,7 +178,8 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
                   </button>
                 </td>
               </tr>
-            ))
+              );
+            })
           )}
         </tbody>
       </table>
