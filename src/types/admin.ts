@@ -303,6 +303,7 @@ export interface AdminCustomerDiscountHistoryResponse {
 export interface AdminChargeWalletByAdminRequest {
   customer_id: number;
   amount_with_tax: number;
+  idempotency_key?: string;
 }
 
 export interface AdminChargeWalletByAdminResponse {
