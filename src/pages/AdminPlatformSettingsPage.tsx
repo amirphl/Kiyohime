@@ -65,8 +65,9 @@ const AdminPlatformSettingsPage: React.FC = () => {
     setValue: setMetadataValue,
     submit: submitMetadata,
     loadingById: metadataLoadingById,
-    keyOptions: metadataKeyOptions,
+    getKeyOptionsForPlatform,
   } = useAdminPlatformSettingsMetadata({
+    getPlatformById: (id: number) => items.find(item => item.id === id)?.platform,
     onError: showError,
     onSuccess: showSuccess,
     onMetadataUpdated: (id, metadata) => {
@@ -77,6 +78,7 @@ const AdminPlatformSettingsPage: React.FC = () => {
     errors: {
       keyRequired: copy.errors.metadataKeyRequired,
       valueRequired: copy.errors.metadataValueRequired,
+      keyNotAllowedForPlatform: copy.errors.metadataKeyNotAllowedForPlatform,
       updateFailed: copy.errors.metadataUpdateFailed,
     },
     success: {
@@ -230,7 +232,7 @@ const AdminPlatformSettingsPage: React.FC = () => {
           onDownloadMultimedia={downloadByUuid}
           onOpenMetadataModal={openMetadataModal}
           metadataLoadingById={metadataLoadingById}
-          metadataKeyOptions={metadataKeyOptions}
+          getMetadataKeyOptions={getKeyOptionsForPlatform}
           getMetadataForm={getMetadataForm}
           onMetadataKeyChange={setMetadataKey}
           onMetadataValueChange={setMetadataValue}
