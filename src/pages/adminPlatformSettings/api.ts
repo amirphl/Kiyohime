@@ -19,6 +19,7 @@ type AdminMultimediaResponse = {
   message: string;
   blob?: Blob;
   filename?: string;
+  notFound?: boolean;
 };
 
 export const adminPlatformSettingsApi = {
