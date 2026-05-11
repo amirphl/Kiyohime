@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { apiService } from '../services/api';
-import { GetSMSCampaignResponse } from '../types/campaign';
+import { GetCampaignResponse } from '../types/campaign';
 import { useAuth } from '../hooks/useAuth';
 import { useCampaign } from '../hooks/useCampaign';
 import { useNavigation } from '../contexts/NavigationContext';
@@ -14,9 +14,17 @@ const ReportsPage: React.FC = () => {
   const { accessToken } = useAuth();
   const { language } = useLanguage();
   const copy = useMemo(() => getReportsCopy(language), [language]);
-  const { updateLevel, updateContent, updateBudget, updatePayment, setCampaignUuid, goToStep, saveCampaignData } = useCampaign();
+  const {
+    updateLevel,
+    updateContent,
+    updateBudget,
+    updatePayment,
+    setCampaignUuid,
+    goToStep,
+    saveCampaignData,
+  } = useCampaign();
   const { navigate } = useNavigation();
-  const [items, setItems] = useState<GetSMSCampaignResponse[]>([]);
+  const [items, setItems] = useState<GetCampaignResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -31,7 +39,7 @@ const ReportsPage: React.FC = () => {
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
-  const [selected, setSelected] = useState<GetSMSCampaignResponse | null>(null);
+  const [selected, setSelected] = useState<GetCampaignResponse | null>(null);
 
   // Guards for double-invocation (StrictMode) and concurrent fetches
   const isFetchingRef = useRef(false);
@@ -63,7 +71,10 @@ const ReportsPage: React.FC = () => {
         if (res.success && res.data) {
           const newItems = res.data.items || [];
           setItems(prev => (page === 1 ? newItems : [...prev, ...newItems]));
-          if (res.data.pagination && typeof res.data.pagination.total_pages === 'number') {
+          if (
+            res.data.pagination &&
+            typeof res.data.pagination.total_pages === 'number'
+          ) {
             setHasMore(page < res.data.pagination.total_pages);
           } else {
             setHasMore(newItems.length === limit);
@@ -75,7 +86,8 @@ const ReportsPage: React.FC = () => {
         }
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') return;
-        const msg = err instanceof Error ? err.message : 'Failed to load campaigns';
+        const msg =
+          err instanceof Error ? err.message : 'Failed to load campaigns';
         setError(msg);
         setHasMore(false);
       } finally {
@@ -116,7 +128,9 @@ const ReportsPage: React.FC = () => {
     const onScroll = () => {
       if (loading || !hasMore || isFetchingRef.current) return;
       const threshold = 200; // px from bottom
-      const scrolled = window.innerHeight + window.scrollY >= document.body.offsetHeight - threshold;
+      const scrolled =
+        window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - threshold;
       if (scrolled) {
         setPage(prev => prev + 1);
       }
@@ -125,7 +139,7 @@ const ReportsPage: React.FC = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, [loading, hasMore]);
 
-  const openDetails = (c: GetSMSCampaignResponse) => {
+  const openDetails = (c: GetCampaignResponse) => {
     setSelected(c);
     setShowModal(true);
   };
@@ -200,8 +214,8 @@ const ReportsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className='min-h-screen bg-gray-50'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         <FiltersBar
           titleInput={titleInput}
           onTitleChange={handleTitleChange}
@@ -211,7 +225,7 @@ const ReportsPage: React.FC = () => {
         />
 
         {error && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 text-center">
+          <div className='mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 text-center'>
             {error}
           </div>
         )}
@@ -225,10 +239,10 @@ const ReportsPage: React.FC = () => {
         />
 
         {loading && (
-          <div className="text-center text-gray-600 mt-4">{copy.loading}</div>
+          <div className='text-center text-gray-600 mt-4'>{copy.loading}</div>
         )}
         {!hasMore && !loading && items.length > 0 && (
-          <div className="text-center text-gray-400 text-sm mt-4">
+          <div className='text-center text-gray-400 text-sm mt-4'>
             {copy.noMore}
           </div>
         )}
@@ -247,4 +261,4 @@ const ReportsPage: React.FC = () => {
   );
 };
 
-export default ReportsPage; 
+export default ReportsPage;
