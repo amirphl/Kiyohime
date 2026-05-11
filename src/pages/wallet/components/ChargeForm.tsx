@@ -42,7 +42,7 @@ const ChargeForm: React.FC<ChargeFormProps> = ({
           onChange={onAmountChange}
           min={1_000_000}
           max={1_000_000_000}
-          step={100_000}
+          step={1_000}
           className='w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500'
           placeholder={copy.amountPlaceholder}
         />
