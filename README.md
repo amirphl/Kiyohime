@@ -1,10 +1,9 @@
 # Marketing Platform
 
-A modern web application to create and manage targeted SMS marketing campaigns. Built with React, TypeScript, and Tailwind CSS with multi-domain deployment support.
+A modern web application to create and manage targeted SMS marketing campaigns. Built with React, TypeScript, and Tailwind CSS.
 
 ## 🌟 Features
 
-- **Multi-Domain Support**: Automatic configuration per domain (dev/prod)
 - **Internationalization**: English and Persian (RTL) with dynamic calendar and currency labels
 - **Authentication**: Phone/OTP-based login with robust 401 handling and reliable redirects
 - **Campaign Wizard (4 Steps)**:
@@ -24,7 +23,7 @@ A modern web application to create and manage targeted SMS marketing campaigns. 
 - **Icons**: Lucide React
 - **Phone Input**: react-phone-number-input
 - **Build Tool**: Create React App
-- **Deployment**: Docker, Nginx, Multi-environment support
+- **Deployment**: Docker, Nginx
 
 ## 📋 Prerequisites
 
@@ -47,32 +46,18 @@ cd Kiyohime
 npm install
 ```
 
-3. Set up yamata-no-orochi.com in /etc/hosts:
+3. Start the frontend:
 ```bash
-sudo nano /etc/hosts
-# Add: 127.0.0.1 yamata-no-orochi.com
-```
-
-4. Development with Nginx proxy (recommended):
-```bash
-./scripts/nginx-docker.sh dev
 npm start
 ```
 
-5. Access at https://yamata-no-orochi.com:8443 (API proxied at /api/v1)
+4. Access at http://localhost:8081 (API: http://localhost:8080)
 
-6. Type-check and lint:
+5. Type-check and lint:
 ```bash
 npm run type-check
 npm run lint
 ```
-
-### Environment Configuration
-
-The application automatically detects the domain and applies the appropriate configuration:
-
-- **yamata-no-orochi.com** - Local development (set in /etc/hosts)
-- **Production domain** - Read from REACT_APP_PRODUCTION_DOMAIN in .env
 
 ## 🐳 Docker Deployment
 
@@ -88,62 +73,7 @@ docker build -t sms-platform-prod .
 docker run -p 80:8081 sms-platform-prod
 ```
 
-### Nginx with SSL (Recommended)
-
-For SSL-enabled deployment with Nginx:
-
-#### Production Mode
-```bash
-# Prepare SSL certificates
-mkdir -p cert
-cp /path/to/your/certificate.crt ./cert/yamata-no-orochi.com.crt
-cp /path/to/your/private.key ./cert/yamata-no-orochi.com.key
-
-# Build application
-./scripts/deploy.sh yamata
-
-# Start Nginx with SSL
-./scripts/nginx-docker.sh start
-
-# Access: https://yamata-no-orochi.com:8443
-```
-
-#### Development Mode (Faster)
-```bash
-# Prepare SSL certificates
-mkdir -p cert
-cp /path/to/your/certificate.crt ./cert/yamata-no-orochi.com.crt
-cp /path/to/your/private.key ./cert/yamata-no-orochi.com.key
-
-# Start Nginx (proxies to development server)
-./scripts/nginx-docker.sh dev
-
-# In another terminal, start development server
-npm start
-
-# Access: https://yamata-no-orochi.com:8443 (with hot reload)
-```
-
 ## 🚀 Production Deployment
-
-### Quick Start
-
-1. **Environment Setup**
-   ```bash
-   # Create .env file
-   REACT_APP_PRODUCTION_DOMAIN=your-domain.com
-   REACT_APP_ENABLE_ANALYTICS=true
-   REACT_APP_PRIMARY_COLOR=#2563eb
-   REACT_APP_THEME=light
-   REACT_APP_DEFAULT_LANGUAGE=en
-   REACT_APP_SUPPORTED_LANGUAGES=en,fa
-   NODE_ENV=production
-   ```
-
-2. **Build for Production**
-   ```bash
-   ./scripts/deploy.sh production
-   ```
 
 ### Deployment Options
 
@@ -297,50 +227,6 @@ jobs:
       - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
 ```
 
-## 📦 Manual Deployment
-
-### Using Deployment Script
-
-```bash
-# Make script executable
-chmod +x scripts/deploy.sh
-
-# Deploy to different environments
-./scripts/deploy.sh production
-./scripts/deploy.sh yamata
-```
-
-### Environment-Specific Builds
-
-```bash
-# Yamata domain build
-cp deploy/yamata.env .env
-npm run build
-
-# Production build (requires .env with REACT_APP_PRODUCTION_DOMAIN)
-npm run build
-```
-
-## 🌍 Multi-Domain Features
-
-### Automatic Configuration
-
-The application automatically detects the domain and applies:
-
-- **Brand Name & Subtitle**: Different for each domain
-- **Primary Color**: Domain-specific theming
-- **Default Language**: Farsi, English
-- **API Endpoints**: Domain-specific API URLs
-- **Feature Flags**: Environment-specific features
-- **Environment Banner**: Shows current environment on non-production domains
-
-### Domain-Specific Configurations
-
-| Domain | Language | Default Lang | Primary Color | Features | API Endpoint |
-|--------|----------|--------------|---------------|----------|--------------|
-| yamata-no-orochi.com | English | en | Red (#dc2626) | Development | https://yamata-no-orochi.com:8443/api/v1 |
-| Production | English | en | Blue (#2563eb) | Production | https://{domain}/api/v1 |
-
 ## 📁 Project Structure
 
 ```
@@ -348,10 +234,10 @@ src/
 ├── components/          # Reusable UI components
 │   ├── Header.tsx     # Navigation header
 │   ├── Footer.tsx     # Site footer
-│   ├── DynamicBrand.tsx # Domain-aware branding
+│   ├── DynamicBrand.tsx # Brand-aware components
 │   └── EnvironmentBanner.tsx # Environment indicator
 ├── config/            # Configuration files
-│   └── environment.ts # Multi-domain configuration
+│   └── environment.ts # Fixed configuration
 ├── hooks/             # Custom React hooks
 │   ├── useLanguage.tsx # Language management
 │   ├── useTranslation.tsx # Translation system
@@ -362,16 +248,8 @@ src/
 │   ├── LoginPage.tsx  # Phone authentication
 │   └── SignupPage.tsx # User registration
 ├── services/          # API services
-│   └── api.ts        # Domain-aware API client
+│   └── api.ts        # API client
 └── App.tsx           # Main application component
-
-deploy/               # Deployment configurations
-├── localhost.env    # Localhost environment
-├── yamata.env       # Yamata domain environment
-└── production.env   # Production environment template
-
-scripts/              # Deployment scripts
-└── deploy.sh        # Multi-environment deployment
 
 Dockerfile           # Production Docker build
 ```
@@ -385,43 +263,7 @@ Additional notable modules:
 
 ## 🔧 Configuration
 
-### Environment Variables
-
-```bash
-# Domain Configuration
-REACT_APP_DOMAIN=yamata-no-orochi.com
-REACT_APP_PRODUCTION_DOMAIN=your-production-domain.com
-
-# Features
-REACT_APP_ENABLE_ANALYTICS=true
-
-# UI
-REACT_APP_PRIMARY_COLOR=#2563eb
-REACT_APP_THEME=light
-
-# Localization (always enabled)
-REACT_APP_DEFAULT_LANGUAGE=en
-REACT_APP_SUPPORTED_LANGUAGES=en,fa
-```
-
-**Note**: API URL is automatically constructed as `{DOMAIN}/api/v1` (with port 8443 for development) and cannot be overridden via environment variables.
-
-### Adding New Domains
-
-1. For development domains, add configuration in `src/config/environment.ts`:
-```typescript
-'newdomain.com': {
-  domain: 'newdomain.com',
-  baseUrl: 'http://newdomain.com',
-  apiUrl: 'http://newdomain.com/api/v1',
-  brandName: 'New Brand',
-  // ... other configurations
-}
-```
-
-2. Create environment file `deploy/newdomain.env`
-
-3. For production domains, set `REACT_APP_PRODUCTION_DOMAIN` in your `.env` file
+The frontend is fixed to `http://localhost:8081`, and API requests go to `http://localhost:8080` (see `src/config/environment.ts`).
 
 ## 🌐 Internationalization
 
