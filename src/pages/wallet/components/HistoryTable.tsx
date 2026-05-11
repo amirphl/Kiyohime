@@ -23,7 +23,7 @@ interface HistoryTableProps {
   copy: WalletCopy;
 }
 
-type HistoryKind = 'charge-free' | 'charge-credit' | 'agency-share';
+type HistoryKind = 'charge-free' | 'charge-credit' | 'agency-share' | 'refund';
 type InvoiceAction = 'download' | 'notify' | 'disabled';
 
 interface HistoryRow {
@@ -40,6 +40,7 @@ const buildHistoryRows = (items: TransactionHistoryItem[]): HistoryRow[] => {
     const freeInc = getPositive(item.amount);
     const creditInc = getPositive(item.customer_credit);
     const agencyShare = getPositive(item.agency_share_with_tax);
+    const refund = getPositive(item.refund);
 
     const rows: HistoryRow[] = [];
     if (freeInc > 0) {
@@ -64,6 +65,15 @@ const buildHistoryRows = (items: TransactionHistoryItem[]): HistoryRow[] => {
         source: item,
         kind: 'agency-share',
         amount: agencyShare,
+      });
+    }
+
+    if (refund > 0) {
+      rows.push({
+        id: `${item.uuid}-refund`,
+        source: item,
+        kind: 'refund',
+        amount: refund,
       });
     }
 
@@ -97,6 +107,8 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
         return copy.historyKindLabels.chargeCredit;
       case 'agency-share':
         return copy.historyKindLabels.agencyShare;
+      case 'refund':
+        return copy.historyKindLabels.refund;
       default:
         return '-';
     }
