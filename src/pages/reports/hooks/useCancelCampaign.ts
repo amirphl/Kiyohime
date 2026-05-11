@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { GetSMSCampaignResponse } from '../../../types/campaign';
+import { GetCampaignResponse } from '../../../types/campaign';
 import { getApiUrl } from '../../../config/environment';
 import { useAuth } from '../../../hooks/useAuth';
 import { useToast } from '../../../hooks/useToast';
@@ -12,7 +12,7 @@ export const useCancelCampaign = (copy: ReportsCopy) => {
   const [cancelled, setCancelled] = useState<Record<number, boolean>>({});
 
   const cancelCampaign = useCallback(
-    async (campaign: GetSMSCampaignResponse) => {
+    async (campaign: GetCampaignResponse) => {
       const id = campaign.id;
       if (!id || cancelling[id] || cancelled[id]) return;
       if (!accessToken) {
@@ -53,7 +53,16 @@ export const useCancelCampaign = (copy: ReportsCopy) => {
         setCancelling(prev => ({ ...prev, [id]: false }));
       }
     },
-    [accessToken, cancelling, cancelled, copy.modal.cancelConfirm, copy.modal.cancelError, copy.modal.cancelSuccess, showError, showSuccess]
+    [
+      accessToken,
+      cancelling,
+      cancelled,
+      copy.modal.cancelConfirm,
+      copy.modal.cancelError,
+      copy.modal.cancelSuccess,
+      showError,
+      showSuccess,
+    ]
   );
 
   return { cancelCampaign, cancelling, cancelled };
