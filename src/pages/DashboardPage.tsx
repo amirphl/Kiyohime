@@ -6,7 +6,7 @@ import persian from 'react-date-object/calendars/persian';
 import persian_fa from 'react-date-object/locales/persian_fa';
 import { useAuth } from '../hooks/useAuth';
 import { apiService } from '../services/api';
-import { GetSMSCampaignResponse } from '../types/campaign';
+import { GetCampaignResponse } from '../types/campaign';
 
 import { useToast } from '../hooks/useToast';
 import { Upload, X, Calculator } from 'lucide-react';
@@ -316,7 +316,7 @@ const DashboardPage: React.FC = () => {
 
   const [loadingReports, setLoadingReports] = useState(false);
   const [reportsError, setReportsError] = useState<string | null>(null);
-  const [campaigns, setCampaigns] = useState<GetSMSCampaignResponse[]>([]);
+  const [campaigns, setCampaigns] = useState<GetCampaignResponse[]>([]);
 
   useEffect(() => {
     if (!isReportsView) return;
@@ -921,15 +921,15 @@ const DashboardPage: React.FC = () => {
                         <th className='border px-3 py-2 text-center'>
                           {pricingTableCopy.columns.numPages}
                         </th>
-                        <th className='border px-3 py-2 text-center'>
+                        {/* <th className='border px-3 py-2 text-center'>
                           {pricingTableCopy.columns.platformBasePrice}
-                        </th>
+                        </th> */}
                         <th className='border px-3 py-2 text-center'>
                           {pricingTableCopy.columns.lineNumberPriceFactor}
                         </th>
-                        <th className='border px-3 py-2 text-center'>
+                        {/* <th className='border px-3 py-2 text-center'>
                           {pricingTableCopy.columns.pagePrice}
-                        </th>
+                        </th> */}
                         <th className='border px-3 py-2 text-center'>
                           {pricingTableCopy.columns.totalCost}
                         </th>
@@ -976,10 +976,11 @@ const DashboardPage: React.FC = () => {
                                     e.target.value
                                   )
                                 }
-                                className='w-full max-w-[160px] rounded border border-gray-300 px-2 py-1 text-center'
+                                disabled={platform !== 'sms'}
+                                className='w-full max-w-[160px] rounded border border-gray-300 px-2 py-1 text-center disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed'
                               />
                             </td>
-                            <td className='border px-3 py-2 text-center'>
+                            {/* <td className='border px-3 py-2 text-center'>
                               <input
                                 type='number'
                                 min='0'
@@ -994,7 +995,7 @@ const DashboardPage: React.FC = () => {
                                 }
                                 className='w-full max-w-[180px] rounded border border-gray-300 px-2 py-1 text-center'
                               />
-                            </td>
+                            </td> */}
                             <td className='border px-3 py-2 text-center'>
                               <input
                                 type='number'
@@ -1008,10 +1009,11 @@ const DashboardPage: React.FC = () => {
                                     e.target.value
                                   )
                                 }
-                                className='w-full max-w-[180px] rounded border border-gray-300 px-2 py-1 text-center'
+                                disabled={platform !== 'sms'}
+                                className='w-full max-w-[180px] rounded border border-gray-300 px-2 py-1 text-center disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed'
                               />
                             </td>
-                            <td className='border px-3 py-2 text-center'>
+                            {/* <td className='border px-3 py-2 text-center'>
                               <input
                                 type='number'
                                 min='0'
@@ -1026,7 +1028,7 @@ const DashboardPage: React.FC = () => {
                                 }
                                 className='w-full max-w-[180px] rounded border border-gray-300 px-2 py-1 text-center'
                               />
-                            </td>
+                            </td> */}
                             <td className='border px-3 py-2 text-center font-semibold text-primary-700'>
                               {formatNum(
                                 Math.round(totalsByPlatform[platform] || 0)
