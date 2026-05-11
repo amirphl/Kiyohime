@@ -86,7 +86,7 @@ export interface CreateSMSCampaignResponse {
 
 export interface GetLastInitiatedCampaignResponse {
   message?: string;
-  item?: GetSMSCampaignResponse;
+  item?: GetCampaignResponse;
 }
 
 // API response wrapper matching Go backend structure
@@ -267,7 +267,7 @@ export interface StepConfig {
   fields: FormField[];
 }
 
-export interface GetSMSCampaignResponse {
+export interface GetCampaignResponse {
   id?: number;
   uuid: string;
   status: string;
@@ -289,12 +289,15 @@ export interface GetSMSCampaignResponse {
   scheduleat?: string;
   line_number?: string;
   line_price_factor?: number;
+  segment_price_factor?: number | null;
   budget?: number;
   num_audience?: number;
   comment?: string;
   statistics?: Record<string, any>;
   click_rate?: number;
   total_clicks?: number;
+  platform?: CampaignPlatform | null;
+  platform_settings_name?: string | null;
 }
 
 export interface PaginationInfo {
@@ -306,7 +309,7 @@ export interface PaginationInfo {
 
 export interface ListSMSCampaignsResponse {
   message: string;
-  items: GetSMSCampaignResponse[];
+  items: GetCampaignResponse[];
   pagination: PaginationInfo;
 }
 
