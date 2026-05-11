@@ -1,5 +1,8 @@
 import React from 'react';
-import { AdminPlatformKey, AdminPlatformSettingsItem } from '../../../types/admin';
+import {
+  AdminPlatformKey,
+  AdminPlatformSettingsItem,
+} from '../../../types/admin';
 import { AdminPlatformSettingsCopy } from '../translations';
 import { PlatformMetadataKey } from '../useAdminPlatformSettingsMetadata';
 
@@ -54,8 +57,12 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
             <th className='border px-2 py-2'>{copy.table.platform}</th>
             <th className='border px-2 py-2'>{copy.table.name}</th>
             <th className='border px-2 py-2'>{copy.table.description}</th>
+            <th className='border px-2 py-2'>{copy.table.website}</th>
             <th className='border px-2 py-2'>{copy.table.preview}</th>
             <th className='border px-2 py-2'>{copy.table.download}</th>
+            <th className='border px-2 py-2'>
+              {copy.table.businessLicenseUuid}
+            </th>
             <th className='border px-2 py-2'>{copy.table.metadataInfo}</th>
             <th className='border px-2 py-2'>{copy.table.metadata}</th>
             <th className='border px-2 py-2'>{copy.table.status}</th>
@@ -66,19 +73,22 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
         <tbody>
           {loading ? (
             <tr>
-              <td colSpan={12} className='border px-2 py-6 text-center'>
+              <td colSpan={14} className='border px-2 py-6 text-center'>
                 {copy.common.loading}
               </td>
             </tr>
           ) : error ? (
             <tr>
-              <td colSpan={12} className='border px-2 py-6 text-center text-red-600'>
+              <td
+                colSpan={14}
+                className='border px-2 py-6 text-center text-red-600'
+              >
                 {error}
               </td>
             </tr>
           ) : items.length === 0 ? (
             <tr>
-              <td colSpan={12} className='border px-2 py-6 text-center'>
+              <td colSpan={14} className='border px-2 py-6 text-center'>
                 {copy.table.noData}
               </td>
             </tr>
@@ -86,98 +96,158 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
             items.map((item, index) => {
               const metadataKeyOptions = getMetadataKeyOptions(item.platform);
               return (
-              <tr key={item.id} className='odd:bg-white even:bg-gray-50'>
-                <td className='border px-2 py-2 text-center'>{index + 1}</td>
-                <td className='border px-2 py-2 text-center'>{item.customer_id}</td>
-                <td className='border px-2 py-2'>{item.platform || copy.common.emptyValue}</td>
-                <td className='border px-2 py-2'>{item.name || copy.common.emptyValue}</td>
-                <td className='border px-2 py-2'>{item.description || copy.common.emptyValue}</td>
-                <td className='border px-2 py-2 text-center'>
-                  {!item.multimedia_uuid ? (
-                    <span className='text-xs text-gray-500'>{copy.common.emptyValue}</span>
-                  ) : previewLoadingByUuid[item.multimedia_uuid] ? (
-                    <span className='text-xs text-gray-500'>{copy.common.loading}</span>
-                  ) : previewsByUuid[item.multimedia_uuid] ? (
-                    <img
-                      src={previewsByUuid[item.multimedia_uuid] || ''}
-                      alt={copy.table.preview}
-                      className='mx-auto h-10 w-16 rounded border border-gray-200 object-cover'
-                    />
-                  ) : (
-                    <span className='text-xs text-gray-500'>{copy.common.emptyValue}</span>
-                  )}
-                </td>
-                <td className='border px-2 py-2 text-center'>
-                  <button
-                    type='button'
-                    onClick={() => onDownloadMultimedia(item.multimedia_uuid)}
-                    disabled={!item.multimedia_uuid || !!downloadLoadingByUuid[item.multimedia_uuid]}
-                    className='rounded border px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60'
-                  >
-                    {item.multimedia_uuid && downloadLoadingByUuid[item.multimedia_uuid]
-                      ? copy.common.loading
-                      : copy.actions.download}
-                  </button>
-                </td>
-                <td className='border px-2 py-2 text-center'>
-                  <button
-                    type='button'
-                    onClick={() => onOpenMetadataModal(item)}
-                    className='rounded border px-2 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50'
-                    title={copy.actions.viewMetadata}
-                  >
-                    ?
-                  </button>
-                </td>
-                <td className='border px-2 py-2'>
-                  <div className='flex min-w-[260px] items-center gap-1'>
-                    <select
-                      value={getMetadataForm(item.id).key}
-                      onChange={(e) =>
-                        onMetadataKeyChange(
-                          item.id,
-                          e.target.value as PlatformMetadataKey
-                        )
-                      }
-                      className='rounded border px-2 py-1 text-xs'
-                    >
-                      {metadataKeyOptions.map((key) => (
-                        <option key={key} value={key}>
-                          {key}
-                        </option>
-                      ))}
-                    </select>
-                    <input
-                      value={getMetadataForm(item.id).value}
-                      onChange={(e) => onMetadataValueChange(item.id, e.target.value)}
-                      placeholder={copy.table.metadataValue}
-                      className='w-full rounded border px-2 py-1 text-xs'
-                    />
+                <tr key={item.id} className='odd:bg-white even:bg-gray-50'>
+                  <td className='border px-2 py-2 text-center'>{index + 1}</td>
+                  <td className='border px-2 py-2 text-center'>
+                    {item.customer_id}
+                  </td>
+                  <td className='border px-2 py-2'>
+                    {item.platform || copy.common.emptyValue}
+                  </td>
+                  <td className='border px-2 py-2'>
+                    {item.name || copy.common.emptyValue}
+                  </td>
+                  <td className='border px-2 py-2'>
+                    {item.description || copy.common.emptyValue}
+                  </td>
+                  <td className='border px-2 py-2'>
+                    {item.website ? (
+                      <a
+                        href={item.website}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='text-blue-600 underline break-all text-xs'
+                      >
+                        {item.website}
+                      </a>
+                    ) : (
+                      <span className='text-xs text-gray-500'>
+                        {copy.common.emptyValue}
+                      </span>
+                    )}
+                  </td>
+                  <td className='border px-2 py-2 text-center'>
+                    {!item.multimedia_uuid ? (
+                      <span className='text-xs text-gray-500'>
+                        {copy.common.emptyValue}
+                      </span>
+                    ) : previewLoadingByUuid[item.multimedia_uuid] ? (
+                      <span className='text-xs text-gray-500'>
+                        {copy.common.loading}
+                      </span>
+                    ) : previewsByUuid[item.multimedia_uuid] ? (
+                      <img
+                        src={previewsByUuid[item.multimedia_uuid] || ''}
+                        alt={copy.table.preview}
+                        className='mx-auto h-10 w-16 rounded border border-gray-200 object-cover'
+                      />
+                    ) : (
+                      <span className='text-xs text-gray-500'>
+                        {copy.common.emptyValue}
+                      </span>
+                    )}
+                  </td>
+                  <td className='border px-2 py-2 text-center'>
                     <button
                       type='button'
-                      onClick={() => onAttachMetadata(item.id)}
-                      disabled={!!metadataLoadingById[item.id]}
-                      className='rounded border px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-60'
-                      title={copy.actions.attachMetadata}
+                      onClick={() => onDownloadMultimedia(item.multimedia_uuid)}
+                      disabled={
+                        !item.multimedia_uuid ||
+                        !!downloadLoadingByUuid[item.multimedia_uuid]
+                      }
+                      className='rounded border px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60'
                     >
-                      {metadataLoadingById[item.id]
+                      {item.multimedia_uuid &&
+                      downloadLoadingByUuid[item.multimedia_uuid]
                         ? copy.common.loading
-                        : copy.actions.attachMetadata}
+                        : copy.actions.download}
                     </button>
-                  </div>
-                </td>
-                <td className='border px-2 py-2'>{statusLabel(item.status)}</td>
-                <td className='border px-2 py-2'>{formatDateTime(item.updated_at)}</td>
-                <td className='border px-2 py-2 text-center'>
-                  <button
-                    type='button'
-                    onClick={() => onOpenStatusModal(item)}
-                    className='rounded border px-2 py-1 text-xs text-gray-700 hover:bg-gray-50'
-                  >
-                    {copy.actions.openStatusModal}
-                  </button>
-                </td>
-              </tr>
+                  </td>
+                  <td className='border px-2 py-2 text-center'>
+                    <button
+                      type='button'
+                      onClick={() =>
+                        onDownloadMultimedia(item.business_license_uuid)
+                      }
+                      disabled={
+                        !item.business_license_uuid ||
+                        !!downloadLoadingByUuid[
+                          item.business_license_uuid ?? ''
+                        ]
+                      }
+                      className='rounded border px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60'
+                    >
+                      {item.business_license_uuid &&
+                      downloadLoadingByUuid[item.business_license_uuid]
+                        ? copy.common.loading
+                        : copy.table.businessLicenseDownload}
+                    </button>
+                  </td>
+                  <td className='border px-2 py-2 text-center'>
+                    <button
+                      type='button'
+                      onClick={() => onOpenMetadataModal(item)}
+                      className='rounded border px-2 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50'
+                      title={copy.actions.viewMetadata}
+                    >
+                      ?
+                    </button>
+                  </td>
+                  <td className='border px-2 py-2'>
+                    <div className='flex min-w-[260px] items-center gap-1'>
+                      <select
+                        value={getMetadataForm(item.id).key}
+                        onChange={e =>
+                          onMetadataKeyChange(
+                            item.id,
+                            e.target.value as PlatformMetadataKey
+                          )
+                        }
+                        className='rounded border px-2 py-1 text-xs'
+                      >
+                        {metadataKeyOptions.map(key => (
+                          <option key={key} value={key}>
+                            {key}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        value={getMetadataForm(item.id).value}
+                        onChange={e =>
+                          onMetadataValueChange(item.id, e.target.value)
+                        }
+                        placeholder={copy.table.metadataValue}
+                        className='w-full rounded border px-2 py-1 text-xs'
+                      />
+                      <button
+                        type='button'
+                        onClick={() => onAttachMetadata(item.id)}
+                        disabled={!!metadataLoadingById[item.id]}
+                        className='rounded border px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-60'
+                        title={copy.actions.attachMetadata}
+                      >
+                        {metadataLoadingById[item.id]
+                          ? copy.common.loading
+                          : copy.actions.attachMetadata}
+                      </button>
+                    </div>
+                  </td>
+                  <td className='border px-2 py-2'>
+                    {statusLabel(item.status)}
+                  </td>
+                  <td className='border px-2 py-2'>
+                    {formatDateTime(item.updated_at)}
+                  </td>
+                  <td className='border px-2 py-2 text-center'>
+                    <button
+                      type='button'
+                      onClick={() => onOpenStatusModal(item)}
+                      className='rounded border px-2 py-1 text-xs text-gray-700 hover:bg-gray-50'
+                    >
+                      {copy.actions.openStatusModal}
+                    </button>
+                  </td>
+                </tr>
               );
             })
           )}
