@@ -14,10 +14,12 @@ interface PlatformSettingsTableProps {
     id: string;
     name: string;
     description: string;
+    website: string;
     multimediaPreview: string;
     download: string;
     downloading: string;
     downloadFailed: string;
+    businessLicense: string;
     status: string;
     actions: string;
     edit: string;
@@ -121,10 +123,16 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
               {labels.description}
             </th>
             <th className='px-4 py-3 text-center font-medium text-gray-500 uppercase tracking-wider'>
+              {labels.website}
+            </th>
+            <th className='px-4 py-3 text-center font-medium text-gray-500 uppercase tracking-wider'>
               {labels.multimediaPreview}
             </th>
             <th className='px-4 py-3 text-center font-medium text-gray-500 uppercase tracking-wider'>
               {labels.download}
+            </th>
+            <th className='px-4 py-3 text-center font-medium text-gray-500 uppercase tracking-wider'>
+              {labels.businessLicense}
             </th>
             <th className='px-4 py-3 text-center font-medium text-gray-500 uppercase tracking-wider'>
               {labels.status}
@@ -145,6 +153,20 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
               </td>
               <td className='px-4 py-3 text-gray-700 text-center max-w-md'>
                 <div className='line-clamp-2'>{item.description || '—'}</div>
+              </td>
+              <td className='px-4 py-3 text-center text-sm'>
+                {item.website ? (
+                  <a
+                    href={item.website}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='text-blue-600 underline break-all'
+                  >
+                    {item.website}
+                  </a>
+                ) : (
+                  '—'
+                )}
               </td>
               <td className='px-4 py-3 text-center'>
                 <MediaPreviewCell
@@ -181,6 +203,37 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
                   >
                     <Download className='h-4 w-4' />
                     <span className='sr-only'>{labels.download}</span>
+                  </Button>
+                )}
+              </td>
+              <td className='px-4 py-3 text-center'>
+                {item.business_license_uuid &&
+                downloadLoadingByUuid[item.business_license_uuid] ? (
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    disabled
+                    className='min-w-0 px-2'
+                  >
+                    <Loader2 className='h-4 w-4 animate-spin' />
+                    <span className='sr-only'>{labels.downloading}</span>
+                  </Button>
+                ) : (
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    className='min-w-0 px-2'
+                    disabled={
+                      !item.business_license_uuid ||
+                      !!(
+                        item.business_license_uuid &&
+                        downloadLoadingByUuid[item.business_license_uuid]
+                      )
+                    }
+                    onClick={() => handleDownload(item.business_license_uuid)}
+                  >
+                    <Download className='h-4 w-4' />
+                    <span className='sr-only'>{labels.businessLicense}</span>
                   </Button>
                 )}
               </td>
