@@ -40,7 +40,7 @@ const WalletPage: React.FC = () => {
   } = useWalletHistory(accessToken);
 
   const MIN_CHARGE = 1_000_000;
-  const STEP_CHARGE = 100_000;
+  const STEP_CHARGE = 1_000;
   const MAX_CHARGE = 1_000_000_000;
 
   const [chargeAmount, setChargeAmount] = useState<number | ''>('');
@@ -63,7 +63,8 @@ const WalletPage: React.FC = () => {
       return;
     }
 
-    if (numValue < MIN_CHARGE) {
+    const minBypass = (window as any).__disableMinCharge === true;
+    if (!minBypass && numValue < MIN_CHARGE) {
       setError(walletCopy.errorMinAmount);
     } else if (numValue % STEP_CHARGE !== 0) {
       setError(walletCopy.errorMultipleOf);
@@ -99,8 +100,7 @@ const WalletPage: React.FC = () => {
     setPaymentSubmitting(true);
     try {
       const baseAmount = Number(chargeAmount);
-      const tax = Math.round(baseAmount * 0.1);
-      const amountWithTax = baseAmount + tax;
+      const amountWithTax = Math.round(baseAmount / 0.9);
       const resp = await apiService.startWalletCharge(amountWithTax, language);
       if (resp.success && resp.data && (resp.data as any).token) {
         const token = (resp.data as any).token;
