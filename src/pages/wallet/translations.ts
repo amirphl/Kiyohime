@@ -73,6 +73,7 @@ export interface WalletTranslations {
     chargeFree: string;
     chargeCredit: string;
     agencyShare: string;
+    refund: string;
   };
   table: WalletTableTranslations;
   operationTypes: Record<string, string>;
@@ -116,7 +117,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     amountPlaceholder: 'Enter amount',
     errorInvalidNumber: 'Please enter a valid number',
     errorMinAmount: 'Amount must be at least 1,000,000 Toman',
-    errorMultipleOf: 'Amount must be a multiple of 100,000 Toman',
+    errorMultipleOf: 'Amount must be a multiple of 1,000 Toman',
     pay: 'Pay (Gateway)',
     payByDeposit: 'Pay via Deposit Receipt',
     depositTitle: 'Pay With Deposit Receipt',
@@ -161,6 +162,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       chargeFree: 'Charge Free',
       chargeCredit: 'Charge Credit',
       agencyShare: 'Agency Share',
+      refund: 'Refund',
     },
     table: {
       row: 'Row',
@@ -241,7 +243,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     amountPlaceholder: 'مبلغ را وارد کنید',
     errorInvalidNumber: 'لطفاً یک عدد معتبر وارد کنید',
     errorMinAmount: 'مبلغ باید حداقل ۱،۰۰۰،۰۰۰ تومان باشد',
-    errorMultipleOf: 'مبلغ باید مضربی از ۱۰۰،۰۰۰ تومان باشد',
+    errorMultipleOf: 'مبلغ باید مضربی از ۱،۰۰۰ تومان باشد',
     pay: 'پرداخت از طریق درگاه پرداخت',
     payByDeposit: 'پرداخت از طریق فیش واریزی',
     depositTitle: 'پرداخت از طریق فیش واریزی',
@@ -286,6 +288,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       chargeFree: 'شارژ سامانه',
       chargeCredit: 'شارژ اعتبار هدیه',
       agencyShare: 'سهم از فروش',
+      refund: 'استرداد وجه',
     },
     table: {
       row: 'ردیف',
