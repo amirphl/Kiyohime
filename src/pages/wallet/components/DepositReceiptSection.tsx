@@ -65,7 +65,7 @@ const DepositReceiptSection: React.FC<DepositReceiptSectionProps> = ({
   );
 
   const amountValid = isValidDepositAmount(amount);
-  const taxedAmount = amountValid ? Math.round(amount * 1.1) : null;
+  const taxedAmount = amountValid ? Math.round(amount / 0.9) : null;
   const getLocalizedStatus = (status: string) => {
     const trimmed = status?.trim();
     if (!trimmed) return '-';
