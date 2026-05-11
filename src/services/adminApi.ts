@@ -2000,6 +2000,7 @@ class AdminApiService {
     message: string;
     blob?: Blob;
     filename?: string;
+    notFound?: boolean;
   }> {
     const url = getApiUrl(`/admin/media/${encodeURIComponent(uuid)}/preview`);
     try {
@@ -2015,6 +2016,9 @@ class AdminApiService {
       if (resp.status === 401) {
         this.handleUnauthorized();
         return { success: false, message: 'Unauthorized' };
+      }
+      if (resp.status === 404 || resp.status === 410) {
+        return { success: false, message: 'Not found', notFound: true };
       }
       if (!resp.ok) {
         let message = 'Failed to generate preview';
