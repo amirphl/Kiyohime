@@ -22,8 +22,8 @@ const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
   onCancel,
   copy,
 }) => {
-  const tax = Math.round(amount * 0.1);
-  const total = amount + tax;
+  const total = Math.round(amount / 0.9);
+  const tax = total - amount;
   const { t } = useTranslation();
 
   return (
@@ -50,9 +50,7 @@ const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
           </span>
         </div>
         <div className='flex justify-between border-t border-gray-200 pt-2'>
-          <span className='text-gray-800 font-medium'>
-            {copy.modalTotal}
-          </span>
+          <span className='text-gray-800 font-medium'>{copy.modalTotal}</span>
           <span className='font-bold'>
             {total.toLocaleString()} {currencyLabel}
           </span>
