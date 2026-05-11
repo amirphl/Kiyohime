@@ -67,9 +67,7 @@ const AdminPlatformSettingsPage: React.FC = () => {
     downloadByUuid,
   } = useAdminMultimedia({
     multimediaUuids,
-    onPreviewError: showError,
     onDownloadError: showError,
-    previewErrorFallback: copy.errors.previewFailed,
     downloadErrorFallback: copy.errors.downloadFailed,
   });
   const {
@@ -93,7 +91,7 @@ const AdminPlatformSettingsPage: React.FC = () => {
       keyRequired: copy.errors.metadataKeyRequired,
       valueRequired: copy.errors.metadataValueRequired,
       keyNotAllowedForPlatform: copy.errors.metadataKeyNotAllowedForPlatform,
-      updateFailed: copy.errors.metadataUpdateFailed,
+      updateFailed: copy.errors.platformSettingsMetadataUpdateFailed,
     },
     success: {
       metadataUpdated: copy.success.metadataUpdated,
@@ -150,6 +148,33 @@ const AdminPlatformSettingsPage: React.FC = () => {
     },
   });
 
+  const resolveAdminApiError = useCallback(
+    (errorCode: string | undefined, fallback: string): string => {
+      if (!errorCode) return fallback;
+      const map: Partial<Record<string, string>> = {
+        PLATFORM_SETTINGS_LIST_FAILED: copy.errors.listFailed,
+        PLATFORM_SETTINGS_NOT_FOUND: copy.errors.platformSettingsNotFound,
+        PLATFORM_SETTINGS_STATUS_CHANGE_NOT_ALLOWED:
+          copy.errors.statusChangeNotAllowed,
+        INVALID_PLATFORM_SETTINGS_STATUS:
+          copy.errors.invalidPlatformSettingsStatus,
+        PLATFORM_SETTINGS_ID_REQUIRED: copy.errors.platformSettingsIdRequired,
+        PLATFORM_SETTINGS_LOOKUP_FAILED:
+          copy.errors.platformSettingsLookupFailed,
+        PLATFORM_SETTINGS_STATUS_UPDATE_FAILED:
+          copy.errors.platformSettingsStatusUpdateFailed,
+        PLATFORM_SETTINGS_METADATA_KEY_REQUIRED:
+          copy.errors.platformSettingsMetadataKeyRequired,
+        PLATFORM_SETTINGS_METADATA_UPDATE_FAILED:
+          copy.errors.platformSettingsMetadataUpdateFailed,
+        VALIDATION_ERROR: copy.errors.validationFailed,
+        INVALID_REQUEST: copy.errors.invalidRequest,
+      };
+      return map[errorCode] ?? fallback;
+    },
+    [copy.errors]
+  );
+
   const statusLabel = (status: AdminPlatformSettingsStatus): string => {
     switch (status) {
       case 'initialized':
@@ -190,7 +215,10 @@ const AdminPlatformSettingsPage: React.FC = () => {
     try {
       const res = await adminPlatformSettingsApi.list();
       if (!res.success) {
-        const msg = res.message || copy.errors.listFailed;
+        const msg = resolveAdminApiError(
+          res.error?.code,
+          res.message || copy.errors.listFailed
+        );
         setError(msg);
         showError(msg);
         setItems([]);
@@ -258,7 +286,10 @@ const AdminPlatformSettingsPage: React.FC = () => {
         status: nextStatus,
       });
       if (!res.success) {
-        const msg = res.message || copy.errors.updateFailed;
+        const msg = resolveAdminApiError(
+          res.error?.code,
+          res.message || copy.errors.updateFailed
+        );
         showError(msg);
         return;
       }
