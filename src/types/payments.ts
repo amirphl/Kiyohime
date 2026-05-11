@@ -4,6 +4,7 @@ export interface TransactionHistoryItem {
   amount: number;
   customer_credit: number;
   agency_share_with_tax: number;
+  refund?: number | null;
   currency: string;
   operation: string;
   source: string;
