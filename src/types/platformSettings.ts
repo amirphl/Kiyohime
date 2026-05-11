@@ -1,10 +1,16 @@
-export type PlatformKey = 'rubika' | 'bale' | 'splus';
-export type PlatformStatus = 'initialized' | 'in-progress' | 'active' | 'inactive';
+export type PlatformKey = 'rubika' | 'bale' | 'splus' | 'sms';
+export type PlatformStatus =
+  | 'initialized'
+  | 'in-progress'
+  | 'active'
+  | 'inactive';
 
 export interface CreatePlatformSettingsRequest {
   name?: string;
   description?: string;
+  website?: string;
   multimedia_uuid?: string;
+  business_license_uuid?: string;
   platform: PlatformKey;
   status?: PlatformStatus;
 }
@@ -15,7 +21,9 @@ export interface CreatePlatformSettingsResponse {
   platform: PlatformKey;
   name?: string;
   description?: string;
+  website?: string;
   multimedia_uuid?: string;
+  business_license_uuid?: string;
   status: PlatformStatus;
   created_at: string;
 }
@@ -25,7 +33,9 @@ export interface PlatformSettingsItem {
   platform: PlatformKey;
   name?: string;
   description?: string;
+  website?: string;
   multimedia_uuid?: string;
+  business_license_uuid?: string;
   status: PlatformStatus;
   created_at: string;
   updated_at: string;
