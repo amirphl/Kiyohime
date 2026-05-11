@@ -6,11 +6,18 @@ export interface ReportsTranslations {
   sortOldest: string;
   noMore: string;
   loading: string;
+  platforms: {
+    sms: string;
+    rubika: string;
+    bale: string;
+    splus: string;
+  };
   table: {
     row: string;
     title: string;
     text: string;
     lineNumber: string;
+    platform: string;
     segment: string;
     sent: string;
     status: string;
@@ -61,6 +68,7 @@ export interface ReportsTranslations {
     close: string;
     fixAndRestart: string;
     lineNumber: string;
+    platform: string;
     subsegments: string;
     sex: string;
     cities: string;
@@ -71,6 +79,8 @@ export interface ReportsTranslations {
     level2: string;
     level3: string;
     linePriceFactor: string;
+    segmentPriceFactor: string;
+    pricing: string;
     budget: string;
     comment: string;
     statistics: string;
@@ -111,11 +121,18 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
     sortOldest: 'Oldest',
     noMore: 'No more campaigns',
     loading: 'Loading...',
+    platforms: {
+      sms: 'SMS',
+      rubika: 'Rubika',
+      bale: 'Bale',
+      splus: 'S+',
+    },
     table: {
       row: '#',
       title: 'Title',
       text: 'Text',
-      lineNumber: 'Line Number',
+      lineNumber: 'Line Number/Service',
+      platform: 'Platform',
       segment: 'Segment',
       sent: 'Sent',
       status: 'Status',
@@ -165,7 +182,8 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       rejected: 'Rejected',
       close: 'Close',
       fixAndRestart: 'Fix and restart the campaign?',
-      lineNumber: 'Line Number',
+      lineNumber: 'Line Number/Service',
+      platform: 'Platform',
       subsegments: 'Subsegments',
       sex: 'Sex',
       cities: 'Cities',
@@ -176,6 +194,8 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       level2: 'Level 2',
       level3: 'Level 3',
       linePriceFactor: 'Line Price Factor',
+      segmentPriceFactor: 'Segment Price Factor',
+      pricing: 'Pricing & Budget',
       budget: 'Budget',
       comment: 'Comment',
       statistics: 'Statistics',
@@ -214,11 +234,18 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
     sortOldest: 'قدیمی‌ترین',
     noMore: 'کمپین دیگری وجود ندارد',
     loading: 'در حال بارگذاری...',
+    platforms: {
+      sms: 'پیامک',
+      rubika: 'روبیکا',
+      bale: 'بله',
+      splus: 'سروش پلاس',
+    },
     table: {
       row: '#',
       title: 'عنوان ارسال',
       text: 'متن',
-      lineNumber: 'سر شماره',
+      lineNumber: 'سر شماره/سرویس',
+      platform: 'کانال ارسال',
       segment: 'مخاطبان هدف',
       sent: 'تعداد پیام های رسیده',
       status: 'وضعیت',
@@ -268,7 +295,8 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       rejected: 'رد شده',
       close: 'بستن',
       fixAndRestart: 'اصلاح و شروع مجدد کمپین؟',
-      lineNumber: 'سر شماره',
+      lineNumber: 'سر شماره/سرویس',
+      platform: 'کانال ارسال',
       subsegments: 'زیربخش‌ها',
       sex: 'جنسیت',
       cities: 'شهرها',
@@ -279,6 +307,8 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       level2: 'سطح ۲',
       level3: 'سطح ۳',
       linePriceFactor: 'ضریب قیمت سرشماره',
+      segmentPriceFactor: 'ضریب قیمت مخاطبان',
+      pricing: 'قیمت و بودجه',
       budget: 'هزینه ارسال',
       comment: 'پیام ادمین',
       statistics: 'آمار',
