@@ -220,13 +220,15 @@ const CampaignCreationPage: React.FC = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch {}
     }
+
     if (step < currentStep) {
-      // Going back to previous step - no need to save
+      // Mirror backward navigation behavior from the footer controls.
       goToStep(step);
     } else if (step === currentStep + 1) {
-      // Going to next step - no need to save
-      nextStep();
+      // Reuse the same API-backed progression flow as the footer "Next" button.
+      await handleNextStep();
     }
+
     // If step > currentStep + 1, don't allow skipping ahead
   };
 
