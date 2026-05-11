@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { CampaignData, GetSMSCampaignResponse } from '../../../types/campaign';
+import {
+  CampaignData,
+  CampaignPlatform,
+  GetCampaignResponse,
+} from '../../../types/campaign';
 import { ReportsCopy } from '../translations';
 import { useCancelCampaign } from '../hooks/useCancelCampaign';
 import { useAuth } from '../../../hooks/useAuth';
@@ -11,11 +15,16 @@ import {
   saveLevelSelection,
 } from '../../../types/segment';
 
+const getChannelDisplay = (c: GetCampaignResponse): string => {
+  if (!c.platform || c.platform === 'sms') return c.line_number || '-';
+  return c.platform_settings_name || '-';
+};
+
 interface CampaignsTableProps {
-  items: GetSMSCampaignResponse[];
+  items: GetCampaignResponse[];
   copy: ReportsCopy;
   formatDateTime: (iso?: string) => string;
-  onDetails: (campaign: GetSMSCampaignResponse) => void;
+  onDetails: (campaign: GetCampaignResponse) => void;
   truncateText: (text: string, max?: number) => string;
 }
 
@@ -39,11 +48,9 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
     status === 'initiated' || status === 'in-progress';
 
   const normalizeCampaignToDraft = (
-    campaign: GetSMSCampaignResponse
+    campaign: GetCampaignResponse
   ): CampaignData => {
-    const platformValue =
-      ((campaign as any).platform as CampaignData['segment']['platform']) ||
-      'sms';
+    const platformValue: CampaignPlatform = campaign.platform ?? 'sms';
     const capacityValue =
       typeof campaign.num_audience === 'number' ? campaign.num_audience : 0;
 
@@ -118,7 +125,7 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
     persistDraft(draft);
   };
 
-  const handleClone = async (c: GetSMSCampaignResponse) => {
+  const handleClone = async (c: GetCampaignResponse) => {
     if (!canClone(c.status)) {
       showError(copy.clone.notAllowed);
       return;
@@ -126,7 +133,7 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
     const ok = window.confirm(copy.clone.confirm);
     if (!ok) return;
     if (!accessToken) {
-      showError(copy.modal.close); // fallback
+      showError(copy.clone.error);
       return;
     }
     setCloning(prev => ({ ...prev, [c.uuid]: true }));
@@ -136,7 +143,6 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
       if (!cloneRes.success || !cloneRes.data?.uuid) {
         throw new Error(cloneRes.message || copy.clone.error);
       }
-
       const clonedDraft: CampaignData = {
         ...normalizeCampaignToDraft(c),
         uuid: cloneRes.data.uuid,
@@ -152,7 +158,7 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
     }
   };
 
-  const handleResume = (c: GetSMSCampaignResponse) => {
+  const handleResume = (c: GetCampaignResponse) => {
     if (!canResume(c.status)) {
       showError(copy.resume.notAllowed);
       return;
@@ -163,7 +169,6 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
     try {
       const draft = normalizeCampaignToDraft(c);
       prepareCampaignCreationDraft(draft);
-
       showSuccess(copy.resume.success);
       window.location.href = ROUTES.CAMPAIGN_CREATION.path;
     } catch (err) {
@@ -174,6 +179,10 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
     }
   };
 
+  const th =
+    'px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider';
+  const td = 'px-4 py-2 text-sm text-gray-900 text-center';
+
   return (
     <div className='bg-white rounded-lg shadow-sm border border-gray-200'>
       <div className='p-6'>
@@ -181,54 +190,34 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
           <table className='min-w-full divide-y divide-gray-200'>
             <thead className='bg-gray-50'>
               <tr>
-                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  {copy.table.row}
-                </th>
-                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  {copy.table.title}
-                </th>
-                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  {copy.table.lineNumber}
-                </th>
-                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  {copy.table.segment}
-                </th>
-                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  {copy.table.numAudience}
-                </th>
-                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  {copy.table.sent}
-                </th>
-                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  {copy.table.status}
-                </th>
-                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  {copy.table.createdAt}
-                </th>
-                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  {copy.table.scheduleAt}
-                </th>
-                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  {copy.table.actions}
-                </th>
-                <th className='px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  {copy.table.details}
-                </th>
+                <th className={th}>{copy.table.row}</th>
+                <th className={th}>{copy.table.title}</th>
+                <th className={th}>{copy.table.platform}</th>
+                <th className={th}>{copy.table.lineNumber}</th>
+                <th className={th}>{copy.table.segment}</th>
+                <th className={th}>{copy.table.numAudience}</th>
+                <th className={th}>{copy.table.sent}</th>
+                <th className={th}>{copy.table.status}</th>
+                <th className={th}>{copy.table.createdAt}</th>
+                <th className={th}>{copy.table.scheduleAt}</th>
+                <th className={th}>{copy.table.actions}</th>
+                <th className={th}>{copy.table.details}</th>
               </tr>
             </thead>
             <tbody className='bg-white divide-y divide-gray-200'>
               {items.map((c, idx) => (
                 <tr key={c.uuid}>
-                  <td className='px-4 py-2 text-sm text-gray-900 text-center'>
-                    {idx + 1}
-                  </td>
+                  <td className={td}>{idx + 1}</td>
                   <td className='px-4 py-2 text-sm text-gray-700 text-center'>
                     {truncateText(c.title || '')}
                   </td>
-                  <td className='px-4 py-2 text-sm text-gray-900 text-center'>
-                    {c.line_number || '-'}
+                  <td className={td}>
+                    {copy.platforms[c.platform ?? 'sms'] ??
+                      c.platform ??
+                      copy.platforms.sms}
                   </td>
-                  <td className='px-4 py-2 text-sm text-gray-900 text-center'>
+                  <td className={td}>{getChannelDisplay(c)}</td>
+                  <td className={td}>
                     {Array.isArray(c.level3s)
                       ? c.level3s.join(', ')
                       : c.level3s || '-'}
@@ -237,17 +226,11 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                     {c.num_audience || '-'}
                   </td>
                   <td className='px-4 py-2 text-sm text-gray-500 text-center'>
-                    {c.statistics?.totalSent || '-'}
+                    {c.statistics?.aggregatedTotalSent ?? '-'}
                   </td>
-                  <td className='px-4 py-2 text-sm text-gray-900 text-center'>
-                    {statusLabel(c.status)}
-                  </td>
-                  <td className='px-4 py-2 text-sm text-gray-900 text-center'>
-                    {formatDateTime(c.created_at)}
-                  </td>
-                  <td className='px-4 py-2 text-sm text-gray-900 text-center'>
-                    {formatDateTime(c.scheduleat)}
-                  </td>
+                  <td className={td}>{statusLabel(c.status)}</td>
+                  <td className={td}>{formatDateTime(c.created_at)}</td>
+                  <td className={td}>{formatDateTime(c.scheduleat)}</td>
                   <td className='px-4 py-2 text-center text-sm text-gray-900'>
                     <div className='flex flex-col items-center gap-2'>
                       {(c.status === 'waiting-for-approval' ||
