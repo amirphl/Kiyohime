@@ -369,7 +369,9 @@ export interface AdminPlatformSettingsItem {
   platform: AdminPlatformKey;
   name?: string | null;
   description?: string | null;
+  website?: string | null;
   multimedia_uuid?: string | null;
+  business_license_uuid?: string | null;
   metadata?: Record<string, any> | null;
   status: AdminPlatformSettingsStatus;
   created_at: string;
