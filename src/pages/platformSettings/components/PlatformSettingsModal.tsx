@@ -10,6 +10,8 @@ interface PlatformSettingsModalProps {
     title: string;
     name: string;
     description: string;
+    website: string;
+    businessLicense: string;
     status: string;
     platform: string;
     close: string;
@@ -63,6 +65,33 @@ const PlatformSettingsModal: React.FC<PlatformSettingsModalProps> = ({
             </label>
             <div className='rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700'>
               {item.description || '—'}
+            </div>
+          </div>
+          <div className='space-y-2'>
+            <label className='text-xs font-medium text-gray-500'>
+              {labels.website}
+            </label>
+            <div className='rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700'>
+              {item.website ? (
+                <a
+                  href={item.website}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-blue-600 underline break-all'
+                >
+                  {item.website}
+                </a>
+              ) : (
+                '—'
+              )}
+            </div>
+          </div>
+          <div className='space-y-2'>
+            <label className='text-xs font-medium text-gray-500'>
+              {labels.businessLicense}
+            </label>
+            <div className='rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 break-all'>
+              {item.business_license_uuid || '—'}
             </div>
           </div>
           <div className='space-y-2'>
