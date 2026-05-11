@@ -11,8 +11,11 @@ import {
 type FormState = {
   name: string;
   description: string;
+  website: string;
   multimediaUuid: string | null;
   fileName: string | null;
+  businessLicenseUuid: string | null;
+  businessLicenseFileName: string | null;
 };
 
 type State = {
@@ -37,9 +40,19 @@ type Action =
   | { type: 'edit-open'; payload: PlatformSettingsItem }
   | { type: 'edit-close' };
 
+export type PlatformSettingsErrorCodes = Partial<Record<string, string>>;
+
 type UsePlatformSettingsCopy = {
   createSuccessToast: string;
-  duplicateNameToast: string;
+  errorCodes: PlatformSettingsErrorCodes;
+  validation: {
+    nameRequired: string;
+    descriptionRequired: string;
+    multimediaRequired: string;
+    nameTooLong: string;
+    notAuthenticated: string;
+    networkError: string;
+  };
 };
 
 const initialState: State = {
@@ -51,8 +64,11 @@ const initialState: State = {
   form: {
     name: '',
     description: '',
+    website: '',
     multimediaUuid: null,
     fileName: null,
+    businessLicenseUuid: null,
+    businessLicenseFileName: null,
   },
   editItem: null,
 };
@@ -93,6 +109,19 @@ export const usePlatformSettings = (
   const showErrorRef = useRef(showError);
   const showSuccessRef = useRef(showSuccess);
   const { uploadMedia, isUploading } = useMediaUpload(accessToken);
+  const {
+    uploadMedia: uploadBusinessLicenseMedia,
+    isUploading: isBusinessLicenseUploading,
+  } = useMediaUpload(accessToken);
+
+  const resolveError = useRef(
+    (code: string | undefined, fallback: string): string =>
+      (code && copy.errorCodes[code]) || fallback
+  );
+  useEffect(() => {
+    resolveError.current = (code, fallback) =>
+      (code && copy.errorCodes[code]) || fallback;
+  }, [copy.errorCodes]);
 
   useEffect(() => {
     showErrorRef.current = showError;
@@ -106,7 +135,10 @@ export const usePlatformSettings = (
       apiService.setAccessToken(accessToken);
       const res = await apiService.listPlatformSettings();
       if (!res.success || !res.data) {
-        const message = res.message || 'Failed to load platform settings';
+        const message = resolveError.current(
+          res.error?.code,
+          res.message || 'Failed to load platform settings'
+        );
         dispatch({ type: 'list-error', payload: message });
         showErrorRef.current(message);
         return;
@@ -146,32 +178,45 @@ export const usePlatformSettings = (
     return uuid;
   };
 
+  const uploadBusinessLicense = async (file: File) => {
+    setForm({ businessLicenseFileName: file.name, businessLicenseUuid: null });
+    const uuid = await uploadBusinessLicenseMedia(file);
+    if (!uuid) {
+      setForm({ businessLicenseFileName: null, businessLicenseUuid: null });
+      return null;
+    }
+    setForm({ businessLicenseUuid: uuid });
+    return uuid;
+  };
+
   const createSetting = async () => {
     if (!accessToken) {
-      showErrorRef.current('Please log in again');
+      showErrorRef.current(copy.validation.notAuthenticated);
       return;
     }
     if (!state.form.name.trim()) {
-      showErrorRef.current('Name is required');
+      showErrorRef.current(copy.validation.nameRequired);
       return;
     }
     if (!state.form.description.trim()) {
-      showErrorRef.current('Description is required');
+      showErrorRef.current(copy.validation.descriptionRequired);
       return;
     }
     if (!state.form.multimediaUuid) {
-      showErrorRef.current('Multimedia is required');
+      showErrorRef.current(copy.validation.multimediaRequired);
       return;
     }
     if (state.form.name && state.form.name.length > 255) {
-      showErrorRef.current('Name must be at most 255 characters');
+      showErrorRef.current(copy.validation.nameTooLong);
       return;
     }
     const payload: CreatePlatformSettingsRequest = {
       platform: state.selectedPlatform,
       name: state.form.name?.trim() || undefined,
       description: state.form.description?.trim() || undefined,
+      website: state.form.website?.trim() || undefined,
       multimedia_uuid: state.form.multimediaUuid || undefined,
+      business_license_uuid: state.form.businessLicenseUuid || undefined,
     };
 
     dispatch({ type: 'create-start' });
@@ -179,16 +224,11 @@ export const usePlatformSettings = (
       apiService.setAccessToken(accessToken);
       const res = await apiService.createPlatformSettings(payload);
       if (!res.success || !res.data) {
-        const normalizedError =
-          `${res.error?.code || ''} ${res.message || ''}`.trim();
-        const isDuplicateNameError = normalizedError.includes(
-          'PLATFORM_SETTINGS_NAME_ALREADY_EXISTS'
-        );
-
         showErrorRef.current(
-          isDuplicateNameError
-            ? copy.duplicateNameToast
-            : res.message || 'Failed to create platform settings'
+          resolveError.current(
+            res.error?.code,
+            res.message || 'Failed to create platform settings'
+          )
         );
         return;
       }
@@ -196,7 +236,8 @@ export const usePlatformSettings = (
       resetForm();
       loadList();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Network error';
+      const message =
+        error instanceof Error ? error.message : copy.validation.networkError;
       showErrorRef.current(message);
     } finally {
       dispatch({ type: 'create-end' });
@@ -220,6 +261,8 @@ export const usePlatformSettings = (
     createSetting,
     uploadMultimedia,
     isUploading,
+    uploadBusinessLicense,
+    isBusinessLicenseUploading,
     openEdit,
     closeEdit,
   };
