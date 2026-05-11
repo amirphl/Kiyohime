@@ -34,13 +34,15 @@ export const ToastContext = React.createContext<{
   showToast: () => {},
 });
 
+let toastCounter = 0;
+
 export const ToastProvider: React.FC<ToastContainerProps> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const { isRTL } = useLanguage();
 
   const showToast = useCallback(
     (type: ToastType, message: string, duration?: number) => {
-      const id = Date.now().toString();
+      const id = `${Date.now()}-${++toastCounter}`;
       const newToast: ToastItem = {
         id,
         type,
