@@ -11,9 +11,12 @@ export interface AdminPlatformSettingsCopy {
     platform: string;
     name: string;
     description: string;
+    website: string;
     multimediaUuid: string;
+    businessLicenseUuid: string;
     preview: string;
     download: string;
+    businessLicenseDownload: string;
     metadata: string;
     metadataInfo: string;
     metadataKey: string;
@@ -118,6 +121,15 @@ export interface AdminPlatformSettingsCopy {
     unauthorized: string;
     networkError: string;
     invalidRequest: string;
+    validationFailed: string;
+    platformSettingsNotFound: string;
+    statusChangeNotAllowed: string;
+    invalidPlatformSettingsStatus: string;
+    platformSettingsIdRequired: string;
+    platformSettingsLookupFailed: string;
+    platformSettingsStatusUpdateFailed: string;
+    platformSettingsMetadataKeyRequired: string;
+    platformSettingsMetadataUpdateFailed: string;
   };
   success: {
     statusUpdated: string;
@@ -144,9 +156,12 @@ const en: AdminPlatformSettingsCopy = {
     platform: 'Platform',
     name: 'Name',
     description: 'Description',
+    website: 'Website',
     multimediaUuid: 'Multimedia UUID',
-    preview: 'Preview',
-    download: 'Download',
+    businessLicenseUuid: 'Business License',
+    preview: 'Profile Picture Preview',
+    download: 'Download Profile Picture',
+    businessLicenseDownload: 'License',
     metadata: 'Metadata',
     metadataInfo: 'Meta',
     metadataKey: 'Key',
@@ -252,6 +267,17 @@ const en: AdminPlatformSettingsCopy = {
     unauthorized: 'Unauthorized',
     networkError: 'Network error occurred',
     invalidRequest: 'Invalid request',
+    validationFailed: 'Validation failed',
+    platformSettingsNotFound: 'Platform settings not found',
+    statusChangeNotAllowed: 'Status change is not allowed',
+    invalidPlatformSettingsStatus: 'Invalid platform settings status',
+    platformSettingsIdRequired: 'Platform settings ID is required',
+    platformSettingsLookupFailed: 'Failed to retrieve platform settings',
+    platformSettingsStatusUpdateFailed:
+      'Failed to change platform settings status',
+    platformSettingsMetadataKeyRequired: 'Metadata key is required',
+    platformSettingsMetadataUpdateFailed:
+      'Failed to update platform settings metadata',
   },
   success: {
     statusUpdated: 'Platform setting status updated',
@@ -278,9 +304,12 @@ const fa: AdminPlatformSettingsCopy = {
     platform: 'کانال',
     name: 'نام',
     description: 'بایو',
+    website: 'وب‌سایت',
     multimediaUuid: 'UUID رسانه',
-    preview: 'پیش‌نمایش',
-    download: 'دانلود',
+    businessLicenseUuid: 'مجوز کسب‌وکار',
+    preview: 'پیش‌نمایش تصویر پروفایل',
+    download: 'دانلود تصویر پروفایل',
+    businessLicenseDownload: 'مجوز',
     metadata: 'متادیتا',
     metadataInfo: 'جزئیات',
     metadataKey: 'کلید',
@@ -387,6 +416,16 @@ const fa: AdminPlatformSettingsCopy = {
     unauthorized: 'دسترسی غیرمجاز',
     networkError: 'خطای شبکه رخ داد',
     invalidRequest: 'درخواست نامعتبر است',
+    validationFailed: 'اعتبارسنجی ناموفق بود',
+    platformSettingsNotFound: 'تنظیمات کانال یافت نشد',
+    statusChangeNotAllowed: 'تغییر وضعیت مجاز نیست',
+    invalidPlatformSettingsStatus: 'وضعیت تنظیمات کانال نامعتبر است',
+    platformSettingsIdRequired: 'شناسه تنظیمات کانال الزامی است',
+    platformSettingsLookupFailed: 'دریافت تنظیمات کانال ناموفق بود',
+    platformSettingsStatusUpdateFailed: 'تغییر وضعیت تنظیمات کانال ناموفق بود',
+    platformSettingsMetadataKeyRequired: 'کلید متادیتا الزامی است',
+    platformSettingsMetadataUpdateFailed:
+      'بروزرسانی متادیتای تنظیمات کانال ناموفق بود',
   },
   success: {
     statusUpdated: 'وضعیت تنظیمات کانال بروزرسانی شد',
