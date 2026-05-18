@@ -100,7 +100,8 @@ const WalletPage: React.FC = () => {
     setPaymentSubmitting(true);
     try {
       const baseAmount = Number(chargeAmount);
-      const amountWithTax = Math.round(baseAmount / 0.9);
+      const tax = Math.round(baseAmount * 0.1);
+      const amountWithTax = baseAmount + tax;
       const resp = await apiService.startWalletCharge(amountWithTax, language);
       if (resp.success && resp.data && (resp.data as any).token) {
         const token = (resp.data as any).token;
