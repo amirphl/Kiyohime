@@ -211,7 +211,7 @@ export const serializeCampaignPayload = (
           ? campaignData.content.lineNumber
           : null
         : null,
-    short_link_domain: campaignData.content.shortLinkDomain || 'jo1n.ir',
+    short_link_domain: campaignData.content.shortLinkDomain ?? undefined,
     job_category: campaignData.segment.jobCategory || undefined,
     job: campaignData.segment.job || undefined,
     platform,
