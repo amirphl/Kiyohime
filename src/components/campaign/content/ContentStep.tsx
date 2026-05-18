@@ -112,7 +112,7 @@ const ContentStep: React.FC = () => {
     updateContent({ lineNumber: value });
   };
 
-  const handleShortLinkDomainChange = (value: string) => {
+  const handleShortLinkDomainChange = (value: string | null) => {
     updateContent({ shortLinkDomain: value });
   };
 
@@ -245,7 +245,7 @@ const ContentStep: React.FC = () => {
       link: '',
       text: '',
       scheduleAt: undefined,
-      shortLinkDomain: 'jo1n.ir',
+      shortLinkDomain: null,
       lineNumber: '',
       platformSettingsId: null,
       mediaUuid: null,
@@ -324,14 +324,16 @@ const ContentStep: React.FC = () => {
             charactersLabel={t.characters}
           />
           {campaignData.content.insertLink && (
-            // <div className='mt-6'>
             <ShortLinkDomainCard
-              value={campaignData.content.shortLinkDomain || 'jo1n.ir'}
+              value={campaignData.content.shortLinkDomain}
               onChange={handleShortLinkDomainChange}
               title={t.shortLinkDomain}
               placeholder={t.shortLinkDomainPlaceholder}
+              onLabel={t.on}
+              offLabel={t.off}
+              enabledLabel={t.shortLinkDomainEnabled}
+              disabledLabel={t.shortLinkDomainDisabled}
             />
-            // </div>
           )}
         </div>
 
