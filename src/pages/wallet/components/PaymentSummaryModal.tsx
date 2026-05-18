@@ -22,8 +22,8 @@ const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
   onCancel,
   copy,
 }) => {
-  const total = Math.round(amount / 0.9);
-  const tax = total - amount;
+  const tax = Math.round(amount * 0.1);
+  const total = amount + tax;
   const { t } = useTranslation();
 
   return (
