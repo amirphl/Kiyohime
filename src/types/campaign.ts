@@ -25,7 +25,7 @@ export interface CampaignContent {
   link: string;
   text: string;
   scheduleAt?: string; // ISO string for datetime
-  shortLinkDomain?: string;
+  shortLinkDomain: string | null;
   lineNumber?: string;
   platformSettingsId?: number | null;
   mediaUuid?: string | null;
@@ -68,7 +68,7 @@ export interface CreateCampaignPayload {
   scheduleat?: string;
   line_number?: string | null;
   budget?: number;
-  short_link_domain?: string;
+  short_link_domain?: string | null;
   job_category?: string;
   job?: string;
   platform?: CampaignPlatform;
@@ -110,7 +110,7 @@ export interface CalculateCampaignCapacityRequest {
   scheduleat?: string;
   line_number?: string | null;
   budget?: number;
-  short_link_domain?: string;
+  short_link_domain?: string | null;
   job_category?: string;
   job?: string;
   platform?: CampaignPlatform;
@@ -137,7 +137,7 @@ export interface CalculateCampaignCostRequest {
   scheduleat?: string;
   line_number?: string | null;
   budget?: number;
-  short_link_domain?: string;
+  short_link_domain?: string | null;
   job_category?: string;
   job?: string;
   platform?: CampaignPlatform;
@@ -156,7 +156,7 @@ export interface CalculateCampaignCostV2Request {
   content?: string;
   scheduleat?: string;
   line_number?: string | null;
-  short_link_domain?: string;
+  short_link_domain?: string | null;
   job_category?: string;
   job?: string;
   platform?: CampaignPlatform;
@@ -201,7 +201,7 @@ export interface UpdateSMSCampaignRequest {
   line_number?: string | null;
   budget?: number;
   finalize?: boolean;
-  short_link_domain?: string;
+  short_link_domain?: string | null;
   job_category?: string;
   job?: string;
   platform?: CampaignPlatform;
