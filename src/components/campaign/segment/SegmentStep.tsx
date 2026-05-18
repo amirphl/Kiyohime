@@ -228,7 +228,7 @@ const LevelStep: React.FC = () => {
         link: campaign.adlink || '',
         text: campaign.content || '',
         scheduleAt: campaign.scheduleat || undefined,
-        shortLinkDomain: campaign.short_link_domain || 'jo1n.ir',
+        shortLinkDomain: campaign.short_link_domain ?? null,
         lineNumber: campaign.line_number || '',
         platformSettingsId:
           platformValue === 'sms'
