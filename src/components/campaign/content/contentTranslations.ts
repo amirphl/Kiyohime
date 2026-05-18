@@ -16,6 +16,8 @@ const contentEn = {
   characters: 'characters',
   linkAnalysisInfo:
     'By enabling this feature you can analyze click results on your landing link.',
+  insertUidPlaceholder: 'Add Tracking Term',
+  uidPlaceholderInserted: 'Tracking term inserted',
 
   // Schedule section
   scheduleAt: 'Schedule At (Optional)',
@@ -73,6 +75,8 @@ const contentEn = {
   // Short link domain
   shortLinkDomain: 'Short link domain',
   shortLinkDomainPlaceholder: 'Select a short link domain',
+  shortLinkDomainEnabled: 'Short link domain is enabled',
+  shortLinkDomainDisabled: 'Short link domain is disabled',
   reset: 'Reset',
 };
 
@@ -94,6 +98,8 @@ const contentFa = {
   characters: 'کاراکتر',
   linkAnalysisInfo:
     'با فعال‌کردن این قابلیت امکان تحلیل نتایج کلیک روی لینک مورد نظر شما فراهم می‌شود.',
+  insertUidPlaceholder: 'افزودن شناسه رهگیری',
+  uidPlaceholderInserted: 'شناسه رهگیری درج شد',
 
   // Schedule section
   scheduleAt: 'زمان‌بندی (اختیاری)',
@@ -145,13 +151,16 @@ const contentFa = {
   // Platform settings
   platformSettings: 'سرویس‌های فعال',
   platformSettingsPlaceholder: 'انتخاب',
-  createPlatformInSettings: 'سرویس فعالی یافت نشد. با کلیک روی این لینک، یک سرویس جدید بسازید.',
+  createPlatformInSettings:
+    'سرویس فعالی یافت نشد. با کلیک روی این لینک، یک سرویس جدید بسازید.',
   platformSettingsActionRequired: '',
   platformSettingsGoToSettings: 'رفتن به تنظیمات',
 
   // Short link domain
   shortLinkDomain: 'دامنه لینک کوتاه',
   shortLinkDomainPlaceholder: 'دامنه لینک کوتاه را انتخاب کنید',
+  shortLinkDomainEnabled: 'کوتاه‌کننده لینک فعال است',
+  shortLinkDomainDisabled: 'کوتاه‌کننده لینک غیرفعال است',
   reset: 'بازنشانی',
 };
 
