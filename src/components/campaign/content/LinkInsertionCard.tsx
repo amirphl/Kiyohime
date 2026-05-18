@@ -1,9 +1,9 @@
 import React from 'react';
-import { Link } from 'lucide-react';
+import { Link, Tag } from 'lucide-react';
 import Card from '../../ui/Card';
-import FormField from '../../ui/FormField';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { contentI18n } from './contentTranslations';
+import { useLinkUidPlaceholder } from './useLinkUidPlaceholder';
 
 interface LinkInsertionCardProps {
   insertLink: boolean;
@@ -43,6 +43,9 @@ const LinkInsertionCard: React.FC<LinkInsertionCardProps> = ({
   const isLinkOverLimit = linkCharacterCount > maxLinkCharacters;
   const { language } = useLanguage();
   const t = contentI18n[language as keyof typeof contentI18n] || contentI18n.en;
+
+  const { hasPlaceholder, inputRef, saveCursor, toggle } =
+    useLinkUidPlaceholder(link);
 
   return (
     <Card className='h-full'>
@@ -85,23 +88,53 @@ const LinkInsertionCard: React.FC<LinkInsertionCardProps> = ({
               {t.linkAnalysisInfo}
             </div>
             <div className='h-2' />
-            <FormField
-              id='link'
-              label={linkLabel}
-              type='text'
-              placeholder={linkPlaceholder}
-              value={link || ''}
-              onChange={(val: string) => {
-                // Force-remove any spaces from the link before propagating
-                const sanitized = val.replace(/\s+/g, '');
-                onLinkChange(sanitized);
-              }}
-              required
-              validation={{
-                max: 10000,
-                message: linkValidation,
-              }}
-            />
+
+            <div className='space-y-2'>
+              <label
+                htmlFor='link'
+                className='block text-sm font-medium text-gray-700'
+              >
+                {linkLabel}
+                <span className='text-red-500 ml-1'>*</span>
+              </label>
+              <input
+                id='link'
+                ref={inputRef}
+                type='text'
+                placeholder={linkPlaceholder}
+                value={link || ''}
+                onChange={e => {
+                  const sanitized = e.target.value.replace(/\s+/g, '');
+                  onLinkChange(sanitized);
+                }}
+                onSelect={saveCursor}
+                onKeyUp={saveCursor}
+                onMouseUp={saveCursor}
+                onBlur={saveCursor}
+                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  linkError ? 'border-red-300' : 'border-gray-300'
+                }`}
+              />
+              {!linkError && linkValidation && (
+                <p className='text-sm text-gray-500'>{linkValidation}</p>
+              )}
+            </div>
+
+            <button
+              type='button'
+              onClick={() => toggle(onLinkChange)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-sm font-medium transition-colors ${
+                hasPlaceholder
+                  ? 'bg-primary-50 border-primary-500 text-primary-700 hover:bg-primary-100'
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <Tag className='h-4 w-4' />
+              {hasPlaceholder
+                ? t.uidPlaceholderInserted
+                : t.insertUidPlaceholder}
+            </button>
+
             {linkError && <p className='text-sm text-red-600'>{linkError}</p>}
             <div
               className={`text-sm ${isLinkOverLimit ? 'text-red-600' : 'text-gray-500'}`}
