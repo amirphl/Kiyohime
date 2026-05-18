@@ -92,7 +92,7 @@ const createDefaultCampaignData = (): CampaignData => ({
     link: '',
     text: '',
     scheduleAt: undefined,
-    shortLinkDomain: 'jo1n.ir',
+    shortLinkDomain: null,
     lineNumber: '',
     platformSettingsId: null,
     mediaUuid: null,
@@ -107,7 +107,9 @@ const createDefaultCampaignData = (): CampaignData => ({
   },
 });
 
-const normalizeStoredCampaignData = (data: StoredCampaignData): CampaignData => {
+const normalizeStoredCampaignData = (
+  data: StoredCampaignData
+): CampaignData => {
   const defaults = createDefaultCampaignData();
   const storedSegment = data.segment ?? data.level ?? {};
   const { mediaAttachment: _mediaAttachment, ...storedContent } =
@@ -139,7 +141,9 @@ const normalizeStoredCampaignData = (data: StoredCampaignData): CampaignData => 
       ...defaults.content,
       ...storedContent,
       shortLinkDomain:
-        storedContent.shortLinkDomain || defaults.content.shortLinkDomain,
+        storedContent.shortLinkDomain !== undefined
+          ? storedContent.shortLinkDomain
+          : defaults.content.shortLinkDomain,
       lineNumber: storedContent.lineNumber ?? defaults.content.lineNumber,
       platformSettingsId:
         storedContent.platformSettingsId ?? defaults.content.platformSettingsId,
@@ -298,7 +302,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
         link: '',
         text: '',
         scheduleAt: undefined,
-        shortLinkDomain: 'jo1n.ir',
+        shortLinkDomain: null,
         lineNumber: '',
         platformSettingsId: null,
         mediaUuid: null,
@@ -361,7 +365,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
         link: '',
         text: '',
         scheduleAt: undefined,
-        shortLinkDomain: 'jo1n.ir',
+        shortLinkDomain: null,
         lineNumber: '',
         platformSettingsId: null,
         mediaUuid: null,
