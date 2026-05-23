@@ -1,55 +1,65 @@
 import { useState, useEffect } from 'react';
+import {
+  LINK_PLACEHOLDER,
+  hasLinkPlaceholder,
+  normalizeLinkPlaceholder,
+} from '../../../utils/campaignUtils';
 
 export const useLinkCharacter = (text: string) => {
-    const [linkCharacterInserted, setLinkCharacterInserted] = useState<boolean>(false);
-    const linkMarker = '🔗';
-    const displayPlaceholder = 'jo1n.ir/xxxxxx';
+  const [linkCharacterInserted, setLinkCharacterInserted] =
+    useState<boolean>(false);
 
-    // Check if link character is already in text
-    useEffect(() => {
-        if (text && (text.includes(linkMarker) || text.includes(displayPlaceholder))) {
-            setLinkCharacterInserted(true);
-        } else {
-            setLinkCharacterInserted(false);
-        }
-    }, [text]);
+  // Check if link placeholder is already in text
+  useEffect(() => {
+    if (text && hasLinkPlaceholder(text)) {
+      setLinkCharacterInserted(true);
+    } else {
+      setLinkCharacterInserted(false);
+    }
+  }, [text]);
 
-    const insertLinkCharacter = (
-        textAreaRef: React.RefObject<HTMLTextAreaElement>,
-        currentText: string,
-        onTextChange: (text: string) => void
-    ) => {
-        if (!textAreaRef.current) return;
+  const insertLinkCharacter = (
+    textAreaRef: React.RefObject<HTMLTextAreaElement>,
+    currentText: string,
+    onTextChange: (text: string) => void
+  ) => {
+    if (!textAreaRef.current) return;
 
-        // Normalize any displayed placeholder back to marker before processing
-        const normalizedText = (currentText || '').replace(new RegExp(displayPlaceholder, 'g'), linkMarker);
+    const safeText = normalizeLinkPlaceholder(currentText || '');
+    if (linkCharacterInserted || hasLinkPlaceholder(safeText)) {
+      return;
+    }
 
-        if (linkCharacterInserted || normalizedText.includes(linkMarker)) {
-            return;
-        }
+    const textarea = textAreaRef.current;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
 
-        const textarea = textAreaRef.current;
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
+    // Insert the backend placeholder at cursor position, then place the caret
+    // on the following line so users can keep typing message text naturally.
+    const lineBreak = '\n';
+    const newText =
+      safeText.substring(0, start) +
+      LINK_PLACEHOLDER +
+      lineBreak +
+      safeText.substring(end);
 
-        // Insert the link marker at cursor position (store actual marker for backend)
-        const newText = normalizedText.substring(0, start) + linkMarker + normalizedText.substring(end);
+    onTextChange(newText);
+    setLinkCharacterInserted(true);
 
-        onTextChange(newText);
-        setLinkCharacterInserted(true);
+    // Set cursor position on the new line after the inserted placeholder.
+    setTimeout(() => {
+      textarea.focus();
+      const nextCursorPosition =
+        start + LINK_PLACEHOLDER.length + lineBreak.length;
+      textarea.setSelectionRange(nextCursorPosition, nextCursorPosition);
+    }, 0);
+  };
 
-        // Set cursor position after the inserted character
-        setTimeout(() => {
-            textarea.focus();
-            textarea.setSelectionRange(start + linkMarker.length, start + linkMarker.length);
-        }, 0);
-    };
+  const resetLinkCharacter = () => setLinkCharacterInserted(false);
 
-    const resetLinkCharacter = () => setLinkCharacterInserted(false);
-
-    return {
-        linkCharacterInserted,
-        insertLinkCharacter,
-        resetLinkCharacter,
-    };
-}; 
+  return {
+    linkCharacterInserted,
+    insertLinkCharacter,
+    resetLinkCharacter,
+  };
+};
