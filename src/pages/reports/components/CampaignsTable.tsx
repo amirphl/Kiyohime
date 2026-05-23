@@ -14,6 +14,10 @@ import {
   clearLevelSelection,
   saveLevelSelection,
 } from '../../../types/segment';
+import {
+  getShortLinkDomainOrDefault,
+  normalizeLinkPlaceholder,
+} from '../../../utils/campaignUtils';
 
 const getChannelDisplay = (c: GetCampaignResponse): string => {
   if (!c.platform || c.platform === 'sms') return c.line_number || '-';
@@ -72,9 +76,11 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
     const content: CampaignData['content'] = {
       insertLink: !!campaign.adlink,
       link: campaign.adlink || '',
-      text: campaign.content || '',
+      text: normalizeLinkPlaceholder(campaign.content || ''),
       scheduleAt: campaign.scheduleat || undefined,
-      shortLinkDomain: campaign.short_link_domain || 'jo1n.ir',
+      shortLinkDomain: campaign.adlink
+        ? getShortLinkDomainOrDefault(campaign.short_link_domain)
+        : null,
       lineNumber: campaign.line_number || '',
       platformSettingsId:
         platformValue === 'sms'
