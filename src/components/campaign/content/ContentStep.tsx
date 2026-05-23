@@ -29,6 +29,7 @@ import { usePlatformSettingsList } from '../../../hooks/usePlatformSettingsList'
 import { useNavigation } from '../../../contexts/NavigationContext';
 import { config } from '../../../config/environment';
 import { storeSettingsPlatformIntent } from '../../../utils/platformSettingsNavigation';
+import { normalizeLinkPlaceholder } from '../../../utils/campaignUtils';
 
 const ContentStep: React.FC = () => {
   const { campaignData, updateContent } = useCampaign();
@@ -89,7 +90,7 @@ const ContentStep: React.FC = () => {
   };
 
   const handleTextChange = (value: string) => {
-    updateContent({ text: value });
+    updateContent({ text: normalizeLinkPlaceholder(value) });
   };
 
   const handleInsertLinkCharacter = () => {
@@ -113,7 +114,7 @@ const ContentStep: React.FC = () => {
   };
 
   const handleShortLinkDomainChange = (value: string | null) => {
-    updateContent({ shortLinkDomain: value });
+    updateContent({ shortLinkDomain: value?.trim() ? value : null });
   };
 
   const handlePlatformSettingsChange = (value: string) => {
