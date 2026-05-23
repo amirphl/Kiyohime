@@ -7,22 +7,38 @@ import { CampaignData, UpdateSMSCampaignRequest } from '../types/campaign';
 /**
  * Counts characters in text with proper weighting for different character types
  * English characters and numbers = 1, others (Farsi, Arabic, etc.) = 2
- * Excludes the link placeholder character (🔗) from counting
+ * Excludes the link placeholder token from counting
  */
-const normalizeLinkPlaceholder = (text: string): string =>
+export const LINK_PLACEHOLDER = '{YOUR_LINK}';
+export const DEFAULT_SHORT_LINK_DOMAIN = 'jo1n.ir';
+
+export const normalizeLinkPlaceholder = (text: string): string =>
   text
-    // Replace displayed placeholder with single marker so downstream logic stays consistent
-    .replace(/jo1n\.ir\/xxxxxx/gi, '🔗');
+    .replace(/\{YOUR_LINK\}/gi, LINK_PLACEHOLDER)
+    .replace(/\u{1F517}/gu, LINK_PLACEHOLDER)
+    .replace(/jo1n\.ir\/xxxxxx/gi, LINK_PLACEHOLDER);
+
+export const hasLinkPlaceholder = (text: string): boolean =>
+  normalizeLinkPlaceholder(text).includes(LINK_PLACEHOLDER);
+
+export const getShortLinkDomainOrDefault = (
+  shortLinkDomain?: string | null
+): string =>
+  shortLinkDomain && shortLinkDomain.trim()
+    ? shortLinkDomain.trim()
+    : DEFAULT_SHORT_LINK_DOMAIN;
 
 export const countCharacters = (text: string): number => {
   if (!text) return 0;
 
-  // Remove the link character (🔗) before counting
-  const textWithoutLinkChar = normalizeLinkPlaceholder(text).replace(/🔗/g, '');
+  // Remove the link placeholder before counting
+  const textWithoutLinkPlaceholder = normalizeLinkPlaceholder(text)
+    .split(LINK_PLACEHOLDER)
+    .join('');
 
   let count = 0;
-  for (let i = 0; i < textWithoutLinkChar.length; i++) {
-    const char = textWithoutLinkChar.charCodeAt(i);
+  for (let i = 0; i < textWithoutLinkPlaceholder.length; i++) {
+    const char = textWithoutLinkPlaceholder.charCodeAt(i);
     // Check if character is English (ASCII range 32-126)
     if (char >= 32 && char <= 126) {
       count += 1; // English character
@@ -56,12 +72,12 @@ export const calculateTotalCharacterCount = (
   let startCount: number;
 
   if (insertLink) {
-    // Check if link character is present in text
-    if (normalizedText && normalizedText.includes('🔗')) {
-      // Link character will be replaced by shortened link (14 chars) + backend append (6 chars)
+    // Check if link placeholder is present in text
+    if (normalizedText && normalizedText.includes(LINK_PLACEHOLDER)) {
+      // Link placeholder will be replaced by shortened link (14 chars) + backend append (6 chars)
       startCount = shortenedLinkChars + backendAppendChars; // 20 chars
     } else {
-      // No link character, backend will append shortened link (14 chars) + backend append (6 chars)
+      // No link placeholder, backend will append shortened link (14 chars) + backend append (6 chars)
       startCount = shortenedLinkChars + backendAppendChars; // 20 chars
     }
   } else {
@@ -134,11 +150,14 @@ export const validateCampaignContent = (
     };
   }
 
-  // If link insertion is enabled, require link character presence
-  if (content.insertLink && !content.text.includes('🔗')) {
+  // If link insertion is enabled, require link placeholder presence
+  if (
+    content.insertLink &&
+    !normalizeLinkPlaceholder(content.text).includes(LINK_PLACEHOLDER)
+  ) {
     return {
       isValid: false,
-      error: 'Please insert the link marker (🔗) in your text',
+      error: 'Please insert the link placeholder ({YOUR_LINK}) in your text',
     };
   }
 
@@ -211,7 +230,9 @@ export const serializeCampaignPayload = (
           ? campaignData.content.lineNumber
           : null
         : null,
-    short_link_domain: campaignData.content.shortLinkDomain ?? undefined,
+    short_link_domain: campaignData.content.insertLink
+      ? getShortLinkDomainOrDefault(campaignData.content.shortLinkDomain)
+      : undefined,
     job_category: campaignData.segment.jobCategory || undefined,
     job: campaignData.segment.job || undefined,
     platform,
@@ -225,7 +246,7 @@ export const serializeCampaignPayload = (
 
   if (options?.includeContent) {
     payload.adlink = campaignData.content.link;
-    payload.content = campaignData.content.text;
+    payload.content = normalizeLinkPlaceholder(campaignData.content.text);
     payload.scheduleat = campaignData.content.scheduleAt;
   }
 
