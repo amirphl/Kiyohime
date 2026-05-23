@@ -16,7 +16,10 @@ interface UseCampaignTestMessageParams {
   activePlatformSettings: PlatformSettingsItem[];
   accessToken: string | null;
   language: string;
+  targetPhoneNumber: string;
 }
+
+const isValidLocalTargetPhoneNumber = (value: string) => /^9\d{9}$/.test(value);
 
 const getValidationMessage = (
   errorCode: TestMessageValidationErrorCode,
@@ -44,6 +47,7 @@ export const useCampaignTestMessage = ({
   activePlatformSettings,
   accessToken,
   language,
+  targetPhoneNumber,
 }: UseCampaignTestMessageParams) => {
   const { showError, showSuccess } = useToast();
   const [isSending, setIsSending] = useState(false);
@@ -74,13 +78,22 @@ export const useCampaignTestMessage = ({
       return;
     }
 
+    const normalizedTargetPhoneNumber = targetPhoneNumber.trim();
+    if (!isValidLocalTargetPhoneNumber(normalizedTargetPhoneNumber)) {
+      showError(copy.testMessageTargetPhoneInvalid);
+      return;
+    }
+
     inFlightRef.current = true;
     setIsSending(true);
 
     try {
       apiService.setAccessToken(accessToken);
       const response = await apiService.sendCampaignTestMessage(
-        campaignData.uuid
+        campaignData.uuid,
+        {
+          target_phone_number: `+98${normalizedTargetPhoneNumber}`,
+        }
       );
 
       if (response.success) {
@@ -101,9 +114,11 @@ export const useCampaignTestMessage = ({
     copy.testMessageAuthenticationRequired,
     copy.testMessageNetworkError,
     copy.testMessageSuccess,
+    copy.testMessageTargetPhoneInvalid,
     normalizedLanguage,
     showError,
     showSuccess,
+    targetPhoneNumber,
     validationErrorCode,
   ]);
 

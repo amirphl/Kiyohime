@@ -9,6 +9,7 @@ import {
   GetWalletBalanceResponse,
   UpdateSMSCampaignRequest,
   UpdateSMSCampaignResponse,
+  SendCampaignTestMessageRequest,
   SendCampaignTestMessageResponse,
   ListSMSCampaignsParams,
   ListSMSCampaignsResponse,
@@ -1221,7 +1222,8 @@ class ApiService {
   }
 
   async sendCampaignTestMessage(
-    uuid: string
+    uuid: string,
+    payload: SendCampaignTestMessageRequest
   ): Promise<ApiResponse<SendCampaignTestMessageResponse>> {
     const endpoint = config.endpoints.campaigns.testSend.replace(
       ':uuid',
@@ -1229,6 +1231,7 @@ class ApiService {
     );
     return this.request<SendCampaignTestMessageResponse>(endpoint, {
       method: 'POST',
+      body: JSON.stringify(payload),
     });
   }
 

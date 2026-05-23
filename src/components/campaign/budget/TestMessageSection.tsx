@@ -16,6 +16,7 @@ interface TestMessageSectionProps {
 const TestMessageSection: React.FC<TestMessageSectionProps> = ({
   activePlatformSettings,
 }) => {
+  const [targetPhoneNumber, setTargetPhoneNumber] = React.useState('');
   const { campaignData } = useCampaign();
   const { accessToken } = useAuth();
   const { language } = useLanguage();
@@ -28,7 +29,14 @@ const TestMessageSection: React.FC<TestMessageSectionProps> = ({
     activePlatformSettings,
     accessToken,
     language,
+    targetPhoneNumber,
   });
+
+  const handleTargetPhoneNumberChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setTargetPhoneNumber(event.target.value.replace(/\D/g, '').slice(0, 10));
+  };
 
   const requirementItems = [
     {
@@ -84,6 +92,35 @@ const TestMessageSection: React.FC<TestMessageSectionProps> = ({
               <span>{item.label}</span>
             </div>
           ))}
+        </div>
+
+        <div className='space-y-2'>
+          <label
+            htmlFor='test-message-target-phone'
+            className='block text-sm font-medium text-gray-700'
+          >
+            {t.testMessageTargetPhoneLabel}
+            <span className='text-red-500 ml-1'>*</span>
+          </label>
+          <div
+            className='flex max-w-sm flex-row rounded-md shadow-sm'
+            dir='ltr'
+          >
+            <span className='inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-sm text-gray-600'>
+              +98
+            </span>
+            <input
+              id='test-message-target-phone'
+              type='tel'
+              inputMode='numeric'
+              autoComplete='tel'
+              dir='ltr'
+              value={targetPhoneNumber}
+              onChange={handleTargetPhoneNumberChange}
+              placeholder='9xxxxxxxxx'
+              className='block w-full rounded-r-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500'
+            />
+          </div>
         </div>
 
         <div className='flex items-center gap-3'>

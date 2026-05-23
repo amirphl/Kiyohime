@@ -107,7 +107,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
     ? `${campaign.short_link_domain}/xxxxxx`
     : '';
   const displayContent = campaign.content
-    ? campaign.content.replace(/🔗/g, shortLinkDisplay)
+    ? campaign.content.replace(/\{YOUR_LINK\}/g, shortLinkDisplay)
     : '';
 
   const hasTrackingResults = useMemo(() => {

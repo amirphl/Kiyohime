@@ -56,12 +56,7 @@ const MessageTextCard: React.FC<MessageTextCardProps> = ({
   withoutLinkExplanation,
   textExceedsLimit,
 }) => {
-  const linkDisplay = 'jo1n.ir/xxxxxx';
-  const toDisplay = (text || '').replace(/🔗/g, linkDisplay);
-  const handleDisplayChange = (value: string) => {
-    const normalized = value.replace(new RegExp(linkDisplay, 'g'), '🔗');
-    onTextChange(normalized);
-  };
+  const linkPlaceholder = '{YOUR_LINK}';
 
   const characterCount = countCharacters(text || '');
   const charCountResult = calculateTotalCharacterCount(text || '', insertLink);
@@ -69,7 +64,7 @@ const MessageTextCard: React.FC<MessageTextCardProps> = ({
   const isOverLimit = charCountResult.isOverLimit;
   const maxCharacters = charCountResult.maxCharacters;
   const numberOfParts = calculateSMSParts(totalCharacterCount);
-  const hasLinkMarker = (text || '').includes('🔗');
+  const hasLinkMarker = (text || '').includes(linkPlaceholder);
 
   return (
     <Card>
@@ -84,8 +79,8 @@ const MessageTextCard: React.FC<MessageTextCardProps> = ({
             label={label}
             type='textarea'
             placeholder={placeholder}
-            value={toDisplay}
-            onChange={handleDisplayChange}
+            value={text || ''}
+            onChange={onTextChange}
             required
             ref={textAreaRef}
             // inputClassName='pb-8 pr-12'
@@ -95,9 +90,6 @@ const MessageTextCard: React.FC<MessageTextCardProps> = ({
             لغو۱۱
           </span>
         </div>
-        {/* {insertLink && !(text || '').includes('🔗') && (
-          <p className='text-sm text-red-600'>{linkCharacterInsertedMessage}</p>
-        )} */}
         {insertLink && !hasLinkMarker && (
           <p className='text-sm text-red-600'>{linkCharacterInsertedMessage}</p>
         )}

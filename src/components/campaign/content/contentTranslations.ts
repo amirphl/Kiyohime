@@ -40,9 +40,8 @@ const contentEn = {
   maxCharactersLabel: 'Remaining: {count}',
   insertLinkCharacter: 'Add link here',
   linkCharacterInserted: 'Link position marked',
-  // linkCharacterInsertedMessage: 'Link will be inserted at the marked position (🔗)',
   linkCharacterInsertedMessage:
-    'Link will be inserted at the marked position (jo1n.ir/xxxxxx)',
+    'Link will be inserted at the marked position ({YOUR_LINK}).',
   charactersLabel: 'Characters: {count} (user input)',
   totalLabel: 'Total: {count} / {max}',
   partsLabel: 'Parts: {count}',
@@ -122,9 +121,7 @@ const contentFa = {
   maxCharactersLabel: 'باقی‌مانده: {count}',
   insertLinkCharacter: 'افزودن لینک در اینجا',
   linkCharacterInserted: 'موقعیت لینک شناسایی شده',
-  // linkCharacterInsertedMessage: 'لینک کوتاه‌شده در محل مکان‌نما با علامت 🔗 قرار خواهد گرفت.',
-  linkCharacterInsertedMessage:
-    'لینک کوتاه‌شده در محل jo1n.ir/xxxxxx قرار خواهد گرفت.',
+  linkCharacterInsertedMessage: 'لینک در محل {YOUR_LINK} قرار خواهد گرفت.',
   charactersLabel: 'تعداد کاراکترها: {count} (ورودی کاربر)',
   totalLabel: 'مجموع: {count} / {max}',
   partsLabel: 'تعداد صفحه: {count}',

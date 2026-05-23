@@ -228,6 +228,10 @@ export interface SendCampaignTestMessageResponse {
   [key: string]: unknown;
 }
 
+export interface SendCampaignTestMessageRequest {
+  target_phone_number: string;
+}
+
 export interface CampaignStep {
   id: number;
   title: string;
