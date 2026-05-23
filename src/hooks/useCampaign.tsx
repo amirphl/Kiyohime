@@ -15,6 +15,7 @@ import {
 } from '../types/campaign';
 import { registerCampaignClearFunction } from './useAuth';
 import { clearLevelSelection } from '../types/segment';
+import { normalizeLinkPlaceholder } from '../utils/campaignUtils';
 
 interface CampaignContextType {
   currentStep: number;
@@ -144,6 +145,10 @@ const normalizeStoredCampaignData = (
         storedContent.shortLinkDomain !== undefined
           ? storedContent.shortLinkDomain
           : defaults.content.shortLinkDomain,
+      text:
+        typeof storedContent.text === 'string'
+          ? normalizeLinkPlaceholder(storedContent.text)
+          : defaults.content.text,
       lineNumber: storedContent.lineNumber ?? defaults.content.lineNumber,
       platformSettingsId:
         storedContent.platformSettingsId ?? defaults.content.platformSettingsId,
