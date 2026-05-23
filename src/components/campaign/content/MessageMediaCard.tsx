@@ -4,6 +4,7 @@ import Card from '../../ui/Card';
 import Button from '../../ui/Button';
 import FormField from '../../ui/FormField';
 import { CampaignMediaType } from '../../../types/campaign';
+import { hasLinkPlaceholder } from '../../../utils/campaignUtils';
 
 interface MessageMediaCardProps {
   title: string;
@@ -24,7 +25,12 @@ interface MessageMediaCardProps {
   previewName?: string | null;
   previewType?: CampaignMediaType | null;
   onTextChange: (value: string) => void;
-  onMediaChange: (payload: { file: File; previewUrl: string; name: string; type: CampaignMediaType }) => void;
+  onMediaChange: (payload: {
+    file: File;
+    previewUrl: string;
+    name: string;
+    type: CampaignMediaType;
+  }) => void;
   onMediaClear: () => void;
   onMediaDownload?: () => void;
   downloadLabel: string;
@@ -74,21 +80,16 @@ const MessageMediaCard: React.FC<MessageMediaCardProps> = ({
   isUploading,
   onMediaError,
 }) => {
-  const linkDisplay = 'jo1n.ir/xxxxxx';
-  const toDisplay = (text || '').replace(/🔗/g, linkDisplay);
   const remaining = Math.max(0, maxCharacters - (text?.length || 0));
   const remainingLabel = useMemo(
     () => maxCharactersLabel.replace('{count}', String(remaining)),
     [maxCharactersLabel, remaining]
   );
-  const hasLinkMarker = (text || '').includes('🔗');
+  const hasLinkMarker = hasLinkPlaceholder(text || '');
 
   const handleTextChange = (value: string) => {
-    const normalized = value.replace(new RegExp(linkDisplay, 'g'), '🔗');
     const nextValue =
-      normalized.length > maxCharacters
-        ? normalized.slice(0, maxCharacters)
-        : normalized;
+      value.length > maxCharacters ? value.slice(0, maxCharacters) : value;
     onTextChange(nextValue);
   };
 
@@ -107,7 +108,9 @@ const MessageMediaCard: React.FC<MessageMediaCardProps> = ({
     const reader = new FileReader();
     reader.onload = () => {
       const result = typeof reader.result === 'string' ? reader.result : '';
-      const type: CampaignMediaType = file.type.startsWith('image/') ? 'image' : 'video';
+      const type: CampaignMediaType = file.type.startsWith('image/')
+        ? 'image'
+        : 'video';
       onMediaChange({ file, previewUrl: result, type, name: file.name });
     };
     reader.readAsDataURL(file);
@@ -126,7 +129,7 @@ const MessageMediaCard: React.FC<MessageMediaCardProps> = ({
           label={label}
           type='textarea'
           placeholder={placeholder}
-          value={toDisplay}
+          value={text || ''}
           onChange={handleTextChange}
           required
           rows={8}
@@ -157,7 +160,9 @@ const MessageMediaCard: React.FC<MessageMediaCardProps> = ({
         <p className='text-sm text-gray-500'>{remainingLabel}</p>
 
         <div className='space-y-2'>
-          <label className='block text-sm font-medium text-gray-700'>{mediaLabel}</label>
+          <label className='block text-sm font-medium text-gray-700'>
+            {mediaLabel}
+          </label>
           <input
             type='file'
             accept='image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime,video/webm,video/x-matroska'
@@ -171,7 +176,9 @@ const MessageMediaCard: React.FC<MessageMediaCardProps> = ({
         {previewUrl && (
           <div className='space-y-2'>
             <div className='flex items-center justify-between'>
-              <span className='text-sm text-gray-700'>{previewName || 'media'}</span>
+              <span className='text-sm text-gray-700'>
+                {previewName || 'media'}
+              </span>
               <div className='flex items-center gap-3'>
                 {onMediaDownload && (
                   <button
@@ -196,7 +203,11 @@ const MessageMediaCard: React.FC<MessageMediaCardProps> = ({
                 <source src={previewUrl} />
               </video>
             ) : (
-              <img src={previewUrl} alt={previewName || 'media preview'} className='max-h-64 rounded-md border' />
+              <img
+                src={previewUrl}
+                alt={previewName || 'media preview'}
+                className='max-h-64 rounded-md border'
+              />
             )}
           </div>
         )}
