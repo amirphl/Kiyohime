@@ -48,6 +48,7 @@ export interface AdminCampaignManagementCopy {
       adLink: string;
       content: string;
       scheduleAt: string;
+      numAudience: string;
       lineNumber: string;
       budget: string;
       comment: string;
@@ -181,6 +182,7 @@ const en: AdminCampaignManagementCopy = {
       adLink: 'Ad Link',
       content: 'Content',
       scheduleAt: 'Schedule At',
+      numAudience: 'Audience Count',
       lineNumber: 'Line Number',
       budget: 'Budget',
       comment: 'Comment',
@@ -320,6 +322,7 @@ const fa: AdminCampaignManagementCopy = {
       adLink: 'لینک تبلیغ',
       content: 'محتوا',
       scheduleAt: 'زمان‌بندی',
+      numAudience: 'تعداد مخاطبان',
       lineNumber: 'شماره خط',
       budget: 'بودجه',
       comment: 'توضیح',
