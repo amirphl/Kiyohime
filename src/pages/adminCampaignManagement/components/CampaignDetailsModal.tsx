@@ -2,6 +2,7 @@ import React from 'react';
 import { BarChart3, Cpu, FileText, Info, Users } from 'lucide-react';
 import { AdminGetCampaignResponse } from '../../../types/admin';
 import { AdminCampaignManagementCopy } from '../translations';
+import { getShortLinkDomainOrDefault } from '../../../utils/campaignUtils';
 
 interface CampaignDetailsModalProps {
   campaign: AdminGetCampaignResponse | null;
@@ -266,7 +267,11 @@ const CampaignDetailsModal: React.FC<CampaignDetailsModalProps> = ({
             />
             <DetailField
               label={copy.modal.detailFields.shortLinkDomain}
-              value={campaign.short_link_domain || '-'}
+              value={
+                campaign.adlink
+                  ? getShortLinkDomainOrDefault(campaign.short_link_domain)
+                  : '-'
+              }
             />
             <DetailField
               label={copy.modal.detailFields.jobCategory}
