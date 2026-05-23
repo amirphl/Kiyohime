@@ -2,6 +2,7 @@ import React from 'react';
 import ModalShell from './ModalShell';
 import { AdminCustomerManagementCopy } from '../translations';
 import { AdminGetCampaignResponse } from '../../../types/admin';
+import { getShortLinkDomainOrDefault } from '../../../utils/campaignUtils';
 
 interface CampaignDetailsModalProps {
   isOpen: boolean;
@@ -76,7 +77,14 @@ const CampaignDetailsModal: React.FC<CampaignDetailsModalProps> = ({
           />
           <InfoItem label={fields.adLink} value={campaign.adlink || '-'} />
           <InfoItem label={fields.content} value={campaign.content || '-'} />
-          <InfoItem label={fields.shortLinkDomain} value={campaign.short_link_domain || '-'} />
+          <InfoItem
+            label={fields.shortLinkDomain}
+            value={
+              campaign.adlink
+                ? getShortLinkDomainOrDefault(campaign.short_link_domain)
+                : '-'
+            }
+          />
           <InfoItem label={fields.jobCategory} value={campaign.job_category || '-'} />
           <InfoItem label={fields.job} value={campaign.job || '-'} />
           <InfoItem label={fields.schedule} value={formatDateTime(campaign.scheduleat)} />
