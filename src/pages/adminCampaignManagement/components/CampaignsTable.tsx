@@ -25,6 +25,7 @@ const HEADERS: Array<keyof AdminCampaignManagementCopy['table']['headers']> = [
   'id',
   'scheduleAt',
   'status',
+  'numAudience',
   'actions',
   'reschedule',
   'details',
@@ -50,11 +51,12 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
 }) => {
   return (
     <div className='overflow-x-auto'>
-      <table className='min-w-[1900px] table-fixed border text-sm'>
+      <table className='min-w-[2020px] table-fixed border text-sm'>
         <colgroup>
           <col className='w-[90px]' />
           <col className='w-[200px]' />
           <col className='w-[170px]' />
+          <col className='w-[120px]' />
           <col className='w-[230px]' />
           <col className='w-[130px]' />
           <col className='w-[120px]' />
