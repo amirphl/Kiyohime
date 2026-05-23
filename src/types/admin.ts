@@ -117,6 +117,7 @@ export interface AdminGetCampaignResponse {
   job?: string | null;
   scheduleat?: string | null;
   line_number?: string | null;
+  num_audience?: number | null;
   budget?: number | null;
   comment?: string | null;
   segment_price_factor?: number;
