@@ -48,6 +48,11 @@ const CampaignRow: React.FC<CampaignRowProps> = ({
       <td className={`border px-2 py-2 align-top ${columnAlignClass}`}>
         <CampaignStatusBadge label={resolveStatusLabel(campaign.status)} />
       </td>
+      <td className={`border px-2 py-2 align-top ${columnAlignClass}`}>
+        {typeof campaign.num_audience === 'number'
+          ? campaign.num_audience.toLocaleString()
+          : ''}
+      </td>
       <td
         className={`border px-2 py-2 align-top whitespace-nowrap ${columnAlignClass}`}
       >
