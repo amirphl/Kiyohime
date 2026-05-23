@@ -34,6 +34,10 @@ import CategoryJobFields from '../../CategoryJobFields';
 import Button from '../../ui/Button';
 import { useToast } from '../../../hooks/useToast';
 import { useMediaUpload } from '../../../hooks/useMediaUpload';
+import {
+  getShortLinkDomainOrDefault,
+  normalizeLinkPlaceholder,
+} from '../../../utils/campaignUtils';
 import TargetAudienceExcelFileUploadCard, {
   isTargetAudienceExcelFile,
 } from './TargetAudienceExcelFileUploadCard';
@@ -226,9 +230,11 @@ const LevelStep: React.FC = () => {
       const content = {
         insertLink: !!campaign.adlink,
         link: campaign.adlink || '',
-        text: campaign.content || '',
+        text: normalizeLinkPlaceholder(campaign.content || ''),
         scheduleAt: campaign.scheduleat || undefined,
-        shortLinkDomain: campaign.short_link_domain ?? null,
+        shortLinkDomain: campaign.adlink
+          ? getShortLinkDomainOrDefault(campaign.short_link_domain)
+          : null,
         lineNumber: campaign.line_number || '',
         platformSettingsId:
           platformValue === 'sms'
