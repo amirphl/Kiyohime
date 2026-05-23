@@ -228,6 +228,10 @@ export interface SendCampaignTestMessageResponse {
   [key: string]: unknown;
 }
 
+export interface SendCampaignTestMessageRequest {
+  target_phone_number: string;
+}
+
 export interface CampaignStep {
   id: number;
   title: string;
@@ -283,7 +287,7 @@ export interface GetCampaignResponse {
   city?: string[];
   adlink?: string;
   content?: string;
-  short_link_domain?: string;
+  short_link_domain?: string | null;
   job_category?: string;
   job?: string;
   scheduleat?: string;
