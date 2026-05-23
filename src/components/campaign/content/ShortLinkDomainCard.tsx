@@ -1,8 +1,11 @@
 import React from 'react';
 import Card from '../../ui/Card';
 import FormField from '../../ui/FormField';
+import { DEFAULT_SHORT_LINK_DOMAIN } from '../../../utils/campaignUtils';
 
-const AVAILABLE_DOMAINS = [{ value: 'jo1n.ir', label: 'jo1n.ir' }];
+const AVAILABLE_DOMAINS = [
+  { value: DEFAULT_SHORT_LINK_DOMAIN, label: DEFAULT_SHORT_LINK_DOMAIN },
+];
 
 interface ShortLinkDomainCardProps {
   value: string | null;
@@ -25,7 +28,7 @@ const ShortLinkDomainCard: React.FC<ShortLinkDomainCardProps> = ({
   enabledLabel,
   disabledLabel,
 }) => {
-  const isEnabled = value !== null;
+  const isEnabled = Boolean(value?.trim());
 
   const handleToggleOn = () => {
     if (!isEnabled) {
