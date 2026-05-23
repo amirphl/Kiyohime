@@ -7,8 +7,7 @@ const ContactUsPage: React.FC = () => {
   useTranslation();
   const { isRTL } = useLanguage();
   const { language } = useLanguage();
-  const t =
-    contactI18n[language as keyof typeof contactI18n] || contactI18n.en;
+  const t = contactI18n[language as keyof typeof contactI18n] || contactI18n.en;
 
   return (
     <div
@@ -20,6 +19,8 @@ const ContactUsPage: React.FC = () => {
           <p>{t.companyName}</p>
           <p>{t.address}</p>
           <p>{t.postalCode}</p>
+          <p>{t.nationalId}</p>
+          <p>{t.registrationNumber}</p>
           <p>
             <a
               href='mailto:info@jazebeh.ir'
