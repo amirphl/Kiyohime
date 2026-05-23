@@ -5,6 +5,11 @@ import { apiService } from '../../../services/api';
 import { useAuth } from '../../../hooks/useAuth';
 import { useToast } from '../../../hooks/useToast';
 import { downloadBlob } from '../../wallet/utils/download';
+import {
+  LINK_PLACEHOLDER,
+  getShortLinkDomainOrDefault,
+  normalizeLinkPlaceholder,
+} from '../../../utils/campaignUtils';
 
 interface ReportDetailsModalProps {
   campaign: GetCampaignResponse;
@@ -103,11 +108,14 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
   const hasAdlink =
     typeof campaign.adlink === 'string' && campaign.adlink.trim() !== '';
 
-  const shortLinkDisplay = campaign.short_link_domain
-    ? `${campaign.short_link_domain}/xxxxxx`
+  const shortLinkDomain = hasAdlink
+    ? getShortLinkDomainOrDefault(campaign.short_link_domain)
     : '';
+  const shortLinkDisplay = shortLinkDomain ? `${shortLinkDomain}/xxxxxx` : '';
   const displayContent = campaign.content
-    ? campaign.content.replace(/🔗/g, shortLinkDisplay)
+    ? normalizeLinkPlaceholder(campaign.content)
+        .split(LINK_PLACEHOLDER)
+        .join(shortLinkDisplay)
     : '';
 
   const hasTrackingResults = useMemo(() => {
@@ -354,12 +362,10 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
           </Section>
 
           {/* Link Shortener */}
-          {hasAdlink && campaign.short_link_domain && (
+          {hasAdlink && (
             <Section title={copy.modal.linkShortener}>
               <div className='rounded-xl border border-slate-100 bg-slate-50 px-4 py-3'>
-                <span className='text-sm text-slate-800'>
-                  {campaign.short_link_domain}
-                </span>
+                <span className='text-sm text-slate-800'>{shortLinkDomain}</span>
               </div>
             </Section>
           )}
