@@ -101,6 +101,7 @@ const LinkInsertionCard: React.FC<LinkInsertionCardProps> = ({
                 id='link'
                 ref={inputRef}
                 type='text'
+                dir='ltr'
                 placeholder={linkPlaceholder}
                 value={link || ''}
                 onChange={e => {
@@ -111,7 +112,7 @@ const LinkInsertionCard: React.FC<LinkInsertionCardProps> = ({
                 onKeyUp={saveCursor}
                 onMouseUp={saveCursor}
                 onBlur={saveCursor}
-                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                className={`w-full px-3 py-2 border rounded-md shadow-sm text-left focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                   linkError ? 'border-red-300' : 'border-gray-300'
                 }`}
               />
