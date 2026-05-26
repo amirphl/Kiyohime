@@ -30,6 +30,8 @@ interface PlatformSettingsFormProps {
       nameRequired: string;
       descriptionRequired: string;
       multimediaRequired: string;
+      websiteRequired: string;
+      businessLicenseRequired: string;
       invalidFileType: string;
       fileTooLarge: string;
     };
@@ -173,6 +175,14 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
       onError(labels.validation.multimediaRequired);
       return;
     }
+    if (!website.trim()) {
+      onError(labels.validation.websiteRequired);
+      return;
+    }
+    if (!businessLicenseUuid) {
+      onError(labels.validation.businessLicenseRequired);
+      return;
+    }
     onSubmit();
   };
 
@@ -222,6 +232,7 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
           type='url'
           value={website}
           onChange={e => onWebsiteChange(e.target.value)}
+          required
           className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500'
         />
       </div>

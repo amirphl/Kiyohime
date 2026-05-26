@@ -328,14 +328,14 @@ const CampaignDetailsModal: React.FC<CampaignDetailsModalProps> = ({
             <DetailField
               label={copy.modal.platformSettingsId}
               value={
-                typeof campaign.platformSettingsId === 'number'
-                  ? String(campaign.platformSettingsId)
+                typeof campaign.platform_settings_id === 'number'
+                  ? String(campaign.platform_settings_id)
                   : '-'
               }
             />
             <DetailField
               label={copy.modal.mediaUuid}
-              value={campaign.mediaUuid || '-'}
+              value={campaign.media_uuid || '-'}
               mono
             />
 

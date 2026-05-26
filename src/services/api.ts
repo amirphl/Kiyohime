@@ -70,6 +70,26 @@ export interface ErrorDetail {
   details?: any;
 }
 
+interface SignupRequestPayload {
+  account_type: string;
+  company_name?: string;
+  national_id?: string;
+  company_phone?: string;
+  company_address?: string;
+  postal_code?: string;
+  sheba_number?: string;
+  representative_first_name?: string;
+  representative_last_name?: string;
+  representative_mobile: string;
+  email: string;
+  password: string;
+  confirm_password?: string;
+  referrer_agency_code?: string;
+  job_category?: string;
+  job?: string;
+  category?: string;
+}
+
 export interface PlatformBasePriceItem {
   platform: string;
   price: number;
@@ -396,7 +416,7 @@ class ApiService {
     return authVerifyLoginOtp(customerId, otpCode);
   }
 
-  async signup(signupData: any): Promise<ApiResponse> {
+  async signup(signupData: SignupRequestPayload): Promise<ApiResponse> {
     // Input validation
     if (!signupData || typeof signupData !== 'object') {
       return {
@@ -410,7 +430,7 @@ class ApiService {
     }
 
     // Validate required fields
-    const requiredFields = ['email', 'password', 'representative_mobile'];
+    const requiredFields: Array<keyof SignupRequestPayload> = ['email', 'password', 'representative_mobile'];
     for (const field of requiredFields) {
       if (!signupData[field] || typeof signupData[field] !== 'string') {
         return {
@@ -496,6 +516,20 @@ class ApiService {
       };
     }
 
+    if (
+      signupData.confirm_password &&
+      signupData.confirm_password !== signupData.password
+    ) {
+      return {
+        success: false,
+        message: 'Passwords do not match',
+        error: {
+          code: 'Passwords do not match',
+          details: null,
+        },
+      };
+    }
+
     // Format phone numbers to include +98 prefix
     const formattedData = {
       ...signupData,
@@ -525,6 +559,28 @@ class ApiService {
     otpCode: string,
     otpType: string = 'mobile'
   ): Promise<ApiResponse> {
+    if (!Number.isInteger(customerId) || customerId <= 0) {
+      return {
+        success: false,
+        message: 'Invalid customer id',
+        error: {
+          code: 'Invalid customer id',
+          details: null,
+        },
+      };
+    }
+
+    if (!/^\d{6}$/.test(otpCode)) {
+      return {
+        success: false,
+        message: 'Invalid OTP code',
+        error: {
+          code: 'Invalid OTP code',
+          details: null,
+        },
+      };
+    }
+
     return this.request('/auth/verify', {
       method: 'POST',
       body: JSON.stringify({
@@ -539,6 +595,17 @@ class ApiService {
     customerId: number,
     otpType: string = 'mobile'
   ): Promise<ApiResponse> {
+    if (!Number.isInteger(customerId) || customerId <= 0) {
+      return {
+        success: false,
+        message: 'Invalid customer id',
+        error: {
+          code: 'Invalid customer id',
+          details: null,
+        },
+      };
+    }
+
     return this.request('/auth/resend-otp', {
       method: 'POST',
       body: JSON.stringify({

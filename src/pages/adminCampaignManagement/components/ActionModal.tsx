@@ -116,13 +116,13 @@ const ActionModal: React.FC<ActionModalProps> = ({
               <span className='font-medium'>
                 {copy.modal.platformSettingsId}:
               </span>{' '}
-              {typeof actionCampaign.platformSettingsId === 'number'
-                ? actionCampaign.platformSettingsId
+              {typeof actionCampaign.platform_settings_id === 'number'
+                ? actionCampaign.platform_settings_id
                 : '-'}
             </div>
             <div>
               <span className='font-medium'>{copy.modal.mediaUuid}:</span>{' '}
-              {actionCampaign.mediaUuid || '-'}
+              {actionCampaign.media_uuid || '-'}
             </div>
             <div>
               <span className='font-medium'>{copy.table.headers.segment}:</span>{' '}

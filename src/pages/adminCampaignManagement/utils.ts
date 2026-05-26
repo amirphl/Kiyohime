@@ -86,6 +86,56 @@ export const formatCampaignDateTime = (
   return parsed.toLocaleString();
 };
 
+export const formatCount = (value?: number | null): string =>
+  typeof value === 'number' && Number.isFinite(value)
+    ? value.toLocaleString()
+    : '';
+
+export const formatCostPerMessage = (
+  budget?: number | null,
+  numAudience?: number | null
+): string => {
+  if (
+    typeof budget !== 'number' ||
+    !Number.isFinite(budget) ||
+    typeof numAudience !== 'number' ||
+    !Number.isFinite(numAudience) ||
+    numAudience <= 0
+  ) {
+    return '';
+  }
+
+  return (budget / numAudience).toLocaleString(undefined, {
+    maximumFractionDigits: 2,
+  });
+};
+
+export const joinTextList = (value?: string[] | null): string =>
+  Array.isArray(value) && value.length > 0 ? value.join(', ') : '';
+
+export const truncateText = (
+  value: string | null | undefined,
+  maxLength = 48
+): string => {
+  if (!value) return '';
+
+  const normalized = value.replace(/\s+/g, ' ').trim();
+  if (normalized.length <= maxLength) return normalized;
+
+  return `${normalized.slice(0, maxLength - 1)}…`;
+};
+
+export const getLineNumberOrPlatformSettings = (
+  lineNumber?: string | null,
+  platformSettingsName?: string | null,
+  platformSettingsId?: number | null
+): string => {
+  if (lineNumber?.trim()) return lineNumber.trim();
+  if (platformSettingsName?.trim()) return platformSettingsName.trim();
+  if (typeof platformSettingsId === 'number') return String(platformSettingsId);
+  return '';
+};
+
 export const parseDateTimeLocalToIso = (
   value: string,
   errorMessage: string

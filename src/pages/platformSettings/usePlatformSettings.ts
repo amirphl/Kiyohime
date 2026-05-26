@@ -49,6 +49,8 @@ type UsePlatformSettingsCopy = {
     nameRequired: string;
     descriptionRequired: string;
     multimediaRequired: string;
+    websiteRequired: string;
+    businessLicenseRequired: string;
     nameTooLong: string;
     notAuthenticated: string;
     networkError: string;
@@ -204,6 +206,14 @@ export const usePlatformSettings = (
     }
     if (!state.form.multimediaUuid) {
       showErrorRef.current(copy.validation.multimediaRequired);
+      return;
+    }
+    if (!state.form.website.trim()) {
+      showErrorRef.current(copy.validation.websiteRequired);
+      return;
+    }
+    if (!state.form.businessLicenseUuid) {
+      showErrorRef.current(copy.validation.businessLicenseRequired);
       return;
     }
     if (state.form.name && state.form.name.length > 255) {

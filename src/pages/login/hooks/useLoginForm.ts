@@ -6,6 +6,12 @@ import { useToast } from '../../../hooks/useToast';
 import { getApiErrorMessage } from '../../../utils/errorHandler';
 import { login, requestLoginOtp, verifyLoginOtp } from '../../../services/auth/api';
 import { OTP_CODE_LENGTH, OTP_RESEND_SECONDS } from '../../../services/auth/constants';
+import {
+  isValidOtpIdentifier,
+  normalizeIdentifierInput,
+  parsePositiveInteger,
+  sanitizeOtpIdentifierInput,
+} from '../../../services/auth/utils';
 import { LoginFormValues, LoginMethod } from '../types';
 import { loginTranslations } from '../translations';
 
@@ -13,8 +19,6 @@ interface UseLoginFormOptions {
   language: keyof typeof loginTranslations;
   strings: typeof loginTranslations.en;
 }
-
-const PHONE_REGEX = /^[\d+]+$/;
 
 export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
   const { login: handleLogin } = useAuth();
@@ -52,6 +56,10 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
   useEffect(() => {
     setErrorMessage('');
     form.clearErrors();
+    form.setValue('identifier', normalizeIdentifierInput(form.getValues('identifier')), {
+      shouldDirty: false,
+      shouldValidate: false,
+    });
     if (loginMethod === 'otp') {
       form.setValue('password', '');
     } else {
@@ -122,58 +130,68 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
   const handleSubmit = form.handleSubmit(async values => {
     setErrorMessage('');
 
-    if (loginMethod === 'password') {
-      const response = await loginMutation.mutateAsync(values);
-      if (response.success && response.data) {
-        const responseData = response.data.data || response.data;
-        const applied = applyLoginSuccess(responseData);
-        if (!applied) {
-          setErrorMessage(strings.error.invalidCredentials);
+    try {
+      if (loginMethod === 'password') {
+        const response = await loginMutation.mutateAsync({
+          ...values,
+          identifier: normalizeIdentifierInput(values.identifier),
+        });
+        if (response.success && response.data) {
+          const responseData = response.data.data || response.data;
+          const applied = applyLoginSuccess(responseData);
+          if (!applied) {
+            setErrorMessage(strings.error.invalidCredentials);
+          }
+        } else {
+          const errorText = getApiErrorMessage(
+            response,
+            language,
+            strings.error.invalidCredentials
+          );
+          setErrorMessage(errorText);
         }
+        return;
+      }
+
+      const identifierValue = normalizeIdentifierInput(values.identifier || '');
+      if (!identifierValue) {
+        setErrorMessage(strings.validation.allFieldsRequired);
+        showError(strings.validation.allFieldsRequired);
+        return;
+      }
+
+      const response = await requestOtpMutation.mutateAsync(identifierValue);
+      if (response.success) {
+        const responseData = response.data?.data || response.data;
+        const customerId = parsePositiveInteger(
+          responseData?.customer_id ?? responseData?.customerId
+        );
+        if (!customerId) {
+          const errorText = getApiErrorMessage(
+            { success: false, error: { code: 'INVALID_CUSTOMER_ID' } },
+            language,
+            strings.error.otpSendFailed
+          );
+          setErrorMessage(errorText);
+          showError(errorText);
+          return;
+        }
+        setOtpCustomerId(customerId);
+        setShowOtpModal(true);
+        startResendCountdown();
+        showSuccess(response.message || strings.otpSent);
       } else {
         const errorText = getApiErrorMessage(
           response,
-          language,
-          strings.error.invalidCredentials
-        );
-        setErrorMessage(errorText);
-      }
-      return;
-    }
-
-    const identifierValue = values.identifier?.trim();
-    if (!identifierValue) {
-      setErrorMessage(strings.validation.allFieldsRequired);
-      showError(strings.validation.allFieldsRequired);
-      return;
-    }
-
-    const response = await requestOtpMutation.mutateAsync(identifierValue);
-    if (response.success) {
-      const responseData = response.data?.data || response.data;
-      const customerId = responseData?.customer_id ?? responseData?.customerId;
-      if (!customerId || typeof customerId !== 'number') {
-        const errorText = getApiErrorMessage(
-          { success: false, error: { code: 'INVALID_CUSTOMER_ID' } },
           language,
           strings.error.otpSendFailed
         );
         setErrorMessage(errorText);
         showError(errorText);
-        return;
       }
-      setOtpCustomerId(customerId);
-      setShowOtpModal(true);
-      startResendCountdown();
-      showSuccess(response.message || strings.otpSent);
-    } else {
-      const errorText = getApiErrorMessage(
-        response,
-        language,
-        strings.error.otpSendFailed
-      );
-      setErrorMessage(errorText);
-      showError(errorText);
+    } catch {
+      setErrorMessage(strings.error.networkError);
+      showError(strings.error.networkError);
     }
   });
 
@@ -190,28 +208,33 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
       return;
     }
 
-    const response = await verifyOtpMutation.mutateAsync({
-      customerId: otpCustomerId,
-      otpCode,
-    });
+    try {
+      const response = await verifyOtpMutation.mutateAsync({
+        customerId: otpCustomerId,
+        otpCode,
+      });
 
-    if (response.success && response.data) {
-      const responseData = response.data.data || response.data;
-      const applied = applyLoginSuccess(responseData);
-      if (!applied) {
-        setErrorMessage(strings.error.otpVerifyFailed);
-        showError(strings.error.otpVerifyFailed);
+      if (response.success && response.data) {
+        const responseData = response.data.data || response.data;
+        const applied = applyLoginSuccess(responseData);
+        if (!applied) {
+          setErrorMessage(strings.error.otpVerifyFailed);
+          showError(strings.error.otpVerifyFailed);
+        } else {
+          setShowOtpModal(false);
+        }
       } else {
-        setShowOtpModal(false);
+        const errorText = getApiErrorMessage(
+          response,
+          language,
+          strings.error.invalidOtp
+        );
+        setErrorMessage(errorText);
+        showError(errorText);
       }
-    } else {
-      const errorText = getApiErrorMessage(
-        response,
-        language,
-        strings.error.invalidOtp
-      );
-      setErrorMessage(errorText);
-      showError(errorText);
+    } catch {
+      setErrorMessage(strings.error.networkError);
+      showError(strings.error.networkError);
     }
   }, [
     otpCode,
@@ -227,23 +250,30 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
     if (!canResendOtp || requestOtpMutation.isPending) return;
 
     const identifierValue = form.getValues('identifier').trim();
-    const response = await requestOtpMutation.mutateAsync(identifierValue);
-    if (response.success) {
-      const responseData = response.data?.data || response.data;
-      const customerId = responseData?.customer_id ?? responseData?.customerId;
-      if (customerId && typeof customerId === 'number') {
-        setOtpCustomerId(customerId);
+    try {
+      const response = await requestOtpMutation.mutateAsync(identifierValue);
+      if (response.success) {
+        const responseData = response.data?.data || response.data;
+        const customerId = parsePositiveInteger(
+          responseData?.customer_id ?? responseData?.customerId
+        );
+        if (customerId) {
+          setOtpCustomerId(customerId);
+        }
+        startResendCountdown();
+        showSuccess(response.message || strings.otpSent);
+      } else {
+        const errorText = getApiErrorMessage(
+          response,
+          language,
+          strings.error.otpSendFailed
+        );
+        setErrorMessage(errorText);
+        showError(errorText);
       }
-      startResendCountdown();
-      showSuccess(response.message || strings.otpSent);
-    } else {
-      const errorText = getApiErrorMessage(
-        response,
-        language,
-        strings.error.otpSendFailed
-      );
-      setErrorMessage(errorText);
-      showError(errorText);
+    } catch {
+      setErrorMessage(strings.error.networkError);
+      showError(strings.error.networkError);
     }
   }, [
     canResendOtp,
@@ -261,7 +291,7 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
       return {
         required: strings.validation.allFieldsRequired,
         validate: (value: string) =>
-          PHONE_REGEX.test(value.trim()) || strings.validation.invalidMobile,
+          isValidOtpIdentifier(value) || strings.validation.invalidMobile,
       };
     }
     return {
@@ -272,7 +302,7 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
   const setIdentifierValue = useCallback(
     (value: string) => {
       const nextValue = loginMethod === 'otp'
-        ? value.replace(/[^\d+]/g, '')
+        ? sanitizeOtpIdentifierInput(value)
         : value;
       form.setValue('identifier', nextValue, { shouldDirty: true, shouldValidate: true });
     },

@@ -4,15 +4,11 @@ export type CampaignActionType = 'approve' | 'reject' | 'cancel';
 
 export const CAMPAIGN_STATUSES: AdminListCampaignsFilter['status'][] = [
   'initiated',
-  'in-progress',
-  'waiting-for-approval',
+  'in_progress',
+  'waiting_for_approval',
   'approved',
   'rejected',
-  'running',
-  'cancelled',
-  'cancelled-by-admin',
   'expired',
-  'executed',
 ];
 
 export const WAITING_FOR_APPROVAL_STATUSES = new Set<string>([

@@ -39,11 +39,19 @@ const AdminCampaignsPage: React.FC = () => {
   const { showError, showSuccess } = useToast();
   const { navigate } = useNavigation();
 
-  const { items, loading, error, setItems, setError, loadCampaigns } =
-    useCampaignList({
-      copy,
-      showError,
-    });
+  const {
+    items,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    replaceCampaigns,
+    loadNextPage,
+    updateCampaign,
+  } = useCampaignList({
+    copy,
+    showError,
+  });
 
   const {
     title,
@@ -59,37 +67,72 @@ const AdminCampaignsPage: React.FC = () => {
   } = useCampaignFilters({
     copy,
     onInvalid: message => {
-      setError(message);
       showError(message);
     },
   });
 
   const didInitRef = useRef(false);
+  const observerRef = useRef<IntersectionObserver | null>(null);
   const [detailsCampaign, setDetailsCampaign] =
     useState<AdminGetCampaignResponse | null>(null);
 
-  const runLoadCampaigns = useCallback(
+  const runReplaceCampaigns = useCallback(
     async (filters: AdminListCampaignsFilter) => {
-      await loadCampaigns(filters);
+      await replaceCampaigns(filters);
     },
-    [loadCampaigns]
+    [replaceCampaigns]
   );
 
   const handleActionSuccess = useCallback(
     (campaignUuid: string, actionType: CampaignActionType) => {
       const nextStatus = getActionResultStatus(actionType);
-      setItems(current =>
-        current.map(item =>
-          item.uuid === campaignUuid
-            ? {
-                ...item,
-                status: nextStatus,
-              }
-            : item
-        )
-      );
+      updateCampaign(campaignUuid, item => ({
+        ...item,
+        status: nextStatus,
+      }));
     },
-    [setItems]
+    [updateCampaign]
+  );
+
+  const loadMoreRef = useCallback(
+    (node: HTMLTableRowElement | null) => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+
+      if (!node) return;
+
+      observerRef.current = new IntersectionObserver(
+        entries => {
+          const [entry] = entries;
+          if (!entry?.isIntersecting) return;
+          if (loading || loadingMore || !hasMore) return;
+          void loadNextPage();
+        },
+        {
+          rootMargin: '300px 0px',
+        }
+      );
+
+      observerRef.current.observe(node);
+    },
+    [hasMore, loadNextPage, loading, loadingMore]
+  );
+
+  useEffect(() => {
+    return () => {
+      observerRef.current?.disconnect();
+    };
+  }, []);
+
+  const handleRescheduleSuccess = useCallback(
+    (campaignUuid: string, scheduleAtUtc: string) => {
+      updateCampaign(campaignUuid, item => ({
+        ...item,
+        scheduleat: scheduleAtUtc,
+      }));
+    },
+    [updateCampaign]
   );
 
   const {
@@ -130,18 +173,7 @@ const AdminCampaignsPage: React.FC = () => {
     copy,
     showError,
     showSuccess,
-    onRescheduled: (campaignUuid, scheduleAtUtc) => {
-      setItems(current =>
-        current.map(item =>
-          item.uuid === campaignUuid
-            ? {
-                ...item,
-                scheduleat: scheduleAtUtc,
-              }
-            : item
-        )
-      );
-    },
+    onRescheduled: handleRescheduleSuccess,
   });
 
   const resolveStatusLabel = useCallback(
@@ -159,14 +191,14 @@ const AdminCampaignsPage: React.FC = () => {
     const params = getAppliedParams();
     if (!params) return;
 
-    await runLoadCampaigns(params);
-  }, [getAppliedParams, runLoadCampaigns]);
+    await runReplaceCampaigns(params);
+  }, [getAppliedParams, runReplaceCampaigns]);
 
   useEffect(() => {
     if (didInitRef.current) return;
     didInitRef.current = true;
-    runLoadCampaigns({});
-  }, [runLoadCampaigns]);
+    void runReplaceCampaigns({});
+  }, [runReplaceCampaigns]);
 
   return (
     <div className='mx-auto max-w-[1400px] p-4'>
@@ -198,12 +230,15 @@ const AdminCampaignsPage: React.FC = () => {
       <CampaignsTable
         items={items}
         loading={loading}
+        loadingMore={loadingMore}
         error={error}
+        hasMore={hasMore}
         copy={copy}
         formatDateTime={formatDateTime}
         resolveStatusLabel={resolveStatusLabel}
         isActionSubmitting={actionSubmitting}
         columnAlignClass={columnAlignClass}
+        loadMoreRef={loadMoreRef}
         onSelectAction={openActionModal}
         onOpenDetails={setDetailsCampaign}
         onOpenReschedule={openRescheduleModal}

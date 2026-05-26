@@ -15,6 +15,53 @@ export interface WalletTableTranslations {
   createdAt: string;
 }
 
+export interface WalletProformaTranslations {
+  documentTitle: string;
+  brandName: string;
+  brandSubtitle: string;
+  logoAlt: string;
+  actionsLabel: string;
+  downloadPdf: string;
+  heroCopy: string;
+  proformaNumber: string;
+  issueDate: string;
+  sellerInfo: string;
+  sellerCompanyName: string;
+  sellerNationalId: string;
+  sellerRegistrationNumber: string;
+  sellerAddress: string;
+  sellerPostalCode: string;
+  sellerPhone: string;
+  buyerInfo: string;
+  buyerCompanyName: string;
+  buyerNationalId: string;
+  buyerRegistrationNumber: string;
+  buyerEconomicCode: string;
+  buyerRepresentativeName: string;
+  buyerPhone: string;
+  buyerAddress: string;
+  buyerPostalCode: string;
+  buyerFullName: string;
+  buyerNationalCode: string;
+  buyerMobile: string;
+  buyerEmail: string;
+  serviceAndAmounts: string;
+  serviceHeader: string;
+  row: string;
+  serviceDescription: string;
+  quantity: string;
+  netAmount: string;
+  taxAmount: string;
+  totalAmount: string;
+  summaryTitle: string;
+  payableAmount: string;
+  paymentInfo: string;
+  iban: string;
+  bank: string;
+  branch: string;
+  defaultServiceDescription: string;
+}
+
 export interface WalletTranslations {
   title: string;
   comingSoon: string;
@@ -95,6 +142,7 @@ export interface WalletTranslations {
     issueRequestFailed: string;
     downloadFailed: string;
   };
+  proforma: WalletProformaTranslations;
 }
 
 export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
@@ -223,6 +271,53 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       issueRequestFailed: 'Failed to submit invoice issue request.',
       downloadFailed: 'Failed to download invoice file.',
     },
+    proforma: {
+      documentTitle: 'Customer Proforma Invoice',
+      brandName: 'Jazebeh',
+      brandSubtitle: 'Service Proforma Invoice',
+      logoAlt: 'Jazebeh logo',
+      actionsLabel: 'Proforma actions',
+      downloadPdf: 'Download PDF',
+      heroCopy:
+        'Financial summary and buyer details for service delivery.',
+      proformaNumber: 'Proforma Number',
+      issueDate: 'Date',
+      sellerInfo: 'Seller Information',
+      sellerCompanyName: 'Company Name',
+      sellerNationalId: 'National ID',
+      sellerRegistrationNumber: 'Registration No.',
+      sellerAddress: 'Address',
+      sellerPostalCode: 'Postal Code',
+      sellerPhone: 'Phone',
+      buyerInfo: 'Buyer Information',
+      buyerCompanyName: 'Company / Organization',
+      buyerNationalId: 'National ID',
+      buyerRegistrationNumber: 'Registration No.',
+      buyerEconomicCode: 'Economic Code',
+      buyerRepresentativeName: 'Representative',
+      buyerPhone: 'Phone',
+      buyerAddress: 'Address',
+      buyerPostalCode: 'Postal Code',
+      buyerFullName: 'Full Name',
+      buyerNationalCode: 'National Code',
+      buyerMobile: 'Mobile',
+      buyerEmail: 'Email',
+      serviceAndAmounts: 'Service Details and Amounts',
+      serviceHeader: 'Goods / Services',
+      row: 'Row',
+      serviceDescription: 'Description',
+      quantity: 'Quantity',
+      netAmount: 'Net Amount',
+      taxAmount: 'VAT',
+      totalAmount: 'Total',
+      summaryTitle: 'Financial Summary',
+      payableAmount: 'Payable Amount',
+      paymentInfo: 'Payment Information',
+      iban: 'IBAN',
+      bank: 'Bank',
+      branch: 'Branch',
+      defaultServiceDescription: 'Performance Marketing',
+    },
   },
   fa: {
     title: 'مدیریت مالی',
@@ -347,6 +442,52 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       alreadyAssigned: 'فاکتور برای این تراکنش قبلاً ثبت شده است.',
       issueRequestFailed: 'ثبت درخواست صدور فاکتور ناموفق بود.',
       downloadFailed: 'دانلود فایل فاکتور ناموفق بود.',
+    },
+    proforma: {
+      documentTitle: 'پیش‌فاکتور مشتری',
+      brandName: 'جاذبه',
+      brandSubtitle: 'پیش‌فاکتور خدمات',
+      logoAlt: 'لوگوی جاذبه',
+      actionsLabel: 'عملیات پیش‌فاکتور',
+      downloadPdf: 'دانلود PDF',
+      heroCopy: 'خلاصه اطلاعات مالی و مشخصات خریدار برای ارائه خدمت',
+      proformaNumber: 'شماره پیش‌فاکتور',
+      issueDate: 'تاریخ',
+      sellerInfo: 'اطلاعات فروشنده',
+      sellerCompanyName: 'نام شرکت',
+      sellerNationalId: 'شناسه ملی',
+      sellerRegistrationNumber: 'شماره ثبت',
+      sellerAddress: 'نشانی',
+      sellerPostalCode: 'کد پستی',
+      sellerPhone: 'تلفن ثابت',
+      buyerInfo: 'اطلاعات خریدار',
+      buyerCompanyName: 'نام شرکت / سازمان',
+      buyerNationalId: 'شناسه ملی',
+      buyerRegistrationNumber: 'شماره ثبت',
+      buyerEconomicCode: 'کد اقتصادی',
+      buyerRepresentativeName: 'نماینده',
+      buyerPhone: 'شماره تماس',
+      buyerAddress: 'نشانی',
+      buyerPostalCode: 'کد پستی',
+      buyerFullName: 'نام و نام خانوادگی',
+      buyerNationalCode: 'کد ملی',
+      buyerMobile: 'شماره موبایل',
+      buyerEmail: 'ایمیل',
+      serviceAndAmounts: 'شرح خدمات و مبالغ',
+      serviceHeader: 'شرح کالا یا خدمات',
+      row: 'ردیف',
+      serviceDescription: 'شرح کالا یا خدمات',
+      quantity: 'تعداد',
+      netAmount: 'مبلغ خالص',
+      taxAmount: 'مالیات بر ارزش افزوده',
+      totalAmount: 'جمع کل',
+      summaryTitle: 'جمع‌بندی مالی',
+      payableAmount: 'مبلغ قابل پرداخت',
+      paymentInfo: 'اطلاعات پرداخت',
+      iban: 'شماره شبا',
+      bank: 'بانک',
+      branch: 'شعبه',
+      defaultServiceDescription: 'بازاریابی عملکردی',
     },
   },
 };

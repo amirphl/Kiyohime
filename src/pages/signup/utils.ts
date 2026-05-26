@@ -31,3 +31,29 @@ export const toEnglishDigits = (input: string): string => {
 };
 
 export const sanitizeSheba = (value: string) => toEnglishDigits(value).replace(/\D/g, '').slice(0, 24);
+
+export const normalizeTextInput = (value: string): string => value.trim();
+
+export const sanitizeNumericInput = (value: string, maxLength?: number): string => {
+  const digits = toEnglishDigits(value).replace(/\D/g, '');
+  return typeof maxLength === 'number' ? digits.slice(0, maxLength) : digits;
+};
+
+export const sanitizePhoneInput = (value: string, maxLength = 11): string =>
+  sanitizeNumericInput(value, maxLength);
+
+export const sanitizeEmailInput = (value: string): string =>
+  toEnglishDigits(value).trim().toLowerCase();
+
+export const parseCustomerId = (value: unknown): number | null => {
+  if (typeof value === 'number' && Number.isInteger(value) && value > 0) {
+    return value;
+  }
+
+  if (typeof value === 'string' && /^\d+$/.test(value)) {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+  }
+
+  return null;
+};

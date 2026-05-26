@@ -160,6 +160,9 @@ const PlatformSettingsPage: React.FC = () => {
                 nameRequired: t.settings.validation.nameRequired,
                 descriptionRequired: t.settings.validation.descriptionRequired,
                 multimediaRequired: t.settings.validation.multimediaRequired,
+                websiteRequired: t.settings.validation.websiteRequired,
+                businessLicenseRequired:
+                  t.settings.validation.businessLicenseRequired,
                 invalidFileType: t.settings.validation.invalidFileType,
                 fileTooLarge: t.settings.validation.fileTooLarge,
               },

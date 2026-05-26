@@ -87,13 +87,16 @@ const PersonalInfoFields: React.FC<Props> = ({
         {strings.mobileNumber} {requiredLabel}
       </label>
       <input
-        type='tel'
+        type='text'
         name='representativeMobile'
         value={formData.representativeMobile}
         onChange={e => onChange('representativeMobile', e.target.value)}
         className='input-field'
         placeholder={strings.mobilePlaceholder}
         maxLength={11}
+        autoComplete='tel'
+        inputMode='tel'
+        dir='ltr'
       />
       {errors.representativeMobile && (
         <p className='mt-1 text-sm text-red-600'>{errors.representativeMobile}</p>

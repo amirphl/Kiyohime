@@ -29,9 +29,27 @@ export interface AdminCaptchaVerifyRequest {
   user_angle: number;
 }
 
-export interface AdminLoginResponse {
+export interface AdminLoginInitResponse {
+  message: string;
+  challenge_id: string;
+  masked_phone: string;
+  otp_sent: boolean;
+  already_sent: boolean;
+  otp_expires_at: string;
+  requires_two_factor: boolean;
+}
+
+export interface AdminLoginVerifyOTPRequest {
+  challenge_id: string;
+  otp_code: string;
+}
+
+export interface AdminLoginVerifyOTPResponse {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+  token_type: string;
   admin: AdminDTO;
-  session: AdminSessionDTO;
 }
 
 // Line Numbers
@@ -81,26 +99,21 @@ export interface AdminListCampaignsFilter {
   title?: string;
   status?:
     | 'initiated'
-    | 'in-progress'
-    | 'waiting-for-approval'
+    | 'in_progress'
+    | 'waiting_for_approval'
     | 'approved'
     | 'rejected'
-    | 'running'
-    | 'executed'
-    | 'expired'
-    | 'cancelled'
-    | 'cancelled-by-admin';
+    | 'expired';
   start_date?: string; // RFC3339 string
   end_date?: string; // RFC3339 string
+  page?: number;
+  limit?: number;
 }
 
 export interface AdminGetCampaignResponse {
   id: number;
   uuid: string;
   status: string;
-  platform?: string | null;
-  mediaUuid?: string | null;
-  platformSettingsId?: number | null;
   created_at: string;
   updated_at?: string | null;
   title?: string | null;
@@ -117,7 +130,9 @@ export interface AdminGetCampaignResponse {
   job?: string | null;
   scheduleat?: string | null;
   line_number?: string | null;
-  num_audience?: number | null;
+  media_uuid?: string | null;
+  platform_settings_id?: number | null;
+  platform: string;
   budget?: number | null;
   comment?: string | null;
   segment_price_factor?: number;
@@ -125,11 +140,24 @@ export interface AdminGetCampaignResponse {
   statistics?: Record<string, any>;
   total_clicks?: number | null;
   click_rate?: number | null;
+  num_audience?: number | null;
+  customer_full_name?: string | null;
+  agency_full_name?: string | null;
+  target_audience_excel_file_uuid?: string | null;
+  platform_settings_name?: string | null;
+}
+
+export interface AdminPaginationInfo {
+  page: number;
+  limit: number;
+  total_items: number;
+  total_pages: number;
 }
 
 export interface AdminListCampaignsResponse {
   message: string;
   items: AdminGetCampaignResponse[];
+  pagination?: AdminPaginationInfo;
 }
 
 // Admin approve/reject responses

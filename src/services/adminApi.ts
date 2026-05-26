@@ -3,7 +3,9 @@ import { getApiUrl } from '../config/environment';
 import {
   AdminCaptchaInitResponse,
   AdminCaptchaVerifyRequest,
-  AdminLoginResponse,
+  AdminLoginInitResponse,
+  AdminLoginVerifyOTPRequest,
+  AdminLoginVerifyOTPResponse,
   AdminCreateLineNumberRequest,
   AdminLineNumberDTO,
   AdminUpdateLineNumbersRequest,
@@ -61,6 +63,31 @@ class AdminApiService {
     return this.accessToken || localStorage.getItem(ADMIN_ACCESS_TOKEN_KEY);
   }
 
+  private getAdminAuthHeaders(contentType: 'json' | 'none' = 'json') {
+    const headers: Record<string, string> = {
+      Accept: 'application/json',
+    };
+
+    if (contentType === 'json') {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    return headers;
+  }
+
+  private async parseJsonResponse(resp: Response): Promise<any> {
+    const contentType = resp.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return null;
+    }
+
+    try {
+      return await resp.json();
+    } catch {
+      return null;
+    }
+  }
+
   private handleUnauthorized() {
     // Clear tokens
     this.setAccessToken(null);
@@ -96,18 +123,10 @@ class AdminApiService {
     try {
       const resp = await fetch(url, {
         method: 'GET',
-        headers: { Accept: 'application/json' },
+        headers: this.getAdminAuthHeaders('none'),
         signal: AbortSignal.timeout(15000),
       });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
+      const data = await this.parseJsonResponse(resp);
       if (!resp.ok) {
         return {
           success: false,
@@ -131,19 +150,16 @@ class AdminApiService {
 
   async verifyLogin(
     payload: AdminCaptchaVerifyRequest
-  ): Promise<ApiResponse<AdminLoginResponse>> {
+  ): Promise<ApiResponse<AdminLoginInitResponse>> {
     const url = getApiUrl('/admin/auth/login');
     try {
       const resp = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+        headers: this.getAdminAuthHeaders(),
         body: JSON.stringify(payload),
         signal: AbortSignal.timeout(20000),
       });
-      const data = await resp.json();
+      const data = await this.parseJsonResponse(resp);
       if (!resp.ok) {
         return {
           success: false,
@@ -151,25 +167,71 @@ class AdminApiService {
           error: data?.error,
         };
       }
-      const d = data?.data || {};
-      const sessionFromResponse = d?.session;
-      const accessToken = sessionFromResponse?.access_token ?? d?.access_token;
-      const refreshToken =
-        sessionFromResponse?.refresh_token ?? d?.refresh_token;
-      if (accessToken) this.setAccessToken(accessToken);
-      if (refreshToken) this.setRefreshToken(refreshToken);
-      const responseData: AdminLoginResponse = sessionFromResponse
-        ? (d as AdminLoginResponse)
-        : {
-            admin: d?.admin,
-            session: {
-              access_token: accessToken || '',
-              refresh_token: refreshToken || '',
-              expires_in: d?.expires_in ?? 0,
-              token_type: d?.token_type ?? 'Bearer',
-              created_at: new Date().toISOString(),
-            },
-          };
+
+      const responseData = data?.data as AdminLoginInitResponse | undefined;
+      if (
+        !responseData?.challenge_id ||
+        !responseData?.masked_phone ||
+        typeof responseData?.requires_two_factor !== 'boolean'
+      ) {
+        return {
+          success: false,
+          message: 'Invalid login response',
+          error: { code: 'INVALID_RESPONSE', details: null },
+        };
+      }
+
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: responseData,
+      };
+    } catch (e) {
+      return {
+        success: false,
+        message: 'An error occurred',
+        error: { code: 'NETWORK_ERROR', details: null },
+      };
+    }
+  }
+
+  async verifyLoginOtp(
+    payload: AdminLoginVerifyOTPRequest
+  ): Promise<ApiResponse<AdminLoginVerifyOTPResponse>> {
+    const url = getApiUrl('/admin/auth/login/verify-otp');
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: this.getAdminAuthHeaders(),
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000),
+      });
+      const data = await this.parseJsonResponse(resp);
+      if (!resp.ok) {
+        return {
+          success: false,
+          message: data?.message || 'OTP verification failed',
+          error: data?.error,
+        };
+      }
+
+      const responseData = data?.data as AdminLoginVerifyOTPResponse | undefined;
+      if (
+        !responseData?.access_token ||
+        !responseData?.refresh_token ||
+        !responseData?.token_type ||
+        !responseData?.admin
+      ) {
+        return {
+          success: false,
+          message: 'Invalid OTP response',
+          error: { code: 'INVALID_RESPONSE', details: null },
+        };
+      }
+
+      this.setAccessToken(responseData.access_token);
+      this.setRefreshToken(responseData.refresh_token);
+
       return {
         success: true,
         message: data?.message || 'OK',
@@ -404,6 +466,8 @@ class AdminApiService {
     if (filter.status) qs.set('status', filter.status);
     if (filter.start_date) qs.set('start_date', filter.start_date);
     if (filter.end_date) qs.set('end_date', filter.end_date);
+    if (filter.page) qs.set('page', String(filter.page));
+    if (filter.limit) qs.set('limit', String(filter.limit));
     const url = getApiUrl(
       `/admin/campaigns${qs.toString() ? `?${qs.toString()}` : ''}`
     );

@@ -16,15 +16,11 @@ const statusKeyByFilterValue: Record<
   keyof AdminCampaignManagementCopy['filters']['statuses']
 > = {
   initiated: 'initiated',
-  'in-progress': 'inProgress',
-  'waiting-for-approval': 'waitingForApproval',
+  in_progress: 'inProgress',
+  waiting_for_approval: 'waitingForApproval',
   approved: 'approved',
   rejected: 'rejected',
-  running: 'running',
-  cancelled: 'cancelled',
-  'cancelled-by-admin': 'cancelledByAdmin',
   expired: 'expired',
-  executed: 'executed',
 };
 
 interface UseCampaignFiltersOptions {

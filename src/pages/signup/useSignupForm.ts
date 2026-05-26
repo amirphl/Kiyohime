@@ -5,7 +5,16 @@ import { useToast } from '../../hooks/useToast';
 import { useAuth } from '../../hooks/useAuth';
 import { SignupFormData, FormErrors, AccountType } from './types';
 import { SignupTranslations, SignupLocale } from './translations';
-import { defaultSignupForm, sanitizeSheba, toEnglishDigits } from './utils';
+import {
+  defaultSignupForm,
+  normalizeTextInput,
+  parseCustomerId,
+  sanitizeEmailInput,
+  sanitizeNumericInput,
+  sanitizePhoneInput,
+  sanitizeSheba,
+  toEnglishDigits,
+} from './utils';
 
 interface UseSignupFormParams {
   language: SignupLocale | string;
@@ -57,7 +66,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           }
           return '';
         case 'companyName':
-          if (data.accountType !== 'individual' && !value.trim()) {
+          if (data.accountType !== 'individual' && !normalizeTextInput(value)) {
             return strings.validation.companyNameRequired;
           }
           if (value.length > 60) {
@@ -65,7 +74,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           }
           return '';
         case 'nationalId':
-          if (data.accountType !== 'individual' && !value.trim()) {
+          if (data.accountType !== 'individual' && !normalizeTextInput(value)) {
             return strings.validation.nationalIdRequired;
           }
           if (value && (!/^\d+$/.test(value) || (value.length !== 10 && value.length !== 11))) {
@@ -73,7 +82,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           }
           return '';
         case 'nationalCode':
-          if (data.accountType === 'individual' && !value.trim()) {
+          if (data.accountType === 'individual' && !normalizeTextInput(value)) {
             return strings.validation.nationalCodeRequired;
           }
           const normalizedCode = toEnglishDigits(value);
@@ -82,7 +91,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           }
           return '';
         case 'companyPhone':
-          if (data.accountType !== 'individual' && !value.trim()) {
+          if (data.accountType !== 'individual' && !normalizeTextInput(value)) {
             return strings.validation.companyPhoneRequired;
           }
           if (value && !/^0\d{10}$/.test(value)) {
@@ -90,7 +99,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           }
           return '';
         case 'companyAddress':
-          if (data.accountType !== 'individual' && !value.trim()) {
+          if (data.accountType !== 'individual' && !normalizeTextInput(value)) {
             return strings.validation.companyAddressRequired;
           }
           if (value.length > 255) {
@@ -98,7 +107,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           }
           return '';
         case 'postalCode':
-          if (data.accountType !== 'individual' && !value.trim()) {
+          if (data.accountType !== 'individual' && !normalizeTextInput(value)) {
             return strings.validation.postalCodeRequired;
           }
           if (value && (value.length !== 10 || !/^\d+$/.test(value))) {
@@ -106,15 +115,15 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           }
           return '';
         case 'representativeFirstName':
-          return !value.trim() ? strings.validation.firstNameRequired : '';
+          return !normalizeTextInput(value) ? strings.validation.firstNameRequired : '';
         case 'representativeLastName':
-          return !value.trim() ? strings.validation.lastNameRequired : '';
+          return !normalizeTextInput(value) ? strings.validation.lastNameRequired : '';
         case 'representativeMobile':
-          if (!value.trim()) return strings.validation.mobileRequired;
+          if (!normalizeTextInput(value)) return strings.validation.mobileRequired;
           if (!/^09\d{9}$/.test(value)) return strings.validation.mobileFormat;
           return '';
         case 'email':
-          if (!value.trim()) return strings.validation.emailRequired;
+          if (!normalizeTextInput(value)) return strings.validation.emailRequired;
           if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
             return strings.validation.emailFormat;
           }
@@ -133,12 +142,12 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           return '';
         case 'shebaNumber':
           if (data.accountType === 'marketing_agency') {
-            if (!value.trim()) return strings.validation.shebaRequiredAgency;
+            if (!normalizeTextInput(value)) return strings.validation.shebaRequiredAgency;
             if (!/^\d+$/.test(value)) return strings.validation.shebaDigits;
             if (value.length !== 24) return strings.validation.shebaLength;
             return '';
           }
-          if (value && value.trim().length > 0) {
+          if (value && normalizeTextInput(value).length > 0) {
             return strings.validation.shebaNotAllowed;
           }
           return '';
@@ -153,9 +162,33 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
 
   const handleInputChange = useCallback(
     (name: keyof SignupFormData | 'accountType', rawValue: string) => {
-      const normalized = name === 'shebaNumber'
-        ? sanitizeSheba(rawValue)
-        : toEnglishDigits(rawValue);
+      let normalized: string;
+
+      switch (name) {
+        case 'shebaNumber':
+          normalized = sanitizeSheba(rawValue);
+          break;
+        case 'nationalId':
+        case 'nationalCode':
+          normalized = sanitizeNumericInput(rawValue, 11);
+          break;
+        case 'companyPhone':
+        case 'representativeMobile':
+          normalized = sanitizePhoneInput(rawValue);
+          break;
+        case 'postalCode':
+          normalized = sanitizeNumericInput(rawValue, 10);
+          break;
+        case 'email':
+          normalized = sanitizeEmailInput(rawValue);
+          break;
+        case 'accountType':
+          normalized = rawValue;
+          break;
+        default:
+          normalized = toEnglishDigits(rawValue);
+          break;
+      }
 
       setFormData(prev => {
         if (name === 'accountType') {
@@ -165,6 +198,15 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
             accountType: newType,
             ...(newType === 'marketing_agency' ? { referrerAgencyCode: '' } : {}),
             ...(newType !== 'marketing_agency' ? { shebaNumber: '' } : {}),
+            ...(newType === 'individual'
+              ? {
+                  companyName: '',
+                  nationalId: '',
+                  companyPhone: '',
+                  companyAddress: '',
+                  postalCode: '',
+                }
+              : { nationalCode: '' }),
           };
         }
         if (name === 'jobCategory') {
@@ -176,8 +218,34 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
       if (errors[name]) {
         setErrors(prev => ({ ...prev, [name]: '' }));
       }
+
+      if (name === 'accountType') {
+        setErrors(prev => ({
+          ...prev,
+          accountType: '',
+          companyName: '',
+          nationalId: '',
+          nationalCode: '',
+          companyPhone: '',
+          companyAddress: '',
+          postalCode: '',
+          shebaNumber: '',
+          referrerAgencyCode: '',
+          jobCategory: '',
+          job: '',
+        }));
+      }
+
+      if (name === 'representativeMobile') {
+        setCustomerId(null);
+        setOtpCode('');
+        setShowOtpModal(false);
+        setCanResendOtp(false);
+        setResendCountdown(60);
+        resetCountdown();
+      }
     },
-    [errors]
+    [errors, resetCountdown]
   );
 
   const validateForm = useCallback(
@@ -250,6 +318,8 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
     async (e: FormEvent) => {
       e.preventDefault();
 
+      if (isLoading) return;
+
       if (!acceptedTerms) {
         showError(strings.mustAcceptTerms);
         return;
@@ -263,29 +333,29 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
       try {
         const signupData = {
           account_type: currentData.accountType,
-          company_name: currentData.accountType !== 'individual' ? currentData.companyName : undefined,
+          company_name: currentData.accountType !== 'individual' ? normalizeTextInput(currentData.companyName) : undefined,
           national_id: currentData.accountType === 'individual' ? currentData.nationalCode : currentData.nationalId,
           company_phone: currentData.accountType !== 'individual' ? currentData.companyPhone : undefined,
-          company_address: currentData.accountType !== 'individual' ? currentData.companyAddress : undefined,
+          company_address: currentData.accountType !== 'individual' ? normalizeTextInput(currentData.companyAddress) : undefined,
           postal_code: currentData.accountType !== 'individual' ? currentData.postalCode : undefined,
           sheba_number: currentData.accountType === 'marketing_agency' ? `IR${currentData.shebaNumber}` : undefined,
-          representative_first_name: currentData.representativeFirstName,
-          representative_last_name: currentData.representativeLastName,
+          representative_first_name: normalizeTextInput(currentData.representativeFirstName),
+          representative_last_name: normalizeTextInput(currentData.representativeLastName),
           representative_mobile: currentData.representativeMobile,
           email: currentData.email,
           password: currentData.password,
           confirm_password: currentData.confirmPassword,
           referrer_agency_code: currentData.accountType !== 'marketing_agency' && currentData.referrerAgencyCode
-            ? currentData.referrerAgencyCode
+            ? normalizeTextInput(currentData.referrerAgencyCode)
             : undefined,
-          job_category: currentData.accountType !== 'marketing_agency' ? currentData.jobCategory : undefined,
-          job: currentData.accountType !== 'marketing_agency' ? currentData.job : undefined,
+          job_category: currentData.accountType !== 'marketing_agency' ? normalizeTextInput(currentData.jobCategory) : undefined,
+          job: currentData.accountType !== 'marketing_agency' ? normalizeTextInput(currentData.job) : undefined,
         };
 
         const response = await apiService.signup(signupData);
         if (response.success && response.data) {
           const responseData = response.data.data || response.data;
-          const id = responseData?.customer_id;
+          const id = parseCustomerId(responseData?.customer_id ?? responseData?.customerId);
           if (id) {
             setCustomerId(id);
             setShowOtpModal(true);
@@ -304,10 +374,11 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
         setIsLoading(false);
       }
     },
-    [acceptedTerms, formData, normalizedLanguage, showError, startResendCountdown, strings, validateForm]
+    [acceptedTerms, formData, isLoading, normalizedLanguage, showError, startResendCountdown, strings, validateForm]
   );
 
   const handleOtpVerification = useCallback(async () => {
+    if (isLoading) return;
     if (otpCode.length !== 6) {
       showError(strings.validation.invalidOtp);
       return;
@@ -343,10 +414,10 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
     } finally {
       setIsLoading(false);
     }
-  }, [customerId, normalizedLanguage, login, otpCode, showError, showSuccess, strings]);
+  }, [customerId, isLoading, normalizedLanguage, login, otpCode, showError, showSuccess, strings]);
 
   const handleResendOtp = useCallback(async () => {
-    if (!canResendOtp || !customerId) return;
+    if (isLoading || !canResendOtp || !customerId) return;
     setIsLoading(true);
     try {
       const response = await apiService.resendOtp(customerId, 'mobile');
@@ -367,7 +438,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
     } finally {
       setIsLoading(false);
     }
-  }, [canResendOtp, customerId, normalizedLanguage, showError, showInfo, startResendCountdown, strings]);
+  }, [canResendOtp, customerId, isLoading, normalizedLanguage, showError, showInfo, startResendCountdown, strings]);
 
   return {
     formData,

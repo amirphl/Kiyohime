@@ -945,7 +945,7 @@ export const translations = {
       },
     },
     adminLineNumbers: {
-      managementTitle: 'مدیریت شماره خط',
+      managementTitle: 'مدیریت سرشماره‌ها',
       createNew: 'ایجاد شماره خط جدید',
       createTitle: 'ایجاد شماره خط',
       fields: {

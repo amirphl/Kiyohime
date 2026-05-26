@@ -1,8 +1,11 @@
 import { getApiUrl, isProduction } from '../../config/environment';
 import { AUTH_ENDPOINTS, OTP_CODE_LENGTH } from './constants';
 import { AuthApiResponse } from './types';
-
-const PHONE_REGEX = /^[\d+]+$/;
+import {
+  isPhoneLikeIdentifier,
+  isValidEmailIdentifier,
+  normalizeIdentifierInput,
+} from './utils';
 
 const formatPhoneNumber = (phoneNumber: string): string => {
   let cleaned = phoneNumber.replace(/^\+98/, '').replace(/^0+/, '');
@@ -132,8 +135,32 @@ export const login = async (identifier: string, password: string): Promise<AuthA
     };
   }
 
-  let formattedIdentifier = identifier.trim();
-  if (PHONE_REGEX.test(formattedIdentifier)) {
+  let formattedIdentifier = normalizeIdentifierInput(identifier);
+  if (!formattedIdentifier || formattedIdentifier.length > 255) {
+    return {
+      success: false,
+      message: 'Invalid identifier',
+      error: {
+        code: 'Invalid identifier',
+        details: null,
+      },
+    };
+  }
+
+  const isPhoneIdentifier = isPhoneLikeIdentifier(formattedIdentifier);
+  const isEmailIdentifier = isValidEmailIdentifier(formattedIdentifier);
+  if (!isPhoneIdentifier && !isEmailIdentifier) {
+    return {
+      success: false,
+      message: 'Invalid identifier',
+      error: {
+        code: 'Invalid identifier',
+        details: null,
+      },
+    };
+  }
+
+  if (isPhoneIdentifier) {
     formattedIdentifier = formatPhoneNumber(formattedIdentifier);
   }
 
@@ -158,8 +185,8 @@ export const requestLoginOtp = async (identifier: string): Promise<AuthApiRespon
     };
   }
 
-  let formattedIdentifier = identifier.trim();
-  if (!PHONE_REGEX.test(formattedIdentifier)) {
+  let formattedIdentifier = normalizeIdentifierInput(identifier);
+  if (!isPhoneLikeIdentifier(formattedIdentifier)) {
     return {
       success: false,
       message: 'Invalid mobile number',

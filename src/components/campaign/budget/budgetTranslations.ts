@@ -137,7 +137,7 @@ const budgetFa = {
 
   // Budget summary
   budgetSummary: 'خلاصه بودجه',
-  lineNumberLabel: 'شماره خط:',
+  lineNumberLabel: 'سرشماره:',
   estimatedMessagesLabel: 'تعداد پیام‌های تخمینی:',
   calculateMessageCount: 'محاسبه تعداد پیام',
   calculatingMessageCount: 'در حال محاسبه تعداد پیام...',

@@ -57,13 +57,16 @@ const CompanyFields: React.FC<Props> = ({ formData, errors, onChange, requiredLa
           {strings.companyPhone} {requiredLabel}
         </label>
         <input
-          type='tel'
+          type='text'
           name='companyPhone'
           value={formData.companyPhone}
           onChange={e => onChange('companyPhone', e.target.value)}
           className='input-field'
           placeholder={strings.companyPhonePlaceholder}
           maxLength={11}
+          autoComplete='tel'
+          inputMode='tel'
+          dir='ltr'
         />
         {errors.companyPhone && <p className='mt-1 text-sm text-red-600'>{errors.companyPhone}</p>}
       </div>

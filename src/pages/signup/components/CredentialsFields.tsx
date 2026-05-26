@@ -64,12 +64,17 @@ const CredentialsFields: React.FC<Props> = ({
           {strings.email} {requiredLabel}
         </label>
         <input
-          type='email'
+          type='text'
           name='email'
           value={formData.email}
           onChange={e => onChange('email', e.target.value)}
           className='input-field'
           placeholder={strings.emailPlaceholder}
+          autoCapitalize='none'
+          autoCorrect='off'
+          autoComplete='email'
+          inputMode='email'
+          dir='ltr'
         />
         {errors.email && <p className='mt-1 text-sm text-red-600'>{errors.email}</p>}
       </div>
