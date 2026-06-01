@@ -33,6 +33,8 @@ export interface EnvironmentConfig {
       calculateCostV2: string;
       update: string;
       audienceSpec: string;
+      lastInitiated: string;
+      clone: string;
     };
     wallet: {
       balance: string;
@@ -106,6 +108,8 @@ const localConfig: EnvironmentConfig = {
       calculateCostV2: '/campaigns/calculate-cost-v2',
       update: '/campaigns/:uuid',
       audienceSpec: '/campaigns/audience-spec',
+      lastInitiated: '/campaigns/initiated/last',
+      clone: '/campaigns/:uuid/clone',
     },
     wallet: {
       balance: '/wallet/balance',
