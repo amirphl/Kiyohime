@@ -3,7 +3,9 @@ import { getApiUrl } from '../config/environment';
 import {
   AdminCaptchaInitResponse,
   AdminCaptchaVerifyRequest,
-  AdminLoginResponse,
+  AdminLoginInitResponse,
+  AdminLoginVerifyOTPRequest,
+  AdminLoginVerifyOTPResponse,
   AdminCreateLineNumberRequest,
   AdminLineNumberDTO,
   AdminUpdateLineNumbersRequest,
@@ -61,6 +63,254 @@ class AdminApiService {
     return this.accessToken || localStorage.getItem(ADMIN_ACCESS_TOKEN_KEY);
   }
 
+  private getAdminAuthHeaders(contentType: 'json' | 'none' = 'json') {
+    const headers: Record<string, string> = {
+      Accept: 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    };
+
+    if (contentType === 'json') {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    const accessToken = this.getAccessToken();
+    if (accessToken) {
+      headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    return headers;
+  }
+
+  private async parseJsonResponse(resp: Response): Promise<any> {
+    const contentType = resp.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return null;
+    }
+
+    try {
+      return await resp.json();
+    } catch {
+      return null;
+    }
+  }
+
+  private createTimeoutSignal(
+    timeoutMs: number,
+    signal?: AbortSignal | null
+  ): AbortSignal {
+    if (!signal) {
+      return AbortSignal.timeout(timeoutMs);
+    }
+
+    const controller = new AbortController();
+    const timeoutId = globalThis.setTimeout(
+      () => controller.abort(),
+      timeoutMs
+    );
+    const clearTimer = () => globalThis.clearTimeout(timeoutId);
+
+    if (signal.aborted) {
+      clearTimer();
+      controller.abort(signal.reason);
+      return controller.signal;
+    }
+
+    signal.addEventListener(
+      'abort',
+      () => {
+        clearTimer();
+        controller.abort(signal.reason);
+      },
+      { once: true }
+    );
+
+    controller.signal.addEventListener('abort', clearTimer, { once: true });
+
+    return controller.signal;
+  }
+
+  private createErrorResponse<T>(
+    code: string,
+    message = code,
+    details: unknown = null
+  ): ApiResponse<T> {
+    return {
+      success: false,
+      message,
+      error: {
+        code,
+        details,
+      },
+    };
+  }
+
+  private getStatusErrorCode(status: number): string {
+    switch (status) {
+      case 400:
+        return 'INVALID_REQUEST';
+      case 401:
+        return 'UNAUTHORIZED';
+      case 403:
+        return 'FORBIDDEN';
+      case 404:
+        return 'NOT_FOUND';
+      case 409:
+        return 'CONFLICT_ERROR';
+      case 423:
+        return 'RESOURCE_LOCKED';
+      case 429:
+        return 'RATE_LIMIT_EXCEEDED';
+      case 500:
+        return 'INTERNAL_SERVER_ERROR';
+      case 503:
+        return 'SERVICE_UNAVAILABLE';
+      default:
+        return 'UNKNOWN_ERROR';
+    }
+  }
+
+  private normalizeErrorPayload(
+    payload: {
+      message?: unknown;
+      error?: { code?: unknown; details?: unknown };
+    } | null,
+    status: number,
+    fallbackCode: string
+  ) {
+    const backendCode = payload?.error?.code;
+    if (typeof backendCode === 'string' && backendCode.trim()) {
+      return {
+        code: backendCode.trim(),
+        message:
+          typeof payload?.message === 'string' && payload.message.trim()
+            ? payload.message.trim()
+            : backendCode.trim(),
+        details: payload?.error?.details ?? null,
+      };
+    }
+
+    if (typeof payload?.message === 'string' && payload.message.trim()) {
+      const message = payload.message.trim();
+      return {
+        code: message,
+        message,
+        details: payload?.error?.details ?? null,
+      };
+    }
+
+    return {
+      code: fallbackCode || this.getStatusErrorCode(status),
+      message: fallbackCode || this.getStatusErrorCode(status),
+      details: payload?.error?.details ?? null,
+    };
+  }
+
+  private async requestJson<T>(
+    endpoint: string,
+    options: RequestInit = {},
+    config: { timeoutMs?: number; allowNoContent?: boolean } = {}
+  ): Promise<ApiResponse<T>> {
+    const url = getApiUrl(endpoint);
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: this.createTimeoutSignal(
+          config.timeoutMs ?? 20000,
+          options.signal
+        ),
+      });
+
+      if (response.status === 401) {
+        this.handleUnauthorized();
+        return this.createErrorResponse('UNAUTHORIZED');
+      }
+
+      if (response.status === 204 && config.allowNoContent) {
+        return {
+          success: true,
+          message: 'OK',
+          data: [] as T,
+        };
+      }
+
+      const data = await this.parseJsonResponse(response);
+
+      if (!response.ok) {
+        const normalized = this.normalizeErrorPayload(
+          data,
+          response.status,
+          this.getStatusErrorCode(response.status)
+        );
+        return this.createErrorResponse(
+          normalized.code,
+          normalized.message,
+          normalized.details
+        );
+      }
+
+      if (data === null) {
+        if (config.allowNoContent) {
+          return {
+            success: true,
+            message: 'OK',
+            data: [] as T,
+          };
+        }
+
+        return this.createErrorResponse('INVALID_RESPONSE');
+      }
+
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: data?.data as T,
+      };
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return this.createErrorResponse('TIMEOUT_ERROR');
+      }
+
+      if (error instanceof TypeError) {
+        return this.createErrorResponse('NETWORK_ERROR');
+      }
+
+      return this.createErrorResponse(
+        'UNKNOWN_ERROR',
+        error instanceof Error ? error.message : 'UNKNOWN_ERROR'
+      );
+    }
+  }
+
+  private withFallbackData<T>(
+    response: ApiResponse<T>,
+    fallbackData: T
+  ): ApiResponse<T> {
+    if (!response.success) {
+      return response;
+    }
+
+    return {
+      ...response,
+      data: response.data ?? fallbackData,
+    };
+  }
+
+  private normalizeCaptchaInitResponse(
+    payload: any
+  ): AdminCaptchaInitResponse | undefined {
+    const candidate = payload?.data ?? payload;
+    if (
+      !candidate?.challenge_id ||
+      !candidate?.master_image_base64 ||
+      !candidate?.thumb_image_base64
+    ) {
+      return undefined;
+    }
+
+    return candidate as AdminCaptchaInitResponse;
+  }
+
   private handleUnauthorized() {
     // Clear tokens
     this.setAccessToken(null);
@@ -92,308 +342,130 @@ class AdminApiService {
   }
 
   async initCaptcha(): Promise<ApiResponse<AdminCaptchaInitResponse>> {
-    const url = getApiUrl('/admin/auth/captcha/init');
-    try {
-      const resp = await fetch(url, {
+    const response = await this.requestJson<AdminCaptchaInitResponse>(
+      '/admin/auth/captcha/init',
+      {
         method: 'GET',
-        headers: { Accept: 'application/json' },
-        signal: AbortSignal.timeout(15000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Captcha init failed',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: data?.data,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
+        headers: this.getAdminAuthHeaders('none'),
+      },
+      { timeoutMs: 15000 }
+    );
+
+    if (!response.success) {
+      return response;
     }
+
+    const responseData = this.normalizeCaptchaInitResponse(response.data);
+    if (!responseData) {
+      return this.createErrorResponse('INVALID_RESPONSE');
+    }
+
+    return {
+      ...response,
+      data: responseData,
+    };
   }
 
   async verifyLogin(
     payload: AdminCaptchaVerifyRequest
-  ): Promise<ApiResponse<AdminLoginResponse>> {
-    const url = getApiUrl('/admin/auth/login');
-    try {
-      const resp = await fetch(url, {
+  ): Promise<ApiResponse<AdminLoginInitResponse>> {
+    const response = await this.requestJson<AdminLoginInitResponse>(
+      '/admin/auth/login',
+      {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+        headers: this.getAdminAuthHeaders(),
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Login failed',
-          error: data?.error,
-        };
       }
-      const d = data?.data || {};
-      const sessionFromResponse = d?.session;
-      const accessToken = sessionFromResponse?.access_token ?? d?.access_token;
-      const refreshToken =
-        sessionFromResponse?.refresh_token ?? d?.refresh_token;
-      if (accessToken) this.setAccessToken(accessToken);
-      if (refreshToken) this.setRefreshToken(refreshToken);
-      const responseData: AdminLoginResponse = sessionFromResponse
-        ? (d as AdminLoginResponse)
-        : {
-            admin: d?.admin,
-            session: {
-              access_token: accessToken || '',
-              refresh_token: refreshToken || '',
-              expires_in: d?.expires_in ?? 0,
-              token_type: d?.token_type ?? 'Bearer',
-              created_at: new Date().toISOString(),
-            },
-          };
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: responseData,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
+    );
+
+    if (!response.success || !response.data) {
+      return response;
     }
+
+    if (
+      !response.data.challenge_id ||
+      !response.data.masked_phone ||
+      typeof response.data.requires_two_factor !== 'boolean'
+    ) {
+      return this.createErrorResponse('INVALID_RESPONSE');
+    }
+
+    return response;
+  }
+
+  async verifyLoginOtp(
+    payload: AdminLoginVerifyOTPRequest
+  ): Promise<ApiResponse<AdminLoginVerifyOTPResponse>> {
+    const response = await this.requestJson<AdminLoginVerifyOTPResponse>(
+      '/admin/auth/login/verify-otp',
+      {
+        method: 'POST',
+        headers: this.getAdminAuthHeaders(),
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.success || !response.data) {
+      return response;
+    }
+
+    if (
+      !response.data.access_token ||
+      !response.data.refresh_token ||
+      !response.data.token_type ||
+      !response.data.admin
+    ) {
+      return this.createErrorResponse('INVALID_RESPONSE');
+    }
+
+    this.setAccessToken(response.data.access_token);
+    this.setRefreshToken(response.data.refresh_token);
+
+    return response;
   }
 
   async listLineNumbers(): Promise<ApiResponse<AdminLineNumberDTO[]>> {
-    const url = getApiUrl('/admin/line-numbers');
-    try {
-      const resp = await fetch(url, {
+    return this.requestJson<AdminLineNumberDTO[]>(
+      '/admin/line-numbers',
+      {
         method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      if (resp.status === 204) {
-        return { success: true, message: 'OK', data: [] };
-      }
-      let data: any = null;
-      try {
-        data = await resp.json();
-      } catch (e) {
-        if (resp.ok) {
-          return { success: true, message: 'OK', data: [] };
-        }
-        return {
-          success: false,
-          message: 'An error occurred',
-          error: { code: 'NETWORK_ERROR', details: null },
-        };
-      }
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'List line numbers failed',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || []) as AdminLineNumberDTO[],
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+        headers: this.getAdminAuthHeaders('none'),
+      },
+      { allowNoContent: true }
+    );
   }
 
   async createLineNumber(
     payload: AdminCreateLineNumberRequest
   ): Promise<ApiResponse<AdminLineNumberDTO>> {
-    const url = getApiUrl('/admin/line-numbers/');
-    try {
-      const resp = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Create line number failed',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: data?.data as AdminLineNumberDTO,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    return this.requestJson<AdminLineNumberDTO>('/admin/line-numbers/', {
+      method: 'POST',
+      headers: this.getAdminAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
   }
 
   async updateLineNumbersBatch(
     payload: AdminUpdateLineNumbersRequest
   ): Promise<ApiResponse<{ updated: boolean }>> {
-    const url = getApiUrl('/admin/line-numbers/');
-    try {
-      const resp = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Batch update failed',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: data?.data as { updated: boolean },
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    return this.requestJson<{ updated: boolean }>('/admin/line-numbers/', {
+      method: 'PUT',
+      headers: this.getAdminAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
   }
 
   async getLineNumbersReport(): Promise<
     ApiResponse<AdminLineNumberReportItem[]>
   > {
-    const url = getApiUrl('/admin/line-numbers/report');
-    try {
-      const resp = await fetch(url, {
+    return this.requestJson<AdminLineNumberReportItem[]>(
+      '/admin/line-numbers/report',
+      {
         method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      if (resp.status === 204) {
-        return { success: true, message: 'OK', data: [] };
-      }
-      let data: any = null;
-      try {
-        data = await resp.json();
-      } catch (e) {
-        if (resp.ok) {
-          return { success: true, message: 'OK', data: [] };
-        }
-        return {
-          success: false,
-          message: 'An error occurred',
-          error: { code: 'NETWORK_ERROR', details: null },
-        };
-      }
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Report fetch failed',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || []) as AdminLineNumberReportItem[],
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+        headers: this.getAdminAuthHeaders('none'),
+      },
+      { allowNoContent: true }
+    );
   }
 
   async listCampaigns(
@@ -404,241 +476,84 @@ class AdminApiService {
     if (filter.status) qs.set('status', filter.status);
     if (filter.start_date) qs.set('start_date', filter.start_date);
     if (filter.end_date) qs.set('end_date', filter.end_date);
-    const url = getApiUrl(
-      `/admin/campaigns${qs.toString() ? `?${qs.toString()}` : ''}`
-    );
-    try {
-      const resp = await fetch(url, {
+    if (filter.page) qs.set('page', String(filter.page));
+    if (filter.limit) qs.set('limit', String(filter.limit));
+    const response = await this.requestJson<AdminListCampaignsResponse>(
+      `/admin/campaigns${qs.toString() ? `?${qs.toString()}` : ''}`,
+      {
         method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
+        headers: this.getAdminAuthHeaders('none'),
       }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'List campaigns failed',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || { items: [] }) as AdminListCampaignsResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
+    );
+
+    if (!response.success) {
+      return response;
     }
+
+    return {
+      ...response,
+      data: response.data ?? {
+        message: response.message,
+        items: [],
+      },
+    };
   }
 
   async approveCampaign(
     campaignId: number,
     comment?: string | null
   ): Promise<ApiResponse<AdminApproveCampaignResponse>> {
-    const url = getApiUrl('/admin/campaigns/approve');
-    try {
-      const resp = await fetch(url, {
+    return this.requestJson<AdminApproveCampaignResponse>(
+      '/admin/campaigns/approve',
+      {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
+        headers: this.getAdminAuthHeaders(),
         body: JSON.stringify({
           campaign_id: campaignId,
           comment: comment ?? undefined,
         }),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
       }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Approve failed',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: data?.data as AdminApproveCampaignResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    );
   }
 
   async rejectCampaign(
     campaignId: number,
     comment: string
   ): Promise<ApiResponse<AdminRejectCampaignResponse>> {
-    const url = getApiUrl('/admin/campaigns/reject');
-    try {
-      const resp = await fetch(url, {
+    return this.requestJson<AdminRejectCampaignResponse>(
+      '/admin/campaigns/reject',
+      {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
+        headers: this.getAdminAuthHeaders(),
         body: JSON.stringify({ campaign_id: campaignId, comment }),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
       }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Reject failed',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: data?.data as AdminRejectCampaignResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    );
   }
 
   async cancelCampaign(
     payload: AdminCancelCampaignRequest
   ): Promise<ApiResponse<AdminCancelCampaignResponse>> {
-    const url = getApiUrl('/admin/campaigns/cancel');
-    try {
-      const resp = await fetch(url, {
+    return this.requestJson<AdminCancelCampaignResponse>(
+      '/admin/campaigns/cancel',
+      {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
+        headers: this.getAdminAuthHeaders(),
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
       }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Cancel failed',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: data?.data as AdminCancelCampaignResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    );
   }
 
   async rescheduleCampaign(
     payload: AdminRescheduleCampaignRequest
   ): Promise<ApiResponse<AdminRescheduleCampaignResponse>> {
-    const url = getApiUrl('/admin/campaigns/reschedule');
-    try {
-      const resp = await fetch(url, {
+    return this.requestJson<AdminRescheduleCampaignResponse>(
+      '/admin/campaigns/reschedule',
+      {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
+        headers: this.getAdminAuthHeaders(),
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
       }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Reschedule failed',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: data?.data as AdminRescheduleCampaignResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    );
   }
 
   async listDepositReceipts(params: {
@@ -657,48 +572,13 @@ class AdminApiService {
     if (params.limit) search.set('limit', String(params.limit));
     if (params.offset) search.set('offset', String(params.offset));
     if (params.order) search.set('order', params.order);
-    const url = getApiUrl(
-      `/admin/payments/deposit-receipts${search.toString() ? `?${search.toString()}` : ''}`
-    );
-    try {
-      const resp = await fetch(url, {
+    return this.requestJson<any>(
+      `/admin/payments/deposit-receipts${search.toString() ? `?${search.toString()}` : ''}`,
+      {
         method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
+        headers: this.getAdminAuthHeaders('none'),
       }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'List deposit receipts failed',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: data?.data,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    );
   }
 
   async downloadDepositReceiptFile(uuid: string): Promise<{
@@ -735,7 +615,7 @@ class AdminApiService {
       }
       const blob = await resp.blob();
       const disposition = resp.headers.get('content-disposition') || '';
-      const match = disposition.match(/filename=\"?([^\";]+)\"?/i);
+      const match = disposition.match(/filename="?([^";]+)"?/i);
       const filename = match ? match[1] : `receipt-${uuid}`;
       return { success: true, message: 'OK', blob, filename };
     } catch (e) {
@@ -751,48 +631,11 @@ class AdminApiService {
     action: string;
     reason?: string;
   }): Promise<ApiResponse<any>> {
-    const url = getApiUrl('/admin/payments/deposit-receipts/status');
-    try {
-      const resp = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Update receipt status failed',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: data?.data,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    return this.requestJson<any>('/admin/payments/deposit-receipts/status', {
+      method: 'POST',
+      headers: this.getAdminAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
   }
 
   async listTransactions(params: {
@@ -812,58 +655,27 @@ class AdminApiService {
     if (params.customer_id)
       search.set('customer_id', String(params.customer_id));
 
-    const url = getApiUrl(
-      `/admin/payments/transactions${search.toString() ? `?${search.toString()}` : ''}`
-    );
-    try {
-      const resp = await fetch(url, {
+    const response = await this.requestJson<
+      import('../types/payments').AdminListTransactionsResponse
+    >(
+      `/admin/payments/transactions${search.toString() ? `?${search.toString()}` : ''}`,
+      {
         method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
+        headers: this.getAdminAuthHeaders('none'),
       }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to list transactions',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: data?.data || {
-          items: [],
-          pagination: {
-            current_page: 1,
-            page_size: 20,
-            total_items: 0,
-            total_pages: 1,
-            has_next: false,
-            has_previous: false,
-          },
-        },
-      };
-    } catch {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    );
+
+    return this.withFallbackData(response, {
+      items: [],
+      pagination: {
+        current_page: 1,
+        page_size: 20,
+        total_items: 0,
+        total_pages: 1,
+        has_next: false,
+        has_previous: false,
+      },
+    });
   }
 
   async uploadMultimediaByAdmin(
@@ -922,48 +734,16 @@ class AdminApiService {
     transaction_uuid: string;
     customer_invoice_uuid: string;
   }): Promise<ApiResponse<{ success: boolean; message: string }>> {
-    const url = getApiUrl('/admin/payments/transactions/invoice');
-    try {
-      const resp = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to add invoice to transaction',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: data?.data || { success: true, message: 'OK' },
-      };
-    } catch {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    const response = await this.requestJson<{
+      success: boolean;
+      message: string;
+    }>('/admin/payments/transactions/invoice', {
+      method: 'POST',
+      headers: this.getAdminAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    return this.withFallbackData(response, { success: true, message: 'OK' });
   }
 
   async getCustomersShares(
@@ -974,144 +754,53 @@ class AdminApiService {
     const qs = new URLSearchParams();
     if (params.start_date) qs.set('start_date', params.start_date);
     if (params.end_date) qs.set('end_date', params.end_date);
-    const url = getApiUrl(
-      `/admin/customer-management/shares${qs.toString() ? `?${qs.toString()}` : ''}`
-    );
-    try {
-      const resp = await fetch(url, {
+    const response = await this.requestJson<
+      import('../types/admin').AdminCustomersSharesResponse
+    >(
+      `/admin/customer-management/shares${qs.toString() ? `?${qs.toString()}` : ''}`,
+      {
         method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
+        headers: this.getAdminAuthHeaders('none'),
       }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to retrieve customers shares',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data ||
-          {}) as import('../types/admin').AdminCustomersSharesResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    );
+
+    return this.withFallbackData(
+      response,
+      {} as import('../types/admin').AdminCustomersSharesResponse
+    );
   }
 
   async listCustomersByAdmin(): Promise<
     ApiResponse<AdminListCustomersResponse>
   > {
-    const url = getApiUrl('/admin/customer-management');
-    try {
-      const resp = await fetch(url, {
+    const response = await this.requestJson<AdminListCustomersResponse>(
+      '/admin/customer-management',
+      {
         method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
+        headers: this.getAdminAuthHeaders('none'),
       }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to retrieve customers list',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || {
-          items: [],
-          total: 0,
-        }) as AdminListCustomersResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    );
+
+    return this.withFallbackData(response, {
+      message: response.message,
+      items: [],
+      total: 0,
+    });
   }
 
   async chargeWallet(
     payload: AdminChargeWalletRequest
   ): Promise<ApiResponse<AdminChargeWalletResponse>> {
-    const url = getApiUrl('/admin/payments/charge-wallet');
-    try {
-      const resp = await fetch(url, {
+    const response = await this.requestJson<AdminChargeWalletResponse>(
+      '/admin/payments/charge-wallet',
+      {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
+        headers: this.getAdminAuthHeaders(),
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
       }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Wallet charging by admin failed',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || {}) as AdminChargeWalletResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    );
+
+    return this.withFallbackData(response, {} as AdminChargeWalletResponse);
   }
 
   async listTickets(
@@ -1152,48 +841,31 @@ class AdminApiService {
       qs.set('replied_by_admin', params.replied_by_admin ? 'true' : 'false');
     if (params.page) qs.set('page', String(params.page));
     if (params.page_size) qs.set('page_size', String(params.page_size));
-    const url = getApiUrl(
-      `/admin/tickets${qs.toString() ? `?${qs.toString()}` : ''}`
-    );
-    try {
-      const resp = await fetch(url, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to list tickets',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: data?.data || { groups: [] },
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    const response = await this.requestJson<{
+      message: string;
+      groups: Array<{
+        correlation_id: string;
+        items: Array<{
+          id: number;
+          title: string;
+          content: string;
+          created_at: string;
+          customer_first_name?: string;
+          customer_last_name?: string;
+          company_name?: string;
+          phone_number?: string;
+          agency_name?: string;
+        }>;
+      }>;
+    }>(`/admin/tickets${qs.toString() ? `?${qs.toString()}` : ''}`, {
+      method: 'GET',
+      headers: this.getAdminAuthHeaders('none'),
+    });
+
+    return this.withFallbackData(response, {
+      message: 'OK',
+      groups: [],
+    });
   }
 
   async createTicketReply(payload: {
@@ -1284,93 +956,33 @@ class AdminApiService {
   ): Promise<
     ApiResponse<import('../types/admin').AdminCustomerWithCampaignsResponse>
   > {
-    const url = getApiUrl(`/admin/customer-management/${customerId}`);
-    try {
-      const resp = await fetch(url, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to retrieve customer details',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data ||
-          {}) as import('../types/admin').AdminCustomerWithCampaignsResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    const response = await this.requestJson<
+      import('../types/admin').AdminCustomerWithCampaignsResponse
+    >(`/admin/customer-management/${customerId}`, {
+      method: 'GET',
+      headers: this.getAdminAuthHeaders('none'),
+    });
+
+    return this.withFallbackData(
+      response,
+      {} as import('../types/admin').AdminCustomerWithCampaignsResponse
+    );
   }
 
   async getCampaignById(
     id: number
   ): Promise<ApiResponse<import('../types/admin').AdminGetCampaignResponse>> {
-    const url = getApiUrl(`/admin/campaigns/${id}`);
-    try {
-      const resp = await fetch(url, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to get campaign',
-          error: data?.error,
-        };
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data ||
-          {}) as import('../types/admin').AdminGetCampaignResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      };
-    }
+    const response = await this.requestJson<
+      import('../types/admin').AdminGetCampaignResponse
+    >(`/admin/campaigns/${id}`, {
+      method: 'GET',
+      headers: this.getAdminAuthHeaders('none'),
+    });
+
+    return this.withFallbackData(
+      response,
+      {} as import('../types/admin').AdminGetCampaignResponse
+    );
   }
 
   async getCustomerDiscountsHistory(
@@ -1378,48 +990,17 @@ class AdminApiService {
   ): Promise<
     ApiResponse<import('../types/admin').AdminCustomerDiscountHistoryResponse>
   > {
-    const url = getApiUrl(`/admin/customer-management/${customerId}/discounts`);
-    try {
-      const resp = await fetch(url, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to list customer discounts history',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || {
-          items: [],
-        }) as import('../types/admin').AdminCustomerDiscountHistoryResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    const response = await this.requestJson<
+      import('../types/admin').AdminCustomerDiscountHistoryResponse
+    >(`/admin/customer-management/${customerId}/discounts`, {
+      method: 'GET',
+      headers: this.getAdminAuthHeaders('none'),
+    });
+
+    return this.withFallbackData(response, {
+      message: response.message,
+      items: [],
+    } as import('../types/admin').AdminCustomerDiscountHistoryResponse);
   }
 
   async setCustomerActiveStatus(
@@ -1427,49 +1008,18 @@ class AdminApiService {
   ): Promise<
     ApiResponse<import('../types/admin').AdminSetCustomerActiveStatusResponse>
   > {
-    const url = getApiUrl('/admin/customer-management/active-status');
-    try {
-      const resp = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to set active status',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data ||
-          {}) as import('../types/admin').AdminSetCustomerActiveStatusResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    const response = await this.requestJson<
+      import('../types/admin').AdminSetCustomerActiveStatusResponse
+    >('/admin/customer-management/active-status', {
+      method: 'POST',
+      headers: this.getAdminAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    return this.withFallbackData(
+      response,
+      {} as import('../types/admin').AdminSetCustomerActiveStatusResponse
+    );
   }
 
   async listLevel3Options(
@@ -1478,50 +1028,17 @@ class AdminApiService {
     ApiResponse<import('../types/admin').AdminListLevel3OptionsResponse>
   > {
     const query = platform ? `?platform=${encodeURIComponent(platform)}` : '';
-    const url = getApiUrl(
-      `/admin/segment-price-factors/level3-options${query}`
-    );
-    try {
-      const resp = await fetch(url, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to list level3 options',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || {
-          items: [],
-        }) as import('../types/admin').AdminListLevel3OptionsResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    const response = await this.requestJson<
+      import('../types/admin').AdminListLevel3OptionsResponse
+    >(`/admin/segment-price-factors/level3-options${query}`, {
+      method: 'GET',
+      headers: this.getAdminAuthHeaders('none'),
+    });
+
+    return this.withFallbackData(response, {
+      message: response.message,
+      items: [],
+    } as import('../types/admin').AdminListLevel3OptionsResponse);
   }
 
   async listSegmentPriceFactors(
@@ -1530,48 +1047,17 @@ class AdminApiService {
     ApiResponse<import('../types/admin').AdminListSegmentPriceFactorsResponse>
   > {
     const query = platform ? `?platform=${encodeURIComponent(platform)}` : '';
-    const url = getApiUrl(`/admin/segment-price-factors${query}`);
-    try {
-      const resp = await fetch(url, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to list segment price factors',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || {
-          items: [],
-        }) as import('../types/admin').AdminListSegmentPriceFactorsResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    const response = await this.requestJson<
+      import('../types/admin').AdminListSegmentPriceFactorsResponse
+    >(`/admin/segment-price-factors${query}`, {
+      method: 'GET',
+      headers: this.getAdminAuthHeaders('none'),
+    });
+
+    return this.withFallbackData(response, {
+      message: response.message,
+      items: [],
+    } as import('../types/admin').AdminListSegmentPriceFactorsResponse);
   }
 
   async createSegmentPriceFactor(
@@ -1579,377 +1065,142 @@ class AdminApiService {
   ): Promise<
     ApiResponse<import('../types/admin').AdminCreateSegmentPriceFactorResponse>
   > {
-    const url = getApiUrl('/admin/segment-price-factors');
-    try {
-      const resp = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to create segment price factor',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data ||
-          {}) as import('../types/admin').AdminCreateSegmentPriceFactorResponse,
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    const response = await this.requestJson<
+      import('../types/admin').AdminCreateSegmentPriceFactorResponse
+    >('/admin/segment-price-factors', {
+      method: 'POST',
+      headers: this.getAdminAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    return this.withFallbackData(
+      response,
+      {} as import('../types/admin').AdminCreateSegmentPriceFactorResponse
+    );
   }
 
   async listPlatformSettingsByAdmin(): Promise<
     ApiResponse<AdminListPlatformSettingsResponse>
   > {
-    const url = getApiUrl('/admin/platform-settings');
-    try {
-      const resp = await fetch(url, {
+    const response = await this.requestJson<AdminListPlatformSettingsResponse>(
+      '/admin/platform-settings',
+      {
         method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
+        headers: this.getAdminAuthHeaders('none'),
       }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to list platform settings',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || {
-          items: [],
-        }) as AdminListPlatformSettingsResponse,
-      };
-    } catch {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    );
+
+    return this.withFallbackData(response, {
+      message: response.message,
+      items: [],
+    } as AdminListPlatformSettingsResponse);
   }
 
   async changePlatformSettingsStatusByAdmin(
     payload: AdminChangePlatformSettingsStatusRequest
   ): Promise<ApiResponse<AdminChangePlatformSettingsStatusResponse>> {
-    const url = getApiUrl('/admin/platform-settings/status');
-    try {
-      const resp = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to change platform settings status',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || {}) as AdminChangePlatformSettingsStatusResponse,
-      };
-    } catch {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    const response =
+      await this.requestJson<AdminChangePlatformSettingsStatusResponse>(
+        '/admin/platform-settings/status',
+        {
+          method: 'PUT',
+          headers: this.getAdminAuthHeaders(),
+          body: JSON.stringify(payload),
+        }
+      );
+
+    return this.withFallbackData(
+      response,
+      {} as AdminChangePlatformSettingsStatusResponse
+    );
   }
 
   async addPlatformSettingsMetadataByAdmin(
     payload: AdminAddPlatformSettingsMetadataRequest
   ): Promise<ApiResponse<AdminAddPlatformSettingsMetadataResponse>> {
-    const url = getApiUrl('/admin/platform-settings/metadata');
-    try {
-      const resp = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message:
-            data?.message || 'Failed to update platform settings metadata',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || {}) as AdminAddPlatformSettingsMetadataResponse,
-      };
-    } catch {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    const response =
+      await this.requestJson<AdminAddPlatformSettingsMetadataResponse>(
+        '/admin/platform-settings/metadata',
+        {
+          method: 'PUT',
+          headers: this.getAdminAuthHeaders(),
+          body: JSON.stringify(payload),
+        }
+      );
+
+    return this.withFallbackData(
+      response,
+      {} as AdminAddPlatformSettingsMetadataResponse
+    );
   }
 
   async listPlatformBasePricesByAdmin(): Promise<
     ApiResponse<AdminListPlatformBasePricesResponse>
   > {
-    const url = getApiUrl('/admin/platform-base-prices');
-    try {
-      const resp = await fetch(url, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to list platform base prices',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || {
-          items: [],
-        }) as AdminListPlatformBasePricesResponse,
-      };
-    } catch {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    const response =
+      await this.requestJson<AdminListPlatformBasePricesResponse>(
+        '/admin/platform-base-prices',
+        {
+          method: 'GET',
+          headers: this.getAdminAuthHeaders('none'),
+        }
+      );
+
+    return this.withFallbackData(response, {
+      message: response.message,
+      items: [],
+    } as AdminListPlatformBasePricesResponse);
   }
 
   async updatePlatformBasePriceByAdmin(
     payload: AdminUpdatePlatformBasePriceRequest
   ): Promise<ApiResponse<AdminUpdatePlatformBasePriceResponse>> {
-    const url = getApiUrl('/admin/platform-base-prices');
-    try {
-      const resp = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
-      }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to update platform base price',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || {}) as AdminUpdatePlatformBasePriceResponse,
-      };
-    } catch {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    const response =
+      await this.requestJson<AdminUpdatePlatformBasePriceResponse>(
+        '/admin/platform-base-prices',
+        {
+          method: 'PUT',
+          headers: this.getAdminAuthHeaders(),
+          body: JSON.stringify(payload),
+        }
+      );
+
+    return this.withFallbackData(
+      response,
+      {} as AdminUpdatePlatformBasePriceResponse
+    );
   }
 
   async getCampaignPagePricesByAdmin(): Promise<
     ApiResponse<AdminGetPagePricesResponse>
   > {
-    const url = getApiUrl('/admin/campaigns/page-prices');
-    try {
-      const resp = await fetch(url, {
+    const response = await this.requestJson<AdminGetPagePricesResponse>(
+      '/admin/campaigns/page-prices',
+      {
         method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
+        headers: this.getAdminAuthHeaders('none'),
       }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to list page prices',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || { items: [] }) as AdminGetPagePricesResponse,
-      };
-    } catch {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    );
+
+    return this.withFallbackData(response, {
+      message: response.message,
+      items: [],
+    } as AdminGetPagePricesResponse);
   }
 
   async updateCampaignPagePriceByAdmin(
     payload: AdminUpdatePagePriceRequest
   ): Promise<ApiResponse<AdminUpdatePagePriceResponse>> {
-    const url = getApiUrl('/admin/campaigns/page-prices');
-    try {
-      const resp = await fetch(url, {
+    const response = await this.requestJson<AdminUpdatePagePriceResponse>(
+      '/admin/campaigns/page-prices',
+      {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(this.getAccessToken()
-            ? { Authorization: `Bearer ${this.getAccessToken()}` }
-            : {}),
-        },
+        headers: this.getAdminAuthHeaders(),
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(20000),
-      });
-      if (resp.status === 401) {
-        this.handleUnauthorized();
-        return {
-          success: false,
-          message: 'Unauthorized',
-          error: { code: 'UNAUTHORIZED', details: null },
-        } as any;
       }
-      const data = await resp.json();
-      if (!resp.ok) {
-        return {
-          success: false,
-          message: data?.message || 'Failed to update page price',
-          error: data?.error,
-        } as any;
-      }
-      return {
-        success: true,
-        message: data?.message || 'OK',
-        data: (data?.data || {}) as AdminUpdatePagePriceResponse,
-      };
-    } catch {
-      return {
-        success: false,
-        message: 'An error occurred',
-        error: { code: 'NETWORK_ERROR', details: null },
-      } as any;
-    }
+    );
+
+    return this.withFallbackData(response, {} as AdminUpdatePagePriceResponse);
   }
 
   async downloadMultimediaByAdmin(uuid: string): Promise<{
