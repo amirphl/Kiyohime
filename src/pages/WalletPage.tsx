@@ -11,6 +11,7 @@ import { useWalletBalance } from './wallet/hooks/useWalletBalance';
 import { useWalletHistory } from './wallet/hooks/useWalletHistory';
 import { formatWalletDatetime, recommendedAmounts } from './wallet/utils';
 import { WalletCopy, getWalletCopy } from './wallet/translations';
+import DepositReceiptSection from './wallet/components/DepositReceiptSection';
 
 const WalletPage: React.FC = () => {
   const { language } = useLanguage();
@@ -22,8 +23,11 @@ const WalletPage: React.FC = () => {
   );
   const currencyLabel = walletCopy.currency;
 
-  const { balances, loading: loadingBalance, error: balanceError } =
-    useWalletBalance(accessToken);
+  const {
+    balances,
+    loading: loadingBalance,
+    error: balanceError,
+  } = useWalletBalance(accessToken);
   const {
     items: historyItems,
     page: historyPage,
@@ -87,7 +91,7 @@ const WalletPage: React.FC = () => {
       const baseAmount = Number(chargeAmount);
       const tax = Math.round(baseAmount * 0.1);
       const amountWithTax = baseAmount + tax;
-      const resp = await apiService.startWalletCharge(amountWithTax);
+      const resp = await apiService.startWalletCharge(amountWithTax, language);
       if (resp.success && resp.data && (resp.data as any).token) {
         const token = (resp.data as any).token;
         // Build and submit a form to Atipay
@@ -156,6 +160,12 @@ const WalletPage: React.FC = () => {
               onNext={nextHistory}
               onPrev={prevHistory}
               copy={walletCopy}
+            />
+
+            <DepositReceiptSection
+              accessToken={accessToken}
+              language={language}
+              currencyLabel={currencyLabel}
             />
           </div>
         </div>
