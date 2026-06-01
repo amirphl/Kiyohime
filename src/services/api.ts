@@ -70,6 +70,26 @@ export interface ErrorDetail {
   details?: any;
 }
 
+interface SignupRequestPayload {
+  account_type: string;
+  company_name?: string;
+  national_id?: string;
+  company_phone?: string;
+  company_address?: string;
+  postal_code?: string;
+  sheba_number?: string;
+  representative_first_name?: string;
+  representative_last_name?: string;
+  representative_mobile: string;
+  email: string;
+  password: string;
+  confirm_password?: string;
+  referrer_agency_code?: string;
+  job_category?: string;
+  job?: string;
+  category?: string;
+}
+
 export interface PlatformBasePriceItem {
   platform: string;
   price: number;
@@ -129,6 +149,142 @@ class ApiService {
     this.accessToken = token;
   }
 
+  private getAccessToken(): string | null {
+    if (this.accessToken) {
+      return this.accessToken;
+    }
+
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    return window.localStorage.getItem('access_token');
+  }
+
+  private createErrorResponse<T>(
+    code: string,
+    message = code,
+    details: unknown = null
+  ): ApiResponse<T> {
+    return {
+      success: false,
+      message,
+      error: {
+        code,
+        details,
+      },
+    };
+  }
+
+  private createTimeoutSignal(
+    timeoutMs: number,
+    signal?: AbortSignal | null
+  ): AbortSignal {
+    if (!signal) {
+      return AbortSignal.timeout(timeoutMs);
+    }
+
+    const controller = new AbortController();
+    const timeoutId = globalThis.setTimeout(
+      () => controller.abort(),
+      timeoutMs
+    );
+    const clearTimer = () => globalThis.clearTimeout(timeoutId);
+
+    if (signal.aborted) {
+      clearTimer();
+      controller.abort(signal.reason);
+      return controller.signal;
+    }
+
+    signal.addEventListener(
+      'abort',
+      () => {
+        clearTimer();
+        controller.abort(signal.reason);
+      },
+      { once: true }
+    );
+
+    controller.signal.addEventListener('abort', clearTimer, { once: true });
+
+    return controller.signal;
+  }
+
+  private async parseJsonResponse(response: Response): Promise<any | null> {
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return null;
+    }
+
+    try {
+      return await response.json();
+    } catch {
+      return null;
+    }
+  }
+
+  private getStatusErrorCode(status: number): string {
+    switch (status) {
+      case 400:
+        return 'INVALID_REQUEST';
+      case 401:
+        return 'UNAUTHORIZED';
+      case 403:
+        return 'FORBIDDEN';
+      case 404:
+        return 'NOT_FOUND';
+      case 409:
+        return 'CONFLICT_ERROR';
+      case 423:
+        return 'RESOURCE_LOCKED';
+      case 429:
+        return 'RATE_LIMIT_EXCEEDED';
+      case 500:
+        return 'INTERNAL_SERVER_ERROR';
+      case 503:
+        return 'SERVICE_UNAVAILABLE';
+      default:
+        return 'UNKNOWN_ERROR';
+    }
+  }
+
+  private normalizeErrorCode(
+    payload: {
+      message?: unknown;
+      error?: { code?: unknown; details?: unknown };
+    } | null,
+    status: number,
+    fallbackCode: string
+  ) {
+    const backendCode = payload?.error?.code;
+    if (typeof backendCode === 'string' && backendCode.trim()) {
+      return {
+        code: backendCode.trim(),
+        message:
+          typeof payload?.message === 'string' && payload.message.trim()
+            ? payload.message.trim()
+            : backendCode.trim(),
+        details: payload?.error?.details ?? null,
+      };
+    }
+
+    if (typeof payload?.message === 'string' && payload.message.trim()) {
+      const message = payload.message.trim();
+      return {
+        code: message,
+        message,
+        details: payload?.error?.details ?? null,
+      };
+    }
+
+    return {
+      code: fallbackCode || this.getStatusErrorCode(status),
+      message: fallbackCode || this.getStatusErrorCode(status),
+      details: payload?.error?.details ?? null,
+    };
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -137,15 +293,7 @@ class ApiService {
 
     // Validate URL to prevent SSRF attacks
     if (!this.isValidUrl(url)) {
-      console.log('URL validation failed');
-      return {
-        success: false,
-        message: 'Invalid URL',
-        error: {
-          code: 'Invalid URL',
-          details: null,
-        },
-      };
+      return this.createErrorResponse('INVALID_URL');
     }
 
     const defaultHeaders: Record<string, string> = {
@@ -154,8 +302,9 @@ class ApiService {
       'X-Requested-With': 'XMLHttpRequest', // CSRF protection
     };
 
-    if (this.accessToken) {
-      defaultHeaders['Authorization'] = `Bearer ${this.accessToken}`;
+    const accessToken = this.getAccessToken();
+    if (accessToken) {
+      defaultHeaders['Authorization'] = `Bearer ${accessToken}`;
     }
 
     const mergedHeaders: Record<string, string> = {
@@ -172,30 +321,14 @@ class ApiService {
     const config: RequestInit = {
       ...options,
       headers: mergedHeaders,
-      // Add timeout to prevent hanging requests
-      signal: options.signal || AbortSignal.timeout(30000), // 30 seconds timeout (overridable)
+      signal: this.createTimeoutSignal(30000, options.signal),
     };
 
     try {
       const response = await fetch(url, config);
+      const data = await this.parseJsonResponse(response);
 
-      // Validate response content type
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Invalid response content type');
-      }
-
-      const data = await response.json();
-
-      // Check for specific status codes
-      if (response.status === 201) {
-        return {
-          success: true,
-          message: data.message || 'Created successfully',
-          data: data.data,
-        };
-      } else if (response.status === 401) {
-        // Unauthorized - check if this is an auth endpoint
+      if (response.status === 401) {
         const isAuthEndpoint =
           endpoint.includes('/auth/login') ||
           endpoint.includes('/auth/login/otp') ||
@@ -205,85 +338,69 @@ class ApiService {
           endpoint.includes('/auth/forgot-password') ||
           endpoint.includes('/auth/reset');
 
-        if (isAuthEndpoint) {
-          // Extract error message from the response data
-          let errorMessage = 'Authentication failed';
-          if (data.error && data.error.code) {
-            errorMessage = data.error.code;
-          } else if (data.message) {
-            errorMessage = data.message;
-          }
-
-          return {
-            success: false,
-            message: errorMessage,
-            error: {
-              code: errorMessage,
-              details: data.error?.details,
-            },
-          };
-        } else {
-          // For non-auth endpoints, trigger logout and redirect
-          if (this.unauthorizedHandler) {
-            this.unauthorizedHandler();
-          } else {
-            console.warn(
-              'No unauthorized handler set - cannot handle 401 automatically'
-            );
-          }
-
-          return {
-            success: false,
-            message: 'Unauthorized - Please log in again',
-            error: {
-              code: 'Unauthorized - Please log in again',
-              details: null,
-            },
-          };
-        }
-      } else if (!response.ok) {
-        // Handle other error responses
-        let errorMessage = `HTTP ${response.status}`;
-
-        if (data.error && data.error.code) {
-          errorMessage = data.error.code;
-        } else if (data.message) {
-          errorMessage = data.message;
+        if (!isAuthEndpoint) {
+          this.unauthorizedHandler?.();
         }
 
-        return {
-          success: false,
-          message: errorMessage,
-          error: {
-            code: errorMessage,
-            details: data.error?.details,
-          },
-        };
-      } else {
-        // Other successful responses
+        const normalized = this.normalizeErrorCode(
+          data,
+          response.status,
+          'UNAUTHORIZED'
+        );
+        return this.createErrorResponse(
+          normalized.code,
+          normalized.message,
+          normalized.details
+        );
+      }
+
+      if (!response.ok) {
+        const normalized = this.normalizeErrorCode(
+          data,
+          response.status,
+          this.getStatusErrorCode(response.status)
+        );
+        return this.createErrorResponse(
+          normalized.code,
+          normalized.message,
+          normalized.details
+        );
+      }
+
+      if (response.status === 204) {
         return {
           success: true,
-          message: data.message || 'Success',
-          data: data.data,
+          message: 'Success',
+          data: undefined,
         };
       }
-    } catch (error) {
-      // Don't expose internal error details in production
-      const isProduction = this.isProduction();
-      const errorMessage = isProduction
-        ? 'An error occurred'
-        : error instanceof Error
-          ? error.message
-          : 'Unknown error';
+
+      if (data === null) {
+        return this.createErrorResponse('INVALID_RESPONSE');
+      }
 
       return {
-        success: false,
-        message: errorMessage,
-        error: {
-          code: errorMessage,
-          details: null,
-        },
+        success: true,
+        message: data.message || 'Success',
+        data: data.data,
       };
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return this.createErrorResponse('TIMEOUT_ERROR');
+      }
+
+      if (error instanceof TypeError) {
+        return this.createErrorResponse('NETWORK_ERROR');
+      }
+
+      return this.createErrorResponse(
+        'UNKNOWN_ERROR',
+        this.isProduction()
+          ? 'UNKNOWN_ERROR'
+          : error instanceof Error
+            ? error.message
+            : 'UNKNOWN_ERROR'
+      );
     }
   }
 
@@ -295,43 +412,41 @@ class ApiService {
   }> {
     const url = getApiUrl(endpoint);
     if (!this.isValidUrl(url)) {
-      return { success: false, message: 'Invalid URL' };
+      return { success: false, message: 'INVALID_URL' };
     }
 
     const headers: Record<string, string> = {
       Accept: '*/*',
       'X-Requested-With': 'XMLHttpRequest',
     };
-    if (this.accessToken) {
-      headers['Authorization'] = `Bearer ${this.accessToken}`;
+    const accessToken = this.getAccessToken();
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
     }
 
     try {
       const response = await fetch(url, {
         method: 'GET',
         headers,
-        signal: AbortSignal.timeout(30000),
+        signal: this.createTimeoutSignal(30000),
       });
 
       if (response.status === 401) {
-        if (this.unauthorizedHandler) {
-          this.unauthorizedHandler();
-        }
+        this.unauthorizedHandler?.();
         return {
           success: false,
-          message: 'Unauthorized - Please log in again',
+          message: 'UNAUTHORIZED',
         };
       }
 
       if (!response.ok) {
-        let errorMessage = `HTTP ${response.status}`;
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const data = await response.json();
-          if (data?.error?.code) errorMessage = data.error.code;
-          else if (data?.message) errorMessage = data.message;
-        }
-        return { success: false, message: errorMessage };
+        const data = await this.parseJsonResponse(response);
+        const normalized = this.normalizeErrorCode(
+          data,
+          response.status,
+          this.getStatusErrorCode(response.status)
+        );
+        return { success: false, message: normalized.code };
       }
 
       const blob = await response.blob();
@@ -342,8 +457,19 @@ class ApiService {
         : undefined;
       return { success: true, message: 'Success', blob, filename };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      return { success: false, message };
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return { success: false, message: 'TIMEOUT_ERROR' };
+      }
+      if (error instanceof TypeError) {
+        return { success: false, message: 'NETWORK_ERROR' };
+      }
+      return {
+        success: false,
+        message:
+          error instanceof Error && !this.isProduction()
+            ? error.message
+            : 'UNKNOWN_ERROR',
+      };
     }
   }
 
@@ -396,7 +522,7 @@ class ApiService {
     return authVerifyLoginOtp(customerId, otpCode);
   }
 
-  async signup(signupData: any): Promise<ApiResponse> {
+  async signup(signupData: SignupRequestPayload): Promise<ApiResponse> {
     // Input validation
     if (!signupData || typeof signupData !== 'object') {
       return {
@@ -410,7 +536,11 @@ class ApiService {
     }
 
     // Validate required fields
-    const requiredFields = ['email', 'password', 'representative_mobile'];
+    const requiredFields: Array<keyof SignupRequestPayload> = [
+      'email',
+      'password',
+      'representative_mobile',
+    ];
     for (const field of requiredFields) {
       if (!signupData[field] || typeof signupData[field] !== 'string') {
         return {
@@ -496,6 +626,20 @@ class ApiService {
       };
     }
 
+    if (
+      signupData.confirm_password &&
+      signupData.confirm_password !== signupData.password
+    ) {
+      return {
+        success: false,
+        message: 'Passwords do not match',
+        error: {
+          code: 'Passwords do not match',
+          details: null,
+        },
+      };
+    }
+
     // Format phone numbers to include +98 prefix
     const formattedData = {
       ...signupData,
@@ -525,6 +669,28 @@ class ApiService {
     otpCode: string,
     otpType: string = 'mobile'
   ): Promise<ApiResponse> {
+    if (!Number.isInteger(customerId) || customerId <= 0) {
+      return {
+        success: false,
+        message: 'Invalid customer id',
+        error: {
+          code: 'Invalid customer id',
+          details: null,
+        },
+      };
+    }
+
+    if (!/^\d{6}$/.test(otpCode)) {
+      return {
+        success: false,
+        message: 'Invalid OTP code',
+        error: {
+          code: 'Invalid OTP code',
+          details: null,
+        },
+      };
+    }
+
     return this.request('/auth/verify', {
       method: 'POST',
       body: JSON.stringify({
@@ -539,6 +705,17 @@ class ApiService {
     customerId: number,
     otpType: string = 'mobile'
   ): Promise<ApiResponse> {
+    if (!Number.isInteger(customerId) || customerId <= 0) {
+      return {
+        success: false,
+        message: 'Invalid customer id',
+        error: {
+          code: 'Invalid customer id',
+          details: null,
+        },
+      };
+    }
+
     return this.request('/auth/resend-otp', {
       method: 'POST',
       body: JSON.stringify({
