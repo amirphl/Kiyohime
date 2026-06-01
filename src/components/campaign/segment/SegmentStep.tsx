@@ -1,8 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useCampaign } from '../../../hooks/useCampaign';
 import { apiService } from '../../../services/api';
 import { useAuth } from '../../../hooks/useAuth';
-import { jobCategoryI18n, JobCategoryLocale } from '../../../locales/jobCategory';
+import {
+  jobCategoryI18n,
+  JobCategoryLocale,
+} from '../../../locales/jobCategory';
 import TitleCard from './TitleCard';
 import CapacityCard from './CapacityCard';
 import LevelOneCard from './LevelOneCard';
@@ -10,15 +13,21 @@ import LevelTwoCard from './LevelTwoCard';
 import SegmentPriceFactorsCard from './SegmentPriceFactorsCard';
 import PlatformSelectionCard from './PlatformSelectionCard';
 import { useAudienceSpec } from './useAudienceSpec';
-import { getLevel1Options, getLevel2Options, getLevel3Options, getItemTags, getLevel2Metadata } from './utils';
 import {
-    LevelSelectionState,
-    saveLevelSelection,
-    loadLevelSelection,
-    createEmptyLevelSelection,
-    clearLevelSelection
+  getLevel1Options,
+  getLevel2Options,
+  getLevel3Options,
+  getItemTags,
+  getLevel2Metadata,
+} from './utils';
+import {
+  LevelSelectionState,
+  saveLevelSelection,
+  loadLevelSelection,
+  createEmptyLevelSelection,
+  clearLevelSelection,
 } from '../../../types/segment';
-import { CampaignPlatform } from '../../../types/campaign';
+import { CampaignData, CampaignPlatform } from '../../../types/campaign';
 import { campaignLevelI18n } from './segmentTranslations';
 import { useLanguage } from '../../../hooks/useLanguage';
 import CategoryJobFields from '../../CategoryJobFields';
@@ -26,426 +35,677 @@ import Button from '../../ui/Button';
 import { useToast } from '../../../hooks/useToast';
 
 const LevelStep: React.FC = () => {
-    const { language } = useLanguage();
-    const t =
-        campaignLevelI18n[language as keyof typeof campaignLevelI18n] ||
-        campaignLevelI18n.en;
-    const { campaignData, updateLevel, updateContent } = useCampaign();
-    const { accessToken, user } = useAuth();
-    const { showError } = useToast();
-    const showErrorRef = useRef(showError);
-    const categories = (jobCategoryI18n[language as JobCategoryLocale] || jobCategoryI18n.en) as Record<string, readonly string[]>;
-    const isAgency = user?.account_type === 'marketing_agency';
+  const { language } = useLanguage();
+  const t =
+    campaignLevelI18n[language as keyof typeof campaignLevelI18n] ||
+    campaignLevelI18n.en;
+  const {
+    campaignData,
+    updateLevel,
+    updateContent,
+    updateBudget,
+    setCampaignUuid,
+  } = useCampaign();
+  const { accessToken, user } = useAuth();
+  const { showError } = useToast();
+  const showErrorRef = useRef(showError);
+  const categories = (jobCategoryI18n[language as JobCategoryLocale] ||
+    jobCategoryI18n.en) as Record<string, readonly string[]>;
+  const isAgency = user?.account_type === 'marketing_agency';
 
-    // Local state for selections
-    const [campaignTitle, setCampaignTitle] = useState<string>(campaignData.level.campaignTitle || '');
-    const [platform, setPlatform] = useState<CampaignPlatform>(campaignData.level.platform || 'sms');
-    const [level1, setLevel1] = useState<string>(campaignData.level.level1 || '');
-    const [level2s, setLevel2s] = useState<string[]>(campaignData.level.level2s || []);
-    const [level3s, setLevel3s] = useState<string[]>(campaignData.level.level3s || []);
-    const [capacity, setCapacity] = useState<number>(0);
-    const [jobCategory, setJobCategory] = useState<string>(campaignData.level.jobCategory || '');
-    const [job, setJob] = useState<string>(campaignData.level.job || '');
-    const [jobErrors, setJobErrors] = useState<{ category?: string; job?: string }>({});
-    const [segmentPriceFactors, setSegmentPriceFactors] = useState<Record<string, number>>({});
+  // Local state for selections
+  const [campaignTitle, setCampaignTitle] = useState<string>(
+    campaignData.level.campaignTitle || ''
+  );
+  const [platform, setPlatform] = useState<CampaignPlatform>(
+    campaignData.level.platform || 'sms'
+  );
+  const [level1, setLevel1] = useState<string>(campaignData.level.level1 || '');
+  const [level2s, setLevel2s] = useState<string[]>(
+    campaignData.level.level2s || []
+  );
+  const [level3s, setLevel3s] = useState<string[]>(
+    campaignData.level.level3s || []
+  );
+  const [capacity, setCapacity] = useState<number>(0);
+  const [jobCategory, setJobCategory] = useState<string>(
+    campaignData.level.jobCategory || ''
+  );
+  const [job, setJob] = useState<string>(campaignData.level.job || '');
+  const [jobErrors, setJobErrors] = useState<{
+    category?: string;
+    job?: string;
+  }>({});
+  const [segmentPriceFactors, setSegmentPriceFactors] = useState<
+    Record<string, number>
+  >({});
 
-    // Track if initialization has already happened
-    const initializedRef = useRef(false);
-    // Fetch audience spec on mount
-    const { spec: audienceSpec, loading: loadingSpec, error: specError } = useAudienceSpec(platform);
+  // Track if initialization has already happened
+  const initializedRef = useRef(false);
+  const lastInitiatedFetchedRef = useRef(false);
+  const lastInitiatedInFlightRef = useRef(false);
+  const campaignDataRef = useRef(campaignData);
+  // Fetch audience spec on mount
+  const {
+    spec: audienceSpec,
+    loading: loadingSpec,
+    error: specError,
+  } = useAudienceSpec(platform);
 
-    // Ensure API service has token
-    useEffect(() => {
-        if (accessToken) {
-            apiService.setAccessToken(accessToken);
+  useEffect(() => {
+    campaignDataRef.current = campaignData;
+  }, [campaignData]);
+
+  const hasLocalDraftCampaign = useCallback(() => {
+    const current = campaignDataRef.current;
+    const inState =
+      !!current.uuid ||
+      !!current.level.campaignTitle ||
+      !!current.level.level1 ||
+      (current.level.level3s && current.level.level3s.length > 0);
+    if (inState) return true;
+
+    try {
+      const stored = localStorage.getItem('campaign_creation_data');
+      if (!stored) return false;
+      const parsed = JSON.parse(stored);
+      if (parsed?.uuid) return true;
+      const level = parsed?.level || {};
+      return (
+        !!level.campaignTitle ||
+        !!level.level1 ||
+        (Array.isArray(level.level3s) && level.level3s.length > 0)
+      );
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const normalizeLastInitiatedCampaign = useCallback(
+    (payload: any): CampaignData | null => {
+      const campaign = payload?.item ?? payload?.data ?? payload;
+      if (!campaign || typeof campaign !== 'object') return null;
+
+      const status =
+        typeof campaign.status === 'string'
+          ? campaign.status.toLowerCase()
+          : '';
+      if (status && status !== 'initiated' && status !== 'in-progress')
+        return null;
+
+      const platformValue = (campaign.platform as CampaignPlatform) || 'sms';
+      const capacityValue =
+        typeof campaign.num_audience === 'number'
+          ? campaign.num_audience
+          : typeof campaign.capacity === 'number'
+            ? campaign.capacity
+            : undefined;
+
+      const level = {
+        campaignTitle: campaign.title || '',
+        level1: campaign.level1 || '',
+        level2s: Array.isArray(campaign.level2s) ? campaign.level2s : [],
+        level3s: Array.isArray(campaign.level3s) ? campaign.level3s : [],
+        platform: platformValue,
+        tags: Array.isArray(campaign.tags) ? campaign.tags : [],
+        capacityTooLow:
+          typeof capacityValue === 'number'
+            ? capacityValue > 0 && capacityValue < 500
+            : false,
+        capacity: capacityValue,
+        jobCategory: campaign.job_category || '',
+        job: campaign.job || '',
+      };
+
+      const content = {
+        insertLink: !!campaign.adlink,
+        link: campaign.adlink || '',
+        text: campaign.content || '',
+        scheduleAt: campaign.scheduleat || undefined,
+        shortLinkDomain: campaign.short_link_domain || 'jo1n.ir',
+        lineNumber: campaign.line_number || '',
+        platformSettingsId:
+          platformValue === 'sms'
+            ? null
+            : (campaign.platform_settings_id ?? null),
+        mediaUuid:
+          platformValue === 'sms' ? null : (campaign.media_uuid ?? null),
+      };
+
+      const budget = {
+        totalBudget: typeof campaign.budget === 'number' ? campaign.budget : 0,
+        estimatedMessages:
+          typeof campaign.num_audience === 'number'
+            ? campaign.num_audience
+            : undefined,
+      };
+
+      return {
+        uuid: campaign.uuid || '',
+        level,
+        content,
+        budget,
+        payment: { paymentMethod: '', termsAccepted: false },
+      };
+    },
+    []
+  );
+
+  // Ensure API service has token
+  useEffect(() => {
+    if (accessToken) {
+      apiService.setAccessToken(accessToken);
+    }
+  }, [accessToken]);
+
+  useEffect(() => {
+    showErrorRef.current = showError;
+  }, [showError]);
+
+  // Fetch last initiated campaign once per visit when no local draft exists
+  useEffect(() => {
+    if (lastInitiatedFetchedRef.current) return;
+    if (lastInitiatedInFlightRef.current) return;
+    if (!accessToken) return;
+    if (hasLocalDraftCampaign()) return;
+
+    lastInitiatedInFlightRef.current = true;
+    let canceled = false;
+
+    const fetchLastInitiatedCampaign = async () => {
+      apiService.setAccessToken(accessToken);
+      const response = await apiService.getLastInitiatedCampaign();
+      //   console.log('0- Fetched last initiated campaign response:', response);
+      if (canceled) return;
+      //   console.log('1- Fetched last initiated campaign:', response);
+      // User might have started typing while the request was in-flight
+      if (hasLocalDraftCampaign()) return;
+      //   console.log('2- No local draft, processing fetched campaign');
+
+      if (!response.success || !response.data) {
+        if (!response.success && response.message) {
+          showErrorRef.current(response.message);
         }
-    }, [accessToken]);
+        return;
+      }
+      //   console.log('3- Normalizing last initiated campaign data');
 
-    useEffect(() => {
-        showErrorRef.current = showError;
-    }, [showError]);
+      const normalized = normalizeLastInitiatedCampaign(response.data);
+      if (!normalized || !normalized.uuid) return;
+      //   console.log('4- Normalized campaign data:', normalized);
 
-    useEffect(() => {
-        if (!accessToken) return;
-        let canceled = false;
-        setSegmentPriceFactors({});
+      try {
+        localStorage.setItem(
+          'campaign_creation_data',
+          JSON.stringify(normalized)
+        );
+        localStorage.setItem('campaign_creation_step', '1');
+        saveLevelSelection({
+          campaignTitle: normalized.level.campaignTitle || '',
+          level1s: normalized.level.level1 ? [normalized.level.level1] : [],
+          level2s: normalized.level.level2s || [],
+          level3s: normalized.level.level3s || [],
+          metadata: {},
+          tags: normalized.level.tags || [],
+          count: normalized.level.capacity || 0,
+          lastUpdated: new Date().toISOString(),
+        });
+      } catch (storageError) {
+        console.warn('Failed to persist last initiated campaign', storageError);
+      }
 
-        const fetchPriceFactors = async () => {
-            const response = await apiService.listLatestSegmentPriceFactors(platform);
-            if (canceled) return;
+      setCampaignUuid(normalized.uuid);
+      updateLevel(normalized.level);
+      updateContent(normalized.content);
+      updateBudget(normalized.budget);
 
-            if (!response.success || !response.data) {
-                showErrorRef.current(response.message || 'Failed to load segment price factors');
-                return;
-            }
-            const items = response.data.items || [];
-            const nextMap: Record<string, number> = {};
-            items.forEach(item => {
-                if (item?.level3) {
-                    nextMap[item.level3] = item.price_factor;
-                }
-            });
-            setSegmentPriceFactors(nextMap);
-        };
+      setCampaignTitle(normalized.level.campaignTitle || '');
+      setPlatform(normalized.level.platform || 'sms');
+      setLevel1(normalized.level.level1 || '');
+      setLevel2s(normalized.level.level2s || []);
+      setLevel3s(normalized.level.level3s || []);
+      setCapacity(normalized.level.capacity || 0);
+      setJobCategory(normalized.level.jobCategory || '');
+      setJob(normalized.level.job || '');
 
-        fetchPriceFactors();
+      lastInitiatedFetchedRef.current = true;
+    };
 
-        return () => {
-            canceled = true;
-        };
-    }, [accessToken, platform]);
-
-    // Initialize from localStorage when spec is loaded (only once)
-    // Loads from dedicated level selection storage, with fallback to campaignData
-    useEffect(() => {
-        if (!audienceSpec || initializedRef.current) return;
-
-        // Try to load from dedicated level selection storage first
-        const savedSelection = loadLevelSelection();
-
-        if (savedSelection) {
-            // Always restore campaignTitle if it exists
-            if (savedSelection.campaignTitle) {
-                setCampaignTitle(savedSelection.campaignTitle);
-                updateLevel({ campaignTitle: savedSelection.campaignTitle });
-            }
-
-            // Restore level selections if they exist
-            if (savedSelection.level1s.length > 0 && savedSelection.level3s.length > 0) {
-                setLevel1(savedSelection.level1s[0]);
-                setLevel2s(savedSelection.level2s);
-                setLevel3s(savedSelection.level3s);
-                setCapacity(savedSelection.count);
-            }
+    fetchLastInitiatedCampaign()
+      .catch(err => {
+        if (!canceled) {
+          console.warn('Failed to fetch last initiated campaign', err);
         }
-
-        // Mark as initialized
-        initializedRef.current = true;
-    }, [audienceSpec, updateLevel]);
-
-    // Auto-select single level3s and calculate capacity/tags when level2s or level3s change
-    // Stores to dedicated localStorage: level1s, level2s, level3s, metadata, tags, count
-    useEffect(() => {
-        if (!audienceSpec || !level1 || level2s.length === 0) {
-            setCapacity(0);
-            return;
+      })
+      .finally(() => {
+        if (!canceled) {
+          lastInitiatedInFlightRef.current = false;
         }
+      });
 
-        // Auto-select level3s where only one exists
-        const newL3s = new Set<string>(level3s);
-        level2s.forEach(l2 => {
-            const l3Options = getLevel3Options(audienceSpec, level1, l2);
-            if (l3Options.length === 1) {
-                newL3s.add(l3Options[0].value);
-            }
-        });
+    return () => {
+      canceled = true;
+      lastInitiatedInFlightRef.current = false;
+    };
+  }, [accessToken, hasLocalDraftCampaign, normalizeLastInitiatedCampaign]);
 
-        // Update level3s if auto-selection added new ones
-        const l3Array = Array.from(newL3s);
-        if (l3Array.length !== level3s.length || !l3Array.every(l3 => level3s.includes(l3))) {
-            setLevel3s(l3Array);
-            return; // Exit early to prevent duplicate updates
+  useEffect(() => {
+    if (!accessToken) return;
+    let canceled = false;
+    setSegmentPriceFactors({});
+
+    const fetchPriceFactors = async () => {
+      const response = await apiService.listLatestSegmentPriceFactors(platform);
+      if (canceled) return;
+
+      if (!response.success || !response.data) {
+        showErrorRef.current(
+          response.message || 'Failed to load segment price factors'
+        );
+        return;
+      }
+      const items = response.data.items || [];
+      const nextMap: Record<string, number> = {};
+      items.forEach(item => {
+        if (item?.level3) {
+          nextMap[item.level3] = item.price_factor;
         }
-
-        // Calculate capacity, collect tags union, and gather metadata from selected level3s
-        let totalCapacity = 0;
-        const tags = new Set<string>();
-        const metadata: Record<string, any> = {};
-
-        level2s.forEach(l2 => {
-            // Collect metadata for this level2
-            const l2Meta = getLevel2Metadata(audienceSpec, level1, l2);
-            if (l2Meta) {
-                metadata[l2] = l2Meta;
-            }
-
-            const l3Options = getLevel3Options(audienceSpec, level1, l2).map(opt => opt.value);
-            const selectedForL3 = l3Array.filter(l3 => l3Options.includes(l3));
-
-            selectedForL3.forEach(l3 => {
-                const item = (audienceSpec as any)?.[level1]?.[l2]?.items?.[l3];
-                const count = typeof item?.available_audience === 'number' ? item.available_audience : 0;
-                totalCapacity += count;
-
-                // Collect tags from each selected level3 item
-                const itemTags = getItemTags(audienceSpec, level1, l2, l3);
-                itemTags.forEach(tag => tags.add(tag));
-
-                // Store level3 item metadata
-                if (item) {
-                    metadata[`${l2}.${l3}`] = {
-                        tags: item.tags || [],
-                        available_audience: item.available_audience || 0,
-                    };
-                }
-            });
-        });
-
-        setCapacity(totalCapacity);
-
-        // Create level selection state
-        const selectionState: LevelSelectionState = {
-            campaignTitle: campaignTitle,
-            level1s: [level1],
-            level2s: level2s,
-            level3s: l3Array,
-            metadata: metadata,
-            tags: Array.from(tags),
-            count: totalCapacity,
-            lastUpdated: new Date().toISOString(),
-        };
-
-        // Save to dedicated level selection storage
-        saveLevelSelection(selectionState);
-
-        // Also update campaign data for API compatibility
-        const capacityTooLow = totalCapacity > 0 && totalCapacity < 500;
-
-        updateLevel({
-            level1: level1,        // Level 1 selection
-            level2s: level2s,      // Level 2 selections
-            level3s: l3Array,      // Level 3 selections
-            tags: Array.from(tags), // Union of tags from selected level3s
-            capacity: totalCapacity,
-            capacityTooLow: capacityTooLow,
-            jobCategory,
-            job,
-        });
-    }, [audienceSpec, level1, level2s, level3s, campaignTitle, jobCategory, job, updateLevel]);
-
-    const handleCampaignTitleChange = (value: string) => {
-        setCampaignTitle(value);
-        updateLevel({ campaignTitle: value });
+      });
+      setSegmentPriceFactors(nextMap);
     };
 
-    const handleLevel1Change = (value: string) => {
-        setLevel1(value);
-        setLevel2s([]);
-        setLevel3s([]);
-        setCapacity(0);
+    fetchPriceFactors();
 
-        // Save empty state to level selection storage (preserve campaignTitle)
-        const emptySelection = createEmptyLevelSelection();
-        emptySelection.campaignTitle = campaignTitle;
-        emptySelection.level1s = [value];
-        saveLevelSelection(emptySelection);
+    return () => {
+      canceled = true;
+    };
+  }, [accessToken, platform]);
 
-        updateLevel({
-            level1: value,
-            level2s: [],
-            level3s: [],
-            tags: [],
-            capacity: 0,
-            capacityTooLow: false,
-        });
+  // Initialize from localStorage when spec is loaded (only once)
+  // Loads from dedicated level selection storage, with fallback to campaignData
+  useEffect(() => {
+    if (!audienceSpec || initializedRef.current) return;
+
+    // Try to load from dedicated level selection storage first
+    const savedSelection = loadLevelSelection();
+
+    if (savedSelection) {
+      // Always restore campaignTitle if it exists
+      if (savedSelection.campaignTitle) {
+        setCampaignTitle(savedSelection.campaignTitle);
+        updateLevel({ campaignTitle: savedSelection.campaignTitle });
+      }
+
+      // Restore level selections if they exist
+      if (
+        savedSelection.level1s.length > 0 &&
+        savedSelection.level3s.length > 0
+      ) {
+        setLevel1(savedSelection.level1s[0]);
+        setLevel2s(savedSelection.level2s);
+        setLevel3s(savedSelection.level3s);
+        setCapacity(savedSelection.count);
+      }
+    }
+
+    // Mark as initialized
+    initializedRef.current = true;
+  }, [audienceSpec, updateLevel]);
+
+  // Auto-select single level3s and calculate capacity/tags when level2s or level3s change
+  // Stores to dedicated localStorage: level1s, level2s, level3s, metadata, tags, count
+  useEffect(() => {
+    if (!audienceSpec || !level1 || level2s.length === 0) {
+      setCapacity(0);
+      return;
+    }
+
+    // Auto-select level3s where only one exists
+    const newL3s = new Set<string>(level3s);
+    level2s.forEach(l2 => {
+      const l3Options = getLevel3Options(audienceSpec, level1, l2);
+      if (l3Options.length === 1) {
+        newL3s.add(l3Options[0].value);
+      }
+    });
+
+    // Update level3s if auto-selection added new ones
+    const l3Array = Array.from(newL3s);
+    if (
+      l3Array.length !== level3s.length ||
+      !l3Array.every(l3 => level3s.includes(l3))
+    ) {
+      setLevel3s(l3Array);
+      return; // Exit early to prevent duplicate updates
+    }
+
+    // Calculate capacity, collect tags union, and gather metadata from selected level3s
+    let totalCapacity = 0;
+    const tags = new Set<string>();
+    const metadata: Record<string, any> = {};
+
+    level2s.forEach(l2 => {
+      // Collect metadata for this level2
+      const l2Meta = getLevel2Metadata(audienceSpec, level1, l2);
+      if (l2Meta) {
+        metadata[l2] = l2Meta;
+      }
+
+      const l3Options = getLevel3Options(audienceSpec, level1, l2).map(
+        opt => opt.value
+      );
+      const selectedForL3 = l3Array.filter(l3 => l3Options.includes(l3));
+
+      selectedForL3.forEach(l3 => {
+        const item = (audienceSpec as any)?.[level1]?.[l2]?.items?.[l3];
+        const count =
+          typeof item?.available_audience === 'number'
+            ? item.available_audience
+            : 0;
+        totalCapacity += count;
+
+        // Collect tags from each selected level3 item
+        const itemTags = getItemTags(audienceSpec, level1, l2, l3);
+        itemTags.forEach(tag => tags.add(tag));
+
+        // Store level3 item metadata
+        if (item) {
+          metadata[`${l2}.${l3}`] = {
+            tags: item.tags || [],
+            available_audience: item.available_audience || 0,
+          };
+        }
+      });
+    });
+
+    setCapacity(totalCapacity);
+
+    // Create level selection state
+    const selectionState: LevelSelectionState = {
+      campaignTitle: campaignTitle,
+      level1s: [level1],
+      level2s: level2s,
+      level3s: l3Array,
+      metadata: metadata,
+      tags: Array.from(tags),
+      count: totalCapacity,
+      lastUpdated: new Date().toISOString(),
     };
 
-    const handleLevel2Toggle = (l2: string) => {
-        setLevel2s(prev => {
-            if (prev.includes(l2)) {
-                // Remove level2 and all its associated level3s
-                const l3ToRemove = getLevel3Options(audienceSpec || null, level1, l2).map(opt => opt.value);
-                setLevel3s(prevL3s => prevL3s.filter(l3 => !l3ToRemove.includes(l3)));
-                return prev.filter(item => item !== l2);
-            } else {
-                return [...prev, l2];
-            }
-        });
-    };
+    // Save to dedicated level selection storage
+    saveLevelSelection(selectionState);
 
-    const handleJobCategoryChange = (value: string) => {
-        setJobCategory(value);
-        setJob('');
-        updateLevel({ jobCategory: value, job: '' });
-        setJobErrors(prev => ({ ...prev, category: value ? '' : t.agencyCategoryRequired, job: '' }));
-    };
+    // Also update campaign data for API compatibility
+    const capacityTooLow = totalCapacity > 0 && totalCapacity < 500;
 
-    const handleJobChange = (value: string) => {
-        setJob(value);
-        updateLevel({ job: value });
-        setJobErrors(prev => ({ ...prev, job: value ? '' : t.agencyJobRequired }));
-    };
+    updateLevel({
+      level1: level1, // Level 1 selection
+      level2s: level2s, // Level 2 selections
+      level3s: l3Array, // Level 3 selections
+      tags: Array.from(tags), // Union of tags from selected level3s
+      capacity: totalCapacity,
+      capacityTooLow: capacityTooLow,
+      jobCategory,
+      job,
+    });
+  }, [
+    audienceSpec,
+    level1,
+    level2s,
+    level3s,
+    campaignTitle,
+    jobCategory,
+    job,
+    updateLevel,
+  ]);
 
-    const handleLevel3Toggle = (l3: string) => {
-        setLevel3s(prev => {
-            if (prev.includes(l3)) {
-                return prev.filter(item => item !== l3);
-            } else {
-                return [...prev, l3];
-            }
-        });
-    };
+  const handleCampaignTitleChange = (value: string) => {
+    setCampaignTitle(value);
+    updateLevel({ campaignTitle: value });
+  };
 
-    const handlePlatformChange = (value: CampaignPlatform) => {
-        setPlatform(value);
-        setLevel1('');
-        setLevel2s([]);
-        setLevel3s([]);
-        setCapacity(0);
-        clearLevelSelection();
-        // Platform-specific settings selection from content step must be reset on platform switch.
-        updateContent({ platformSettingsId: null });
-        updateLevel({
-            platform: value,
-            level1: '',
-            level2s: [],
-            level3s: [],
-            tags: [],
-            capacity: 0,
-            capacityTooLow: false,
-        });
-    };
+  const handleLevel1Change = (value: string) => {
+    setLevel1(value);
+    setLevel2s([]);
+    setLevel3s([]);
+    setCapacity(0);
 
-    const handleReset = () => {
-        setCampaignTitle('');
-        setPlatform('sms');
-        setLevel1('');
-        setLevel2s([]);
-        setLevel3s([]);
-        setCapacity(0);
-        setJobCategory('');
-        setJob('');
-        setJobErrors({});
-        clearLevelSelection();
+    // Save empty state to level selection storage (preserve campaignTitle)
+    const emptySelection = createEmptyLevelSelection();
+    emptySelection.campaignTitle = campaignTitle;
+    emptySelection.level1s = [value];
+    saveLevelSelection(emptySelection);
 
-        updateLevel({
-            campaignTitle: '',
-            platform: 'sms',
-            level1: '',
-            level2s: [],
-            level3s: [],
-            tags: [],
-            capacity: 0,
-            capacityTooLow: false,
-            jobCategory: '',
-            job: '',
-        });
-    };
+    updateLevel({
+      level1: value,
+      level2s: [],
+      level3s: [],
+      tags: [],
+      capacity: 0,
+      capacityTooLow: false,
+    });
+  };
 
-    const level1Options = getLevel1Options(audienceSpec || null);
-    const level2Options = getLevel2Options(audienceSpec || null, level1);
+  const handleLevel2Toggle = (l2: string) => {
+    setLevel2s(prev => {
+      if (prev.includes(l2)) {
+        // Remove level2 and all its associated level3s
+        const l3ToRemove = getLevel3Options(
+          audienceSpec || null,
+          level1,
+          l2
+        ).map(opt => opt.value);
+        setLevel3s(prevL3s => prevL3s.filter(l3 => !l3ToRemove.includes(l3)));
+        return prev.filter(item => item !== l2);
+      } else {
+        return [...prev, l2];
+      }
+    });
+  };
 
-    return (
-        <div className='space-y-8'>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch'>
-                {/* Platform Selection */}
-                <div className='md:col-span-2'>
-                    <PlatformSelectionCard
-                        title={t.platform}
-                        value={platform}
-                        onChange={handlePlatformChange}
-                        options={[
-                            { value: 'sms', label: t.platformSms },
-                            { value: 'rubika', label: t.platformRubika },
-                            { value: 'bale', label: t.platformBale },
-                            { value: 'splus', label: t.platformSplus },
-                        ]}
-                    />
-                </div>
+  const handleJobCategoryChange = (value: string) => {
+    setJobCategory(value);
+    setJob('');
+    updateLevel({ jobCategory: value, job: '' });
+    setJobErrors(prev => ({
+      ...prev,
+      category: value ? '' : t.agencyCategoryRequired,
+      job: '',
+    }));
+  };
 
-                {/* Campaign Title */}
-                <div className='md:col-span-2'>
-                    <TitleCard
-                        title={campaignTitle || ''}
-                        onChange={handleCampaignTitleChange}
-                        label={t.campaignTitleLabel}
-                        placeholder={t.campaignTitlePlaceholder}
-                        validationMessage={t.campaignTitleValidation}
-                    />
-                </div>
+  const handleJobChange = (value: string) => {
+    setJob(value);
+    updateLevel({ job: value });
+    setJobErrors(prev => ({ ...prev, job: value ? '' : t.agencyJobRequired }));
+  };
 
-                {isAgency && (
-                    <div className='md:col-span-2'>
-                        <div className='bg-white shadow-sm border border-gray-200 rounded-lg p-4'>
-                            <CategoryJobFields
-                                category={jobCategory}
-                                job={job}
-                                onChange={(field, value) => field === 'jobCategory' ? handleJobCategoryChange(value) : handleJobChange(value)}
-                                requiredLabel={<span className='text-red-500'>*</span>}
-                                strings={{
-                                    categoryHeader: t.agencyCategoryHeader,
-                                    category: t.agencyCategory,
-                                    selectCategory: t.agencySelectCategory,
-                                    job: t.agencyJob,
-                                    selectJob: t.agencySelectJob,
-                                }}
-                                categories={categories}
-                                errors={{
-                                    category: isAgency && !jobCategory ? t.agencyCategoryRequired : jobErrors.category,
-                                    job: isAgency && !job ? t.agencyJobRequired : jobErrors.job,
-                                }}
-                            />
-                        </div>
-                    </div>
-                )}
+  const handleLevel3Toggle = (l3: string) => {
+    setLevel3s(prev => {
+      if (prev.includes(l3)) {
+        return prev.filter(item => item !== l3);
+      } else {
+        return [...prev, l3];
+      }
+    });
+  };
 
-                {/* Level 1 Selection */}
-                <div className='md:col-span-2'>
-                    {specError ? (
-                        <div className='text-sm text-red-600'>{specError}</div>
-                    ) : loadingSpec ? (
-                        <div className='text-sm text-gray-600'>{t.loading}</div>
-                    ) : (
-                        <LevelOneCard
-                            label={t.level1Label || 'Level 1'}
-                            labelDescription={t.level1Description || ''}
-                            placeholder={t.level1Placeholder || 'Select Level 1'}
-                            options={level1Options}
-                            value={level1}
-                            onChange={handleLevel1Change}
-                        />
-                    )}
-                </div>
+  const handlePlatformChange = (value: CampaignPlatform) => {
+    setPlatform(value);
+    setLevel1('');
+    setLevel2s([]);
+    setLevel3s([]);
+    setCapacity(0);
+    clearLevelSelection();
+    // Platform-specific settings selection from content step must be reset on platform switch.
+    updateContent({ platformSettingsId: null });
+    updateLevel({
+      platform: value,
+      level1: '',
+      level2s: [],
+      level3s: [],
+      tags: [],
+      capacity: 0,
+      capacityTooLow: false,
+    });
+  };
 
-                {/* Level 2 and Level 3 Selection */}
-                {level1 && !specError && !loadingSpec && (
-                    <div className='md:col-span-2'>
-                        <LevelTwoCard
-                            spec={audienceSpec || null}
-                            level1={level1}
-                            label={t.level2Label}
-                            help={t.level2Help}
-                            options={level2Options}
-                            selectedLevel2s={level2s}
-                            selectedLevel3s={level3s}
-                            onToggleLevel2={handleLevel2Toggle}
-                            onToggleLevel3={handleLevel3Toggle}
-                            validationMessage={t.level2Validation}
-                        />
-                        <SegmentPriceFactorsCard
-                            level3s={level3s}
-                            segmentPriceFactors={segmentPriceFactors}
-                            label={t.segmentPriceFactors}
-                            notSetLabel={t.notSet}
-                        />
-                    </div>
-                )}
+  const handleReset = () => {
+    setCampaignTitle('');
+    setPlatform('sms');
+    setLevel1('');
+    setLevel2s([]);
+    setLevel3s([]);
+    setCapacity(0);
+    setJobCategory('');
+    setJob('');
+    setJobErrors({});
+    clearLevelSelection();
 
+    updateLevel({
+      campaignTitle: '',
+      platform: 'sms',
+      level1: '',
+      level2s: [],
+      level3s: [],
+      tags: [],
+      capacity: 0,
+      capacityTooLow: false,
+      jobCategory: '',
+      job: '',
+    });
+  };
 
-                {/* Capacity Display */}
-                <div className='md:col-span-2'>
-                    <CapacityCard
-                        title={t.campaignCapacity}
-                        help={t.campaignCapacityHelp}
-                        isLoading={false}
-                        capacity={capacity}
-                        fallbackCapacity={capacity}
-                        unitsLabel={t.users}
-                        calculatingLabel={t.calculating}
-                        notSetLabel={t.notSet}
-                        lowCapacityLabel={t.capacityTooLow}
-                        error={null}
-                    />
-                </div>
+  const level1Options = getLevel1Options(audienceSpec || null);
+  const level2Options = getLevel2Options(audienceSpec || null, level1);
 
-                <div className='md:col-span-2 flex items-center'>
-                    <Button variant='outline' onClick={handleReset}>
-                        {t.reset}
-                    </Button>
-                </div>
-            </div>
+  return (
+    <div className='space-y-8'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch'>
+        {/* Platform Selection */}
+        <div className='md:col-span-2'>
+          <PlatformSelectionCard
+            title={t.platform}
+            value={platform}
+            onChange={handlePlatformChange}
+            options={[
+              { value: 'sms', label: t.platformSms },
+              { value: 'rubika', label: t.platformRubika },
+              { value: 'bale', label: t.platformBale },
+              { value: 'splus', label: t.platformSplus },
+            ]}
+          />
         </div>
-    );
+
+        {/* Campaign Title */}
+        <div className='md:col-span-2'>
+          <TitleCard
+            title={campaignTitle || ''}
+            onChange={handleCampaignTitleChange}
+            label={t.campaignTitleLabel}
+            placeholder={t.campaignTitlePlaceholder}
+            validationMessage={t.campaignTitleValidation}
+          />
+        </div>
+
+        {isAgency && (
+          <div className='md:col-span-2'>
+            <div className='bg-white shadow-sm border border-gray-200 rounded-lg p-4'>
+              <CategoryJobFields
+                category={jobCategory}
+                job={job}
+                onChange={(field, value) =>
+                  field === 'jobCategory'
+                    ? handleJobCategoryChange(value)
+                    : handleJobChange(value)
+                }
+                requiredLabel={<span className='text-red-500'>*</span>}
+                strings={{
+                  categoryHeader: t.agencyCategoryHeader,
+                  category: t.agencyCategory,
+                  selectCategory: t.agencySelectCategory,
+                  job: t.agencyJob,
+                  selectJob: t.agencySelectJob,
+                }}
+                categories={categories}
+                errors={{
+                  category:
+                    isAgency && !jobCategory
+                      ? t.agencyCategoryRequired
+                      : jobErrors.category,
+                  job: isAgency && !job ? t.agencyJobRequired : jobErrors.job,
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Level 1 Selection */}
+        <div className='md:col-span-2'>
+          {specError ? (
+            <div className='text-sm text-red-600'>{specError}</div>
+          ) : loadingSpec ? (
+            <div className='text-sm text-gray-600'>{t.loading}</div>
+          ) : (
+            <LevelOneCard
+              label={t.level1Label || 'Level 1'}
+              labelDescription={t.level1Description || ''}
+              placeholder={t.level1Placeholder || 'Select Level 1'}
+              options={level1Options}
+              value={level1}
+              onChange={handleLevel1Change}
+            />
+          )}
+        </div>
+
+        {/* Level 2 and Level 3 Selection */}
+        {level1 && !specError && !loadingSpec && (
+          <div className='md:col-span-2'>
+            <LevelTwoCard
+              spec={audienceSpec || null}
+              level1={level1}
+              label={t.level2Label}
+              help={t.level2Help}
+              options={level2Options}
+              selectedLevel2s={level2s}
+              selectedLevel3s={level3s}
+              onToggleLevel2={handleLevel2Toggle}
+              onToggleLevel3={handleLevel3Toggle}
+              validationMessage={t.level2Validation}
+            />
+            <SegmentPriceFactorsCard
+              level3s={level3s}
+              segmentPriceFactors={segmentPriceFactors}
+              label={t.segmentPriceFactors}
+              notSetLabel={t.notSet}
+            />
+          </div>
+        )}
+
+        {/* Capacity Display */}
+        <div className='md:col-span-2'>
+          <CapacityCard
+            title={t.campaignCapacity}
+            help={t.campaignCapacityHelp}
+            isLoading={false}
+            capacity={capacity}
+            fallbackCapacity={capacity}
+            unitsLabel={t.users}
+            calculatingLabel={t.calculating}
+            notSetLabel={t.notSet}
+            lowCapacityLabel={t.capacityTooLow}
+            error={null}
+          />
+        </div>
+
+        <div className='md:col-span-2 flex items-center'>
+          <Button variant='outline' onClick={handleReset}>
+            {t.reset}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default LevelStep; 
+export default LevelStep;
