@@ -244,7 +244,7 @@ const campaignLevelFa = {
   platformSplus: 'سروش پلاس',
 
   // Segmentation mode
-  segmentationMode: 'روش سگمنت‌بندی',
+  segmentationMode: 'روش ارسال',
   segmentationByLevels: 'انتخاب سطوح',
   segmentationByTargetAudienceExcelFile: 'آپلود فایل اکسل',
   segmentationByTargetAudienceExcelFileTitle: 'فایل اکسل مخاطبان',
