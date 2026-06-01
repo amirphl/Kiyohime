@@ -1,8 +1,89 @@
 import { getApiUrl, isProduction } from '../../config/environment';
 import { AUTH_ENDPOINTS, OTP_CODE_LENGTH } from './constants';
 import { AuthApiResponse } from './types';
+import {
+  isPhoneLikeIdentifier,
+  isValidEmailIdentifier,
+  normalizeIdentifierInput,
+} from './utils';
 
-const PHONE_REGEX = /^[\d+]+$/;
+const AUTH_ERROR_CODES = {
+  invalidUrl: 'INVALID_URL',
+  invalidIdentifier: 'INVALID_IDENTIFIER',
+  invalidPassword: 'INVALID_PASSWORD',
+  invalidMobileNumber: 'INVALID_MOBILE_NUMBER',
+  invalidCustomerId: 'INVALID_CUSTOMER_ID',
+  invalidOtpCode: 'INVALID_OTP_CODE',
+  invalidResponseContentType: 'INVALID_RESPONSE_CONTENT_TYPE',
+  networkError: 'NETWORK_ERROR',
+  timeoutError: 'TIMEOUT_ERROR',
+} as const;
+
+const createAuthErrorResponse = <T>(
+  code: string,
+  message = code,
+  details: unknown = null
+): AuthApiResponse<T> => ({
+  success: false,
+  message,
+  error: {
+    code,
+    details,
+  },
+});
+
+const getStoredAccessToken = (): string | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  return window.localStorage.getItem('access_token');
+};
+
+const createTimeoutSignal = (
+  timeoutMs: number,
+  signal?: AbortSignal | null
+): AbortSignal => {
+  if (!signal) {
+    return AbortSignal.timeout(timeoutMs);
+  }
+
+  const controller = new AbortController();
+  const timeoutId = globalThis.setTimeout(() => controller.abort(), timeoutMs);
+  const clearTimer = () => globalThis.clearTimeout(timeoutId);
+
+  if (signal.aborted) {
+    clearTimer();
+    controller.abort(signal.reason);
+    return controller.signal;
+  }
+
+  signal.addEventListener(
+    'abort',
+    () => {
+      clearTimer();
+      controller.abort(signal.reason);
+    },
+    { once: true }
+  );
+
+  controller.signal.addEventListener('abort', clearTimer, { once: true });
+
+  return controller.signal;
+};
+
+const parseJsonResponse = async (response: Response): Promise<any | null> => {
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    return null;
+  }
+
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
+};
 
 const formatPhoneNumber = (phoneNumber: string): string => {
   let cleaned = phoneNumber.replace(/^\+98/, '').replace(/^0+/, '');
@@ -30,18 +111,14 @@ const isValidUrl = (url: string): boolean => {
   }
 };
 
-const authRequest = async <T>(endpoint: string, options: RequestInit = {}): Promise<AuthApiResponse<T>> => {
+const authRequest = async <T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<AuthApiResponse<T>> => {
   const url = getApiUrl(endpoint);
 
   if (!isValidUrl(url)) {
-    return {
-      success: false,
-      message: 'Invalid URL',
-      error: {
-        code: 'Invalid URL',
-        details: null,
-      },
-    };
+    return createAuthErrorResponse(AUTH_ERROR_CODES.invalidUrl);
   }
 
   const defaultHeaders: Record<string, string> = {
@@ -56,17 +133,26 @@ const authRequest = async <T>(endpoint: string, options: RequestInit = {}): Prom
       ...defaultHeaders,
       ...options.headers,
     },
-    signal: options.signal || AbortSignal.timeout(30000),
+    signal: createTimeoutSignal(30000, options.signal),
   };
+
+  const accessToken = getStoredAccessToken();
+  if (
+    accessToken &&
+    !(config.headers as Record<string, string>).Authorization
+  ) {
+    (config.headers as Record<string, string>).Authorization =
+      `Bearer ${accessToken}`;
+  }
 
   try {
     const response = await fetch(url, config);
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      throw new Error('Invalid response content type');
+    const data = await parseJsonResponse(response);
+    if (data === null) {
+      return createAuthErrorResponse(
+        AUTH_ERROR_CODES.invalidResponseContentType
+      );
     }
-
-    const data = await response.json();
 
     if (!response.ok) {
       let errorMessage = `HTTP ${response.status}`;
@@ -92,48 +178,56 @@ const authRequest = async <T>(endpoint: string, options: RequestInit = {}): Prom
       data: data.data,
     };
   } catch (error) {
-    const errorMessage = isProduction()
-      ? 'An error occurred'
-      : error instanceof Error
-        ? error.message
-        : 'Unknown error';
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      return createAuthErrorResponse(AUTH_ERROR_CODES.timeoutError);
+    }
 
-    return {
-      success: false,
-      message: errorMessage,
-      error: {
-        code: errorMessage,
-        details: null,
-      },
-    };
+    const errorMessage =
+      error instanceof TypeError
+        ? AUTH_ERROR_CODES.networkError
+        : isProduction()
+          ? AUTH_ERROR_CODES.networkError
+          : error instanceof Error
+            ? error.message
+            : AUTH_ERROR_CODES.networkError;
+
+    return createAuthErrorResponse(
+      errorMessage === AUTH_ERROR_CODES.networkError
+        ? AUTH_ERROR_CODES.networkError
+        : 'UNKNOWN_ERROR',
+      errorMessage
+    );
   }
 };
 
-export const login = async (identifier: string, password: string): Promise<AuthApiResponse> => {
-  if (!identifier || typeof identifier !== 'string' || identifier.length > 255) {
-    return {
-      success: false,
-      message: 'Invalid identifier',
-      error: {
-        code: 'Invalid identifier',
-        details: null,
-      },
-    };
+export const login = async (
+  identifier: string,
+  password: string
+): Promise<AuthApiResponse> => {
+  if (
+    !identifier ||
+    typeof identifier !== 'string' ||
+    identifier.length > 255
+  ) {
+    return createAuthErrorResponse(AUTH_ERROR_CODES.invalidIdentifier);
   }
 
   if (!password || typeof password !== 'string' || password.length < 8) {
-    return {
-      success: false,
-      message: 'Invalid password',
-      error: {
-        code: 'Invalid password',
-        details: null,
-      },
-    };
+    return createAuthErrorResponse(AUTH_ERROR_CODES.invalidPassword);
   }
 
-  let formattedIdentifier = identifier.trim();
-  if (PHONE_REGEX.test(formattedIdentifier)) {
+  let formattedIdentifier = normalizeIdentifierInput(identifier);
+  if (!formattedIdentifier || formattedIdentifier.length > 255) {
+    return createAuthErrorResponse(AUTH_ERROR_CODES.invalidIdentifier);
+  }
+
+  const isPhoneIdentifier = isPhoneLikeIdentifier(formattedIdentifier);
+  const isEmailIdentifier = isValidEmailIdentifier(formattedIdentifier);
+  if (!isPhoneIdentifier && !isEmailIdentifier) {
+    return createAuthErrorResponse(AUTH_ERROR_CODES.invalidIdentifier);
+  }
+
+  if (isPhoneIdentifier) {
     formattedIdentifier = formatPhoneNumber(formattedIdentifier);
   }
 
@@ -146,28 +240,20 @@ export const login = async (identifier: string, password: string): Promise<AuthA
   });
 };
 
-export const requestLoginOtp = async (identifier: string): Promise<AuthApiResponse> => {
-  if (!identifier || typeof identifier !== 'string' || identifier.length > 255) {
-    return {
-      success: false,
-      message: 'Invalid identifier',
-      error: {
-        code: 'Invalid identifier',
-        details: null,
-      },
-    };
+export const requestLoginOtp = async (
+  identifier: string
+): Promise<AuthApiResponse> => {
+  if (
+    !identifier ||
+    typeof identifier !== 'string' ||
+    identifier.length > 255
+  ) {
+    return createAuthErrorResponse(AUTH_ERROR_CODES.invalidIdentifier);
   }
 
-  let formattedIdentifier = identifier.trim();
-  if (!PHONE_REGEX.test(formattedIdentifier)) {
-    return {
-      success: false,
-      message: 'Invalid mobile number',
-      error: {
-        code: 'Invalid mobile number',
-        details: null,
-      },
-    };
+  let formattedIdentifier = normalizeIdentifierInput(identifier);
+  if (!isPhoneLikeIdentifier(formattedIdentifier)) {
+    return createAuthErrorResponse(AUTH_ERROR_CODES.invalidMobileNumber);
   }
 
   formattedIdentifier = formatPhoneNumber(formattedIdentifier);
@@ -180,27 +266,20 @@ export const requestLoginOtp = async (identifier: string): Promise<AuthApiRespon
   });
 };
 
-export const verifyLoginOtp = async (customerId: number, otpCode: string): Promise<AuthApiResponse> => {
+export const verifyLoginOtp = async (
+  customerId: number,
+  otpCode: string
+): Promise<AuthApiResponse> => {
   if (!customerId || typeof customerId !== 'number' || customerId <= 0) {
-    return {
-      success: false,
-      message: 'Invalid customer id',
-      error: {
-        code: 'Invalid customer id',
-        details: null,
-      },
-    };
+    return createAuthErrorResponse(AUTH_ERROR_CODES.invalidCustomerId);
   }
 
-  if (!otpCode || typeof otpCode !== 'string' || otpCode.length !== OTP_CODE_LENGTH) {
-    return {
-      success: false,
-      message: 'Invalid OTP code',
-      error: {
-        code: 'Invalid OTP code',
-        details: null,
-      },
-    };
+  if (
+    !otpCode ||
+    typeof otpCode !== 'string' ||
+    otpCode.length !== OTP_CODE_LENGTH
+  ) {
+    return createAuthErrorResponse(AUTH_ERROR_CODES.invalidOtpCode);
   }
 
   return authRequest(AUTH_ENDPOINTS.loginOtpVerify, {
