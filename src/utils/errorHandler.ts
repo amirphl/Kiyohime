@@ -8,211 +8,258 @@ export interface ErrorMessage {
 // Error code to message mapping
 export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
   // Signup errors
-  'EMAIL_EXISTS': {
+  EMAIL_EXISTS: {
     en: 'An account with this email already exists',
-    fa: 'حسابی با این ایمیل قبلاً وجود دارد'
+    fa: 'حسابی با این ایمیل قبلاً وجود دارد',
   },
-  'MOBILE_EXISTS': {
+  MOBILE_EXISTS: {
     en: 'An account with this mobile number already exists',
-    fa: 'حسابی با این شماره موبایل قبلاً وجود دارد'
+    fa: 'حسابی با این شماره موبایل قبلاً وجود دارد',
   },
-  'NATIONAL_ID_EXISTS': {
+  NATIONAL_ID_EXISTS: {
     en: 'An account with this national ID already exists',
-    fa: 'حسابی با این کد ملی قبلاً وجود دارد'
+    fa: 'حسابی با این کد ملی قبلاً وجود دارد',
   },
-  'ACCOUNT_TYPE_NOT_FOUND': {
+  ACCOUNT_TYPE_NOT_FOUND: {
     en: 'Selected account type is not valid',
-    fa: 'نوع حساب انتخاب شده معتبر نیست'
+    fa: 'نوع حساب انتخاب شده معتبر نیست',
   },
-  'COMPANY_FIELDS_REQUIRED': {
+  COMPANY_FIELDS_REQUIRED: {
     en: 'Company information is required for business accounts',
-    fa: 'اطلاعات شرکت برای حساب‌های تجاری الزامی است'
+    fa: 'اطلاعات شرکت برای حساب‌های تجاری الزامی است',
   },
-  'REFERRER_AGENCY_NOT_FOUND': {
+  REFERRER_AGENCY_NOT_FOUND: {
     en: 'Referrer agency not found',
-    fa: 'آژانس معرف یافت نشد'
+    fa: 'آژانس معرف یافت نشد',
   },
-  'REFERRER_MUST_BE_AGENCY': {
+  REFERRER_MUST_BE_AGENCY: {
     en: 'Referrer must be a marketing agency',
-    fa: 'معرف باید یک آژانس بازاریابی باشد'
+    fa: 'معرف باید یک آژانس بازاریابی باشد',
   },
-  'REFERRER_AGENCY_INACTIVE': {
+  REFERRER_AGENCY_INACTIVE: {
     en: 'Referrer agency is inactive',
-    fa: 'آژانس معرف غیرفعال است'
+    fa: 'آژانس معرف غیرفعال است',
   },
-  'SIGNUP_FAILED': {
+  SIGNUP_FAILED: {
     en: 'Account creation failed. Please try again',
-    fa: 'ایجاد حساب ناموفق بود. لطفاً دوباره تلاش کنید'
+    fa: 'ایجاد حساب ناموفق بود. لطفاً دوباره تلاش کنید',
   },
 
   // Login errors
-  'CUSTOMER_NOT_FOUND': {
+  CUSTOMER_NOT_FOUND: {
     en: 'Account not found. Please check your credentials',
-    fa: 'حساب یافت نشد. لطفاً اطلاعات خود را بررسی کنید'
+    fa: 'حساب یافت نشد. لطفاً اطلاعات خود را بررسی کنید',
   },
-  'ACCOUNT_INACTIVE': {
+  ACCOUNT_INACTIVE: {
     en: 'Your account is inactive. Please contact support',
-    fa: 'حساب شما غیرفعال است. لطفاً با پشتیبانی تماس بگیرید'
+    fa: 'حساب شما غیرفعال است. لطفاً با پشتیبانی تماس بگیرید',
   },
-  'INCORRECT_PASSWORD': {
+  INCORRECT_PASSWORD: {
     en: 'Incorrect password. Please try again',
-    fa: 'رمز عبور اشتباه است. لطفاً دوباره تلاش کنید'
+    fa: 'رمز عبور اشتباه است. لطفاً دوباره تلاش کنید',
   },
-  'LOGIN_FAILED': {
+  LOGIN_FAILED: {
     en: 'Login failed. Please try again',
-    fa: 'ورود ناموفق بود. لطفاً دوباره تلاش کنید'
+    fa: 'ورود ناموفق بود. لطفاً دوباره تلاش کنید',
   },
 
   // OTP errors
-  'NO_VALID_OTP': {
+  NO_VALID_OTP: {
     en: 'No valid verification code found. Please request a new one',
-    fa: 'کد تایید معتبری یافت نشد. لطفاً کد جدیدی درخواست کنید'
+    fa: 'کد تایید معتبری یافت نشد. لطفاً کد جدیدی درخواست کنید',
   },
-  'INVALID_OTP_CODE': {
+  INVALID_OTP_CODE: {
     en: 'Invalid verification code. Please check and try again',
-    fa: 'کد تایید نامعتبر است. لطفاً بررسی کرده و دوباره تلاش کنید'
+    fa: 'کد تایید نامعتبر است. لطفاً بررسی کرده و دوباره تلاش کنید',
   },
-  'INVALID_OTP_TYPE': {
+  INVALID_OTP_TYPE: {
     en: 'Invalid verification method. Please try again',
-    fa: 'روش تایید نامعتبر است. لطفاً دوباره تلاش کنید'
+    fa: 'روش تایید نامعتبر است. لطفاً دوباره تلاش کنید',
   },
-  'OTP_EXPIRED': {
+  INVALID_CUSTOMER_ID: {
+    en: 'Invalid customer ID. Please try again',
+    fa: 'شناسه مشتری نامعتبر است. لطفاً دوباره تلاش کنید',
+  },
+  INVALID_IDENTIFIER: {
+    en: 'Please enter a valid email address or mobile number',
+    fa: 'لطفاً ایمیل یا شماره موبایل معتبر وارد کنید',
+  },
+  INVALID_PASSWORD: {
+    en: 'Please enter a valid password',
+    fa: 'لطفاً رمز عبور معتبر وارد کنید',
+  },
+  INVALID_MOBILE_NUMBER: {
+    en: 'Please enter a valid mobile number',
+    fa: 'لطفاً شماره موبایل معتبر وارد کنید',
+  },
+  INVALID_URL: {
+    en: 'Unable to send the request. Please try again',
+    fa: 'ارسال درخواست ممکن نیست. لطفاً دوباره تلاش کنید',
+  },
+  INVALID_RESPONSE_CONTENT_TYPE: {
+    en: 'Received an invalid response from the server. Please try again',
+    fa: 'پاسخ معتبری از سرور دریافت نشد. لطفاً دوباره تلاش کنید',
+  },
+  INVALID_RESPONSE: {
+    en: 'Received an invalid response from the server. Please try again',
+    fa: 'پاسخ معتبری از سرور دریافت نشد. لطفاً دوباره تلاش کنید',
+  },
+  OTP_EXPIRED: {
     en: 'Verification code has expired. Please request a new one',
-    fa: 'کد تایید منقضی شده است. لطفاً کد جدیدی درخواست کنید'
+    fa: 'کد تایید منقضی شده است. لطفاً کد جدیدی درخواست کنید',
   },
-  'OTP_VERIFICATION_FAILED': {
+  OTP_VERIFICATION_FAILED: {
     en: 'Verification failed. Please try again',
-    fa: 'تایید ناموفق بود. لطفاً دوباره تلاش کنید'
+    fa: 'تایید ناموفق بود. لطفاً دوباره تلاش کنید',
   },
 
   // Password reset errors
-  'PASSWORD_RESET_FAILED': {
+  PASSWORD_RESET_FAILED: {
     en: 'Password reset failed. Please try again',
-    fa: 'بازنشانی رمز عبور ناموفق بود. لطفاً دوباره تلاش کنید'
+    fa: 'بازنشانی رمز عبور ناموفق بود. لطفاً دوباره تلاش کنید',
   },
 
   // Resend OTP errors
-  'ACCOUNT_ALREADY_VERIFIED': {
+  ACCOUNT_ALREADY_VERIFIED: {
     en: 'Your account is already verified',
-    fa: 'حساب شما قبلاً تایید شده است'
+    fa: 'حساب شما قبلاً تایید شده است',
   },
-  'RESEND_OTP_FAILED': {
+  RESEND_OTP_FAILED: {
     en: 'Failed to send verification code. Please try again',
-    fa: 'ارسال کد تایید ناموفق بود. لطفاً دوباره تلاش کنید'
+    fa: 'ارسال کد تایید ناموفق بود. لطفاً دوباره تلاش کنید',
   },
 
   // Campaign errors
-  'CAMPAIGN_CREATION_FAILED': {
+  CAMPAIGN_CREATION_FAILED: {
     en: 'Campaign creation failed. Please try again',
-    fa: 'ایجاد کمپین ناموفق بود. لطفاً دوباره تلاش کنید'
+    fa: 'ایجاد کمپین ناموفق بود. لطفاً دوباره تلاش کنید',
   },
-  'CAMPAIGN_NOT_FOUND': {
+  CAMPAIGN_NOT_FOUND: {
     en: 'Campaign not found',
-    fa: 'کمپین یافت نشد'
+    fa: 'کمپین یافت نشد',
   },
-  'INVALID_CAMPAIGN_DATA': {
+  INVALID_CAMPAIGN_DATA: {
     en: 'Invalid campaign data provided',
-    fa: 'داده‌های کمپین نامعتبر است'
+    fa: 'داده‌های کمپین نامعتبر است',
   },
-  'COST_CALCULATION_FAILED': {
+  COST_CALCULATION_FAILED: {
     en: 'Failed to calculate campaign costs. Please try again',
-    fa: 'محاسبه هزینه‌های کمپین ناموفق بود. لطفاً دوباره تلاش کنید'
+    fa: 'محاسبه هزینه‌های کمپین ناموفق بود. لطفاً دوباره تلاش کنید',
   },
-  'INVALID_SEGMENT_CONFIGURATION': {
+  INVALID_SEGMENT_CONFIGURATION: {
     en: 'Invalid segment configuration for cost calculation',
-    fa: 'تنظیمات بخش‌بندی برای محاسبه هزینه نامعتبر است'
+    fa: 'تنظیمات بخش‌بندی برای محاسبه هزینه نامعتبر است',
   },
-  'INVALID_BUDGET_RANGE': {
+  INVALID_BUDGET_RANGE: {
     en: 'Budget amount is outside the allowed range',
-    fa: 'مقدار بودجه خارج از محدوده مجاز است'
+    fa: 'مقدار بودجه خارج از محدوده مجاز است',
   },
-  'INVALID_LINE_NUMBER': {
+  INVALID_LINE_NUMBER: {
     en: 'Invalid line number provided for cost calculation',
-    fa: 'شماره خط ارائه شده برای محاسبه هزینه نامعتبر است'
+    fa: 'شماره خط ارائه شده برای محاسبه هزینه نامعتبر است',
   },
-  'COST_CALCULATION_TIMEOUT': {
+  COST_CALCULATION_TIMEOUT: {
     en: 'Cost calculation timed out. Please try again',
-    fa: 'محاسبه هزینه زمان‌بندی شد. لطفاً دوباره تلاش کنید'
+    fa: 'محاسبه هزینه زمان‌بندی شد. لطفاً دوباره تلاش کنید',
   },
-  'CAMPAIGN_ALREADY_EXISTS': {
+  CAMPAIGN_ALREADY_EXISTS: {
     en: 'A campaign with this configuration already exists',
-    fa: 'کمپینی با این تنظیمات قبلاً وجود دارد'
+    fa: 'کمپینی با این تنظیمات قبلاً وجود دارد',
   },
-  'CAMPAIGN_LIMIT_EXCEEDED': {
+  CAMPAIGN_LIMIT_EXCEEDED: {
     en: 'Campaign limit exceeded. Please contact support',
-    fa: 'محدودیت کمپین تجاوز شده است. لطفاً با پشتیبانی تماس بگیرید'
+    fa: 'محدودیت کمپین تجاوز شده است. لطفاً با پشتیبانی تماس بگیرید',
   },
-  'CAMPAIGN_BUDGET_EXCEEDED': {
+  CAMPAIGN_BUDGET_EXCEEDED: {
     en: 'Campaign budget exceeds your account limit',
-    fa: 'بودجه کمپین از محدودیت حساب شما تجاوز می‌کند'
+    fa: 'بودجه کمپین از محدودیت حساب شما تجاوز می‌کند',
   },
-  'CAMPAIGN_SEGMENT_INVALID': {
+  CAMPAIGN_SEGMENT_INVALID: {
     en: 'Invalid campaign segment configuration',
-    fa: 'تنظیمات بخش‌بندی کمپین نامعتبر است'
+    fa: 'تنظیمات بخش‌بندی کمپین نامعتبر است',
   },
-  'CAMPAIGN_CONTENT_INVALID': {
+  CAMPAIGN_CONTENT_INVALID: {
     en: 'Invalid campaign content provided',
-    fa: 'محتوای کمپین نامعتبر است'
+    fa: 'محتوای کمپین نامعتبر است',
   },
-  'CAMPAIGN_SCHEDULE_INVALID': {
+  CAMPAIGN_SCHEDULE_INVALID: {
     en: 'Invalid campaign schedule provided',
-    fa: 'زمان‌بندی کمپین نامعتبر است'
+    fa: 'زمان‌بندی کمپین نامعتبر است',
   },
 
   // Generic errors
-  'NETWORK_ERROR': {
+  NETWORK_ERROR: {
     en: 'Network error. Please check your connection and try again',
-    fa: 'خطای شبکه. لطفاً اتصال خود را بررسی کرده و دوباره تلاش کنید'
+    fa: 'خطای شبکه. لطفاً اتصال خود را بررسی کرده و دوباره تلاش کنید',
   },
-  'UNKNOWN_ERROR': {
+  UNKNOWN_ERROR: {
     en: 'An unexpected error occurred. Please try again',
-    fa: 'خطای غیرمنتظره‌ای رخ داد. لطفاً دوباره تلاش کنید'
+    fa: 'خطای غیرمنتظره‌ای رخ داد. لطفاً دوباره تلاش کنید',
   },
-  'VALIDATION_ERROR': {
+  VALIDATION_ERROR: {
     en: 'Please check your input and try again',
-    fa: 'لطفاً ورودی خود را بررسی کرده و دوباره تلاش کنید'
+    fa: 'لطفاً ورودی خود را بررسی کرده و دوباره تلاش کنید',
   },
-  'UNAUTHORIZED': {
+  MISSING_ACCESS_TOKEN: {
+    en: 'Authentication is missing. Please sign in again',
+    fa: 'اطلاعات احراز هویت موجود نیست. لطفاً دوباره وارد شوید',
+  },
+  INVALID_REQUEST: {
+    en: 'The request is invalid. Please review your input and try again',
+    fa: 'درخواست نامعتبر است. لطفاً ورودی را بررسی کرده و دوباره تلاش کنید',
+  },
+  UNAUTHORIZED: {
     en: 'You are not authorized to perform this action',
-    fa: 'شما مجاز به انجام این عملیات نیستید'
+    fa: 'شما مجاز به انجام این عملیات نیستید',
   },
-  'FORBIDDEN': {
-    en: 'Access denied. Please contact support if you believe this is an error',
-    fa: 'دسترسی رد شد. اگر فکر می‌کنید این خطا است، با پشتیبانی تماس بگیرید'
-  },
-  'NOT_FOUND': {
-    en: 'The requested resource was not found',
-    fa: 'منبع درخواستی یافت نشد'
-  },
-  'INTERNAL_SERVER_ERROR': {
-    en: 'Server error. Please try again later',
-    fa: 'خطای سرور. لطفاً بعداً تلاش کنید'
-  },
-  'SERVICE_UNAVAILABLE': {
-    en: 'Service temporarily unavailable. Please try again later',
-    fa: 'سرویس موقتاً در دسترس نیست. لطفاً بعداً تلاش کنید'
-  },
-  'TIMEOUT_ERROR': {
-    en: 'Request timed out. Please try again',
-    fa: 'درخواست زمان‌بندی شد. لطفاً دوباره تلاش کنید'
-  },
-  'RATE_LIMIT_EXCEEDED': {
+  RATE_LIMITED: {
     en: 'Too many requests. Please wait a moment and try again',
-    fa: 'درخواست‌های زیادی ارسال شده. لطفاً لحظه‌ای صبر کرده و دوباره تلاش کنید'
+    fa: 'درخواست‌های زیادی ارسال شده. لطفاً لحظه‌ای صبر کرده و دوباره تلاش کنید',
   },
-  'INSUFFICIENT_PERMISSIONS': {
+  FORBIDDEN: {
+    en: 'Access denied. Please contact support if you believe this is an error',
+    fa: 'دسترسی رد شد. اگر فکر می‌کنید این خطا است، با پشتیبانی تماس بگیرید',
+  },
+  NOT_FOUND: {
+    en: 'The requested resource was not found',
+    fa: 'منبع درخواستی یافت نشد',
+  },
+  INTERNAL_SERVER_ERROR: {
+    en: 'Server error. Please try again later',
+    fa: 'خطای سرور. لطفاً بعداً تلاش کنید',
+  },
+  SERVICE_UNAVAILABLE: {
+    en: 'Service temporarily unavailable. Please try again later',
+    fa: 'سرویس موقتاً در دسترس نیست. لطفاً بعداً تلاش کنید',
+  },
+  TIMEOUT_ERROR: {
+    en: 'Request timed out. Please try again',
+    fa: 'درخواست زمان‌بندی شد. لطفاً دوباره تلاش کنید',
+  },
+  RATE_LIMIT_EXCEEDED: {
+    en: 'Too many requests. Please wait a moment and try again',
+    fa: 'درخواست‌های زیادی ارسال شده. لطفاً لحظه‌ای صبر کرده و دوباره تلاش کنید',
+  },
+  INSUFFICIENT_PERMISSIONS: {
     en: 'You do not have sufficient permissions for this action',
-    fa: 'شما مجوز کافی برای این عملیات ندارید'
+    fa: 'شما مجوز کافی برای این عملیات ندارید',
   },
-  'RESOURCE_LOCKED': {
+  RESOURCE_LOCKED: {
     en: 'Resource is currently locked. Please try again later',
-    fa: 'منبع در حال حاضر قفل شده است. لطفاً بعداً تلاش کنید'
+    fa: 'منبع در حال حاضر قفل شده است. لطفاً بعداً تلاش کنید',
   },
-  'CONFLICT_ERROR': {
+  CONFLICT_ERROR: {
     en: 'Resource conflict detected. Please check your data and try again',
-    fa: 'تضاد منبع تشخیص داده شد. لطفاً داده‌های خود را بررسی کرده و دوباره تلاش کنید'
-  }
+    fa: 'تضاد منبع تشخیص داده شد. لطفاً داده‌های خود را بررسی کرده و دوباره تلاش کنید',
+  },
 };
+
+const normalizeErrorCode = (errorCode: string): string =>
+  errorCode
+    .trim()
+    .replace(/[^A-Za-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .toUpperCase();
 
 /**
  * Get user-friendly error message for a given error code
@@ -235,23 +282,48 @@ export function getErrorMessage(
     return errorMessage[language];
   }
 
-  // If error code not found, try to provide a generic message
-  if (errorCode.includes('VALIDATION')) {
+  const normalizedErrorCode = normalizeErrorCode(errorCode);
+  const normalizedErrorMessage = ERROR_MESSAGES[normalizedErrorCode];
+  if (normalizedErrorMessage) {
+    return normalizedErrorMessage[language];
+  }
+
+  if (normalizedErrorCode.startsWith('MISSING_REQUIRED_FIELD')) {
     return ERROR_MESSAGES['VALIDATION_ERROR'][language];
   }
-  if (errorCode.includes('NETWORK') || errorCode.includes('TIMEOUT')) {
+
+  // If error code not found, try to provide a generic message
+  if (normalizedErrorCode.includes('VALIDATION')) {
+    return ERROR_MESSAGES['VALIDATION_ERROR'][language];
+  }
+  if (
+    normalizedErrorCode.includes('NETWORK') ||
+    normalizedErrorCode.includes('TIMEOUT')
+  ) {
     return ERROR_MESSAGES['NETWORK_ERROR'][language];
   }
-  if (errorCode.includes('UNAUTHORIZED') || errorCode.includes('AUTH')) {
+  if (
+    normalizedErrorCode.includes('RATE_LIMIT') ||
+    normalizedErrorCode.includes('TOO_MANY_REQUEST')
+  ) {
+    return ERROR_MESSAGES['RATE_LIMIT_EXCEEDED'][language];
+  }
+  if (
+    normalizedErrorCode.includes('UNAUTHORIZED') ||
+    normalizedErrorCode.includes('AUTH')
+  ) {
     return ERROR_MESSAGES['UNAUTHORIZED'][language];
   }
-  if (errorCode.includes('FORBIDDEN')) {
+  if (normalizedErrorCode.includes('FORBIDDEN')) {
     return ERROR_MESSAGES['FORBIDDEN'][language];
   }
-  if (errorCode.includes('NOT_FOUND')) {
+  if (normalizedErrorCode.includes('NOT_FOUND')) {
     return ERROR_MESSAGES['NOT_FOUND'][language];
   }
-  if (errorCode.includes('SERVER') || errorCode.includes('INTERNAL')) {
+  if (
+    normalizedErrorCode.includes('SERVER') ||
+    normalizedErrorCode.includes('INTERNAL')
+  ) {
     return ERROR_MESSAGES['INTERNAL_SERVER_ERROR'][language];
   }
 
@@ -267,7 +339,11 @@ export function getErrorMessage(
  * @returns User-friendly error message
  */
 export function getApiErrorMessage(
-  response: { success: boolean; message?: string; error?: { code?: string; details?: any } },
+  response: {
+    success: boolean;
+    message?: string;
+    error?: { code?: string; details?: any };
+  },
   language: 'en' | 'fa' = 'en',
   fallbackMessage?: string
 ): string {
@@ -278,7 +354,11 @@ export function getApiErrorMessage(
   const errorCode = response.error?.code;
 
   // Get the user-friendly message
-  return getErrorMessage(errorCode, language, responseMessage || fallbackMessage);
+  return getErrorMessage(
+    errorCode,
+    language,
+    responseMessage || fallbackMessage
+  );
 }
 
 /**
@@ -287,7 +367,10 @@ export function getApiErrorMessage(
  * @param expectedCode - The expected error code
  * @returns True if the error matches the expected code
  */
-export function isErrorType(errorCode: string | undefined, expectedCode: string): boolean {
+export function isErrorType(
+  errorCode: string | undefined,
+  expectedCode: string
+): boolean {
   return errorCode === expectedCode;
 }
 
@@ -297,7 +380,9 @@ export function isErrorType(errorCode: string | undefined, expectedCode: string)
  * @returns True if it's a validation error
  */
 export function isValidationError(errorCode: string | undefined): boolean {
-  return errorCode ? errorCode.includes('VALIDATION') || errorCode.includes('REQUIRED') : false;
+  return errorCode
+    ? errorCode.includes('VALIDATION') || errorCode.includes('REQUIRED')
+    : false;
 }
 
 /**
@@ -306,7 +391,9 @@ export function isValidationError(errorCode: string | undefined): boolean {
  * @returns True if it's a network error
  */
 export function isNetworkError(errorCode: string | undefined): boolean {
-  return errorCode ? errorCode.includes('NETWORK') || errorCode.includes('TIMEOUT') : false;
+  return errorCode
+    ? errorCode.includes('NETWORK') || errorCode.includes('TIMEOUT')
+    : false;
 }
 
 /**
@@ -315,7 +402,11 @@ export function isNetworkError(errorCode: string | undefined): boolean {
  * @returns True if it's an authentication error
  */
 export function isAuthenticationError(errorCode: string | undefined): boolean {
-  return errorCode ? errorCode.includes('AUTH') || errorCode.includes('UNAUTHORIZED') || errorCode.includes('INVALID') : false;
+  return errorCode
+    ? errorCode.includes('AUTH') ||
+        errorCode.includes('UNAUTHORIZED') ||
+        errorCode.includes('INVALID')
+    : false;
 }
 
 /**
@@ -328,7 +419,11 @@ export function clearAllUserData(): void {
 
   // Clear all items except user preferences
   allKeys.forEach(key => {
-    if (!key.includes('language') && !key.includes('theme') && !key.includes('ui_')) {
+    if (
+      !key.includes('language') &&
+      !key.includes('theme') &&
+      !key.includes('ui_')
+    ) {
       localStorage.removeItem(key);
     } else {
       console.log(`💾 Preserved (user preference): ${key}`);
@@ -364,8 +459,8 @@ export function requiresLogout(errorCode: string | undefined): boolean {
     'TOKEN_EXPIRED',
     'INVALID_TOKEN',
     'ACCOUNT_INACTIVE',
-    'SESSION_EXPIRED'
+    'SESSION_EXPIRED',
   ];
 
   return logoutErrors.some(error => errorCode.includes(error));
-} 
+}
