@@ -18,14 +18,20 @@ import { budgetI18n } from '../components/campaign/budget/budgetTranslations';
 import { contentI18n } from '../components/campaign/content/contentTranslations';
 import Button from '../components/ui/Button';
 import Stepper from '../components/ui/Stepper';
-import { CampaignStep, CreateCampaignPayload, UpdateSMSCampaignRequest } from '../types/campaign';
+import {
+  CampaignStep,
+  CreateCampaignPayload,
+  UpdateSMSCampaignRequest,
+} from '../types/campaign';
 
 const CampaignCreationPage: React.FC = () => {
   const { t } = useTranslation();
   const { isRTL, language } = useLanguage();
   const { accessToken } = useAuth();
-  const budgetCopy = budgetI18n[language as keyof typeof budgetI18n] || budgetI18n.en;
-  const contentCopy = contentI18n[language as keyof typeof contentI18n] || contentI18n.en;
+  const budgetCopy =
+    budgetI18n[language as keyof typeof budgetI18n] || budgetI18n.en;
+  const contentCopy =
+    contentI18n[language as keyof typeof contentI18n] || contentI18n.en;
   const {
     currentStep,
     campaignData,
@@ -39,6 +45,7 @@ const CampaignCreationPage: React.FC = () => {
   const { showError, showSuccess } = useToast();
   const { navigate } = useNavigation();
   const [isFinishing, setIsFinishing] = React.useState(false);
+  const [isAdvancing, setIsAdvancing] = React.useState(false);
 
   // Use the validation hook
   const validation = useCampaignValidation(campaignData, currentStep);
@@ -64,40 +71,60 @@ const CampaignCreationPage: React.FC = () => {
   }, [accessToken]);
 
   const handleNextStep = async () => {
-    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
-    // Check if we're on step 1 (segment page)
-    if (currentStep === 1) {
-      // Check if campaign spec exists in localStorage (existing campaign)
-      const savedData = localStorage.getItem('campaign_creation_data');
-      const hasExistingCampaign = (savedData && (() => {
-        try {
-          const parsed = JSON.parse(savedData);
-          return parsed.uuid && parsed.uuid !== '';
-        } catch {
-          return false;
-        }
-      })()) || (!!campaignData.uuid && campaignData.uuid !== '');
+    if (isAdvancing) return;
+    setIsAdvancing(true);
 
-      if (hasExistingCampaign) {
-        // User has existing campaign - DO NOT call API, just proceed
-        nextStep();
-      } else {
-        // New user - create campaign API call
-        try {
-          // Set the access token for the API call
-          apiService.setAccessToken(accessToken);
+    try {
+      try {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch {}
 
-          // Create payload with level data
-          const payload: CreateCampaignPayload = serializeCampaignPayload(campaignData);
+      apiService.setAccessToken(accessToken);
 
-          // Call the API to create a new SMS campaign with segment data
+      if (currentStep === 1) {
+        const savedData = localStorage.getItem('campaign_creation_data');
+        const hasExistingCampaign =
+          (savedData &&
+            (() => {
+              try {
+                const parsed = JSON.parse(savedData);
+                return parsed.uuid && parsed.uuid !== '';
+              } catch {
+                return false;
+              }
+            })()) ||
+          (!!campaignData.uuid && campaignData.uuid !== '');
+
+        if (hasExistingCampaign) {
+          if (!campaignData.uuid) {
+            showError(t('common.error') || 'Campaign ID not found');
+            return;
+          }
+          const updatePayload: UpdateSMSCampaignRequest =
+            serializeCampaignPayload(campaignData, {
+              includeContent: false,
+              includeBudget: false,
+              finalize: false,
+            });
+          const response = await apiService.updateCampaign(
+            campaignData.uuid,
+            updatePayload
+          );
+          if (!response.success) {
+            const message = getApiErrorMessage(
+              response,
+              language,
+              'Failed to save campaign'
+            );
+            showError(message);
+            return;
+          }
+        } else {
+          const payload: CreateCampaignPayload =
+            serializeCampaignPayload(campaignData);
           const response = await apiService.createCampaign(payload);
-
           if (response.success && response.data && response.data.uuid) {
-            // Store the UUID in campaign context
             setCampaignUuid(response.data.uuid);
-            // Proceed to next step
-            nextStep();
           } else {
             const errorMessage = getApiErrorMessage(
               response,
@@ -105,28 +132,89 @@ const CampaignCreationPage: React.FC = () => {
               'Failed to create campaign'
             );
             showError(errorMessage);
-            // Stay on current step if campaign creation fails
             return;
           }
-        } catch (error) {
-          showError('Network error - please try again');
+        }
+        nextStep();
+        return;
+      }
+
+      if (currentStep === 2) {
+        if (!campaignData.uuid) {
+          showError(t('common.error') || 'Campaign ID not found');
           return;
         }
+        const updatePayload: UpdateSMSCampaignRequest =
+          serializeCampaignPayload(campaignData, {
+            includeContent: true,
+            includeBudget: false,
+            finalize: false,
+          });
+        const response = await apiService.updateCampaign(
+          campaignData.uuid,
+          updatePayload
+        );
+        if (!response.success) {
+          const message = getApiErrorMessage(
+            response,
+            language,
+            'Failed to save campaign content'
+          );
+          showError(message);
+          return;
+        }
+        nextStep();
+        return;
       }
-    } else {
-      // Simply proceed to next step if we're not on step 1
+
+      if (currentStep === 3) {
+        if (!campaignData.uuid) {
+          showError(t('common.error') || 'Campaign ID not found');
+          return;
+        }
+        const updatePayload: UpdateSMSCampaignRequest =
+          serializeCampaignPayload(campaignData, {
+            includeContent: true,
+            includeBudget: true,
+            finalize: false,
+          });
+        const response = await apiService.updateCampaign(
+          campaignData.uuid,
+          updatePayload
+        );
+        if (!response.success) {
+          const message = getApiErrorMessage(
+            response,
+            language,
+            'Failed to save campaign budget'
+          );
+          showError(message);
+          return;
+        }
+        nextStep();
+        return;
+      }
+
       nextStep();
+    } catch (error) {
+      showError('Network error - please try again');
+    } finally {
+      setIsAdvancing(false);
     }
   };
 
   const handlePreviousStep = () => {
-    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch {}
     previousStep();
   };
 
   const handleStepClick = async (step: number) => {
     if (step !== currentStep) {
-      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
+      try {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch {}
     }
     if (step < currentStep) {
       // Going back to previous step - no need to save
@@ -149,13 +237,19 @@ const CampaignCreationPage: React.FC = () => {
 
       apiService.setAccessToken(accessToken);
 
-      const updateData: UpdateSMSCampaignRequest = serializeCampaignPayload(campaignData, {
-        includeContent: true,
-        includeBudget: true,
-        finalize: true,
-      });
+      const updateData: UpdateSMSCampaignRequest = serializeCampaignPayload(
+        campaignData,
+        {
+          includeContent: true,
+          includeBudget: true,
+          finalize: true,
+        }
+      );
 
-      const response = await apiService.updateCampaign(campaignData.uuid, updateData);
+      const response = await apiService.updateCampaign(
+        campaignData.uuid,
+        updateData
+      );
 
       if (!response.success) {
         const errorCode = response.error?.code;
@@ -178,14 +272,18 @@ const CampaignCreationPage: React.FC = () => {
       resetCampaign();
 
       // Show success message and navigate to dashboard
-      const successMessage = language === 'fa' ? 'کمپین با موفقیت تکمیل شد.' : 'Campaign completed successfully!';
+      const successMessage =
+        language === 'fa'
+          ? 'کمپین با موفقیت تکمیل شد.'
+          : 'Campaign completed successfully!';
       showSuccess(successMessage);
       navigate('/dashboard');
-
     } catch (error) {
       // Show error message but DO NOT redirect to dashboard
       // This prevents infinite loops and allows user to see the error
-      showError(`Failed to complete campaign: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      showError(
+        `Failed to complete campaign: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
 
       // DO NOT redirect to dashboard on error
       // User stays on payment page to see the error message
@@ -238,25 +336,26 @@ const CampaignCreationPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className='min-h-screen bg-gray-50'>
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
+      <div className='bg-white shadow-sm border-b border-gray-200'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+          <div className='flex items-center justify-between h-16'>
+            <div className='flex items-center'>
               <Button
-                variant="ghost"
-                onClick={() => window.location.href = '/dashboard'}
-                className={`flex items-center text-gray-600 hover:text-gray-900 transition-colors ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
-                  }`}
+                variant='ghost'
+                onClick={() => (window.location.href = '/dashboard')}
+                className={`flex items-center text-gray-600 hover:text-gray-900 transition-colors ${
+                  isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
+                }`}
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className='h-5 w-5' />
                 <span>{t('dashboard.title')}</span>
               </Button>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold text-gray-900">
+            <div className='flex items-center space-x-4'>
+              <h1 className='text-xl font-semibold text-gray-900'>
                 {/* {t('campaign.title')} */}
               </h1>
             </div>
@@ -265,8 +364,8 @@ const CampaignCreationPage: React.FC = () => {
       </div>
 
       {/* Stepper */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className='bg-white border-b border-gray-200'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <Stepper
             steps={steps}
             currentStep={currentStep}
@@ -277,27 +376,26 @@ const CampaignCreationPage: React.FC = () => {
 
       {/* Main Content */}
       {/* <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8"> */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-            <p className="text-sm text-red-600">{error}</p>
+          <div className='mb-6 bg-red-50 border border-red-200 rounded-md p-4'>
+            <p className='text-sm text-red-600'>{error}</p>
           </div>
         )}
 
         {/* Step Content */}
-        <div className="mb-8">
-          {renderCurrentStep()}
-        </div>
+        <div className='mb-8'>{renderCurrentStep()}</div>
 
         {/* Navigation Buttons */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center space-x-4'>
             {currentStep > 1 && (
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={handlePreviousStep}
-                className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
-                  }`}
+                className={`flex items-center ${
+                  isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
+                }`}
               >
                 {/* <ChevronLeft className="h-4 w-4" /> */}
                 {t('common.previous')}
@@ -305,13 +403,16 @@ const CampaignCreationPage: React.FC = () => {
             )}
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className='flex items-center space-x-4'>
             {currentStep < 4 ? (
               <Button
                 onClick={handleNextStep}
-                disabled={!validation.canProceedToNextStep(currentStep)}
-                className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
-                  }`}
+                disabled={
+                  isAdvancing || !validation.canProceedToNextStep(currentStep)
+                }
+                className={`flex items-center ${
+                  isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
+                }`}
               >
                 {t('common.next')}
                 {/* <ChevronRight className="h-4 w-4" /> */}
@@ -320,10 +421,11 @@ const CampaignCreationPage: React.FC = () => {
               <Button
                 onClick={handleFinish}
                 disabled={!validation.canFinishCampaign() || isFinishing}
-                className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
-                  }`}
+                className={`flex items-center ${
+                  isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'
+                }`}
               >
-                <Check className="h-4 w-4" />
+                <Check className='h-4 w-4' />
                 {isFinishing ? t('common.loading') : t('common.finish')}
               </Button>
             )}
@@ -334,4 +436,4 @@ const CampaignCreationPage: React.FC = () => {
   );
 };
 
-export default CampaignCreationPage; 
+export default CampaignCreationPage;
