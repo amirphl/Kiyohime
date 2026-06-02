@@ -28,6 +28,7 @@ import AdminSegmentPriceFactorsPage from '../pages/AdminSegmentPriceFactorsPage'
 import LandingPage from '../pages/LandingPage';
 import AdminPlatformSettingsPage from '../pages/AdminPlatformSettingsPage';
 import AdminPaymentsPage from '../pages/AdminPaymentsPage';
+import adminApi from '../services/adminApi';
 
 type PageType =
   | 'home'
@@ -57,6 +58,18 @@ type PageType =
   | 'admin-platform-settings'
   | 'admin-payments';
 
+const ADMIN_PROTECTED_PAGES: PageType[] = [
+  'admin-sardis',
+  'admin-line-numbers',
+  'admin-campaigns',
+  'admin-customers',
+  'admin-tickets',
+  'admin-short-links',
+  'admin-segment-price-factors',
+  'admin-platform-settings',
+  'admin-payments',
+];
+
 const AuthRouter: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PageType>(() => {
     if (typeof window !== 'undefined') {
@@ -68,6 +81,7 @@ const AuthRouter: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const [sessionExpired, setSessionExpired] = useState(false);
   const { t } = useTranslation();
+  const hasAdminAccess = Boolean(adminApi.getAccessToken());
 
   // Helper function to update current page based on path
   const updateCurrentPage = (path: string) => {
@@ -149,6 +163,16 @@ const AuthRouter: React.FC = () => {
     }
   }, [isAuthenticated, currentPage]);
 
+  useEffect(() => {
+    if (
+      !hasAdminAccess &&
+      ADMIN_PROTECTED_PAGES.includes(currentPage) &&
+      window.location.pathname !== ROUTES.ADMIN_LOGIN.path
+    ) {
+      window.history.replaceState({}, '', ROUTES.ADMIN_LOGIN.path);
+    }
+  }, [currentPage, hasAdminAccess]);
+
   // If user is authenticated and on home page, show dashboard
   if (isAuthenticated && currentPage === 'home') {
     return <DashboardPage />;
@@ -183,6 +207,10 @@ const AuthRouter: React.FC = () => {
   ) {
     window.location.href = ROUTES.HOME.path;
     return null;
+  }
+
+  if (!hasAdminAccess && ADMIN_PROTECTED_PAGES.includes(currentPage)) {
+    return <AdminLoginPage />;
   }
 
   // Render appropriate page based on current route
