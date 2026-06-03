@@ -38,6 +38,35 @@ export interface AdminPaymentsCopy {
     adminId: string;
     amountWithTax: string;
   };
+  receipts: {
+    title: string;
+    statusFilter: string;
+    customerFilter: string;
+    langFilter: string;
+    refresh: string;
+    table: {
+      amount: string;
+      status: string;
+      lang: string;
+      created: string;
+      preview: string;
+      download: string;
+      approve: string;
+      reject: string;
+      reason: string;
+    };
+    errors: {
+      listFailed: string;
+      downloadFailed: string;
+      updateFailed: string;
+    };
+    success: {
+      statusUpdated: string;
+    };
+    cancel: string;
+    confirmApprove: string;
+    confirmReject: string;
+  };
 }
 
 const en: AdminPaymentsCopy = {
@@ -80,6 +109,35 @@ const en: AdminPaymentsCopy = {
     adminId: 'Admin ID',
     amountWithTax: 'Amount with Tax',
   },
+  receipts: {
+    title: 'Deposit Receipts',
+    statusFilter: 'Status',
+    customerFilter: 'Customer ID',
+    langFilter: 'Language',
+    refresh: 'Refresh',
+    table: {
+      amount: 'Amount',
+      status: 'Status',
+      lang: 'Lang',
+      created: 'Created',
+      preview: 'Preview',
+      download: 'Download',
+      approve: 'Approve',
+      reject: 'Reject',
+      reason: 'Reason (optional)',
+    },
+    errors: {
+      listFailed: 'Failed to load deposit receipts.',
+      downloadFailed: 'Failed to download receipt file.',
+      updateFailed: 'Failed to update receipt status.',
+    },
+    success: {
+      statusUpdated: 'Receipt status updated.',
+    },
+    cancel: 'Close',
+    confirmApprove: 'Approve this receipt?',
+    confirmReject: 'Reject this receipt?',
+  },
 };
 
 const fa: AdminPaymentsCopy = {
@@ -121,6 +179,35 @@ const fa: AdminPaymentsCopy = {
     customerId: 'شناسه مشتری',
     adminId: 'شناسه ادمین',
     amountWithTax: 'مبلغ با مالیات',
+  },
+  receipts: {
+    title: 'فیش‌های واریز',
+    statusFilter: 'وضعیت',
+    customerFilter: 'شناسه مشتری',
+    langFilter: 'زبان',
+    refresh: 'بروزرسانی',
+    table: {
+      amount: 'مبلغ',
+      status: 'وضعیت',
+      lang: 'زبان',
+      created: 'تاریخ ثبت',
+      preview: 'پیش‌نمایش',
+      download: 'دانلود',
+      approve: 'تأیید',
+      reject: 'رد',
+      reason: 'دلیل (اختیاری)',
+    },
+    errors: {
+      listFailed: 'دریافت لیست رسیدها ناموفق بود.',
+      downloadFailed: 'دانلود فایل رسید ناموفق بود.',
+      updateFailed: 'به‌روزرسانی وضعیت رسید ناموفق بود.',
+    },
+    success: {
+      statusUpdated: 'وضعیت رسید به‌روزرسانی شد.',
+    },
+    cancel: 'بستن',
+    confirmApprove: 'این رسید تأیید شود؟',
+    confirmReject: 'این رسید رد شود؟',
   },
 };
 
