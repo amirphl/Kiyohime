@@ -3,18 +3,29 @@ import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '../../../hooks/useAuth';
 import { useToast } from '../../../hooks/useToast';
-import { getApiErrorMessage } from '../../../utils/errorHandler';
-import { login, requestLoginOtp, verifyLoginOtp } from '../../../services/auth/api';
-import { OTP_CODE_LENGTH, OTP_RESEND_SECONDS } from '../../../services/auth/constants';
+import {
+  login,
+  requestLoginOtp,
+  verifyLoginOtp,
+} from '../../../services/auth/api';
+import {
+  OTP_CODE_LENGTH,
+  OTP_RESEND_SECONDS,
+} from '../../../services/auth/constants';
+import {
+  isValidOtpIdentifier,
+  normalizeIdentifierInput,
+  parsePositiveInteger,
+  sanitizeOtpIdentifierInput,
+} from '../../../services/auth/utils';
 import { LoginFormValues, LoginMethod } from '../types';
 import { loginTranslations } from '../translations';
+import { getLoginErrorMessage } from '../utils';
 
 interface UseLoginFormOptions {
   language: keyof typeof loginTranslations;
   strings: typeof loginTranslations.en;
 }
-
-const PHONE_REGEX = /^[\d+]+$/;
 
 export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
   const { login: handleLogin } = useAuth();
@@ -52,6 +63,14 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
   useEffect(() => {
     setErrorMessage('');
     form.clearErrors();
+    form.setValue(
+      'identifier',
+      normalizeIdentifierInput(form.getValues('identifier')),
+      {
+        shouldDirty: false,
+        shouldValidate: false,
+      }
+    );
     if (loginMethod === 'otp') {
       form.setValue('password', '');
     } else {
@@ -81,7 +100,8 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
   }, [resetCountdown]);
 
   const loginMutation = useMutation({
-    mutationFn: (values: LoginFormValues) => login(values.identifier, values.password),
+    mutationFn: (values: LoginFormValues) =>
+      login(values.identifier, values.password),
     retry: false,
   });
 
@@ -91,8 +111,13 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
   });
 
   const verifyOtpMutation = useMutation({
-    mutationFn: ({ customerId, otpCode }: { customerId: number; otpCode: string }) =>
-      verifyLoginOtp(customerId, otpCode),
+    mutationFn: ({
+      customerId,
+      otpCode,
+    }: {
+      customerId: number;
+      otpCode: string;
+    }) => verifyLoginOtp(customerId, otpCode),
     retry: false,
   });
 
@@ -119,29 +144,50 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
     [handleLogin, showSuccess, strings.success]
   );
 
+  const resolveErrorMessage = useCallback(
+    (
+      response: {
+        success: boolean;
+        message?: string;
+        error?: { code?: string; details?: unknown };
+      },
+      fallbackMessage: string
+    ) => getLoginErrorMessage(response, language, strings, fallbackMessage),
+    [language, strings]
+  );
+
   const handleSubmit = form.handleSubmit(async values => {
+    if (loginMutation.isPending || requestOtpMutation.isPending) {
+      return;
+    }
+
     setErrorMessage('');
 
     if (loginMethod === 'password') {
-      const response = await loginMutation.mutateAsync(values);
+      const response = await loginMutation.mutateAsync({
+        ...values,
+        identifier: normalizeIdentifierInput(values.identifier),
+      });
       if (response.success && response.data) {
         const responseData = response.data.data || response.data;
         const applied = applyLoginSuccess(responseData);
         if (!applied) {
-          setErrorMessage(strings.error.invalidCredentials);
+          const errorText = strings.error.invalidResponse;
+          setErrorMessage(errorText);
+          showError(errorText);
         }
       } else {
-        const errorText = getApiErrorMessage(
+        const errorText = resolveErrorMessage(
           response,
-          language,
           strings.error.invalidCredentials
         );
         setErrorMessage(errorText);
+        showError(errorText);
       }
       return;
     }
 
-    const identifierValue = values.identifier?.trim();
+    const identifierValue = normalizeIdentifierInput(values.identifier || '');
     if (!identifierValue) {
       setErrorMessage(strings.validation.allFieldsRequired);
       showError(strings.validation.allFieldsRequired);
@@ -151,11 +197,12 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
     const response = await requestOtpMutation.mutateAsync(identifierValue);
     if (response.success) {
       const responseData = response.data?.data || response.data;
-      const customerId = responseData?.customer_id ?? responseData?.customerId;
-      if (!customerId || typeof customerId !== 'number') {
-        const errorText = getApiErrorMessage(
+      const customerId = parsePositiveInteger(
+        responseData?.customer_id ?? responseData?.customerId
+      );
+      if (!customerId) {
+        const errorText = resolveErrorMessage(
           { success: false, error: { code: 'INVALID_CUSTOMER_ID' } },
-          language,
           strings.error.otpSendFailed
         );
         setErrorMessage(errorText);
@@ -167,9 +214,8 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
       startResendCountdown();
       showSuccess(response.message || strings.otpSent);
     } else {
-      const errorText = getApiErrorMessage(
+      const errorText = resolveErrorMessage(
         response,
-        language,
         strings.error.otpSendFailed
       );
       setErrorMessage(errorText);
@@ -178,6 +224,10 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
   });
 
   const handleVerifyOtp = useCallback(async () => {
+    if (verifyOtpMutation.isPending) {
+      return;
+    }
+
     if (otpCode.length !== OTP_CODE_LENGTH) {
       setErrorMessage(strings.validation.otpRequired);
       showError(strings.validation.otpRequired);
@@ -185,8 +235,9 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
     }
 
     if (!otpCustomerId) {
-      setErrorMessage(strings.error.otpVerifyFailed);
-      showError(strings.error.otpVerifyFailed);
+      const errorText = strings.error.invalidCustomerId;
+      setErrorMessage(errorText);
+      showError(errorText);
       return;
     }
 
@@ -199,17 +250,14 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
       const responseData = response.data.data || response.data;
       const applied = applyLoginSuccess(responseData);
       if (!applied) {
-        setErrorMessage(strings.error.otpVerifyFailed);
-        showError(strings.error.otpVerifyFailed);
+        const errorText = strings.error.invalidResponse;
+        setErrorMessage(errorText);
+        showError(errorText);
       } else {
         setShowOtpModal(false);
       }
     } else {
-      const errorText = getApiErrorMessage(
-        response,
-        language,
-        strings.error.invalidOtp
-      );
+      const errorText = resolveErrorMessage(response, strings.error.invalidOtp);
       setErrorMessage(errorText);
       showError(errorText);
     }
@@ -218,28 +266,31 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
     otpCustomerId,
     verifyOtpMutation,
     applyLoginSuccess,
-    language,
-    strings,
     showError,
+    resolveErrorMessage,
+    strings,
   ]);
 
   const handleResendOtp = useCallback(async () => {
     if (!canResendOtp || requestOtpMutation.isPending) return;
 
-    const identifierValue = form.getValues('identifier').trim();
+    const identifierValue = normalizeIdentifierInput(
+      form.getValues('identifier')
+    );
     const response = await requestOtpMutation.mutateAsync(identifierValue);
     if (response.success) {
       const responseData = response.data?.data || response.data;
-      const customerId = responseData?.customer_id ?? responseData?.customerId;
-      if (customerId && typeof customerId === 'number') {
+      const customerId = parsePositiveInteger(
+        responseData?.customer_id ?? responseData?.customerId
+      );
+      if (customerId) {
         setOtpCustomerId(customerId);
       }
       startResendCountdown();
       showSuccess(response.message || strings.otpSent);
     } else {
-      const errorText = getApiErrorMessage(
+      const errorText = resolveErrorMessage(
         response,
-        language,
         strings.error.otpSendFailed
       );
       setErrorMessage(errorText);
@@ -252,7 +303,7 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
     startResendCountdown,
     showSuccess,
     showError,
-    language,
+    resolveErrorMessage,
     strings,
   ]);
 
@@ -261,7 +312,7 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
       return {
         required: strings.validation.allFieldsRequired,
         validate: (value: string) =>
-          PHONE_REGEX.test(value.trim()) || strings.validation.invalidMobile,
+          isValidOtpIdentifier(value) || strings.validation.invalidMobile,
       };
     }
     return {
@@ -271,16 +322,19 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
 
   const setIdentifierValue = useCallback(
     (value: string) => {
-      const nextValue = loginMethod === 'otp'
-        ? value.replace(/[^\d+]/g, '')
-        : value;
-      form.setValue('identifier', nextValue, { shouldDirty: true, shouldValidate: true });
+      const nextValue =
+        loginMethod === 'otp' ? sanitizeOtpIdentifierInput(value) : value;
+      form.setValue('identifier', nextValue, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
     },
     [form, loginMethod]
   );
 
   const isSubmitting = loginMutation.isPending || requestOtpMutation.isPending;
-  const isOtpLoading = verifyOtpMutation.isPending || requestOtpMutation.isPending;
+  const isOtpLoading =
+    verifyOtpMutation.isPending || requestOtpMutation.isPending;
 
   return {
     form,
