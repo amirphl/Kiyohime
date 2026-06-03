@@ -23,9 +23,13 @@ const PersonalInfoFields: React.FC<Props> = ({
   isRTL,
 }) => (
   <div className='space-y-6 border-t pt-6'>
-    <h3 className={`text-lg font-medium text-gray-900 flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
+    <h3
+      className={`text-lg font-medium text-gray-900 flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
+    >
       <User className='h-5 w-5' />
-      <span>{isCompanyAccount ? strings.representativeInfo : strings.personalInfo}</span>
+      <span>
+        {isCompanyAccount ? strings.representativeInfo : strings.personalInfo}
+      </span>
     </h3>
 
     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -42,7 +46,9 @@ const PersonalInfoFields: React.FC<Props> = ({
           placeholder={strings.firstNamePlaceholder}
         />
         {errors.representativeFirstName && (
-          <p className='mt-1 text-sm text-red-600'>{errors.representativeFirstName}</p>
+          <p className='mt-1 text-sm text-red-600'>
+            {errors.representativeFirstName}
+          </p>
         )}
       </div>
 
@@ -59,7 +65,9 @@ const PersonalInfoFields: React.FC<Props> = ({
           placeholder={strings.lastNamePlaceholder}
         />
         {errors.representativeLastName && (
-          <p className='mt-1 text-sm text-red-600'>{errors.representativeLastName}</p>
+          <p className='mt-1 text-sm text-red-600'>
+            {errors.representativeLastName}
+          </p>
         )}
       </div>
 
@@ -77,7 +85,9 @@ const PersonalInfoFields: React.FC<Props> = ({
             placeholder={strings.nationalCodePlaceholder}
             maxLength={11}
           />
-          {errors.nationalCode && <p className='mt-1 text-sm text-red-600'>{errors.nationalCode}</p>}
+          {errors.nationalCode && (
+            <p className='mt-1 text-sm text-red-600'>{errors.nationalCode}</p>
+          )}
         </div>
       )}
     </div>
@@ -87,16 +97,21 @@ const PersonalInfoFields: React.FC<Props> = ({
         {strings.mobileNumber} {requiredLabel}
       </label>
       <input
-        type='tel'
+        type='text'
         name='representativeMobile'
         value={formData.representativeMobile}
         onChange={e => onChange('representativeMobile', e.target.value)}
         className='input-field'
         placeholder={strings.mobilePlaceholder}
         maxLength={11}
+        autoComplete='tel'
+        inputMode='tel'
+        dir='ltr'
       />
       {errors.representativeMobile && (
-        <p className='mt-1 text-sm text-red-600'>{errors.representativeMobile}</p>
+        <p className='mt-1 text-sm text-red-600'>
+          {errors.representativeMobile}
+        </p>
       )}
     </div>
   </div>
