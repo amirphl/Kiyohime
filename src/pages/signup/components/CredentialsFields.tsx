@@ -29,7 +29,9 @@ const CredentialsFields: React.FC<Props> = ({
   onToggleConfirmPassword,
 }) => (
   <div className='space-y-6 border-t pt-6'>
-    <h3 className={`text-lg font-medium text-gray-900 flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
+    <h3
+      className={`text-lg font-medium text-gray-900 flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
+    >
       <Lock className='h-5 w-5' />
       <span>{strings.credentials}</span>
     </h3>
@@ -40,7 +42,10 @@ const CredentialsFields: React.FC<Props> = ({
           {strings.sheba} {requiredLabel}
         </label>
         <div className='relative'>
-          <span className='absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-medium' dir='ltr'>
+          <span
+            className='absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-medium'
+            dir='ltr'
+          >
             IR
           </span>
           <input
@@ -54,7 +59,9 @@ const CredentialsFields: React.FC<Props> = ({
             maxLength={24}
           />
         </div>
-        {errors.shebaNumber && <p className='mt-1 text-sm text-red-600'>{errors.shebaNumber}</p>}
+        {errors.shebaNumber && (
+          <p className='mt-1 text-sm text-red-600'>{errors.shebaNumber}</p>
+        )}
       </div>
     )}
 
@@ -64,14 +71,21 @@ const CredentialsFields: React.FC<Props> = ({
           {strings.email} {requiredLabel}
         </label>
         <input
-          type='email'
+          type='text'
           name='email'
           value={formData.email}
           onChange={e => onChange('email', e.target.value)}
           className='input-field'
           placeholder={strings.emailPlaceholder}
+          autoCapitalize='none'
+          autoCorrect='off'
+          autoComplete='email'
+          inputMode='email'
+          dir='ltr'
         />
-        {errors.email && <p className='mt-1 text-sm text-red-600'>{errors.email}</p>}
+        {errors.email && (
+          <p className='mt-1 text-sm text-red-600'>{errors.email}</p>
+        )}
       </div>
 
       <div>
@@ -92,10 +106,16 @@ const CredentialsFields: React.FC<Props> = ({
             onClick={onTogglePassword}
             className={`absolute inset-y-0 ${isRTL ? 'left-0 pl-3' : 'right-0 pr-3'} flex items-center`}
           >
-            {showPassword ? <EyeOff className='h-5 w-5 text-gray-400' /> : <Eye className='h-5 w-5 text-gray-400' />}
+            {showPassword ? (
+              <EyeOff className='h-5 w-5 text-gray-400' />
+            ) : (
+              <Eye className='h-5 w-5 text-gray-400' />
+            )}
           </button>
         </div>
-        {errors.password && <p className='mt-1 text-sm text-red-600'>{errors.password}</p>}
+        {errors.password && (
+          <p className='mt-1 text-sm text-red-600'>{errors.password}</p>
+        )}
 
         <div className='mt-2 text-xs text-gray-500'>
           <p className='font-medium mb-1'>{strings.passwordRequirements}:</p>
@@ -125,10 +145,16 @@ const CredentialsFields: React.FC<Props> = ({
             onClick={onToggleConfirmPassword}
             className={`absolute inset-y-0 ${isRTL ? 'left-0 pl-3' : 'right-0 pr-3'} flex items-center`}
           >
-            {showConfirmPassword ? <EyeOff className='h-5 w-5 text-gray-400' /> : <Eye className='h-5 w-5 text-gray-400' />}
+            {showConfirmPassword ? (
+              <EyeOff className='h-5 w-5 text-gray-400' />
+            ) : (
+              <Eye className='h-5 w-5 text-gray-400' />
+            )}
           </button>
         </div>
-        {errors.confirmPassword && <p className='mt-1 text-sm text-red-600'>{errors.confirmPassword}</p>}
+        {errors.confirmPassword && (
+          <p className='mt-1 text-sm text-red-600'>{errors.confirmPassword}</p>
+        )}
       </div>
     </div>
   </div>
