@@ -12,9 +12,18 @@ interface Props {
   isRTL: boolean;
 }
 
-const CompanyFields: React.FC<Props> = ({ formData, errors, onChange, requiredLabel, strings, isRTL }) => (
+const CompanyFields: React.FC<Props> = ({
+  formData,
+  errors,
+  onChange,
+  requiredLabel,
+  strings,
+  isRTL,
+}) => (
   <div className='space-y-6 border-t pt-6'>
-    <h3 className={`text-lg font-medium text-gray-900 flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
+    <h3
+      className={`text-lg font-medium text-gray-900 flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
+    >
       <Building2 className='h-5 w-5' />
       <span>{strings.companyInfo}</span>
     </h3>
@@ -33,7 +42,9 @@ const CompanyFields: React.FC<Props> = ({ formData, errors, onChange, requiredLa
           placeholder={strings.companyNamePlaceholder}
           maxLength={60}
         />
-        {errors.companyName && <p className='mt-1 text-sm text-red-600'>{errors.companyName}</p>}
+        {errors.companyName && (
+          <p className='mt-1 text-sm text-red-600'>{errors.companyName}</p>
+        )}
       </div>
 
       <div>
@@ -49,7 +60,9 @@ const CompanyFields: React.FC<Props> = ({ formData, errors, onChange, requiredLa
           placeholder={strings.nationalIdPlaceholder}
           maxLength={11}
         />
-        {errors.nationalId && <p className='mt-1 text-sm text-red-600'>{errors.nationalId}</p>}
+        {errors.nationalId && (
+          <p className='mt-1 text-sm text-red-600'>{errors.nationalId}</p>
+        )}
       </div>
 
       <div>
@@ -57,15 +70,20 @@ const CompanyFields: React.FC<Props> = ({ formData, errors, onChange, requiredLa
           {strings.companyPhone} {requiredLabel}
         </label>
         <input
-          type='tel'
+          type='text'
           name='companyPhone'
           value={formData.companyPhone}
           onChange={e => onChange('companyPhone', e.target.value)}
           className='input-field'
           placeholder={strings.companyPhonePlaceholder}
           maxLength={11}
+          autoComplete='tel'
+          inputMode='tel'
+          dir='ltr'
         />
-        {errors.companyPhone && <p className='mt-1 text-sm text-red-600'>{errors.companyPhone}</p>}
+        {errors.companyPhone && (
+          <p className='mt-1 text-sm text-red-600'>{errors.companyPhone}</p>
+        )}
       </div>
 
       <div>
@@ -81,7 +99,9 @@ const CompanyFields: React.FC<Props> = ({ formData, errors, onChange, requiredLa
           placeholder={strings.postalCodePlaceholder}
           maxLength={10}
         />
-        {errors.postalCode && <p className='mt-1 text-sm text-red-600'>{errors.postalCode}</p>}
+        {errors.postalCode && (
+          <p className='mt-1 text-sm text-red-600'>{errors.postalCode}</p>
+        )}
       </div>
     </div>
 
@@ -98,7 +118,9 @@ const CompanyFields: React.FC<Props> = ({ formData, errors, onChange, requiredLa
         placeholder={strings.companyAddressPlaceholder}
         maxLength={255}
       />
-      {errors.companyAddress && <p className='mt-1 text-sm text-red-600'>{errors.companyAddress}</p>}
+      {errors.companyAddress && (
+        <p className='mt-1 text-sm text-red-600'>{errors.companyAddress}</p>
+      )}
     </div>
   </div>
 );
