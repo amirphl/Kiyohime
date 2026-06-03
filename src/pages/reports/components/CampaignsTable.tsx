@@ -1,7 +1,15 @@
-import React from 'react';
-import { GetSMSCampaignResponse } from '../../../types/campaign';
+import React, { useState } from 'react';
+import { CampaignData, GetSMSCampaignResponse } from '../../../types/campaign';
 import { ReportsCopy } from '../translations';
 import { useCancelCampaign } from '../hooks/useCancelCampaign';
+import { useAuth } from '../../../hooks/useAuth';
+import { useToast } from '../../../hooks/useToast';
+import { apiService } from '../../../services/api';
+import { ROUTES } from '../../../config/routes';
+import {
+  clearLevelSelection,
+  saveLevelSelection,
+} from '../../../types/segment';
 
 interface CampaignsTableProps {
   items: GetSMSCampaignResponse[];
@@ -20,6 +28,137 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
 }) => {
   const statusLabel = (status: string) => copy.statuses[status] || status;
   const { cancelCampaign, cancelling, cancelled } = useCancelCampaign(copy);
+  const { accessToken } = useAuth();
+  const { showError, showSuccess } = useToast();
+  const [cloning, setCloning] = useState<Record<string, boolean>>({});
+  const [resuming, setResuming] = useState<Record<string, boolean>>({});
+
+  const canClone = (status: string) =>
+    status !== 'initiated' && status !== 'in-progress';
+  const canResume = (status: string) =>
+    status === 'initiated' || status === 'in-progress';
+
+  const normalizeCampaignToDraft = (
+    campaign: GetSMSCampaignResponse
+  ): CampaignData => {
+    const platformValue =
+      ((campaign as any).platform as CampaignData['level']['platform']) ||
+      'sms';
+    const capacityValue =
+      typeof campaign.num_audience === 'number' ? campaign.num_audience : 0;
+
+    const level: CampaignData['level'] = {
+      campaignTitle: campaign.title || '',
+      level1: campaign.level1 || '',
+      level2s: Array.isArray(campaign.level2s) ? campaign.level2s : [],
+      level3s: Array.isArray(campaign.level3s) ? campaign.level3s : [],
+      platform: platformValue,
+      tags: Array.isArray(campaign.tags) ? campaign.tags : [],
+      capacityTooLow: capacityValue > 0 && capacityValue < 500,
+      capacity: capacityValue,
+      jobCategory: campaign.job_category || '',
+      job: campaign.job || '',
+    };
+
+    const content: CampaignData['content'] = {
+      insertLink: !!campaign.adlink,
+      link: campaign.adlink || '',
+      text: campaign.content || '',
+      scheduleAt: campaign.scheduleat || undefined,
+      shortLinkDomain: campaign.short_link_domain || 'jo1n.ir',
+      lineNumber: campaign.line_number || '',
+      platformSettingsId:
+        platformValue === 'sms'
+          ? null
+          : ((campaign as any).platform_settings_id ?? null),
+      mediaUuid:
+        platformValue === 'sms' ? null : ((campaign as any).media_uuid ?? null),
+    };
+
+    const budget: CampaignData['budget'] = {
+      totalBudget: typeof campaign.budget === 'number' ? campaign.budget : 0,
+      estimatedMessages:
+        typeof campaign.num_audience === 'number'
+          ? campaign.num_audience
+          : undefined,
+    };
+
+    return {
+      uuid: campaign.uuid || '',
+      level,
+      content,
+      budget,
+      payment: { paymentMethod: '', termsAccepted: false },
+    };
+  };
+
+  const persistDraft = (draft: CampaignData) => {
+    localStorage.setItem('campaign_creation_data', JSON.stringify(draft));
+    localStorage.setItem('campaign_creation_step', '1');
+    saveLevelSelection({
+      campaignTitle: draft.level.campaignTitle || '',
+      level1s: draft.level.level1 ? [draft.level.level1] : [],
+      level2s: draft.level.level2s || [],
+      level3s: draft.level.level3s || [],
+      metadata: {},
+      tags: draft.level.tags || [],
+      count: draft.level.capacity || 0,
+      lastUpdated: new Date().toISOString(),
+    });
+  };
+
+  const handleClone = async (c: GetSMSCampaignResponse) => {
+    if (!canClone(c.status)) {
+      showError(copy.clone.notAllowed);
+      return;
+    }
+    const ok = window.confirm(copy.clone.confirm);
+    if (!ok) return;
+    if (!accessToken) {
+      showError(copy.modal.close); // fallback
+      return;
+    }
+    setCloning(prev => ({ ...prev, [c.uuid]: true }));
+    try {
+      apiService.setAccessToken(accessToken);
+      const cloneRes = await apiService.cloneCampaign(c.uuid);
+      if (!cloneRes.success || !cloneRes.data?.uuid) {
+        throw new Error(cloneRes.message || copy.clone.error);
+      }
+      showSuccess(copy.clone.success);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : copy.clone.error;
+      showError(message);
+    } finally {
+      setCloning(prev => ({ ...prev, [c.uuid]: false }));
+    }
+  };
+
+  const handleResume = (c: GetSMSCampaignResponse) => {
+    if (!canResume(c.status)) {
+      showError(copy.resume.notAllowed);
+      return;
+    }
+    const confirmed = window.confirm(copy.resume.confirm);
+    if (!confirmed) return;
+    setResuming(prev => ({ ...prev, [c.uuid]: true }));
+    try {
+      clearLevelSelection();
+      localStorage.removeItem('campaign_creation_data');
+      localStorage.removeItem('campaign_creation_step');
+
+      const draft = normalizeCampaignToDraft(c);
+      persistDraft(draft);
+
+      showSuccess(copy.resume.success);
+      window.location.href = ROUTES.CAMPAIGN_CREATION.path;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : copy.resume.error;
+      showError(message);
+    } finally {
+      setResuming(prev => ({ ...prev, [c.uuid]: false }));
+    }
+  };
 
   return (
     <div className='bg-white rounded-lg shadow-sm border border-gray-200'>
@@ -76,7 +215,9 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                     {c.line_number || '-'}
                   </td>
                   <td className='px-4 py-2 text-sm text-gray-900 text-center'>
-                    {Array.isArray(c.level3s) ? c.level3s.join(', ') : c.level3s || '-'}
+                    {Array.isArray(c.level3s)
+                      ? c.level3s.join(', ')
+                      : c.level3s || '-'}
                   </td>
                   <td className='px-4 py-2 text-sm text-gray-500 text-center'>
                     {c.num_audience || '-'}
@@ -94,21 +235,43 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                     {formatDateTime(c.scheduleat)}
                   </td>
                   <td className='px-4 py-2 text-center text-sm text-gray-900'>
-                    {c.status === 'waiting-for-approval' && c.id ? (
-                      <button
-                        onClick={() => cancelCampaign(c)}
-                        disabled={cancelling[c.id] || cancelled[c.id]}
-                        className='px-3 py-1 text-sm rounded bg-amber-600 text-white shadow-sm hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition'
-                      >
-                        {cancelled[c.id]
-                          ? copy.modal.cancelled
-                          : cancelling[c.id]
-                            ? copy.modal.cancelling
-                            : copy.modal.cancel}
-                      </button>
-                    ) : (
-                      <span className='text-gray-400'>-</span>
-                    )}
+                    <div className='flex flex-col items-center gap-2'>
+                      {c.status === 'waiting-for-approval' && c.id ? (
+                        <button
+                          onClick={() => cancelCampaign(c)}
+                          disabled={cancelling[c.id] || cancelled[c.id]}
+                          className='px-3 py-1 text-sm rounded bg-amber-600 text-white shadow-sm hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition w-full'
+                        >
+                          {cancelled[c.id]
+                            ? copy.modal.cancelled
+                            : cancelling[c.id]
+                              ? copy.modal.cancelling
+                              : copy.modal.cancel}
+                        </button>
+                      ) : (
+                        <span className='text-gray-400 w-full text-center'>
+                          -
+                        </span>
+                      )}
+                      {canClone(c.status) && (
+                        <button
+                          onClick={() => handleClone(c)}
+                          disabled={cloning[c.uuid]}
+                          className='px-3 py-1 text-sm rounded bg-blue-600 text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition w-full'
+                        >
+                          {cloning[c.uuid] ? copy.loading : copy.clone.button}
+                        </button>
+                      )}
+                      {canResume(c.status) && (
+                        <button
+                          onClick={() => handleResume(c)}
+                          disabled={resuming[c.uuid]}
+                          className='px-3 py-1 text-sm rounded bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition w-full'
+                        >
+                          {resuming[c.uuid] ? copy.loading : copy.resume.button}
+                        </button>
+                      )}
+                    </div>
                   </td>
                   <td className='px-4 py-2 text-center'>
                     <button
