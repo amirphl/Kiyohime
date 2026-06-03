@@ -33,6 +33,23 @@ export interface ReportsTranslations {
     rejected: string;
     [key: string]: string;
   };
+  clone: {
+    button: string;
+    confirm: string;
+    success: string;
+    error: string;
+    notAllowed: string;
+    modalTitle: string;
+    modalBody: string;
+    close: string;
+  };
+  resume: {
+    button: string;
+    confirm: string;
+    success: string;
+    error: string;
+    notAllowed: string;
+  };
   modal: {
     details: string;
     rejected: string;
@@ -107,7 +124,24 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       cancelled: 'Cancelled',
       executed: 'Executed',
     },
-    modal: {
+  clone: {
+    button: 'Clone',
+    confirm: 'Cloning will replace your current in-progress draft. Continue?',
+    success: 'Campaign cloned. Loading draft...',
+    error: 'Failed to clone campaign.',
+    notAllowed: 'This campaign cannot be cloned right now.',
+    modalTitle: 'Campaign cloned',
+    modalBody: 'Your campaign was cloned. When you open the Segment page, the latest draft will be loaded automatically.',
+    close: 'Close',
+  },
+  resume: {
+    button: 'Resume',
+    confirm: 'Resume this campaign? It will replace the current draft.',
+    success: 'Campaign loaded. Redirecting to editor...',
+    error: 'Failed to resume campaign.',
+    notAllowed: 'This campaign cannot be resumed right now.',
+  },
+  modal: {
       details: 'Details',
       rejected: 'Rejected',
       close: 'Close',
@@ -179,6 +213,23 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       cancelled: 'لغو شده',
       executed: 'اجرا شده',
     },
+  clone: {
+    button: 'کپی',
+    confirm: 'با کپی، پیش‌نویس فعلی شما جایگزین می‌شود. ادامه می‌دهید؟',
+    success: 'کمپین کپی شد. در حال بارگذاری پیش‌نویس...',
+    error: 'کپی کمپین ناموفق بود.',
+    notAllowed: 'این کمپین قابل کپی نیست.',
+    modalTitle: 'کمپین کپی شد',
+    modalBody: 'کمپین شما کپی شد. با ورود به بخش مدیریت ارسال‌ها، پیش‌نویس جدید به صورت خودکار بارگذاری می‌شود.',
+    close: 'بستن',
+  },
+  resume: {
+    button: 'ادامه',
+    confirm: 'این کمپین جایگزین پیش‌نویس فعلی می‌شود. ادامه می‌دهید؟',
+    success: 'کمپین بارگذاری شد. در حال هدایت به ویرایش...',
+    error: 'ادامه کمپین ناموفق بود.',
+    notAllowed: 'امکان ادامه این کمپین وجود ندارد.',
+  },
     modal: {
       details: 'جزئیات',
       rejected: 'رد شده',
