@@ -17,13 +17,14 @@ const TermsCheckbox: React.FC<Props> = ({ accepted, onChange, strings }) => (
       className='mt-1'
     />
     <label htmlFor='acceptedTerms' className='text-sm text-gray-700'>
+      {strings.acceptTermsPrefix}{' '}
       <a
         href='/terms'
         className='text-primary-600 hover:text-primary-700'
         target='_blank'
         rel='noopener noreferrer'
       >
-        {strings.acceptTerms}
+        {strings.acceptTermsLink}
       </a>
     </label>
   </div>
