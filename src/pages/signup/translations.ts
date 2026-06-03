@@ -3,6 +3,9 @@ export type SignupLocale = 'en' | 'fa';
 export interface SignupTranslations {
   title: string;
   subtitle: string;
+  requiredFieldLabel: string;
+  resend: string;
+  seconds: string;
   accountType: string;
   selectAccountType: string;
   individual: string;
@@ -53,7 +56,8 @@ export interface SignupTranslations {
   attemptsRemaining: string;
   maxAttemptsReached: string;
   resendIn: string;
-  acceptTerms: string;
+  acceptTermsPrefix: string;
+  acceptTermsLink: string;
   mustAcceptTerms: string;
   categoryHeader: string;
   category: string;
@@ -118,6 +122,8 @@ export interface SignupTranslations {
     invalidOtpType: string;
     otpExpired: string;
     networkError: string;
+    timeout: string;
+    invalidCustomerId: string;
     noCustomerId: string;
   };
 }
@@ -126,6 +132,9 @@ export const signupTranslations: Record<SignupLocale, SignupTranslations> = {
   en: {
     title: 'Create Your Account',
     subtitle: '',
+    requiredFieldLabel: 'Required',
+    resend: 'Resend',
+    seconds: 'seconds',
     accountType: 'Account Type',
     selectAccountType: 'Select account type',
     individual: 'Individual',
@@ -176,9 +185,11 @@ export const signupTranslations: Record<SignupLocale, SignupTranslations> = {
     attemptsRemaining: 'Attempts remaining:',
     maxAttemptsReached: 'Maximum attempts reached',
     resendIn: 'Resend in',
-    acceptTerms: 'I agree to the terms and conditions',
+    acceptTermsPrefix: 'I agree to the',
+    acceptTermsLink: 'terms and conditions',
     mustAcceptTerms: 'You must accept the terms and conditions to continue',
-    categoryHeader: 'Please select the category and subcategory that best describes your business',
+    categoryHeader:
+      'Please select the category and subcategory that best describes your business',
     category: 'Category',
     job: 'Job',
     selectCategory: 'Select category',
@@ -229,24 +240,36 @@ export const signupTranslations: Record<SignupLocale, SignupTranslations> = {
       customerNotFound: 'Customer not found. Please check your information.',
       accountInactive: 'Account is inactive. Please contact support.',
       accountAlreadyVerified: 'Account is already verified. Please sign in.',
-      emailExists: 'Email address already exists. Please use a different email.',
-      mobileExists: 'Mobile number already exists. Please use a different number.',
-      nationalIdExists: 'National ID already exists. Please check your information.',
-      accountTypeNotFound: 'Account type not found. Please select a valid account type.',
-      companyFieldsRequired: 'Company fields are required for business accounts.',
-      referrerAgencyNotFound: 'Referrer agency not found. Please check the agency code.',
+      emailExists:
+        'Email address already exists. Please use a different email.',
+      mobileExists:
+        'Mobile number already exists. Please use a different number.',
+      nationalIdExists:
+        'National ID already exists. Please check your information.',
+      accountTypeNotFound:
+        'Account type not found. Please select a valid account type.',
+      companyFieldsRequired:
+        'Company fields are required for business accounts.',
+      referrerAgencyNotFound:
+        'Referrer agency not found. Please check the agency code.',
       referrerMustBeAgency: 'Referrer must be a marketing agency.',
-      referrerAgencyInactive: 'Referrer agency is inactive. Please contact support.',
+      referrerAgencyInactive:
+        'Referrer agency is inactive. Please contact support.',
       noValidOtp: 'No valid OTP found. Please request a new OTP.',
       invalidOtpType: 'Invalid OTP type. Please try again.',
       otpExpired: 'OTP has expired. Please request a new OTP.',
       networkError: 'Network error. Please try again.',
+      timeout: 'Request timed out. Please try again.',
+      invalidCustomerId: 'Invalid customer ID. Please try again.',
       noCustomerId: 'No customer ID found. Please try again.',
     },
   },
   fa: {
     title: 'حساب کاربری خود را بسازید',
     subtitle: '',
+    requiredFieldLabel: 'الزامی',
+    resend: 'ارسال مجدد',
+    seconds: 'ثانیه',
     accountType: 'نوع حساب کاربری',
     selectAccountType: 'نوع حساب را انتخاب کنید',
     individual: 'انفرادی',
@@ -297,9 +320,11 @@ export const signupTranslations: Record<SignupLocale, SignupTranslations> = {
     attemptsRemaining: 'تلاش باقی‌مانده:',
     maxAttemptsReached: 'حداکثر تلاش انجام شده است',
     resendIn: 'ارسال مجدد در',
-    acceptTerms: 'با شرایط و ضوابط موافقت می‌کنم',
+    acceptTermsPrefix: 'با',
+    acceptTermsLink: 'شرایط و ضوابط',
     mustAcceptTerms: 'برای ادامه باید با شرایط و ضوابط موافقت کنید',
-    categoryHeader: 'لطفا با انتخاب دسته‌ و زیردسته نوع کسب‌وکار خود را به صورت دقیق انتخاب کنید',
+    categoryHeader:
+      'لطفا با انتخاب دسته‌ و زیردسته نوع کسب‌وکار خود را به صورت دقیق انتخاب کنید',
     category: 'دسته‌بندی اصلی کسب‌و‌کار شما',
     job: 'زیردسته دقیق‌تر کسب‌و‌کار شما',
     selectCategory: 'انتخاب دسته‌بندی اصلی کسب و کار',
@@ -341,7 +366,8 @@ export const signupTranslations: Record<SignupLocale, SignupTranslations> = {
       shebaLength: 'شماره شبا باید دقیقاً ۲۴ رقم باشد (بدون IR)',
       shebaNotAllowed: 'برای این نوع حساب، شماره شبا نباید وارد شود',
     },
-    success: 'حساب کاربری با موفقیت ایجاد شد! به پلتفرم هوشمند و داده‌محور خوش آمدید!',
+    success:
+      'حساب کاربری با موفقیت ایجاد شد! به پلتفرم هوشمند و داده‌محور خوش آمدید!',
     otpResent: 'کد تأیید جدید به شماره موبایل شما ارسال شد',
     error: {
       signupFailed: 'ایجاد حساب ناموفق بود. لطفاً دوباره تلاش کنید.',
@@ -350,18 +376,25 @@ export const signupTranslations: Record<SignupLocale, SignupTranslations> = {
       customerNotFound: 'مشتری یافت نشد. لطفاً اطلاعات خود را بررسی کنید.',
       accountInactive: 'حساب غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.',
       accountAlreadyVerified: 'حساب قبلاً تأیید شده است. لطفاً وارد شوید.',
-      emailExists: 'آدرس ایمیل قبلاً ثبت شده است. لطفاً از ایمیل دیگری استفاده کنید.',
-      mobileExists: 'شماره موبایل قبلاً ثبت شده است. لطفاً شماره دیگری وارد کنید.',
-      nationalIdExists: 'شناسه ملی قبلاً ثبت شده است. لطفاً اطلاعات را بررسی کنید.',
-      accountTypeNotFound: 'نوع حساب یافت نشد. لطفاً یک نوع حساب معتبر انتخاب کنید.',
+      emailExists:
+        'آدرس ایمیل قبلاً ثبت شده است. لطفاً از ایمیل دیگری استفاده کنید.',
+      mobileExists:
+        'شماره موبایل قبلاً ثبت شده است. لطفاً شماره دیگری وارد کنید.',
+      nationalIdExists:
+        'شناسه ملی قبلاً ثبت شده است. لطفاً اطلاعات را بررسی کنید.',
+      accountTypeNotFound:
+        'نوع حساب یافت نشد. لطفاً یک نوع حساب معتبر انتخاب کنید.',
       companyFieldsRequired: 'فیلدهای شرکت برای حساب‌های سازمانی الزامی است.',
       referrerAgencyNotFound: 'آژانس معرف یافت نشد. لطفاً کد را بررسی کنید.',
       referrerMustBeAgency: 'معرف باید یک آژانس بازاریابی باشد.',
-      referrerAgencyInactive: 'آژانس معرف غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.',
+      referrerAgencyInactive:
+        'آژانس معرف غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.',
       noValidOtp: 'کد تأیید معتبری یافت نشد. لطفاً دوباره درخواست دهید.',
       invalidOtpType: 'نوع کد تأیید نامعتبر است. لطفاً دوباره تلاش کنید.',
       otpExpired: 'کد تأیید منقضی شده است. لطفاً دوباره درخواست دهید.',
       networkError: 'خطای شبکه. لطفاً دوباره تلاش کنید.',
+      timeout: 'زمان درخواست به پایان رسید. لطفاً دوباره تلاش کنید.',
+      invalidCustomerId: 'شناسه مشتری نامعتبر است. لطفاً دوباره تلاش کنید.',
       noCustomerId: 'شناسه مشتری یافت نشد. لطفاً دوباره تلاش کنید.',
     },
   },
