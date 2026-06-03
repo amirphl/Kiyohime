@@ -25,11 +25,15 @@ const IdentifierField: React.FC<IdentifierFieldProps> = ({
 }) => {
   return (
     <div>
-      <label htmlFor={id} className='block text-sm font-medium text-gray-700 mb-2'>
+      <label
+        htmlFor={id}
+        className='block text-sm font-medium text-gray-700 mb-2'
+      >
         {label}
       </label>
       <input
-        type={isOtp ? 'tel' : 'text'}
+        key={isOtp ? 'otp-identifier' : 'password-identifier'}
+        type='text'
         id={id}
         value={value}
         onChange={e => onChange(e.target.value)}
@@ -39,10 +43,18 @@ const IdentifierField: React.FC<IdentifierFieldProps> = ({
         placeholder={placeholder}
         dir='ltr'
         required
-        inputMode={isOtp ? 'numeric' : undefined}
-        pattern={isOtp ? '[0-9+]+' : undefined}
+        autoCapitalize='none'
+        autoCorrect='off'
+        autoComplete={isOtp ? 'tel' : 'username'}
+        inputMode={isOtp ? 'tel' : 'email'}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
       />
-      {error && <p className='mt-2 text-sm text-red-600'>{error}</p>}
+      {error && (
+        <p id={`${id}-error`} className='mt-2 text-sm text-red-600'>
+          {error}
+        </p>
+      )}
     </div>
   );
 };
