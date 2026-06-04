@@ -19,11 +19,15 @@ interface PlatformSettingsTableProps {
     download: string;
     downloading: string;
     downloadFailed: string;
+    previewFailed: string;
+    notAuthenticated: string;
+    fallbackFileName: string;
     businessLicense: string;
     status: string;
     actions: string;
     edit: string;
     empty: string;
+    notAvailable: string;
     statusInitialized: string;
     statusInProgress: string;
     statusActive: string;
@@ -47,7 +51,7 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
     async (uuid?: string) => {
       if (!uuid) return;
       if (!accessToken) {
-        onError(labels.downloadFailed);
+        onError(labels.notAuthenticated);
         return;
       }
       if (downloadInFlight.current.has(uuid)) return;
@@ -66,7 +70,7 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
         const url = URL.createObjectURL(res.blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = res.filename || 'multimedia';
+        link.download = res.filename || labels.fallbackFileName;
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -82,7 +86,13 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
         setDownloadLoadingByUuid(prev => ({ ...prev, [uuid]: false }));
       }
     },
-    [accessToken, labels.downloadFailed, onError]
+    [
+      accessToken,
+      labels.downloadFailed,
+      labels.fallbackFileName,
+      labels.notAuthenticated,
+      onError,
+    ]
   );
 
   const statusLabel = (status: PlatformSettingsItem['status']) => {
@@ -149,10 +159,12 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
                 {index + 1}
               </td>
               <td className='px-4 py-3 text-gray-700 text-center'>
-                {item.name || '—'}
+                {item.name || labels.notAvailable}
               </td>
               <td className='px-4 py-3 text-gray-700 text-center max-w-md'>
-                <div className='line-clamp-2'>{item.description || '—'}</div>
+                <div className='line-clamp-2'>
+                  {item.description || labels.notAvailable}
+                </div>
               </td>
               <td className='px-4 py-3 text-center text-sm'>
                 {item.website ? (
@@ -165,7 +177,7 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
                     {item.website}
                   </a>
                 ) : (
-                  '—'
+                  labels.notAvailable
                 )}
               </td>
               <td className='px-4 py-3 text-center'>
@@ -173,6 +185,12 @@ const PlatformSettingsTable: React.FC<PlatformSettingsTableProps> = ({
                   uuid={item.multimedia_uuid}
                   accessToken={accessToken}
                   onError={onError}
+                  labels={{
+                    loading: labels.downloading,
+                    empty: labels.notAvailable,
+                    unavailable: labels.notAvailable,
+                    previewFailed: labels.previewFailed,
+                  }}
                 />
               </td>
               <td className='px-4 py-3 text-center'>
