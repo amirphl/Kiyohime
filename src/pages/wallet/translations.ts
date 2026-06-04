@@ -31,6 +31,36 @@ export interface WalletTranslations {
   errorMinAmount: string;
   errorMultipleOf: string;
   pay: string;
+  depositTitle: string;
+  depositAmountLabel: string;
+  depositUploadLabel: string;
+  depositSelectFile: string;
+  depositSubmit: string;
+  depositProforma: string;
+  depositSectionHelp: string;
+  depositTableTitle: string;
+  depositColumnAmount: string;
+  depositColumnStatus: string;
+  depositColumnCreated: string;
+  depositColumnFile: string;
+  depositColumnDownload: string;
+  depositColumnUpdate: string;
+  depositColumnDelete: string;
+  depositColumnProforma: string;
+  depositColumnRejection: string;
+  depositColumnLang: string;
+  depositColumnPreview: string;
+  depositConfirmTitle: string;
+  depositConfirmBody: string;
+  depositDownloadFile: string;
+  depositUpdateFile: string;
+  depositDeleteFile: string;
+  depositNoFile: string;
+  depositNeedAmount: string;
+  depositNeedFile: string;
+  depositNeedReceiptForProforma: string;
+  depositFileTooLarge: string;
+  depositSizeHint: string;
   historyTitle: string;
   table: WalletTableTranslations;
   operationTypes: Record<string, string>;
@@ -62,7 +92,39 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     errorInvalidNumber: 'Please enter a valid number',
     errorMinAmount: 'Amount must be at least 1,000,000 Toman',
     errorMultipleOf: 'Amount must be a multiple of 100,000 Toman',
-    pay: 'Pay',
+    pay: 'Pay (Gateway)',
+    depositTitle: 'Pay With Deposit Receipt',
+    depositAmountLabel: 'Amount (Toman)',
+    depositUploadLabel: 'Receipt file (JPG, PNG, PDF)',
+    depositSelectFile: 'Choose file',
+    depositSubmit: 'Submit',
+    depositProforma: 'Download Proforma Invoice (PDF)',
+    depositSectionHelp:
+      'Enter the amount, upload your bank receipt, then submit for review.',
+    depositTableTitle: 'Deposit Receipts',
+    depositColumnAmount: 'Amount',
+    depositColumnStatus: 'Status',
+    depositColumnCreated: 'Created At',
+    depositColumnFile: 'File',
+    depositColumnDownload: 'Download',
+    depositColumnUpdate: 'Update',
+    depositColumnDelete: 'Delete',
+    depositColumnProforma: 'Proforma',
+    depositColumnRejection: 'Note',
+    depositColumnLang: 'Lang',
+    depositColumnPreview: 'Preview',
+    depositConfirmTitle: 'Submit deposit receipt?',
+    depositConfirmBody:
+      'We will send your receipt for manual review. Continue?',
+    depositDownloadFile: 'Download file',
+    depositUpdateFile: 'Update file',
+    depositDeleteFile: 'Delete file',
+    depositNoFile: '-',
+    depositNeedAmount: 'Enter amount first',
+    depositNeedFile: 'Please select a file',
+    depositNeedReceiptForProforma: 'Submit a receipt first to get proforma.',
+    depositFileTooLarge: 'File must be 5 MB or smaller.',
+    depositSizeHint: 'Supported: JPG, PNG, PDF up to 5 MB.',
     historyTitle: 'Payment & Charge History',
     table: {
       row: 'Row',
@@ -122,7 +184,39 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     errorInvalidNumber: 'لطفاً یک عدد معتبر وارد کنید',
     errorMinAmount: 'مبلغ باید حداقل ۱،۰۰۰،۰۰۰ تومان باشد',
     errorMultipleOf: 'مبلغ باید مضربی از ۱۰۰،۰۰۰ تومان باشد',
-    pay: 'پرداخت',
+    pay: 'پرداخت از طریق درگاه پرداخت',
+    depositTitle: 'پرداخت از طریق فیش واریزی',
+    depositAmountLabel: 'مبلغ (تومان)',
+    depositUploadLabel: 'فایل رسید (JPG, PNG, PDF)',
+    depositSelectFile: 'بارگذاری فیش واریز',
+    depositSubmit: 'ثبت',
+    depositProforma: 'دانلود پیش‌فاکتور (PDF)',
+    depositSectionHelp:
+      'مبلغ را وارد کنید، فایل رسید را بارگذاری کنید و برای بررسی ارسال نمایید.',
+    depositTableTitle: 'فیش‌های واریز',
+    depositColumnAmount: 'مبلغ',
+    depositColumnStatus: 'وضعیت',
+    depositColumnCreated: 'تاریخ ثبت',
+    depositColumnFile: 'فایل',
+    depositColumnDownload: 'دانلود',
+    depositColumnUpdate: 'به‌روزرسانی',
+    depositColumnDelete: 'حذف',
+    depositColumnProforma: 'پیش‌فاکتور',
+    depositColumnRejection: 'نوت',
+    depositColumnLang: 'زبان',
+    depositColumnPreview: 'پیش‌نمایش',
+    depositConfirmTitle: 'فیش واریز ارسال شود؟',
+    depositConfirmBody: 'فیش برای بررسی مالی ارسال می‌شود. ادامه می‌دهید؟',
+    depositDownloadFile: 'دانلود',
+    depositUpdateFile: 'به‌روزرسانی فایل',
+    depositDeleteFile: 'حذف فایل',
+    depositNoFile: '-',
+    depositNeedAmount: 'ابتدا مبلغ را وارد کنید',
+    depositNeedFile: 'لطفاً فایل را انتخاب کنید',
+    depositNeedReceiptForProforma:
+      'برای دریافت پیش‌فاکتور ابتدا رسید ثبت کنید.',
+    depositFileTooLarge: 'حجم فایل نباید بیش از ۵ مگابایت باشد.',
+    depositSizeHint: 'فرمت‌های مجاز: JPG، PNG، PDF تا ۵ مگابایت.',
     historyTitle: 'تاریخچه پرداخت و شارژ',
     table: {
       row: 'ردیف',
