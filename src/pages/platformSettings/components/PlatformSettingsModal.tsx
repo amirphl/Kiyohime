@@ -16,6 +16,12 @@ interface PlatformSettingsModalProps {
     platform: string;
     close: string;
     note: string;
+    notAvailable: string;
+    statusInitialized: string;
+    statusInProgress: string;
+    statusActive: string;
+    statusInactive: string;
+    platforms: Record<PlatformSettingsItem['platform'], string>;
   };
 }
 
@@ -26,6 +32,17 @@ const PlatformSettingsModal: React.FC<PlatformSettingsModalProps> = ({
   labels,
 }) => {
   if (!isOpen || !item) return null;
+
+  const statusLabel =
+    item.status === 'initialized'
+      ? labels.statusInitialized
+      : item.status === 'in-progress'
+        ? labels.statusInProgress
+        : item.status === 'active'
+          ? labels.statusActive
+          : item.status === 'inactive'
+            ? labels.statusInactive
+            : item.status;
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
@@ -48,7 +65,7 @@ const PlatformSettingsModal: React.FC<PlatformSettingsModalProps> = ({
               {labels.platform}
             </label>
             <div className='rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700'>
-              {item.platform}
+              {labels.platforms[item.platform]}
             </div>
           </div>
           <div className='space-y-2'>
@@ -56,7 +73,7 @@ const PlatformSettingsModal: React.FC<PlatformSettingsModalProps> = ({
               {labels.name}
             </label>
             <div className='rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700'>
-              {item.name || '—'}
+              {item.name || labels.notAvailable}
             </div>
           </div>
           <div className='space-y-2'>
@@ -64,7 +81,7 @@ const PlatformSettingsModal: React.FC<PlatformSettingsModalProps> = ({
               {labels.description}
             </label>
             <div className='rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700'>
-              {item.description || '—'}
+              {item.description || labels.notAvailable}
             </div>
           </div>
           <div className='space-y-2'>
@@ -82,7 +99,7 @@ const PlatformSettingsModal: React.FC<PlatformSettingsModalProps> = ({
                   {item.website}
                 </a>
               ) : (
-                '—'
+                labels.notAvailable
               )}
             </div>
           </div>
@@ -91,7 +108,7 @@ const PlatformSettingsModal: React.FC<PlatformSettingsModalProps> = ({
               {labels.businessLicense}
             </label>
             <div className='rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 break-all'>
-              {item.business_license_uuid || '—'}
+              {item.business_license_uuid || labels.notAvailable}
             </div>
           </div>
           <div className='space-y-2'>
@@ -99,7 +116,7 @@ const PlatformSettingsModal: React.FC<PlatformSettingsModalProps> = ({
               {labels.status}
             </label>
             <div className='rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700'>
-              {item.status}
+              {statusLabel}
             </div>
           </div>
         </div>
