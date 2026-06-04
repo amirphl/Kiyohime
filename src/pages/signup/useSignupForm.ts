@@ -1,16 +1,65 @@
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import apiService from '../../services/api';
 import { getApiErrorMessage } from '../../utils/errorHandler';
 import { useToast } from '../../hooks/useToast';
 import { useAuth } from '../../hooks/useAuth';
 import { SignupFormData, FormErrors, AccountType } from './types';
 import { SignupTranslations, SignupLocale } from './translations';
-import { defaultSignupForm, sanitizeSheba, toEnglishDigits } from './utils';
+import {
+  buildSignupPayload,
+  defaultSignupForm,
+  extractApiData,
+  normalizeTextInput,
+  parseCustomerId,
+  sanitizeEmailInput,
+  sanitizeNumericInput,
+  sanitizePhoneInput,
+  sanitizeSheba,
+  toEnglishDigits,
+} from './utils';
 
 interface UseSignupFormParams {
   language: SignupLocale | string;
   strings: SignupTranslations;
 }
+
+type SignupAction = 'submit' | 'verifyOtp' | 'resendOtp';
+
+const OTP_RESEND_SECONDS = 60;
+
+const fieldErrorCodeMap: Partial<Record<string, keyof FormErrors>> = {
+  EMAIL_EXISTS: 'email',
+  MOBILE_EXISTS: 'representativeMobile',
+  REFERRER_AGENCY_NOT_FOUND: 'referrerAgencyCode',
+  REFERRER_MUST_BE_AGENCY: 'referrerAgencyCode',
+  REFERRER_AGENCY_INACTIVE: 'referrerAgencyCode',
+  COMPANY_FIELDS_REQUIRED: 'companyName',
+};
+
+const apiFieldMap: Partial<Record<string, keyof SignupFormData>> = {
+  company_name: 'companyName',
+  national_id: 'nationalId',
+  company_phone: 'companyPhone',
+  company_address: 'companyAddress',
+  postal_code: 'postalCode',
+  sheba_number: 'shebaNumber',
+  representative_first_name: 'representativeFirstName',
+  representative_last_name: 'representativeLastName',
+  representative_mobile: 'representativeMobile',
+  email: 'email',
+  password: 'password',
+  confirm_password: 'confirmPassword',
+  referrer_agency_code: 'referrerAgencyCode',
+  job_category: 'jobCategory',
+  job: 'job',
+};
 
 export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
   const { showError, showSuccess, showInfo } = useToast();
@@ -28,8 +77,9 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
   const [otpCode, setOtpCode] = useState('');
   const [customerId, setCustomerId] = useState<number | null>(null);
   const [canResendOtp, setCanResendOtp] = useState(false);
-  const [resendCountdown, setResendCountdown] = useState(60);
+  const [resendCountdown, setResendCountdown] = useState(OTP_RESEND_SECONDS);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const actionInFlightRef = useRef<SignupAction | null>(null);
 
   const isCompanyAccount = useMemo(
     () =>
@@ -45,10 +95,29 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
     }
   }, []);
 
+  const beginAction = useCallback((action: SignupAction) => {
+    if (actionInFlightRef.current) {
+      return false;
+    }
+
+    actionInFlightRef.current = action;
+    setIsLoading(true);
+    return true;
+  }, []);
+
+  const finishAction = useCallback(() => {
+    actionInFlightRef.current = null;
+    setIsLoading(false);
+  }, []);
+
   useEffect(() => () => resetCountdown(), [resetCountdown]);
 
   const validateField = useCallback(
-    (name: keyof SignupFormData | 'accountType', value: string, data: SignupFormData): string => {
+    (
+      name: keyof SignupFormData | 'accountType',
+      value: string,
+      data: SignupFormData
+    ): string => {
       switch (name) {
         case 'jobCategory':
         case 'job':
@@ -57,7 +126,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           }
           return '';
         case 'companyName':
-          if (data.accountType !== 'individual' && !value.trim()) {
+          if (data.accountType !== 'individual' && !normalizeTextInput(value)) {
             return strings.validation.companyNameRequired;
           }
           if (value.length > 60) {
@@ -65,24 +134,32 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           }
           return '';
         case 'nationalId':
-          if (data.accountType !== 'individual' && !value.trim()) {
+          if (data.accountType !== 'individual' && !normalizeTextInput(value)) {
             return strings.validation.nationalIdRequired;
           }
-          if (value && (!/^\d+$/.test(value) || (value.length !== 10 && value.length !== 11))) {
+          if (
+            value &&
+            (!/^\d+$/.test(value) ||
+              (value.length !== 10 && value.length !== 11))
+          ) {
             return strings.validation.nationalIdFormat;
           }
           return '';
         case 'nationalCode':
-          if (data.accountType === 'individual' && !value.trim()) {
+          if (data.accountType === 'individual' && !normalizeTextInput(value)) {
             return strings.validation.nationalCodeRequired;
           }
           const normalizedCode = toEnglishDigits(value);
-          if (normalizedCode && (!/^\d+$/.test(normalizedCode) || (normalizedCode.length !== 10 && normalizedCode.length !== 11))) {
+          if (
+            normalizedCode &&
+            (!/^\d+$/.test(normalizedCode) ||
+              (normalizedCode.length !== 10 && normalizedCode.length !== 11))
+          ) {
             return strings.validation.nationalCodeFormat;
           }
           return '';
         case 'companyPhone':
-          if (data.accountType !== 'individual' && !value.trim()) {
+          if (data.accountType !== 'individual' && !normalizeTextInput(value)) {
             return strings.validation.companyPhoneRequired;
           }
           if (value && !/^0\d{10}$/.test(value)) {
@@ -90,7 +167,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           }
           return '';
         case 'companyAddress':
-          if (data.accountType !== 'individual' && !value.trim()) {
+          if (data.accountType !== 'individual' && !normalizeTextInput(value)) {
             return strings.validation.companyAddressRequired;
           }
           if (value.length > 255) {
@@ -98,7 +175,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           }
           return '';
         case 'postalCode':
-          if (data.accountType !== 'individual' && !value.trim()) {
+          if (data.accountType !== 'individual' && !normalizeTextInput(value)) {
             return strings.validation.postalCodeRequired;
           }
           if (value && (value.length !== 10 || !/^\d+$/.test(value))) {
@@ -106,15 +183,21 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           }
           return '';
         case 'representativeFirstName':
-          return !value.trim() ? strings.validation.firstNameRequired : '';
+          return !normalizeTextInput(value)
+            ? strings.validation.firstNameRequired
+            : '';
         case 'representativeLastName':
-          return !value.trim() ? strings.validation.lastNameRequired : '';
+          return !normalizeTextInput(value)
+            ? strings.validation.lastNameRequired
+            : '';
         case 'representativeMobile':
-          if (!value.trim()) return strings.validation.mobileRequired;
+          if (!normalizeTextInput(value))
+            return strings.validation.mobileRequired;
           if (!/^09\d{9}$/.test(value)) return strings.validation.mobileFormat;
           return '';
         case 'email':
-          if (!value.trim()) return strings.validation.emailRequired;
+          if (!normalizeTextInput(value))
+            return strings.validation.emailRequired;
           if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
             return strings.validation.emailFormat;
           }
@@ -127,18 +210,20 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           return '';
         case 'confirmPassword':
           if (!value) return strings.validation.confirmPasswordRequired;
-          if (value !== data.password) return strings.validation.passwordMismatch;
+          if (value !== data.password)
+            return strings.validation.passwordMismatch;
           return '';
         case 'referrerAgencyCode':
           return '';
         case 'shebaNumber':
           if (data.accountType === 'marketing_agency') {
-            if (!value.trim()) return strings.validation.shebaRequiredAgency;
+            if (!normalizeTextInput(value))
+              return strings.validation.shebaRequiredAgency;
             if (!/^\d+$/.test(value)) return strings.validation.shebaDigits;
             if (value.length !== 24) return strings.validation.shebaLength;
             return '';
           }
-          if (value && value.trim().length > 0) {
+          if (value && normalizeTextInput(value).length > 0) {
             return strings.validation.shebaNotAllowed;
           }
           return '';
@@ -153,9 +238,33 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
 
   const handleInputChange = useCallback(
     (name: keyof SignupFormData | 'accountType', rawValue: string) => {
-      const normalized = name === 'shebaNumber'
-        ? sanitizeSheba(rawValue)
-        : toEnglishDigits(rawValue);
+      let normalized: string;
+
+      switch (name) {
+        case 'shebaNumber':
+          normalized = sanitizeSheba(rawValue);
+          break;
+        case 'nationalId':
+        case 'nationalCode':
+          normalized = sanitizeNumericInput(rawValue, 11);
+          break;
+        case 'companyPhone':
+        case 'representativeMobile':
+          normalized = sanitizePhoneInput(rawValue);
+          break;
+        case 'postalCode':
+          normalized = sanitizeNumericInput(rawValue, 10);
+          break;
+        case 'email':
+          normalized = sanitizeEmailInput(rawValue);
+          break;
+        case 'accountType':
+          normalized = rawValue;
+          break;
+        default:
+          normalized = toEnglishDigits(rawValue);
+          break;
+      }
 
       setFormData(prev => {
         if (name === 'accountType') {
@@ -163,8 +272,19 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           return {
             ...prev,
             accountType: newType,
-            ...(newType === 'marketing_agency' ? { referrerAgencyCode: '' } : {}),
+            ...(newType === 'marketing_agency'
+              ? { referrerAgencyCode: '' }
+              : {}),
             ...(newType !== 'marketing_agency' ? { shebaNumber: '' } : {}),
+            ...(newType === 'individual'
+              ? {
+                  companyName: '',
+                  nationalId: '',
+                  companyPhone: '',
+                  companyAddress: '',
+                  postalCode: '',
+                }
+              : { nationalCode: '' }),
           };
         }
         if (name === 'jobCategory') {
@@ -176,8 +296,41 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
       if (errors[name]) {
         setErrors(prev => ({ ...prev, [name]: '' }));
       }
+
+      if (name === 'accountType') {
+        setErrors(prev => ({
+          ...prev,
+          accountType: '',
+          companyName: '',
+          nationalId: '',
+          nationalCode: '',
+          companyPhone: '',
+          companyAddress: '',
+          postalCode: '',
+          shebaNumber: '',
+          referrerAgencyCode: '',
+          jobCategory: '',
+          job: '',
+        }));
+      }
+
+      if (name === 'representativeMobile') {
+        setCustomerId(null);
+        setOtpCode('');
+        setShowOtpModal(false);
+        setCanResendOtp(false);
+        setResendCountdown(OTP_RESEND_SECONDS);
+        resetCountdown();
+      }
     },
-    [errors]
+    [errors, resetCountdown]
+  );
+
+  const setFieldError = useCallback(
+    (field: keyof FormErrors, message: string) => {
+      setErrors(prev => ({ ...prev, [field]: message }));
+    },
+    []
   );
 
   const validateForm = useCallback(
@@ -217,7 +370,9 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
         ];
         const firstErrorKey = fieldOrder.find(name => newErrors[name]);
         if (firstErrorKey) {
-          const el = document.querySelector(`[name='${firstErrorKey}']`) as HTMLElement | null;
+          const el = document.querySelector(
+            `[name='${firstErrorKey}']`
+          ) as HTMLElement | null;
           if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             el.focus?.();
@@ -233,7 +388,7 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
   const startResendCountdown = useCallback(() => {
     resetCountdown();
     setCanResendOtp(false);
-    setResendCountdown(60);
+    setResendCountdown(OTP_RESEND_SECONDS);
     countdownRef.current = setInterval(() => {
       setResendCountdown(prev => {
         if (prev <= 1) {
@@ -246,9 +401,81 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
     }, 1000);
   }, [resetCountdown]);
 
+  const showApiError = useCallback(
+    (
+      response: {
+        success: boolean;
+        message?: string;
+        error?: { code?: string; details?: unknown };
+      },
+      fallbackMessage: string
+    ) => {
+      const errorCode = response.error?.code;
+      const message = getApiErrorMessage(
+        response,
+        normalizedLanguage,
+        fallbackMessage
+      );
+      const details = response.error?.details;
+
+      if (details && typeof details === 'object' && !Array.isArray(details)) {
+        Object.entries(details as Record<string, unknown>).forEach(
+          ([apiField, fieldMessage]) => {
+            const field = apiFieldMap[apiField];
+            if (field && typeof fieldMessage === 'string') {
+              setFieldError(
+                field,
+                getApiErrorMessage(
+                  {
+                    success: false,
+                    message: fieldMessage,
+                    error: { code: fieldMessage },
+                  },
+                  normalizedLanguage,
+                  fieldMessage
+                )
+              );
+            }
+          }
+        );
+      }
+
+      if (errorCode) {
+        const field =
+          errorCode === 'NATIONAL_ID_EXISTS'
+            ? formData.accountType === 'individual'
+              ? 'nationalCode'
+              : 'nationalId'
+            : fieldErrorCodeMap[errorCode];
+        if (field) {
+          setFieldError(field, message);
+        }
+      }
+
+      showError(message);
+    },
+    [formData.accountType, normalizedLanguage, setFieldError, showError]
+  );
+
+  const getRequestErrorMessage = useCallback(
+    (error: unknown) => {
+      if (
+        error instanceof Error &&
+        (error.name === 'TimeoutError' || error.message.includes('timed out'))
+      ) {
+        return strings.error.timeout;
+      }
+
+      return strings.error.networkError;
+    },
+    [strings.error.networkError, strings.error.timeout]
+  );
+
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
+
+      if (actionInFlightRef.current) return;
 
       if (!acceptedTerms) {
         showError(strings.mustAcceptTerms);
@@ -258,34 +485,18 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
       const currentData = { ...formData };
       if (!validateForm(currentData)) return;
 
-      setIsLoading(true);
+      if (!beginAction('submit')) return;
 
       try {
-        const signupData = {
-          account_type: currentData.accountType,
-          company_name: currentData.accountType !== 'individual' ? currentData.companyName : undefined,
-          national_id: currentData.accountType === 'individual' ? currentData.nationalCode : currentData.nationalId,
-          company_phone: currentData.accountType !== 'individual' ? currentData.companyPhone : undefined,
-          company_address: currentData.accountType !== 'individual' ? currentData.companyAddress : undefined,
-          postal_code: currentData.accountType !== 'individual' ? currentData.postalCode : undefined,
-          sheba_number: currentData.accountType === 'marketing_agency' ? `IR${currentData.shebaNumber}` : undefined,
-          representative_first_name: currentData.representativeFirstName,
-          representative_last_name: currentData.representativeLastName,
-          representative_mobile: currentData.representativeMobile,
-          email: currentData.email,
-          password: currentData.password,
-          confirm_password: currentData.confirmPassword,
-          referrer_agency_code: currentData.accountType !== 'marketing_agency' && currentData.referrerAgencyCode
-            ? currentData.referrerAgencyCode
-            : undefined,
-          job_category: currentData.accountType !== 'marketing_agency' ? currentData.jobCategory : undefined,
-          job: currentData.accountType !== 'marketing_agency' ? currentData.job : undefined,
-        };
+        const response = await apiService.signup(
+          buildSignupPayload(currentData)
+        );
+        const responseData = extractApiData(response);
 
-        const response = await apiService.signup(signupData);
-        if (response.success && response.data) {
-          const responseData = response.data.data || response.data;
-          const id = responseData?.customer_id;
+        if (response.success && responseData) {
+          const id = parseCustomerId(
+            responseData?.customer_id ?? responseData?.customerId
+          );
           if (id) {
             setCustomerId(id);
             setShowOtpModal(true);
@@ -294,36 +505,59 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
             showError(strings.error.noCustomerId);
           }
         } else {
-          const errorMessage = getApiErrorMessage(response, normalizedLanguage, strings.error.signupFailed);
-          showError(errorMessage);
+          showApiError(response, strings.error.signupFailed);
         }
       } catch (error) {
         console.error('Signup error:', error);
-        showError(strings.error.networkError);
+        showError(getRequestErrorMessage(error));
       } finally {
-        setIsLoading(false);
+        finishAction();
       }
     },
-    [acceptedTerms, formData, normalizedLanguage, showError, startResendCountdown, strings, validateForm]
+    [
+      acceptedTerms,
+      beginAction,
+      finishAction,
+      formData,
+      getRequestErrorMessage,
+      showApiError,
+      showError,
+      startResendCountdown,
+      strings,
+      validateForm,
+    ]
   );
 
   const handleOtpVerification = useCallback(async () => {
+    if (actionInFlightRef.current) return;
     if (otpCode.length !== 6) {
       showError(strings.validation.invalidOtp);
       return;
     }
     if (!customerId) {
-      showError(strings.error.noCustomerId);
+      showError(strings.error.invalidCustomerId);
       return;
     }
-    setIsLoading(true);
+    if (!beginAction('verifyOtp')) return;
     try {
-      const response = await apiService.verifyOtp(customerId, otpCode, 'mobile');
-      if (response.success && response.data) {
-        const responseData = response.data.data || response.data;
-        if (responseData.customer && responseData.access_token && responseData.refresh_token) {
+      const response = await apiService.verifyOtp(
+        customerId,
+        otpCode,
+        'mobile'
+      );
+      const responseData = extractApiData(response);
+
+      if (response.success && responseData) {
+        if (
+          responseData.customer &&
+          responseData.access_token &&
+          responseData.refresh_token
+        ) {
           login(
-            { token: responseData.access_token, refresh_token: responseData.refresh_token },
+            {
+              token: responseData.access_token,
+              refresh_token: responseData.refresh_token,
+            },
             responseData.customer
           );
           showSuccess(strings.success);
@@ -334,24 +568,35 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           showError(strings.error.invalidOtp);
         }
       } else {
-        const errorMessage = getApiErrorMessage(response, normalizedLanguage, strings.error.invalidOtp);
-        showError(errorMessage);
+        showApiError(response, strings.error.invalidOtp);
       }
     } catch (error) {
       console.error('OTP verification error:', error);
-      showError(strings.error.networkError);
+      showError(getRequestErrorMessage(error));
     } finally {
-      setIsLoading(false);
+      finishAction();
     }
-  }, [customerId, normalizedLanguage, login, otpCode, showError, showSuccess, strings]);
+  }, [
+    beginAction,
+    customerId,
+    finishAction,
+    getRequestErrorMessage,
+    login,
+    otpCode,
+    showApiError,
+    showError,
+    showSuccess,
+    strings,
+  ]);
 
   const handleResendOtp = useCallback(async () => {
-    if (!canResendOtp || !customerId) return;
-    setIsLoading(true);
+    if (actionInFlightRef.current || !canResendOtp || !customerId) return;
+    if (!beginAction('resendOtp')) return;
     try {
       const response = await apiService.resendOtp(customerId, 'mobile');
-      if (response.success && response.data) {
-        const responseData = response.data.data || response.data;
+      const responseData = extractApiData(response);
+
+      if (response.success && responseData) {
         if (responseData.otp_sent) {
           showInfo(strings.otpResent);
           startResendCountdown();
@@ -359,15 +604,26 @@ export const useSignupForm = ({ language, strings }: UseSignupFormParams) => {
           showError(strings.error.resendFailed);
         }
       } else {
-        const errorMessage = getApiErrorMessage(response, normalizedLanguage, strings.error.resendFailed);
-        showError(errorMessage);
+        showApiError(response, strings.error.resendFailed);
       }
     } catch (error) {
-      showError(strings.error.networkError);
+      console.error('OTP resend error:', error);
+      showError(getRequestErrorMessage(error));
     } finally {
-      setIsLoading(false);
+      finishAction();
     }
-  }, [canResendOtp, customerId, normalizedLanguage, showError, showInfo, startResendCountdown, strings]);
+  }, [
+    beginAction,
+    canResendOtp,
+    customerId,
+    finishAction,
+    getRequestErrorMessage,
+    showApiError,
+    showError,
+    showInfo,
+    startResendCountdown,
+    strings,
+  ]);
 
   return {
     formData,
