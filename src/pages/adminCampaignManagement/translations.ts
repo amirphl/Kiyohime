@@ -5,8 +5,11 @@ export interface AdminCampaignManagementCopy {
   backToSardis: string;
   common: {
     loading: string;
+    loadingMore: string;
+    retry: string;
     cancel: string;
     unknown: string;
+    notAvailable: string;
   };
   filters: {
     titleLabel: string;
@@ -32,27 +35,32 @@ export interface AdminCampaignManagementCopy {
   table: {
     noData: string;
     headers: {
-      id: string;
-      details: string;
-      reschedule: string;
       row: string;
+      id: string;
+      customerFullName: string;
+      scheduleAt: string;
       status: string;
       platform: string;
-      createdAt: string;
-      updatedAt: string;
+      numAudience: string;
+      costPerMessage: string;
+      actions: string;
+      reschedule: string;
+      details: string;
+      content: string;
+      adLink: string;
       title: string;
+      level3s: string;
+      tags: string;
+      updatedAt: string;
+      lineNumber: string;
+      comment: string;
+      agencyName: string;
+      createdAt: string;
       segment: string;
       subsegment: string;
       sex: string;
       city: string;
-      adLink: string;
-      content: string;
-      scheduleAt: string;
-      numAudience: string;
-      lineNumber: string;
       budget: string;
-      comment: string;
-      actions: string;
     };
     actions: {
       approve: string;
@@ -139,8 +147,11 @@ const en: AdminCampaignManagementCopy = {
   backToSardis: 'Back to Sardis',
   common: {
     loading: 'Loading...',
+    loadingMore: 'Loading more...',
+    retry: 'Retry',
     cancel: 'Cancel',
     unknown: 'Unknown',
+    notAvailable: '-',
   },
   filters: {
     titleLabel: 'Title',
@@ -166,27 +177,32 @@ const en: AdminCampaignManagementCopy = {
   table: {
     noData: 'No campaigns found',
     headers: {
-      id: 'ID',
-      details: 'Details',
-      reschedule: 'Reschedule',
       row: '#',
+      id: 'Campaign ID',
+      customerFullName: 'Customer Full Name',
+      scheduleAt: 'Schedule At',
       status: 'Status',
       platform: 'Platform',
-      createdAt: 'Created At',
-      updatedAt: 'Updated At',
+      numAudience: 'Audience Count',
+      costPerMessage: 'Cost / Message',
+      actions: 'Actions',
+      reschedule: 'Reschedule',
+      details: 'Details',
+      content: 'Content',
+      adLink: 'Ad Link',
       title: 'Title',
+      level3s: 'Level 3(s)',
+      tags: 'Tags',
+      updatedAt: 'Updated At',
+      lineNumber: 'Line Number / Platform Settings',
+      comment: 'Admin Comment',
+      agencyName: 'Agency Name',
+      createdAt: 'Created At',
       segment: 'Segment',
       subsegment: 'Subsegment',
       sex: 'Sex',
       city: 'City',
-      adLink: 'Ad Link',
-      content: 'Content',
-      scheduleAt: 'Schedule At',
-      numAudience: 'Audience Count',
-      lineNumber: 'Line Number',
       budget: 'Budget',
-      comment: 'Comment',
-      actions: 'Actions',
     },
     actions: {
       approve: 'Approve',
@@ -279,8 +295,11 @@ const fa: AdminCampaignManagementCopy = {
   backToSardis: 'بازگشت به ساردیس',
   common: {
     loading: 'در حال بارگذاری...',
+    loadingMore: 'در حال بارگذاری...',
+    retry: 'تلاش مجدد',
     cancel: 'انصراف',
     unknown: 'نامشخص',
+    notAvailable: '-',
   },
   filters: {
     titleLabel: 'عنوان',
@@ -306,27 +325,32 @@ const fa: AdminCampaignManagementCopy = {
   table: {
     noData: 'کمپینی یافت نشد',
     headers: {
-      id: 'شناسه',
-      details: 'جزئیات',
-      reschedule: 'زمان‌بندی مجدد',
       row: '#',
+      id: 'شناسه کمپین',
+      customerFullName: 'نام کامل مشتری',
+      scheduleAt: 'زمان‌بندی',
       status: 'وضعیت',
       platform: 'پلتفرم',
-      createdAt: 'ایجاد شده در',
-      updatedAt: 'به‌روزرسانی در',
+      numAudience: 'تعداد مخاطبان',
+      costPerMessage: 'تعرفه ارسال',
+      actions: 'اقدامات',
+      reschedule: 'زمان‌بندی مجدد',
+      details: 'جزئیات',
+      content: 'محتوا',
+      adLink: 'لینک تبلیغ',
       title: 'عنوان',
+      level3s: 'سطح ۳',
+      tags: 'برچسب‌ها',
+      updatedAt: 'به‌روزرسانی در',
+      lineNumber: 'سرشماره / تنظیمات کانال',
+      comment: 'توضیح ادمین',
+      agencyName: 'نام آژانس',
+      createdAt: 'ایجاد شده در',
       segment: 'بخش',
       subsegment: 'زیر‌بخش',
       sex: 'جنسیت',
       city: 'شهر',
-      adLink: 'لینک تبلیغ',
-      content: 'محتوا',
-      scheduleAt: 'زمان‌بندی',
-      numAudience: 'تعداد مخاطبان',
-      lineNumber: 'شماره خط',
       budget: 'بودجه',
-      comment: 'توضیح',
-      actions: 'اقدامات',
     },
     actions: {
       approve: 'تأیید',
@@ -377,7 +401,7 @@ const fa: AdminCampaignManagementCopy = {
       totalClicks: 'کلیک‌ها',
       clickRate: 'نرخ کلیک',
       segmentPriceFactor: 'ضریب قیمت سگمنت',
-      lineNumberPriceFactor: 'ضریب قیمت شماره خط',
+      lineNumberPriceFactor: 'ضریب قیمت سرشماره',
       shortLinkDomain: 'دامنه لینک کوتاه',
       jobCategory: 'دسته‌بندی شغلی',
       job: 'شغل',
