@@ -5,16 +5,24 @@ interface MediaPreviewCellProps {
   uuid?: string;
   accessToken: string | null;
   onError: (message: string) => void;
+  labels: {
+    loading: string;
+    empty: string;
+    unavailable: string;
+    previewFailed: string;
+  };
 }
 
 const MediaPreviewCell: React.FC<MediaPreviewCellProps> = ({
   uuid,
   accessToken,
   onError,
+  labels,
 }) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const lastUuidRef = useRef<string | undefined>(undefined);
+  const requestInFlightRef = useRef<Set<string>>(new Set());
   const onErrorRef = useRef(onError);
 
   useEffect(() => {
@@ -28,14 +36,20 @@ const MediaPreviewCell: React.FC<MediaPreviewCellProps> = ({
       lastUuidRef.current = undefined;
       return;
     }
-    if (!accessToken) return;
+    if (!accessToken) {
+      setPreviewUrl(null);
+      setLoading(false);
+      return;
+    }
     if (lastUuidRef.current === uuid) return;
+    if (requestInFlightRef.current.has(uuid)) return;
     setPreviewUrl(prev => {
       if (prev && prev.startsWith('blob:')) URL.revokeObjectURL(prev);
       return null;
     });
     let isActive = true;
     setLoading(true);
+    requestInFlightRef.current.add(uuid);
     apiService.setAccessToken(accessToken);
     apiService
       .previewMultimedia(uuid)
@@ -43,7 +57,8 @@ const MediaPreviewCell: React.FC<MediaPreviewCellProps> = ({
         if (!isActive) return;
         if (!res.success || !res.blob) {
           lastUuidRef.current = uuid;
-          onErrorRef.current(res.message || 'Failed to load preview');
+          setLoading(false);
+          onErrorRef.current(res.message || labels.previewFailed);
           return;
         }
         const url = URL.createObjectURL(res.blob);
@@ -57,12 +72,16 @@ const MediaPreviewCell: React.FC<MediaPreviewCellProps> = ({
       .catch(() => {
         if (!isActive) return;
         lastUuidRef.current = uuid;
-        onErrorRef.current('Failed to load preview');
+        setLoading(false);
+        onErrorRef.current(labels.previewFailed);
+      })
+      .finally(() => {
+        requestInFlightRef.current.delete(uuid);
       });
     return () => {
       isActive = false;
     };
-  }, [accessToken, uuid]);
+  }, [accessToken, labels.previewFailed, uuid]);
 
   useEffect(() => {
     return () => {
@@ -71,7 +90,7 @@ const MediaPreviewCell: React.FC<MediaPreviewCellProps> = ({
   }, [previewUrl]);
 
   if (!uuid) {
-    return <span className='text-sm text-gray-500'>—</span>;
+    return <span className='text-sm text-gray-500'>{labels.empty}</span>;
   }
 
   if (previewUrl) {
@@ -85,10 +104,10 @@ const MediaPreviewCell: React.FC<MediaPreviewCellProps> = ({
   }
 
   if (loading) {
-    return <span className='text-xs text-gray-500'>Loading…</span>;
+    return <span className='text-xs text-gray-500'>{labels.loading}</span>;
   }
 
-  return <span className='text-xs text-gray-500'>No preview</span>;
+  return <span className='text-xs text-gray-500'>{labels.unavailable}</span>;
 };
 
 export default MediaPreviewCell;
