@@ -14,7 +14,8 @@ import {
 import { config, getApiUrl, isDevelopment, isProduction } from '../config/environment';
 import { GetTransactionHistoryParams, TransactionHistoryResponse } from '../types/payments';
 import { AgencyCustomerReportResponse, ListAgencyActiveDiscountsResponse, ListAgencyCustomerDiscountsResponse, ListAgencyCustomersResponse } from '../types/agency';
-import { ListAudienceSpecResponse, ListActiveLineNumbersResponse, ListLatestSegmentPriceFactorsResponse } from '../types/campaign';
+import { ListAudienceSpecResponse, ListActiveLineNumbersResponse, ListLatestSegmentPriceFactorsResponse, GetLastInitiatedCampaignResponse } from '../types/campaign';
+import { SubmitDepositReceiptRequest, SubmitDepositReceiptResponse, ListDepositReceiptsResponse, ProformaPreviewResponse, UpdateDepositReceiptFileRequest } from '../types/payments';
 import { login as authLogin, requestLoginOtp as authRequestLoginOtp, verifyLoginOtp as authVerifyLoginOtp } from './auth/api';
 
 // Updated to match Go backend response structure
@@ -553,6 +554,19 @@ class ApiService {
     });
   }
 
+  async getLastInitiatedCampaign(): Promise<ApiResponse<GetLastInitiatedCampaignResponse>> {
+    return this.request<GetLastInitiatedCampaignResponse>(config.endpoints.campaigns.lastInitiated, {
+      method: 'GET',
+    });
+  }
+
+  async cloneCampaign(uuid: string): Promise<ApiResponse<{ uuid: string }>> {
+    const endpoint = config.endpoints.campaigns.clone.replace(':uuid', encodeURIComponent(uuid));
+    return this.request<{ uuid: string }>(endpoint, {
+      method: 'POST',
+    });
+  }
+
   async calculateCampaignCapacity(capacityData: CalculateCampaignCapacityRequest): Promise<ApiResponse<CalculateCampaignCapacityResponse>> {
     return this.request<CalculateCampaignCapacityResponse>(config.endpoints.campaigns.calculateCapacity, {
       method: 'POST',
@@ -583,13 +597,64 @@ class ApiService {
   }
 
   // Start wallet charge to obtain Atipay token
-  async startWalletCharge(amount: number): Promise<ApiResponse<{ token: string }>> {
+  async startWalletCharge(amount: number, lang?: string): Promise<ApiResponse<{ token: string }>> {
     if (!amount || typeof amount !== 'number' || amount <= 0) {
       return { success: false, message: 'Invalid amount', error: { code: 'Invalid amount', details: null } };
     }
     return this.request<{ token: string }>(`/payments/charge-wallet`, {
       method: 'POST',
-      body: JSON.stringify({ amount }),
+      body: JSON.stringify({ amount, ...(lang ? { lang } : {}) }),
+    });
+  }
+
+  async submitDepositReceipt(payload: SubmitDepositReceiptRequest): Promise<ApiResponse<SubmitDepositReceiptResponse>> {
+    return this.request<SubmitDepositReceiptResponse>(`/payments/deposit-receipts`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async listDepositReceipts(lang?: string): Promise<ApiResponse<ListDepositReceiptsResponse>> {
+    const query = lang ? `?lang=${encodeURIComponent(lang)}` : '';
+    return this.request<ListDepositReceiptsResponse>(`/payments/deposit-receipts${query}`, {
+      method: 'GET',
+    });
+  }
+
+  async previewProformaInvoice(receiptUuid: string, lang?: string): Promise<ApiResponse<ProformaPreviewResponse>> {
+    const params = new URLSearchParams();
+    params.set('receipt_uuid', receiptUuid);
+    if (lang) params.set('lang', lang);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return this.request<ProformaPreviewResponse>(`/payments/proforma/preview${query}`, {
+      method: 'GET',
+    });
+  }
+
+  async downloadDepositReceiptFile(
+    receiptUuid: string
+  ): Promise<{ success: boolean; message: string; blob?: Blob; filename?: string }> {
+    const endpoint = `/payments/deposit-receipts/${encodeURIComponent(receiptUuid)}/file`;
+    return this.requestBinary(endpoint);
+  }
+
+  async updateDepositReceiptFile(
+    receiptUuid: string,
+    payload: UpdateDepositReceiptFileRequest
+  ): Promise<ApiResponse<{ ok: boolean }>> {
+    const endpoint = `/payments/deposit-receipts/${encodeURIComponent(receiptUuid)}/file`;
+    return this.request<{ ok: boolean }>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async deleteDepositReceiptFile(
+    receiptUuid: string
+  ): Promise<ApiResponse<{ ok: boolean }>> {
+    const endpoint = `/payments/deposit-receipts/${encodeURIComponent(receiptUuid)}/file`;
+    return this.request<{ ok: boolean }>(endpoint, {
+      method: 'DELETE',
     });
   }
 
