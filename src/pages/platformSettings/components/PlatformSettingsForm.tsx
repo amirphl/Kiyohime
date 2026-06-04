@@ -6,9 +6,7 @@ interface PlatformSettingsFormProps {
   description: string;
   website: string;
   fileName: string | null;
-  multimediaUuid: string | null;
   businessLicenseFileName: string | null;
-  businessLicenseUuid: string | null;
   isUploading: boolean;
   isBusinessLicenseUploading: boolean;
   isSubmitting: boolean;
@@ -30,6 +28,8 @@ interface PlatformSettingsFormProps {
       nameRequired: string;
       descriptionRequired: string;
       multimediaRequired: string;
+      websiteRequired: string;
+      businessLicenseRequired: string;
       invalidFileType: string;
       fileTooLarge: string;
     };
@@ -41,7 +41,7 @@ interface PlatformSettingsFormProps {
   onClearFile: () => void;
   onUploadBusinessLicense: (file: File) => void;
   onClearBusinessLicense: () => void;
-  onSubmit: () => void;
+  onSubmit: () => Promise<void> | void;
   onError: (message: string) => void;
 }
 
@@ -123,9 +123,7 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
   description,
   website,
   fileName,
-  multimediaUuid,
   businessLicenseFileName,
-  businessLicenseUuid,
   isUploading,
   isBusinessLicenseUploading,
   isSubmitting,
@@ -150,31 +148,17 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
       if (!file) return;
       if (!allowedTypes.includes(file.type)) {
         onError(labels.validation.invalidFileType);
+        event.target.value = '';
         return;
       }
       if (file.size > MAX_FILE_BYTES) {
         onError(labels.validation.fileTooLarge);
+        event.target.value = '';
         return;
       }
       onUpload(file);
       event.target.value = '';
     };
-
-  const handleSubmit = () => {
-    if (!name.trim()) {
-      onError(labels.validation.nameRequired);
-      return;
-    }
-    if (!description.trim()) {
-      onError(labels.validation.descriptionRequired);
-      return;
-    }
-    if (!multimediaUuid) {
-      onError(labels.validation.multimediaRequired);
-      return;
-    }
-    onSubmit();
-  };
 
   const uploadLabels = {
     upload: labels.upload,
@@ -222,6 +206,7 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
           type='url'
           value={website}
           onChange={e => onWebsiteChange(e.target.value)}
+          required
           className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500'
         />
       </div>
@@ -264,7 +249,7 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
       <div>
         <Button
           variant='primary'
-          onClick={handleSubmit}
+          onClick={onSubmit}
           disabled={isSubmitting || isUploading || isBusinessLicenseUploading}
           loading={isSubmitting}
         >
