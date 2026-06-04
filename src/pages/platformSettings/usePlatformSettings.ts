@@ -43,17 +43,37 @@ type Action =
 export type PlatformSettingsErrorCodes = Partial<Record<string, string>>;
 
 type UsePlatformSettingsCopy = {
+  api: {
+    listFailed: string;
+    createFailed: string;
+    uploadFailed: string;
+  };
+  common: {
+    notAvailable: string;
+  };
   createSuccessToast: string;
   errorCodes: PlatformSettingsErrorCodes;
   validation: {
     nameRequired: string;
     descriptionRequired: string;
     multimediaRequired: string;
+    websiteRequired: string;
+    businessLicenseRequired: string;
     nameTooLong: string;
     notAuthenticated: string;
     networkError: string;
   };
 };
+
+type FormValidationResult =
+  | {
+      valid: true;
+      payload: CreatePlatformSettingsRequest;
+    }
+  | {
+      valid: false;
+      message: string;
+    };
 
 const initialState: State = {
   selectedPlatform: 'bale',
@@ -108,11 +128,20 @@ export const usePlatformSettings = (
   const { showError, showSuccess } = useToast();
   const showErrorRef = useRef(showError);
   const showSuccessRef = useRef(showSuccess);
-  const { uploadMedia, isUploading } = useMediaUpload(accessToken);
+  const lastAccessTokenRef = useRef<string | null>(accessToken);
+  const initialLoadDoneRef = useRef(false);
+  const listRequestInFlightRef = useRef(false);
+  const { uploadMedia, isUploading } = useMediaUpload(accessToken, {
+    notAuthenticated: copy.validation.notAuthenticated,
+    uploadFailed: copy.api.uploadFailed,
+  });
   const {
     uploadMedia: uploadBusinessLicenseMedia,
     isUploading: isBusinessLicenseUploading,
-  } = useMediaUpload(accessToken);
+  } = useMediaUpload(accessToken, {
+    notAuthenticated: copy.validation.notAuthenticated,
+    uploadFailed: copy.api.uploadFailed,
+  });
 
   const resolveError = useRef(
     (code: string | undefined, fallback: string): string =>
@@ -128,8 +157,64 @@ export const usePlatformSettings = (
     showSuccessRef.current = showSuccess;
   }, [showError, showSuccess]);
 
+  useEffect(() => {
+    if (lastAccessTokenRef.current === accessToken) return;
+    lastAccessTokenRef.current = accessToken;
+    initialLoadDoneRef.current = false;
+  }, [accessToken]);
+
+  const validateForm = useCallback(
+    (form: FormState, selectedPlatform: PlatformKey): FormValidationResult => {
+      const name = form.name.trim();
+      const description = form.description.trim();
+      const website = form.website.trim();
+
+      if (!name) {
+        return { valid: false, message: copy.validation.nameRequired };
+      }
+      if (!description) {
+        return { valid: false, message: copy.validation.descriptionRequired };
+      }
+      if (!form.multimediaUuid) {
+        return { valid: false, message: copy.validation.multimediaRequired };
+      }
+      if (!website) {
+        return { valid: false, message: copy.validation.websiteRequired };
+      }
+      if (!form.businessLicenseUuid) {
+        return {
+          valid: false,
+          message: copy.validation.businessLicenseRequired,
+        };
+      }
+      if (name.length > 255) {
+        return { valid: false, message: copy.validation.nameTooLong };
+      }
+
+      return {
+        valid: true,
+        payload: {
+          platform: selectedPlatform,
+          name,
+          description,
+          website,
+          multimedia_uuid: form.multimediaUuid,
+          business_license_uuid: form.businessLicenseUuid,
+        },
+      };
+    },
+    [copy.validation]
+  );
+
   const loadList = useCallback(async () => {
-    if (!accessToken) return;
+    if (!accessToken) {
+      initialLoadDoneRef.current = false;
+      dispatch({ type: 'list-success', payload: [] });
+      return;
+    }
+    if (listRequestInFlightRef.current) return;
+
+    listRequestInFlightRef.current = true;
     dispatch({ type: 'list-start' });
     try {
       apiService.setAccessToken(accessToken);
@@ -137,7 +222,7 @@ export const usePlatformSettings = (
       if (!res.success || !res.data) {
         const message = resolveError.current(
           res.error?.code,
-          res.message || 'Failed to load platform settings'
+          copy.api.listFailed
         );
         dispatch({ type: 'list-error', payload: message });
         showErrorRef.current(message);
@@ -145,15 +230,22 @@ export const usePlatformSettings = (
       }
       dispatch({ type: 'list-success', payload: res.data.items || [] });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Network error';
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : copy.validation.networkError;
       dispatch({ type: 'list-error', payload: message });
       showErrorRef.current(message);
+    } finally {
+      listRequestInFlightRef.current = false;
     }
-  }, [accessToken]);
+  }, [accessToken, copy.api.listFailed, copy.validation.networkError]);
 
   useEffect(() => {
+    if (!accessToken || initialLoadDoneRef.current) return;
+    initialLoadDoneRef.current = true;
     loadList();
-  }, [loadList]);
+  }, [accessToken, loadList]);
 
   const setPlatform = (platform: PlatformKey) => {
     dispatch({ type: 'set-platform', payload: platform });
@@ -194,50 +286,30 @@ export const usePlatformSettings = (
       showErrorRef.current(copy.validation.notAuthenticated);
       return;
     }
-    if (!state.form.name.trim()) {
-      showErrorRef.current(copy.validation.nameRequired);
+    const validation = validateForm(state.form, state.selectedPlatform);
+    if (!validation.valid) {
+      showErrorRef.current(validation.message);
       return;
     }
-    if (!state.form.description.trim()) {
-      showErrorRef.current(copy.validation.descriptionRequired);
-      return;
-    }
-    if (!state.form.multimediaUuid) {
-      showErrorRef.current(copy.validation.multimediaRequired);
-      return;
-    }
-    if (state.form.name && state.form.name.length > 255) {
-      showErrorRef.current(copy.validation.nameTooLong);
-      return;
-    }
-    const payload: CreatePlatformSettingsRequest = {
-      platform: state.selectedPlatform,
-      name: state.form.name?.trim() || undefined,
-      description: state.form.description?.trim() || undefined,
-      website: state.form.website?.trim() || undefined,
-      multimedia_uuid: state.form.multimediaUuid || undefined,
-      business_license_uuid: state.form.businessLicenseUuid || undefined,
-    };
 
     dispatch({ type: 'create-start' });
     try {
       apiService.setAccessToken(accessToken);
-      const res = await apiService.createPlatformSettings(payload);
+      const res = await apiService.createPlatformSettings(validation.payload);
       if (!res.success || !res.data) {
         showErrorRef.current(
-          resolveError.current(
-            res.error?.code,
-            res.message || 'Failed to create platform settings'
-          )
+          resolveError.current(res.error?.code, copy.api.createFailed)
         );
         return;
       }
       showSuccessRef.current(copy.createSuccessToast);
       resetForm();
-      loadList();
+      await loadList();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : copy.validation.networkError;
+        error instanceof Error && error.message
+          ? error.message
+          : copy.validation.networkError;
       showErrorRef.current(message);
     } finally {
       dispatch({ type: 'create-end' });
@@ -263,6 +335,8 @@ export const usePlatformSettings = (
     isUploading,
     uploadBusinessLicense,
     isBusinessLicenseUploading,
+    validateForm,
+    commonCopy: copy.common,
     openEdit,
     closeEdit,
   };
