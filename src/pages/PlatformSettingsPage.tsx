@@ -29,9 +29,13 @@ const PlatformSettingsPage: React.FC = () => {
     isUploading,
     uploadBusinessLicense,
     isBusinessLicenseUploading,
+    validateForm,
+    commonCopy,
     openEdit,
     closeEdit,
   } = usePlatformSettings(accessToken, {
+    api: t.settings.api,
+    common: t.settings.common,
     createSuccessToast: t.settings.create.successToast,
     errorCodes: t.settings.errorCodes,
     validation: t.settings.validation,
@@ -96,7 +100,10 @@ const PlatformSettingsPage: React.FC = () => {
               multimediaPreview: t.settings.table.preview,
               download: t.settings.table.download,
               downloading: t.settings.table.downloading,
-              downloadFailed: t.settings.table.downloadFailed,
+              downloadFailed: t.settings.api.downloadFailed,
+              previewFailed: t.settings.api.previewFailed,
+              notAuthenticated: t.settings.validation.notAuthenticated,
+              fallbackFileName: t.settings.table.fallbackFileName,
               businessLicense: t.settings.table.businessLicense,
               status: t.settings.table.status,
               statusInitialized: t.settings.status.initialized,
@@ -106,10 +113,13 @@ const PlatformSettingsPage: React.FC = () => {
               actions: t.settings.table.actions,
               edit: t.settings.table.edit,
               empty: t.settings.table.empty,
+              notAvailable: t.settings.common.notAvailable,
             }}
           />
           {state.listLoading && (
-            <div className='text-xs text-gray-500'>Loading…</div>
+            <div className='text-xs text-gray-500'>
+              {t.settings.common.loading}
+            </div>
           )}
           {state.listError && (
             <div className='text-xs text-red-600'>{state.listError}</div>
@@ -120,9 +130,7 @@ const PlatformSettingsPage: React.FC = () => {
             description={state.form.description}
             website={state.form.website}
             fileName={state.form.fileName}
-            multimediaUuid={state.form.multimediaUuid}
             businessLicenseFileName={state.form.businessLicenseFileName}
-            businessLicenseUuid={state.form.businessLicenseUuid}
             isUploading={isUploading}
             isBusinessLicenseUploading={isBusinessLicenseUploading}
             isSubmitting={state.createLoading}
@@ -140,7 +148,6 @@ const PlatformSettingsPage: React.FC = () => {
                 businessLicenseFileName: null,
               })
             }
-            onSubmit={createSetting}
             onError={showError}
             labels={{
               title: t.settings.create.title,
@@ -160,9 +167,23 @@ const PlatformSettingsPage: React.FC = () => {
                 nameRequired: t.settings.validation.nameRequired,
                 descriptionRequired: t.settings.validation.descriptionRequired,
                 multimediaRequired: t.settings.validation.multimediaRequired,
+                websiteRequired: t.settings.validation.websiteRequired,
+                businessLicenseRequired:
+                  t.settings.validation.businessLicenseRequired,
                 invalidFileType: t.settings.validation.invalidFileType,
                 fileTooLarge: t.settings.validation.fileTooLarge,
               },
+            }}
+            onSubmit={() => {
+              const validation = validateForm(
+                state.form,
+                state.selectedPlatform
+              );
+              if (!validation.valid) {
+                showError(validation.message);
+                return;
+              }
+              return createSetting();
             }}
           />
         </div>
@@ -182,6 +203,12 @@ const PlatformSettingsPage: React.FC = () => {
           platform: t.settings.edit.platform,
           close: t.settings.edit.close,
           note: t.settings.edit.note,
+          notAvailable: commonCopy.notAvailable,
+          statusInitialized: t.settings.status.initialized,
+          statusInProgress: t.settings.status.inProgress,
+          statusActive: t.settings.status.active,
+          statusInactive: t.settings.status.inactive,
+          platforms: t.settings.platforms,
         }}
       />
     </div>
