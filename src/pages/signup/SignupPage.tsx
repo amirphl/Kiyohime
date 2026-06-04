@@ -1,6 +1,5 @@
 import React from 'react';
 import { ArrowRight, User } from 'lucide-react';
-import { useTranslation } from '../../hooks/useTranslation';
 import { useLanguage } from '../../hooks/useLanguage';
 import { jobCategoryI18n, JobCategoryLocale } from '../../locales/jobCategory';
 import {
@@ -9,10 +8,10 @@ import {
   CategoryJobFields,
   CompanyFields,
   CredentialsFields,
+  OtpModal,
   PersonalInfoFields,
   TermsCheckbox,
 } from './components';
-import OtpModal from '../../components/auth/OtpModal';
 import { signupTranslations, SignupLocale } from './translations';
 import { useSignupForm } from './useSignupForm';
 
@@ -21,10 +20,13 @@ interface SignupPageProps {
   onNavigateToLoginWithOtp?: () => void;
 }
 
-const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin, onNavigateToLoginWithOtp }) => {
-  const { t } = useTranslation();
+const SignupPage: React.FC<SignupPageProps> = ({
+  onNavigateToLogin,
+  onNavigateToLoginWithOtp,
+}) => {
   const { isRTL, language } = useLanguage();
-  const strings = signupTranslations[language as SignupLocale] || signupTranslations.en;
+  const strings =
+    signupTranslations[language as SignupLocale] || signupTranslations.en;
   const {
     formData,
     errors,
@@ -48,12 +50,12 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin, onNavigateTo
     setShowOtpModal,
   } = useSignupForm({ language, strings });
 
-  const categories = (jobCategoryI18n[language as JobCategoryLocale] || jobCategoryI18n.en) as Record<
-    string,
-    readonly string[]
-  >;
+  const categories = (jobCategoryI18n[language as JobCategoryLocale] ||
+    jobCategoryI18n.en) as Record<string, readonly string[]>;
 
-  const requiredLabel = <span className='text-red-500'>{t('common.required')}</span>;
+  const requiredLabel = (
+    <span className='text-red-500'>{strings.requiredFieldLabel}</span>
+  );
 
   return (
     <div className='min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
@@ -62,7 +64,9 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin, onNavigateTo
           <div className='mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center'>
             <User className='h-6 w-6 text-white' />
           </div>
-          <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>{strings.title}</h2>
+          <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
+            {strings.title}
+          </h2>
           <p className='mt-2 text-sm text-gray-600'>{strings.subtitle}</p>
         </div>
 
@@ -125,7 +129,9 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin, onNavigateTo
               showPassword={showPassword}
               showConfirmPassword={showConfirmPassword}
               onTogglePassword={() => setShowPassword(prev => !prev)}
-              onToggleConfirmPassword={() => setShowConfirmPassword(prev => !prev)}
+              onToggleConfirmPassword={() =>
+                setShowConfirmPassword(prev => !prev)
+              }
             />
 
             {formData.accountType !== 'marketing_agency' && (
@@ -137,7 +143,11 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin, onNavigateTo
               />
             )}
 
-            <TermsCheckbox accepted={acceptedTerms} onChange={setAcceptedTerms} strings={strings} />
+            <TermsCheckbox
+              accepted={acceptedTerms}
+              onChange={setAcceptedTerms}
+              strings={strings}
+            />
 
             <button
               type='submit'
@@ -149,7 +159,9 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin, onNavigateTo
               ) : (
                 <>
                   <span>{strings.createAccount}</span>
-                  <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
+                  <ArrowRight
+                    className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`}
+                  />
                 </>
               )}
             </button>
@@ -181,14 +193,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin, onNavigateTo
 
       <OtpModal
         open={showOtpModal}
+        strings={strings}
         isRTL={isRTL}
-        title={strings.verifyMobile}
-        otpSentLabel={strings.otpSent}
-        enterCodeLabel={strings.enterVerificationCode}
-        verifyLabel={strings.verifyCode}
-        resendLabel={t('common.resend')}
-        resendInLabel={strings.resendIn}
-        secondsLabel={t('common.seconds')}
         mobile={formData.representativeMobile}
         otpCode={otpCode}
         onClose={() => setShowOtpModal(false)}
@@ -198,6 +204,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onNavigateToLogin, onNavigateTo
         resendCountdown={resendCountdown}
         onResend={handleResendOtp}
         isLoading={isLoading}
+        commonResendLabel={strings.resend}
+        commonSecondsLabel={strings.seconds}
       />
     </div>
   );
