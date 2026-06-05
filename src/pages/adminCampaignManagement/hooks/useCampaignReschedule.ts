@@ -16,18 +16,29 @@ interface UseCampaignRescheduleOptions {
   onRescheduled: (campaignUuid: string, scheduleAtUtc: string) => void;
 }
 
+const TEHRAN_TIMEZONE = 'Asia/Tehran';
+
 const isValidDate = (value: Date | null): value is Date =>
   Boolean(value && !Number.isNaN(value.getTime()));
+
+const getTehranHour = (date: Date): number =>
+  Number(
+    new Intl.DateTimeFormat('en', {
+      timeZone: TEHRAN_TIMEZONE,
+      hour: 'numeric',
+      hour12: false,
+    }).format(date)
+  );
 
 const normalizeToRescheduleWindow = (date: Date): Date => {
   const next = new Date(date);
 
-  if (next.getHours() < RESCHEDULE_HOUR_START) {
+  if (getTehranHour(next) < RESCHEDULE_HOUR_START) {
     next.setHours(RESCHEDULE_HOUR_START, 0, 0, 0);
     return next;
   }
 
-  if (next.getHours() > RESCHEDULE_HOUR_END) {
+  if (getTehranHour(next) > RESCHEDULE_HOUR_END) {
     next.setDate(next.getDate() + 1);
     next.setHours(RESCHEDULE_HOUR_START, 0, 0, 0);
     return next;
@@ -177,7 +188,7 @@ export const useCampaignReschedule = ({
       return copy.errors.rescheduleDateRequired;
     }
 
-    const hour = selectedDate.getHours();
+    const hour = getTehranHour(selectedDate);
     if (hour < RESCHEDULE_HOUR_START || hour > RESCHEDULE_HOUR_END) {
       return copy.errors.rescheduleOutsideAllowedHours;
     }
@@ -191,7 +202,10 @@ export const useCampaignReschedule = ({
   }, [selectedDate, copy.errors]);
 
   const requestRescheduleConfirmation = useCallback(() => {
-    if (campaign && !canRescheduleCampaign(campaign.status)) {
+    if (
+      campaign &&
+      !canRescheduleCampaign(campaign.status, campaign.scheduleat)
+    ) {
       setValidationError(copy.errors.rescheduleNotAllowed);
       showError(copy.errors.rescheduleNotAllowed);
       return;
