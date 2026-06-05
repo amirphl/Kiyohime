@@ -13,6 +13,7 @@ const STATUS_TO_TRANSLATION_KEY: Record<
 > = {
   initiated: 'initiated',
   'in-progress': 'inProgress',
+  in_progress: 'inProgress',
   waiting_for_approval: 'waitingForApproval',
   'waiting-for-approval': 'waitingForApproval',
   approved: 'approved',
@@ -28,14 +29,36 @@ const STATUS_TO_TRANSLATION_KEY: Record<
 const normalizeStatus = (status?: string | null): string =>
   (status || '').trim().toLowerCase();
 
+const hasMissedScheduleDeadline = (scheduleAt?: string | null): boolean => {
+  if (!scheduleAt) return false;
+
+  const parsed = new Date(scheduleAt);
+  if (Number.isNaN(parsed.getTime())) return false;
+
+  return parsed.getTime() < Date.now();
+};
+
+const isExpiredCampaign = (status?: string | null): boolean =>
+  normalizeStatus(status) === 'expired';
+
 export const canApproveOrRejectCampaign = (status?: string | null): boolean =>
   WAITING_FOR_APPROVAL_STATUSES.has(normalizeStatus(status));
 
-export const canCancelCampaign = (status?: string | null): boolean =>
-  CANCELLABLE_STATUSES.has(normalizeStatus(status));
+export const canCancelCampaign = (
+  status?: string | null,
+  scheduleAt?: string | null
+): boolean =>
+  CANCELLABLE_STATUSES.has(normalizeStatus(status)) ||
+  isExpiredCampaign(status) ||
+  hasMissedScheduleDeadline(scheduleAt);
 
-export const canRescheduleCampaign = (status?: string | null): boolean =>
-  RESCHEDULABLE_STATUSES.has(normalizeStatus(status));
+export const canRescheduleCampaign = (
+  status?: string | null,
+  scheduleAt?: string | null
+): boolean =>
+  RESCHEDULABLE_STATUSES.has(normalizeStatus(status)) ||
+  isExpiredCampaign(status) ||
+  hasMissedScheduleDeadline(scheduleAt);
 
 export const requiresComment = (actionType: CampaignActionType): boolean =>
   ACTIONABLE_COMMENT_REQUIRED.includes(actionType);
@@ -84,6 +107,56 @@ export const formatCampaignDateTime = (
   }
 
   return parsed.toLocaleString();
+};
+
+export const formatCount = (value?: number | null): string =>
+  typeof value === 'number' && Number.isFinite(value)
+    ? value.toLocaleString()
+    : '';
+
+export const formatCostPerMessage = (
+  budget?: number | null,
+  numAudience?: number | null
+): string => {
+  if (
+    typeof budget !== 'number' ||
+    !Number.isFinite(budget) ||
+    typeof numAudience !== 'number' ||
+    !Number.isFinite(numAudience) ||
+    numAudience <= 0
+  ) {
+    return '';
+  }
+
+  return (budget / numAudience).toLocaleString(undefined, {
+    maximumFractionDigits: 2,
+  });
+};
+
+export const joinTextList = (value?: string[] | null): string =>
+  Array.isArray(value) && value.length > 0 ? value.join(', ') : '';
+
+export const truncateText = (
+  value: string | null | undefined,
+  maxLength = 48
+): string => {
+  if (!value) return '';
+
+  const normalized = value.replace(/\s+/g, ' ').trim();
+  if (normalized.length <= maxLength) return normalized;
+
+  return `${normalized.slice(0, maxLength - 1)}…`;
+};
+
+export const getLineNumberOrPlatformSettings = (
+  lineNumber?: string | null,
+  platformSettingsName?: string | null,
+  platformSettingsId?: number | null
+): string => {
+  if (lineNumber?.trim()) return lineNumber.trim();
+  if (platformSettingsName?.trim()) return platformSettingsName.trim();
+  if (typeof platformSettingsId === 'number') return String(platformSettingsId);
+  return '';
 };
 
 export const parseDateTimeLocalToIso = (
