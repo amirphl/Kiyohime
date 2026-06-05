@@ -64,6 +64,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
         <div className='mb-3 flex items-center justify-between'>
           <h2 className='text-lg font-semibold'>{modalTitle}</h2>
           <button
+            type='button'
             className='text-gray-500'
             onClick={onClose}
             aria-label={copy.modal.closeLabel}
@@ -116,13 +117,13 @@ const ActionModal: React.FC<ActionModalProps> = ({
               <span className='font-medium'>
                 {copy.modal.platformSettingsId}:
               </span>{' '}
-              {typeof actionCampaign.platformSettingsId === 'number'
-                ? actionCampaign.platformSettingsId
+              {typeof actionCampaign.platform_settings_id === 'number'
+                ? actionCampaign.platform_settings_id
                 : '-'}
             </div>
             <div>
               <span className='font-medium'>{copy.modal.mediaUuid}:</span>{' '}
-              {actionCampaign.mediaUuid || '-'}
+              {actionCampaign.media_uuid || '-'}
             </div>
             <div>
               <span className='font-medium'>{copy.table.headers.segment}:</span>{' '}
@@ -191,6 +192,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
 
           <div className='flex justify-end gap-3 pt-2'>
             <button
+              type='button'
               className='rounded border px-4 py-2'
               onClick={onClose}
               disabled={actionSubmitting}
@@ -198,6 +200,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
               {copy.common.cancel}
             </button>
             <button
+              type='button'
               className={`${submitClass} rounded px-4 py-2 text-white disabled:opacity-60`}
               onClick={onSubmit}
               disabled={
