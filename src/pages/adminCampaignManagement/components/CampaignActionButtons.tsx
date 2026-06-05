@@ -21,11 +21,12 @@ const CampaignActionButtons: React.FC<CampaignActionButtonsProps> = ({
   onSelectAction,
 }) => {
   const canApproveOrReject = canApproveOrRejectCampaign(campaign.status);
-  const canCancel = canCancelCampaign(campaign.status);
+  const canCancel = canCancelCampaign(campaign.status, campaign.scheduleat);
 
   return (
     <div className='flex gap-2'>
       <button
+        type='button'
         className='rounded bg-green-600 px-3 py-1 text-white disabled:opacity-60'
         onClick={() => onSelectAction(campaign, 'approve')}
         disabled={submitting || !canApproveOrReject}
@@ -33,6 +34,7 @@ const CampaignActionButtons: React.FC<CampaignActionButtonsProps> = ({
         {copy.table.actions.approve}
       </button>
       <button
+        type='button'
         className='rounded bg-red-600 px-3 py-1 text-white disabled:opacity-60'
         onClick={() => onSelectAction(campaign, 'reject')}
         disabled={submitting || !canApproveOrReject}
@@ -40,6 +42,7 @@ const CampaignActionButtons: React.FC<CampaignActionButtonsProps> = ({
         {copy.table.actions.reject}
       </button>
       <button
+        type='button'
         className='rounded bg-amber-600 px-3 py-1 text-white disabled:opacity-60'
         onClick={() => onSelectAction(campaign, 'cancel')}
         disabled={submitting || !canCancel}
