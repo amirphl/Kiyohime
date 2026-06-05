@@ -10,7 +10,8 @@ interface UseCampaignActionsOptions {
   showError: (message: string) => void;
   onActionSuccess: (
     campaign: AdminGetCampaignResponse,
-    action: CampaignActionType
+    action: CampaignActionType,
+    comment: string
   ) => void;
 }
 
@@ -99,7 +100,7 @@ export const useCampaignActions = ({
         return;
       }
 
-      onActionSuccess(actionCampaign, actionType);
+      onActionSuccess(actionCampaign, actionType, trimmedComment);
       closeActionModal();
     } catch (err) {
       const fallback =
