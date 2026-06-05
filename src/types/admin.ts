@@ -79,7 +79,16 @@ export interface AdminLineNumberReportItem {
 
 export interface AdminListCampaignsFilter {
   title?: string;
-  status?: 'initiated' | 'in-progress' | 'waiting-for-approval' | 'approved' | 'rejected' | 'running' | 'executed';
+  status?:
+    | 'initiated'
+    | 'in-progress'
+    | 'waiting-for-approval'
+    | 'approved'
+    | 'rejected'
+    | 'running'
+    | 'executed'
+    | 'cancelled'
+    | 'cancelled-by-admin';
   start_date?: string; // RFC3339 string
   end_date?: string; // RFC3339 string
 }
@@ -170,7 +179,7 @@ export interface AdminListLevel3OptionsResponse {
 // Admin Customer Management - Customers Shares
 export interface AdminCustomersSharesRequest {
   start_date?: string; // RFC3339
-  end_date?: string;   // RFC3339
+  end_date?: string; // RFC3339
 }
 
 export interface AdminCustomersSharesItem {
@@ -180,11 +189,11 @@ export interface AdminCustomersSharesItem {
   company_name: string;
   referrer_agency_name: string;
   agency_share_with_tax: number; // uint64
-  system_share: number;          // uint64
-  tax_share: number;             // uint64
-  total_sent: number;            // uint64
+  system_share: number; // uint64
+  tax_share: number; // uint64
+  total_sent: number; // uint64
   click_rate: number;
-  customer_id?: number;          // optional numeric id if available
+  customer_id?: number; // optional numeric id if available
   account_type_name: string;
   is_active?: boolean | null;
 }
@@ -300,13 +309,13 @@ export interface AdminCustomerDiscountHistoryResponse {
 }
 
 // Admin Payments
-export interface AdminChargeWalletByAdminRequest {
+export interface AdminChargeWalletRequest {
   customer_id: number;
   amount_with_tax: number;
   idempotency_key?: string;
 }
 
-export interface AdminChargeWalletByAdminResponse {
+export interface AdminChargeWalletResponse {
   message: string;
   success: boolean;
   payment_request_id: number;
