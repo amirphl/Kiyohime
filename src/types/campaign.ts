@@ -82,6 +82,11 @@ export interface CreateSMSCampaignResponse {
   created_at: string;
 }
 
+export interface GetLastInitiatedCampaignResponse {
+  message?: string;
+  item?: GetSMSCampaignResponse;
+}
+
 // API response wrapper matching Go backend structure
 export interface CreateCampaignResponse {
   success: boolean;
