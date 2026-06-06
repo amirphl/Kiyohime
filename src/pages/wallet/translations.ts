@@ -5,6 +5,7 @@ export interface WalletTableTranslations {
   status: string;
   freeIncrease: string;
   creditIncrease: string;
+  invoice: string;
   description: string;
   noTransactions: string;
   createdAt: string;
@@ -69,6 +70,8 @@ export interface WalletTranslations {
   modalChargeAmount: string;
   modalTax: string;
   modalTotal: string;
+  loading: string;
+  invoiceDownloadError: string;
 }
 
 export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
@@ -106,7 +109,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     depositColumnStatus: 'Status',
     depositColumnCreated: 'Created At',
     depositColumnFile: 'File',
-    depositColumnDownload: 'Download',
+    depositColumnDownload: 'Download receipt',
     depositColumnUpdate: 'Update',
     depositColumnDelete: 'Delete',
     depositColumnProforma: 'Proforma',
@@ -133,6 +136,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       status: 'Status',
       freeIncrease: 'Free Increase',
       creditIncrease: 'Credit Increase',
+      invoice: 'Invoice',
       description: 'Description',
       noTransactions: 'No transactions',
       createdAt: 'Created At',
@@ -163,6 +167,8 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     modalChargeAmount: 'Charge Amount:',
     modalTax: 'Tax (10%):',
     modalTotal: 'Total to Pay:',
+    loading: 'Loading...',
+    invoiceDownloadError: 'Unable to generate invoice',
   },
   fa: {
     title: 'مدیریت مالی',
@@ -198,11 +204,11 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     depositColumnStatus: 'وضعیت',
     depositColumnCreated: 'تاریخ ثبت',
     depositColumnFile: 'فایل',
-    depositColumnDownload: 'دانلود',
+    depositColumnDownload: 'فیش',
     depositColumnUpdate: 'به‌روزرسانی',
     depositColumnDelete: 'حذف',
     depositColumnProforma: 'پیش‌فاکتور',
-    depositColumnRejection: 'نوت',
+    depositColumnRejection: 'کامنت ادمین',
     depositColumnLang: 'زبان',
     depositColumnPreview: 'پیش‌نمایش',
     depositConfirmTitle: 'فیش واریز ارسال شود؟',
@@ -225,6 +231,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       status: 'وضعیت',
       freeIncrease: 'افزایش موجودی آزاد',
       creditIncrease: 'افزایش اعتبار',
+      invoice: 'فاکتور',
       description: 'توضیحات',
       noTransactions: 'تراکنشی یافت نشد',
       createdAt: 'تاریخ ایجاد',
@@ -255,6 +262,8 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     modalChargeAmount: 'مبلغ شارژ:',
     modalTax: 'مالیات (۱۰٪):',
     modalTotal: 'مبلغ قابل پرداخت:',
+    loading: 'در حال بارگذاری...',
+    invoiceDownloadError: 'امکان دریافت فاکتور نیست',
   },
 };
 
