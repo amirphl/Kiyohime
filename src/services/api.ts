@@ -631,6 +631,20 @@ class ApiService {
     });
   }
 
+  async previewProformaInvoiceByAmount(
+    amountWithTax: number,
+    lang?: string
+  ): Promise<ApiResponse<ProformaPreviewResponse>> {
+    const params = new URLSearchParams();
+    params.set('amount', String(amountWithTax));
+    if (lang) params.set('lang', lang);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return this.request<ProformaPreviewResponse>(
+      `/payments/proforma/preview-by-amount${query}`,
+      { method: 'GET' }
+    );
+  }
+
   async downloadDepositReceiptFile(
     receiptUuid: string
   ): Promise<{ success: boolean; message: string; blob?: Blob; filename?: string }> {
