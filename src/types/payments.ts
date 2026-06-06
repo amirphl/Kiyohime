@@ -2,8 +2,11 @@ export interface TransactionHistoryItem {
   uuid: string;
   status: string;
   amount: number;
+  customer_credit: number;
+  agency_share_with_tax: number;
   currency: string;
   operation: string;
+  source: string;
   datetime: string; // ISO string from backend
   external_ref?: string | null;
   balance_before: Record<string, number>;
