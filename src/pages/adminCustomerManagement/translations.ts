@@ -373,7 +373,7 @@ const adminCustomerManagementFa: AdminCustomerManagementCopy = {
     jobCategory: 'دسته شغلی',
     job: 'شغل',
     schedule: 'زمان‌بندی',
-    lineNumber: 'شماره خط',
+    lineNumber: 'سرشماره',
     budget: 'بودجه',
     comment: 'توضیحات ادمین',
     segmentPriceFactor: 'ضریب قیمت بخش',
