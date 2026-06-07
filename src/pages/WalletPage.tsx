@@ -155,6 +155,8 @@ const WalletPage: React.FC = () => {
               error={historyError}
               page={historyPage}
               hasNext={historyHasNext}
+              accessToken={accessToken}
+              language={language}
               currencyLabel={currencyLabel}
               formatDatetime={iso => formatWalletDatetime(iso, language)}
               onNext={nextHistory}
