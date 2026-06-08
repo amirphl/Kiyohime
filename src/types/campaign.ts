@@ -309,7 +309,12 @@ export interface ListSMSCampaignsParams {
     | 'in-progress'
     | 'waiting-for-approval'
     | 'approved'
-    | 'rejected';
+    | 'rejected'
+    | 'running'
+    | 'cancelled'
+    | 'cancelled-by-admin'
+    | 'expired'
+    | 'executed';
 }
 
 // Audience Spec types
