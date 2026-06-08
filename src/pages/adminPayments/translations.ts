@@ -15,6 +15,7 @@ export interface AdminPaymentsCopy {
   info: {
     listLoaded: string;
     noCustomersFound: string;
+    taxPreview: string;
   };
   validation: {
     customerRequired: string;
@@ -28,6 +29,16 @@ export interface AdminPaymentsCopy {
   };
   success: {
     chargeSuccess: string;
+  };
+  confirmation: {
+    title: string;
+    message: string;
+    customer: string;
+    baseAmount: string;
+    taxAmount: string;
+    totalAmount: string;
+    confirm: string;
+    cancel: string;
   };
   result: {
     title: string;
@@ -155,7 +166,7 @@ const en: AdminPaymentsCopy = {
       'Search by first name, last name, or company name',
     customerLabel: 'Customer',
     customerPlaceholder: 'Select a customer',
-    amountLabel: 'Amount with Tax',
+    amountLabel: 'Amount Before Tax',
     amountPlaceholder: 'Enter amount (1000 - 1000000000)',
     submit: 'Charge Wallet',
     submitting: 'Charging...',
@@ -163,6 +174,7 @@ const en: AdminPaymentsCopy = {
   info: {
     listLoaded: 'Customer list loaded.',
     noCustomersFound: 'No customers found for this search.',
+    taxPreview: 'Tax: {{tax}} | Total with tax: {{total}}',
   },
   validation: {
     customerRequired: 'Please select a customer.',
@@ -176,6 +188,17 @@ const en: AdminPaymentsCopy = {
   },
   success: {
     chargeSuccess: 'Wallet charged successfully by admin.',
+  },
+  confirmation: {
+    title: 'Confirm Wallet Charge',
+    message:
+      'Review the amount before continuing. The final charged amount includes 10% tax.',
+    customer: 'Customer',
+    baseAmount: 'Base Amount',
+    taxAmount: 'Tax (10%)',
+    totalAmount: 'Amount with Tax',
+    confirm: 'Confirm Charge',
+    cancel: 'Cancel',
   },
   result: {
     title: 'Latest Charge Result',
@@ -303,7 +326,7 @@ const fa: AdminPaymentsCopy = {
     customerSearchPlaceholder: 'جستجو بر اساس نام، نام خانوادگی یا نام شرکت',
     customerLabel: 'مشتری',
     customerPlaceholder: 'یک مشتری انتخاب کنید',
-    amountLabel: 'مبلغ با مالیات',
+    amountLabel: 'مبلغ قبل از مالیات (تومان)',
     amountPlaceholder: 'مبلغ را وارد کنید (1000 تا 1000000000)',
     submit: 'شارژ کیف پول',
     submitting: 'در حال شارژ...',
@@ -311,6 +334,7 @@ const fa: AdminPaymentsCopy = {
   info: {
     listLoaded: 'لیست مشتریان دریافت شد.',
     noCustomersFound: 'مشتری‌ای با این جستجو پیدا نشد.',
+    taxPreview: 'مالیات: {{tax}} | مبلغ با مالیات: {{total}}',
   },
   validation: {
     customerRequired: 'لطفا یک مشتری انتخاب کنید.',
@@ -325,6 +349,17 @@ const fa: AdminPaymentsCopy = {
   success: {
     chargeSuccess: 'کیف پول با موفقیت توسط ادمین شارژ شد.',
   },
+  confirmation: {
+    title: 'تأیید شارژ کیف پول',
+    message:
+      'قبل از ادامه مبلغ را بررسی کنید. مبلغ نهایی شامل ۱۰٪ مالیات خواهد بود.',
+    customer: 'مشتری',
+    baseAmount: 'مبلغ پایه',
+    taxAmount: 'مالیات (۱۰٪)',
+    totalAmount: 'مبلغ با مالیات',
+    confirm: 'تأیید شارژ',
+    cancel: 'انصراف',
+  },
   result: {
     title: 'نتیجه آخرین شارژ',
     paymentRequestId: 'شناسه درخواست پرداخت',
@@ -332,7 +367,7 @@ const fa: AdminPaymentsCopy = {
     referenceNumber: 'شماره مرجع',
     customerId: 'شناسه مشتری',
     adminId: 'شناسه ادمین',
-    amountWithTax: 'مبلغ با مالیات',
+    amountWithTax: 'مبلغ با مالیات (تومان)',
   },
   receipts: {
     title: 'فیش‌های واریز',
