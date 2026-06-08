@@ -59,8 +59,8 @@ const ActionModal: React.FC<ActionModalProps> = ({
         : 'bg-amber-600 hover:bg-amber-700';
 
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40'>
-      <div className='max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded bg-white p-5 shadow-lg'>
+    <div className='fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 sm:items-center'>
+      <div className='max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-y-auto rounded bg-white p-4 shadow-lg sm:p-5'>
         <div className='mb-3 flex items-center justify-between'>
           <h2 className='text-lg font-semibold'>{modalTitle}</h2>
           <button
@@ -190,7 +190,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
             <div className='text-sm text-red-600'>{actionError}</div>
           ) : null}
 
-          <div className='flex justify-end gap-3 pt-2'>
+          <div className='flex flex-wrap justify-end gap-3 pt-2'>
             <button
               type='button'
               className='rounded border px-4 py-2'
