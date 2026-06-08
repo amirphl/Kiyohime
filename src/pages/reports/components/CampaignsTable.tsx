@@ -107,6 +107,13 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
     });
   };
 
+  const prepareCampaignCreationDraft = (draft: CampaignData) => {
+    clearLevelSelection();
+    localStorage.removeItem('campaign_creation_data');
+    localStorage.removeItem('campaign_creation_step');
+    persistDraft(draft);
+  };
+
   const handleClone = async (c: GetSMSCampaignResponse) => {
     if (!canClone(c.status)) {
       showError(copy.clone.notAllowed);
@@ -125,7 +132,14 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
       if (!cloneRes.success || !cloneRes.data?.uuid) {
         throw new Error(cloneRes.message || copy.clone.error);
       }
+
+      const clonedDraft: CampaignData = {
+        ...normalizeCampaignToDraft(c),
+        uuid: cloneRes.data.uuid,
+      };
+      prepareCampaignCreationDraft(clonedDraft);
       showSuccess(copy.clone.success);
+      window.location.href = ROUTES.CAMPAIGN_CREATION.path;
     } catch (e) {
       const message = e instanceof Error ? e.message : copy.clone.error;
       showError(message);
@@ -143,12 +157,8 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
     if (!confirmed) return;
     setResuming(prev => ({ ...prev, [c.uuid]: true }));
     try {
-      clearLevelSelection();
-      localStorage.removeItem('campaign_creation_data');
-      localStorage.removeItem('campaign_creation_step');
-
       const draft = normalizeCampaignToDraft(c);
-      persistDraft(draft);
+      prepareCampaignCreationDraft(draft);
 
       showSuccess(copy.resume.success);
       window.location.href = ROUTES.CAMPAIGN_CREATION.path;
@@ -236,7 +246,9 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                   </td>
                   <td className='px-4 py-2 text-center text-sm text-gray-900'>
                     <div className='flex flex-col items-center gap-2'>
-                      {c.status === 'waiting-for-approval' && c.id ? (
+                      {(c.status === 'waiting-for-approval' ||
+                        c.status === 'approved') &&
+                      c.id ? (
                         <button
                           onClick={() => cancelCampaign(c)}
                           disabled={cancelling[c.id] || cancelled[c.id]}
