@@ -9,11 +9,11 @@ ARG NPM_REGISTRY=https://registry.npmjs.org/
 ARG NODE_ENV=production
 ARG PRODUCTION_DOMAIN=jazebeh.ir
 
-# Set working directory
-WORKDIR /app
-
 # Install build dependencies
 RUN apk add --no-cache python3 make g++
+
+# Set working directory
+WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
