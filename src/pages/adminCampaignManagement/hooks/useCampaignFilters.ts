@@ -1,6 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
 import { AdminListCampaignsFilter } from '../../../types/admin';
-import { CAMPAIGN_STATUSES } from '../constants';
+import {
+  CAMPAIGN_STATUSES,
+  DEFAULT_CAMPAIGN_STATUS_FILTER,
+} from '../constants';
 import { AdminCampaignManagementCopy } from '../translations';
 import { parseDateTimeLocalToIso } from '../utils';
 
@@ -42,7 +45,9 @@ export const useCampaignFilters = ({
   onInvalid,
 }: UseCampaignFiltersOptions) => {
   const [title, setTitle] = useState('');
-  const [status, setStatus] = useState<CampaignFilterStatus>();
+  const [status, setStatus] = useState<CampaignFilterStatus>(
+    DEFAULT_CAMPAIGN_STATUS_FILTER
+  );
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
 
