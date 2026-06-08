@@ -163,8 +163,8 @@ const CampaignDetailsModal: React.FC<CampaignDetailsModalProps> = ({
     .sort(([a], [b]) => a.localeCompare(b));
 
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]'>
-      <div className='max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-2xl border border-gray-200 bg-gradient-to-b from-gray-50 to-white p-5 shadow-2xl'>
+    <div className='fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/45 p-4 backdrop-blur-[2px] sm:items-center'>
+      <div className='max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-y-auto rounded-2xl border border-gray-200 bg-gradient-to-b from-gray-50 to-white p-4 shadow-2xl sm:p-5'>
         <div className='mb-4 flex flex-wrap items-start justify-between gap-3'>
           <div>
             <h2 className='text-xl font-semibold text-gray-900'>
