@@ -15,6 +15,10 @@ export const CAMPAIGN_STATUSES: AdminListCampaignsFilter['status'][] = [
   'executed',
 ];
 
+export const DEFAULT_CAMPAIGN_STATUS_FILTER: NonNullable<
+  AdminListCampaignsFilter['status']
+> = 'waiting-for-approval';
+
 export const WAITING_FOR_APPROVAL_STATUSES = new Set<string>([
   'waiting-for-approval',
   'waiting_for_approval',
