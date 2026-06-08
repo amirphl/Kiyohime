@@ -11,11 +11,11 @@ interface ReportDetailsModalProps {
 }
 
 const infoRow = (label: string, value: React.ReactNode) => (
-  <div className="flex flex-col gap-1 p-3 rounded-xl border border-slate-100 bg-slate-50/70 min-w-[220px] sm:min-w-[240px] w-full sm:w-1/2">
-    <span className="text-xs uppercase tracking-wide text-slate-500">
+  <div className='flex flex-col gap-1 p-3 rounded-xl border border-slate-100 bg-slate-50/70 min-w-[220px] sm:min-w-[240px] w-full sm:w-1/2'>
+    <span className='text-xs uppercase tracking-wide text-slate-500'>
       {label}
     </span>
-    <span className="text-sm text-slate-900 break-words">{value}</span>
+    <span className='text-sm text-slate-900 break-words'>{value}</span>
   </div>
 );
 
@@ -32,22 +32,22 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
     return [];
   };
 
-  const level3s = normalizeList(
-    (campaign.level3s as any)
-  );
+  const level3s = normalizeList(campaign.level3s as any);
+  const hasAdlink =
+    typeof campaign.adlink === 'string' && campaign.adlink.trim() !== '';
   const shortLinkDisplay = `${campaign.short_link_domain ? campaign.short_link_domain + '/xxxxxx' : ''}`;
   const displayContent = campaign.content
     ? campaign.content.replace(/🔗/g, shortLinkDisplay)
     : '';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 bg-slate-900/70 backdrop-blur-sm">
-      <div className="relative flex w-full max-w-3xl max-h-[85vh] overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-100">
-        <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-primary-500 via-indigo-500 to-emerald-500" />
-        <div className="flex-1 flex flex-col">
-          <div className="flex items-start justify-between px-6 pt-6">
+    <div className='fixed inset-0 z-50 flex items-center justify-center px-4 py-6 bg-slate-900/70 backdrop-blur-sm'>
+      <div className='relative flex w-full max-w-3xl max-h-[85vh] overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-100'>
+        <div className='absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-primary-500 via-indigo-500 to-emerald-500' />
+        <div className='flex-1 flex flex-col'>
+          <div className='flex items-start justify-between px-6 pt-6'>
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+              <p className='text-xs uppercase tracking-[0.2em] text-slate-400'>
                 {copy.modal.details}
               </p>
               {/* <h3 className="text-2xl font-semibold text-slate-900">
@@ -60,21 +60,21 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 transition text-xl"
+              className='text-slate-400 hover:text-slate-600 transition text-xl'
               aria-label={copy.modal.close}
             >
               ×
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+          <div className='flex-1 overflow-y-auto px-6 py-5 space-y-5'>
             {campaign.status === 'rejected' && campaign.comment && (
-              <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 shadow-sm">
-                <div className="flex items-center gap-2 text-rose-700 font-medium">
-                  <span className="w-2 h-2 rounded-full bg-rose-500" />
+              <div className='rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 shadow-sm'>
+                <div className='flex items-center gap-2 text-rose-700 font-medium'>
+                  <span className='w-2 h-2 rounded-full bg-rose-500' />
                   {copy.modal.rejected}
                 </div>
-                <p className="mt-2 text-sm text-rose-800 whitespace-pre-wrap break-words">
+                <p className='mt-2 text-sm text-rose-800 whitespace-pre-wrap break-words'>
                   {campaign.comment}
                 </p>
               </div>
@@ -84,7 +84,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
               {infoRow(copy.table.status, statusLabel(campaign.status))}
             </div> */}
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
               {infoRow(
                 copy.table.createdAt,
                 formatDateTime(campaign.created_at)
@@ -95,8 +95,8 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
               )} */}
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 space-y-3">
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
+            <div className='rounded-2xl border border-slate-100 bg-slate-50/80 p-4 space-y-3'>
+              <div className='text-xs uppercase tracking-[0.2em] text-slate-400'>
                 {copy.table.segment}
               </div>
               {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -146,11 +146,11 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
                 // copy.modal.level3,
                 '',
                 level3s.length ? (
-                  <ul className="list-disc list-inside space-y-1 text-sm text-slate-900">
+                  <ul className='list-disc list-inside space-y-1 text-sm text-slate-900'>
                     {(level3s as string[]).map((item, idx) => (
                       <li
                         key={`${item}-${idx}`}
-                        className="whitespace-pre-wrap break-words"
+                        className='whitespace-pre-wrap break-words'
                       >
                         {item}
                       </li>
@@ -162,7 +162,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
               )}
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
+            <div className='rounded-2xl border border-slate-100 bg-slate-50/80 p-4'>
               {/* {infoRow(copy.table.title, campaign.title || '-')} */}
               {/* {infoRow(
                 copy.modal.adlink,
@@ -177,28 +177,28 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
                   '-'
                 )
               )} */}
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-400 mb-2">
+              <div className='text-xs uppercase tracking-[0.2em] text-slate-400 mb-2'>
                 {copy.table.adlink}
               </div>
-              <p className="text-sm text-slate-900 whitespace-pre-wrap break-words leading-relaxed">
+              <p className='text-sm text-slate-900 whitespace-pre-wrap break-words leading-relaxed'>
                 <a
                   href={campaign.adlink}
-                  className="text-primary-600 hover:underline break-all"
+                  className='text-primary-600 hover:underline break-all'
                 >
                   {campaign.adlink ? `${campaign.adlink}` : '-'}
                 </a>
               </p>
             </div>
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-400 mb-2">
+            <div className='rounded-2xl border border-slate-100 bg-slate-50/80 p-4'>
+              <div className='text-xs uppercase tracking-[0.2em] text-slate-400 mb-2'>
                 {copy.table.text}
               </div>
-              <p className="text-sm text-slate-900 whitespace-pre-wrap break-words leading-relaxed">
+              <p className='text-sm text-slate-900 whitespace-pre-wrap break-words leading-relaxed'>
                 {displayContent ? `${displayContent}\nلغو۱۱` : '-'}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div className='grid grid-cols-1 sm:grid-cols-4 gap-3'>
               {/* {infoRow(copy.modal.lineNumber, campaign.line_number || '-')} */}
               {infoRow(
                 copy.modal.linePriceFactor,
@@ -208,17 +208,17 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
               {/* {infoRow(copy.modal.numAudience, campaign.num_audience ?? '-')} */}
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-400 mb-2">
+            <div className='rounded-2xl border border-slate-100 bg-slate-50/80 p-4'>
+              <div className='text-xs uppercase tracking-[0.2em] text-slate-400 mb-2'>
                 {copy.modal.comment}
               </div>
-              <p className="text-sm text-slate-900 whitespace-pre-wrap break-words leading-relaxed">
+              <p className='text-sm text-slate-900 whitespace-pre-wrap break-words leading-relaxed'>
                 {campaign.comment || '-'}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 space-y-3">
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
+            <div className='rounded-2xl border border-slate-100 bg-slate-50/80 p-4 space-y-3'>
+              <div className='text-xs uppercase tracking-[0.2em] text-slate-400'>
                 {copy.modal.statistics}
               </div>
               {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-3"> */}
@@ -247,44 +247,53 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
                 </div> */}
               {/* <div className="flex flex-col gap-3 w-full"> */}
               {infoRow(copy.modal.numAudience, campaign.num_audience ?? '-')}
-              {infoRow(copy.modal.totalSentSuccessfully, campaign.statistics?.aggregatedTotalSent ?? '-')}
               {infoRow(
-                copy.modal.totalClicks,
-                typeof campaign.total_clicks === 'number'
-                  ? campaign.total_clicks.toFixed(2)
-                  : '-'
+                copy.modal.totalSentSuccessfully,
+                campaign.statistics?.aggregatedTotalSent ?? '-'
               )}
-              {infoRow(
-                copy.modal.clickRate,
-                typeof campaign.click_rate === 'number'
-                  ? `${(campaign.click_rate * 100).toFixed(2)}%`
-                  : '-'
-              )}
+              {hasAdlink &&
+                infoRow(
+                  copy.modal.totalClicks,
+                  typeof campaign.total_clicks === 'number'
+                    ? campaign.total_clicks.toFixed(2)
+                    : '-'
+                )}
+              {hasAdlink &&
+                infoRow(
+                  copy.modal.clickRate,
+                  typeof campaign.click_rate === 'number'
+                    ? `${(campaign.click_rate * 100).toFixed(2)}%`
+                    : '-'
+                )}
               {/* </div> */}
               {/* </div> */}
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-400 mb-2">
-                {copy.modal.linkShortener}
+            {hasAdlink && (
+              <div className='rounded-2xl border border-slate-100 bg-slate-50/80 p-4'>
+                <div className='text-xs uppercase tracking-[0.2em] text-slate-400 mb-2'>
+                  {copy.modal.linkShortener}
+                </div>
+                <p className='text-sm text-slate-900 whitespace-pre-wrap break-words leading-relaxed'>
+                  {campaign.short_link_domain
+                    ? `${campaign.short_link_domain}`
+                    : '-'}
+                </p>
               </div>
-              <p className="text-sm text-slate-900 whitespace-pre-wrap break-words leading-relaxed">
-                {campaign.short_link_domain ? `${campaign.short_link_domain}` : '-'}
-              </p>
-            </div>
+            )}
           </div>
 
-          <div className="px-6 pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-slate-100 bg-slate-50/60">
+          <div className='px-6 pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-slate-100 bg-slate-50/60'>
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition shadow-sm"
+              className='px-4 py-2 text-sm rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition shadow-sm'
             >
               {copy.modal.close}
             </button>
             {campaign.status === 'rejected' && (
               <button
                 onClick={onFixAndRestart}
-                className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-primary-600 to-indigo-600 text-white shadow-md hover:shadow-lg transition"
+                className='px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-primary-600 to-indigo-600 text-white shadow-md hover:shadow-lg transition'
               >
                 {copy.modal.fixAndRestart}
               </button>
