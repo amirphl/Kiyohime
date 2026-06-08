@@ -406,6 +406,11 @@ export const translations = {
         'waiting-for-approval': 'Waiting for Approval',
         approved: 'Approved',
         rejected: 'Rejected',
+        running: 'Running',
+        cancelled: 'Cancelled',
+        'cancelled-by-admin': 'Cancelled by Admin',
+        expired: 'Expired',
+        executed: 'Executed',
       },
       fixAndRestart: 'Fix and restart the campaign?',
       supportHistory: 'Tickets History',
@@ -1097,6 +1102,11 @@ export const translations = {
         'waiting-for-approval': 'در انتظار تأیید',
         approved: 'تأیید شده',
         rejected: 'رد شده',
+        running: 'در حال اجرا',
+        cancelled: 'لغو شده',
+        'cancelled-by-admin': 'لغو شده توسط ادمین',
+        expired: 'منقضی شده',
+        executed: 'اجرا شده',
       },
       fixAndRestart: 'اصلاح و شروع مجدد کمپین؟',
       supportHistory: 'تاریخچه تیکت‌ها',
@@ -1148,7 +1158,7 @@ export const translations = {
       // Navigation
       nextPage: 'صفحه بعدی',
       previousPage: 'صفحه قبلی',
-      finish: 'پایان',
+      finish: 'تایید نهایی',
 
       // Confirmation Modal
       confirmTitle: 'آیا مطمئن هستید؟',
