@@ -15,9 +15,11 @@ import {
   AdminChargeWalletResponse,
   AdminCustomerDetailDTO,
 } from '../../../types/admin';
+import ConfirmationModal from '../../../components/ConfirmationModal';
 
 const MIN_AMOUNT = 1000;
 const MAX_AMOUNT = 1000000000;
+const TAX_RATE = 0.1;
 
 const createIdempotencyKey = (): string => {
   if (
@@ -46,9 +48,10 @@ const AdminChargeWalletSection: React.FC = () => {
   const [loadingCustomers, setLoadingCustomers] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
-  const [amountWithTax, setAmountWithTax] = useState('');
+  const [amount, setAmount] = useState('');
   const [idempotencyKey] = useState<string>(() => createIdempotencyKey());
   const [submitting, setSubmitting] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const [chargeResult, setChargeResult] =
     useState<AdminChargeWalletResponse | null>(null);
 
@@ -96,39 +99,72 @@ const AdminChargeWalletSection: React.FC = () => {
     return `${fullName || customer.email}${company} (#${customer.id})`;
   }, []);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const parsedBaseAmount = amount.trim() ? Number(amount) : NaN;
+  const amountIsNumeric =
+    amount.trim().length > 0 &&
+    Number.isFinite(parsedBaseAmount) &&
+    !Number.isNaN(parsedBaseAmount);
+  const amountIsValid =
+    amountIsNumeric &&
+    Number.isInteger(parsedBaseAmount) &&
+    parsedBaseAmount >= MIN_AMOUNT &&
+    parsedBaseAmount <= MAX_AMOUNT;
+  const taxAmount = amountIsValid
+    ? Math.round(parsedBaseAmount * TAX_RATE)
+    : null;
+  const amountWithTax =
+    amountIsValid && taxAmount !== null ? parsedBaseAmount + taxAmount : null;
 
+  const validateSubmission = useCallback(() => {
     const customerId = Number(selectedCustomerId);
     if (!customerId || customerId < 1) {
       showError(copy.validation.customerRequired);
-      return;
+      return false;
     }
 
-    if (!amountWithTax.trim()) {
+    if (!amount.trim()) {
       showError(copy.validation.amountRequired);
-      return;
+      return false;
     }
 
-    const parsedAmount = Number(amountWithTax);
-    if (!Number.isFinite(parsedAmount) || Number.isNaN(parsedAmount)) {
+    if (!amountIsNumeric) {
       showError(copy.validation.amountMustBeNumber);
-      return;
+      return false;
     }
 
-    if (
-      parsedAmount < MIN_AMOUNT ||
-      parsedAmount > MAX_AMOUNT ||
-      !Number.isInteger(parsedAmount)
-    ) {
+    if (!amountIsValid || amountWithTax === null) {
       showError(copy.validation.amountRange);
-      return;
+      return false;
     }
 
+    return true;
+  }, [
+    amount,
+    amountIsNumeric,
+    amountIsValid,
+    amountWithTax,
+    copy.validation.amountMustBeNumber,
+    copy.validation.amountRange,
+    copy.validation.amountRequired,
+    copy.validation.customerRequired,
+    selectedCustomerId,
+    showError,
+  ]);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!validateSubmission()) return;
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmCharge = async () => {
+    if (!validateSubmission()) return;
+
+    const customerId = Number(selectedCustomerId);
     setSubmitting(true);
     const res = await adminPaymentsApi.chargeWallet({
       customer_id: customerId,
-      amount_with_tax: parsedAmount,
+      amount_with_tax: amountWithTax!,
       idempotency_key: idempotencyKey,
     });
     setSubmitting(false);
@@ -140,8 +176,13 @@ const AdminChargeWalletSection: React.FC = () => {
     }
 
     setChargeResult(res.data);
+    setShowConfirmation(false);
     showSuccess(res.message || copy.success.chargeSuccess);
   };
+
+  const selectedCustomer = customers.find(
+    customer => String(customer.id) === selectedCustomerId
+  );
 
   return (
     <div className='rounded-lg border border-gray-200 bg-white p-4 shadow-sm space-y-4'>
@@ -209,11 +250,18 @@ const AdminChargeWalletSection: React.FC = () => {
             min={MIN_AMOUNT}
             max={MAX_AMOUNT}
             step={1}
-            value={amountWithTax}
-            onChange={e => setAmountWithTax(e.target.value)}
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
             placeholder={copy.form.amountPlaceholder}
             className='w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
           />
+          {amountWithTax !== null && taxAmount !== null && (
+            <p className='mt-1 text-xs text-gray-500'>
+              {copy.info.taxPreview
+                .replace('{{tax}}', taxAmount.toLocaleString())
+                .replace('{{total}}', amountWithTax.toLocaleString())}
+            </p>
+          )}
         </div>
 
         <div className='flex items-center justify-between'>
@@ -229,6 +277,59 @@ const AdminChargeWalletSection: React.FC = () => {
           </button>
         </div>
       </form>
+
+      <ConfirmationModal
+        isOpen={showConfirmation}
+        onConfirm={handleConfirmCharge}
+        onCancel={() => {
+          if (submitting) return;
+          setShowConfirmation(false);
+        }}
+        title={copy.confirmation.title}
+        confirmText={
+          submitting ? copy.form.submitting : copy.confirmation.confirm
+        }
+        cancelText={copy.confirmation.cancel}
+        loading={submitting}
+      >
+        <div className='space-y-3 text-sm text-gray-700'>
+          <p>{copy.confirmation.message}</p>
+          <div className='space-y-2 rounded-md bg-gray-50 p-3'>
+            <div className='flex items-center justify-between gap-3'>
+              <span className='text-gray-500'>
+                {copy.confirmation.customer}
+              </span>
+              <span className='text-right text-gray-900'>
+                {selectedCustomer ? customerLabel(selectedCustomer) : '-'}
+              </span>
+            </div>
+            <div className='flex items-center justify-between gap-3'>
+              <span className='text-gray-500'>
+                {copy.confirmation.baseAmount}
+              </span>
+              <span className='text-gray-900'>
+                {amountIsValid ? parsedBaseAmount.toLocaleString() : '-'}
+              </span>
+            </div>
+            <div className='flex items-center justify-between gap-3'>
+              <span className='text-gray-500'>
+                {copy.confirmation.taxAmount}
+              </span>
+              <span className='text-gray-900'>
+                {taxAmount !== null ? taxAmount.toLocaleString() : '-'}
+              </span>
+            </div>
+            <div className='flex items-center justify-between gap-3 border-t border-gray-200 pt-2 font-medium'>
+              <span className='text-gray-700'>
+                {copy.confirmation.totalAmount}
+              </span>
+              <span className='text-gray-900'>
+                {amountWithTax !== null ? amountWithTax.toLocaleString() : '-'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </ConfirmationModal>
 
       {chargeResult && (
         <div className='rounded-lg border border-green-200 bg-green-50 p-4'>
