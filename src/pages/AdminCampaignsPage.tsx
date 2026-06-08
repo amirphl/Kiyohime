@@ -18,7 +18,10 @@ import CampaignDetailsModal from './adminCampaignManagement/components/CampaignD
 import RescheduleCampaignModal from './adminCampaignManagement/components/RescheduleCampaignModal';
 import CampaignsTable from './adminCampaignManagement/components/CampaignsTable';
 import FiltersBar from './adminCampaignManagement/components/FiltersBar';
-import { CampaignActionType } from './adminCampaignManagement/constants';
+import {
+  CampaignActionType,
+  DEFAULT_CAMPAIGN_STATUS_FILTER,
+} from './adminCampaignManagement/constants';
 import { useCampaignActions } from './adminCampaignManagement/hooks/useCampaignActions';
 import { useCampaignFilters } from './adminCampaignManagement/hooks/useCampaignFilters';
 import { useCampaignList } from './adminCampaignManagement/hooks/useCampaignList';
@@ -203,7 +206,9 @@ const AdminCampaignsPage: React.FC = () => {
   useEffect(() => {
     if (didInitRef.current) return;
     didInitRef.current = true;
-    void runReplaceCampaigns({});
+    void runReplaceCampaigns({
+      status: DEFAULT_CAMPAIGN_STATUS_FILTER,
+    });
   }, [runReplaceCampaigns]);
 
   return (
@@ -227,7 +232,9 @@ const AdminCampaignsPage: React.FC = () => {
         copy={copy}
         statusOptions={statusOptions}
         onTitleChange={setTitle}
-        onStatusChange={setStatus}
+        onStatusChange={value =>
+          setStatus(value ?? DEFAULT_CAMPAIGN_STATUS_FILTER)
+        }
         onStartChange={setStart}
         onEndChange={setEnd}
         onApply={handleApplyFilters}
