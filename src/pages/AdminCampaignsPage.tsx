@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { useToast } from '../hooks/useToast';
 import { useNavigation } from '../contexts/NavigationContext';
@@ -20,7 +26,10 @@ const isApproved = (status?: string | null): boolean => status === 'approved';
 
 const AdminCampaignsPage: React.FC = () => {
   const { language } = useLanguage();
-  const copy = useMemo(() => getAdminCampaignManagementCopy(language), [language]);
+  const copy = useMemo(
+    () => getAdminCampaignManagementCopy(language),
+    [language]
+  );
   const { showError } = useToast();
   const { navigate } = useNavigation();
 
@@ -36,21 +45,39 @@ const AdminCampaignsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<AdminGetCampaignResponse[]>([]);
 
-  const [actionCampaign, setActionCampaign] = useState<AdminGetCampaignResponse | null>(null);
-  const [actionType, setActionType] = useState<'approve' | 'reject' | 'cancel' | null>(null);
+  const [actionCampaign, setActionCampaign] =
+    useState<AdminGetCampaignResponse | null>(null);
+  const [actionType, setActionType] = useState<
+    'approve' | 'reject' | 'cancel' | null
+  >(null);
   const [actionComment, setActionComment] = useState<string>('');
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSubmitting, setActionSubmitting] = useState<boolean>(false);
 
   const statusOptions = useMemo(
-    () => [
-      { value: '', label: copy.filters.all },
-      { value: 'initiated', label: copy.filters.statuses.initiated },
-      { value: 'in-progress', label: copy.filters.statuses.inProgress },
-      { value: 'waiting-for-approval', label: copy.filters.statuses.waitingForApproval },
-      { value: 'approved', label: copy.filters.statuses.approved },
-      { value: 'rejected', label: copy.filters.statuses.rejected },
-    ] as Array<{ value: AdminListCampaignsFilter['status'] | ''; label: string }>,
+    () =>
+      [
+        { value: '', label: copy.filters.all },
+        { value: 'initiated', label: copy.filters.statuses.initiated },
+        { value: 'in-progress', label: copy.filters.statuses.inProgress },
+        {
+          value: 'waiting-for-approval',
+          label: copy.filters.statuses.waitingForApproval,
+        },
+        { value: 'approved', label: copy.filters.statuses.approved },
+        { value: 'rejected', label: copy.filters.statuses.rejected },
+        { value: 'running', label: copy.filters.statuses.running },
+        { value: 'cancelled', label: copy.filters.statuses.cancelled },
+        {
+          value: 'cancelled-by-admin',
+          label: copy.filters.statuses.cancelledByAdmin,
+        },
+        { value: 'expired', label: copy.filters.statuses.expired },
+        { value: 'executed', label: copy.filters.statuses.executed },
+      ] as Array<{
+        value: AdminListCampaignsFilter['status'] | '';
+        label: string;
+      }>,
     [copy]
   );
 
@@ -83,11 +110,13 @@ const AdminCampaignsPage: React.FC = () => {
 
     if (start) {
       const startDate = new Date(start);
-      if (!Number.isNaN(startDate.getTime())) params.start_date = startDate.toISOString();
+      if (!Number.isNaN(startDate.getTime()))
+        params.start_date = startDate.toISOString();
     }
     if (end) {
       const endDate = new Date(end);
-      if (!Number.isNaN(endDate.getTime())) params.end_date = endDate.toISOString();
+      if (!Number.isNaN(endDate.getTime()))
+        params.end_date = endDate.toISOString();
     }
 
     return params;
@@ -100,7 +129,9 @@ const AdminCampaignsPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await adminCampaignManagementApi.listCampaigns(useFilters ? buildParams() : {});
+      const response = await adminCampaignManagementApi.listCampaigns(
+        useFilters ? buildParams() : {}
+      );
 
       listInFlightRef.current = false;
       setLoading(false);
@@ -113,7 +144,9 @@ const AdminCampaignsPage: React.FC = () => {
         return;
       }
 
-      const data = (response.data || { items: [] }) as AdminListCampaignsResponse;
+      const data = (response.data || {
+        items: [],
+      }) as AdminListCampaignsResponse;
       setItems(Array.isArray(data.items) ? data.items : []);
     },
     [buildParams, copy.errors.listFailed, showError]
@@ -126,7 +159,10 @@ const AdminCampaignsPage: React.FC = () => {
   }, [loadCampaigns]);
 
   const openActionModal = useCallback(
-    (campaign: AdminGetCampaignResponse, action: 'approve' | 'reject' | 'cancel') => {
+    (
+      campaign: AdminGetCampaignResponse,
+      action: 'approve' | 'reject' | 'cancel'
+    ) => {
       setActionCampaign(campaign);
       setActionType(action);
       setActionComment('');
@@ -146,7 +182,10 @@ const AdminCampaignsPage: React.FC = () => {
   const submitAction = useCallback(async () => {
     if (!actionCampaign || !actionType || actionSubmitting) return;
 
-    const campaignId = typeof actionCampaign.id === 'number' && actionCampaign.id > 0 ? actionCampaign.id : null;
+    const campaignId =
+      typeof actionCampaign.id === 'number' && actionCampaign.id > 0
+        ? actionCampaign.id
+        : null;
     if (!campaignId) {
       setActionError(copy.errors.missingNumericId);
       showError(copy.errors.missingNumericId);
@@ -157,7 +196,10 @@ const AdminCampaignsPage: React.FC = () => {
     setActionError(null);
 
     const trimmedComment = actionComment.trim();
-    if ((actionType === 'reject' || actionType === 'cancel') && !trimmedComment) {
+    if (
+      (actionType === 'reject' || actionType === 'cancel') &&
+      !trimmedComment
+    ) {
       setActionSubmitting(false);
       setActionError(copy.modal.commentLabelRequired);
       showError(copy.modal.commentLabelRequired);
@@ -166,13 +208,19 @@ const AdminCampaignsPage: React.FC = () => {
 
     const response =
       actionType === 'approve'
-        ? await adminCampaignManagementApi.approveCampaign(campaignId, trimmedComment || undefined)
+        ? await adminCampaignManagementApi.approveCampaign(
+            campaignId,
+            trimmedComment || undefined
+          )
         : actionType === 'reject'
-          ? await adminCampaignManagementApi.rejectCampaign(campaignId, trimmedComment)
+          ? await adminCampaignManagementApi.rejectCampaign(
+              campaignId,
+              trimmedComment
+            )
           : await adminCampaignManagementApi.cancelCampaign({
-            campaign_id: campaignId,
-            comment: trimmedComment,
-          });
+              campaign_id: campaignId,
+              comment: trimmedComment,
+            });
 
     setActionSubmitting(false);
 
@@ -189,8 +237,8 @@ const AdminCampaignsPage: React.FC = () => {
       return;
     }
 
-    setItems((current) =>
-      current.map((item) =>
+    setItems(current =>
+      current.map(item =>
         item.uuid === actionCampaign.uuid
           ? {
               ...item,
@@ -221,11 +269,11 @@ const AdminCampaignsPage: React.FC = () => {
   ]);
 
   return (
-    <div className="p-4 max-w-[1400px] mx-auto">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">{copy.title}</h1>
+    <div className='p-4 max-w-[1400px] mx-auto'>
+      <div className='flex items-center justify-between mb-4'>
+        <h1 className='text-2xl font-semibold'>{copy.title}</h1>
         <button
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded"
+          className='bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded'
           onClick={() => navigate(ROUTES.ADMIN_SARDIS.path)}
         >
           {copy.backToSardis}
@@ -247,7 +295,7 @@ const AdminCampaignsPage: React.FC = () => {
         onApply={() => loadCampaigns(true)}
       />
 
-      {error && <div className="text-red-600 mb-4">{error}</div>}
+      {error && <div className='text-red-600 mb-4'>{error}</div>}
 
       <CampaignsTable
         items={items}
@@ -258,9 +306,9 @@ const AdminCampaignsPage: React.FC = () => {
         canApproveOrReject={isWaitingForApproval}
         canCancel={isApproved}
         isActionSubmitting={actionSubmitting}
-        onApprove={(campaign) => openActionModal(campaign, 'approve')}
-        onReject={(campaign) => openActionModal(campaign, 'reject')}
-        onCancel={(campaign) => openActionModal(campaign, 'cancel')}
+        onApprove={campaign => openActionModal(campaign, 'approve')}
+        onReject={campaign => openActionModal(campaign, 'reject')}
+        onCancel={campaign => openActionModal(campaign, 'cancel')}
       />
 
       <ActionModal
