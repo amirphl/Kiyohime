@@ -87,6 +87,7 @@ export interface AdminListCampaignsFilter {
     | 'rejected'
     | 'running'
     | 'executed'
+    | 'expired'
     | 'cancelled'
     | 'cancelled-by-admin';
   start_date?: string; // RFC3339 string
@@ -392,4 +393,26 @@ export interface AdminAddPlatformSettingsMetadataResponse {
   message: string;
   id: number;
   metadata: Record<string, any>;
+}
+
+// Admin Platform Base Prices
+export interface AdminUpdatePlatformBasePriceRequest {
+  platform: 'sms' | 'rubika' | 'bale' | 'splus';
+  price: number;
+}
+
+export interface AdminUpdatePlatformBasePriceResponse {
+  message: string;
+  platform: string;
+  price: number;
+}
+
+export interface AdminPlatformBasePriceItem {
+  platform: string;
+  price: number;
+}
+
+export interface AdminListPlatformBasePricesResponse {
+  message: string;
+  items: AdminPlatformBasePriceItem[];
 }
