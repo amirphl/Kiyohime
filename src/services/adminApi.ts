@@ -19,6 +19,9 @@ import {
   AdminChangePlatformSettingsStatusResponse,
   AdminAddPlatformSettingsMetadataRequest,
   AdminAddPlatformSettingsMetadataResponse,
+  AdminListPlatformBasePricesResponse,
+  AdminUpdatePlatformBasePriceRequest,
+  AdminUpdatePlatformBasePriceResponse,
   AdminChargeWalletRequest,
   AdminChargeWalletResponse,
   AdminListCustomersResponse,
@@ -1530,6 +1533,98 @@ class AdminApiService {
         success: true,
         message: data?.message || 'OK',
         data: (data?.data || {}) as AdminAddPlatformSettingsMetadataResponse,
+      };
+    } catch {
+      return {
+        success: false,
+        message: 'An error occurred',
+        error: { code: 'NETWORK_ERROR', details: null },
+      } as any;
+    }
+  }
+
+  async listPlatformBasePricesByAdmin(): Promise<
+    ApiResponse<AdminListPlatformBasePricesResponse>
+  > {
+    const url = getApiUrl('/admin/platform-base-prices');
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(this.getAccessToken()
+            ? { Authorization: `Bearer ${this.getAccessToken()}` }
+            : {}),
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          message: 'Unauthorized',
+          error: { code: 'UNAUTHORIZED', details: null },
+        } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return {
+          success: false,
+          message: data?.message || 'Failed to list platform base prices',
+          error: data?.error,
+        } as any;
+      }
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: (data?.data || { items: [] }) as AdminListPlatformBasePricesResponse,
+      };
+    } catch {
+      return {
+        success: false,
+        message: 'An error occurred',
+        error: { code: 'NETWORK_ERROR', details: null },
+      } as any;
+    }
+  }
+
+  async updatePlatformBasePriceByAdmin(
+    payload: AdminUpdatePlatformBasePriceRequest
+  ): Promise<ApiResponse<AdminUpdatePlatformBasePriceResponse>> {
+    const url = getApiUrl('/admin/platform-base-prices');
+    try {
+      const resp = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(this.getAccessToken()
+            ? { Authorization: `Bearer ${this.getAccessToken()}` }
+            : {}),
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (resp.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          message: 'Unauthorized',
+          error: { code: 'UNAUTHORIZED', details: null },
+        } as any;
+      }
+      const data = await resp.json();
+      if (!resp.ok) {
+        return {
+          success: false,
+          message: data?.message || 'Failed to update platform base price',
+          error: data?.error,
+        } as any;
+      }
+      return {
+        success: true,
+        message: data?.message || 'OK',
+        data: (data?.data || {}) as AdminUpdatePlatformBasePriceResponse,
       };
     } catch {
       return {
