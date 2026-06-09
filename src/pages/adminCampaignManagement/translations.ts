@@ -21,6 +21,11 @@ export interface AdminCampaignManagementCopy {
       waitingForApproval: string;
       approved: string;
       rejected: string;
+      running: string;
+      cancelled: string;
+      cancelledByAdmin: string;
+      expired: string;
+      executed: string;
     };
   };
   table: {
@@ -99,6 +104,11 @@ const en: AdminCampaignManagementCopy = {
       waitingForApproval: 'Waiting for Approval',
       approved: 'Approved',
       rejected: 'Rejected',
+      running: 'Running',
+      cancelled: 'Cancelled',
+      cancelledByAdmin: 'Cancelled by Admin',
+      expired: 'Expired',
+      executed: 'Executed',
     },
   },
   table: {
@@ -177,6 +187,11 @@ const fa: AdminCampaignManagementCopy = {
       waitingForApproval: 'در انتظار تأیید',
       approved: 'تأیید شده',
       rejected: 'رد شده',
+      running: 'در حال اجرا',
+      cancelled: 'لغو شده',
+      cancelledByAdmin: 'لغو شده توسط ادمین',
+      expired: 'منقضی شده',
+      executed: 'اجرا شده',
     },
   },
   table: {
@@ -239,5 +254,6 @@ const map: Record<Language, AdminCampaignManagementCopy> = {
   fa,
 };
 
-export const getAdminCampaignManagementCopy = (language: Language): AdminCampaignManagementCopy =>
-  map[language] || map.en;
+export const getAdminCampaignManagementCopy = (
+  language: Language
+): AdminCampaignManagementCopy => map[language] || map.en;
