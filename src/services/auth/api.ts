@@ -1,11 +1,7 @@
 import { getApiUrl, isProduction } from '../../config/environment';
 import { AUTH_ENDPOINTS, OTP_CODE_LENGTH } from './constants';
 import { AuthApiResponse } from './types';
-import {
-  isPhoneLikeIdentifier,
-  isValidEmailIdentifier,
-  normalizeIdentifierInput,
-} from './utils';
+import { isPhoneLikeIdentifier, normalizeIdentifierInput } from './utils';
 
 const AUTH_ERROR_CODES = {
   invalidUrl: 'INVALID_URL',
@@ -221,15 +217,11 @@ export const login = async (
     return createAuthErrorResponse(AUTH_ERROR_CODES.invalidIdentifier);
   }
 
-  const isPhoneIdentifier = isPhoneLikeIdentifier(formattedIdentifier);
-  const isEmailIdentifier = isValidEmailIdentifier(formattedIdentifier);
-  if (!isPhoneIdentifier && !isEmailIdentifier) {
+  if (!isPhoneLikeIdentifier(formattedIdentifier)) {
     return createAuthErrorResponse(AUTH_ERROR_CODES.invalidIdentifier);
   }
 
-  if (isPhoneIdentifier) {
-    formattedIdentifier = formatPhoneNumber(formattedIdentifier);
-  }
+  formattedIdentifier = formatPhoneNumber(formattedIdentifier);
 
   return authRequest(AUTH_ENDPOINTS.login, {
     method: 'POST',
