@@ -91,6 +91,27 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Reports',
     description: 'Campaign reports and history',
   },
+  BUNDLES: {
+    path: '/dashboard/bundles',
+    page: 'bundles',
+    requiresAuth: true,
+    title: 'Bundles',
+    description: 'Review and manage bundles',
+  },
+  BUNDLES_CREATE: {
+    path: '/dashboard/bundles/new',
+    page: 'bundles-create',
+    requiresAuth: true,
+    title: 'Create Bundle',
+    description: 'Create a new bundle',
+  },
+  BUNDLES_DETAIL: {
+    path: '/dashboard/bundles/detail',
+    page: 'bundles-detail',
+    requiresAuth: true,
+    title: 'Bundle Details',
+    description: 'View bundle details',
+  },
   SUPPORT: {
     path: '/dashboard/support',
     page: 'support',
@@ -126,6 +147,13 @@ export const ROUTES: Record<string, RouteConfig> = {
     title: 'Terms of Service',
     description: 'Service terms and conditions',
   },
+  BALE_TERMS: {
+    path: '/bale-terms',
+    page: 'bale-terms',
+    requiresAuth: false,
+    title: 'Bale Terms',
+    description: 'Bale bot creation rules',
+  },
   PRICING: {
     path: '/pricing',
     page: 'pricing',
@@ -138,21 +166,21 @@ export const ROUTES: Record<string, RouteConfig> = {
     page: 'admin-login',
     requiresAuth: false,
     title: 'Admin Login',
-    description: 'Administrator sign in'
+    description: 'Administrator sign in',
   },
   ADMIN_SARDIS: {
     path: '/satrap/sardis',
     page: 'admin-sardis',
     requiresAuth: false,
     title: 'Sardis',
-    description: 'Admin Sardis'
+    description: 'Admin Sardis',
   },
   ADMIN_LINE_NUMBERS: {
     path: '/satrap/sardis/line-numbers',
     page: 'admin-line-numbers',
     requiresAuth: false,
     title: 'Line Numbers',
-    description: 'Admin Line Numbers Management'
+    description: 'Admin Line Numbers Management',
   },
   ADMIN_CAMPAIGNS: {
     path: '/satrap/campaigns',
@@ -216,4 +244,4 @@ export const getRouteByPage = (page: string): RouteConfig | null => {
 export const isProtectedRoute = (path: string): boolean => {
   const route = getRouteByPath(path);
   return route?.requiresAuth || false;
-}; 
+};
