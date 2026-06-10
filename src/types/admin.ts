@@ -149,6 +149,8 @@ export interface AdminGetCampaignResponse {
   agency_full_name?: string | null;
   target_audience_excel_file_uuid?: string | null;
   platform_settings_name?: string | null;
+  bundle_id?: number | null;
+  phase?: string | null;
 }
 
 export interface AdminPaginationInfo {
@@ -279,17 +281,39 @@ export interface AdminCustomerDetailDTO {
 }
 
 export interface AdminCustomerCampaignItem {
-  title?: string | null;
-  created_at: string; // ISO
-  schedule_at?: string | null; // ISO
+  id: number;
+  uuid: string;
   status: string;
-  total_sent: number; // uint64
-  total_delivered: number; // uint64
-  click_rate: number;
-  campaign_id?: number | null;
-  line_number?: string | null;
+  created_at: string; // ISO
+  updated_at?: string | null; // ISO
+  title?: string | null;
+  level1?: string | null;
+  level2s?: string[] | null;
   level3s?: string[] | null;
+  tags?: string[] | null;
+  sex?: string | null;
+  city?: string[] | null;
+  adlink?: string | null;
+  content?: string | null;
+  short_link_domain?: string | null;
+  job_category?: string | null;
+  job?: string | null;
+  scheduleat?: string | null; // ISO
+  line_number?: string | null;
+  media_uuid?: string | null;
+  platform_settings_id?: number | null;
+  platform: string;
+  budget?: number | null;
+  comment?: string | null;
+  segment_price_factor?: number | null;
+  line_number_price_factor?: number | null;
+  statistics?: Record<string, any> | null;
+  total_clicks?: number | null;
+  click_rate: number;
   num_audience?: number | null;
+  customer_full_name?: string | null;
+  agency_full_name?: string | null;
+  target_audience_excel_file_uuid?: string | null;
 }
 
 export interface AdminCustomerWithCampaignsResponse {
@@ -355,6 +379,7 @@ export interface AdminCustomerDiscountHistoryResponse {
 export interface AdminChargeWalletRequest {
   customer_id: number;
   amount_with_tax: number;
+  admin_note: string;
   idempotency_key?: string;
 }
 
@@ -367,6 +392,27 @@ export interface AdminChargeWalletResponse {
   customer_id: number;
   admin_id: number;
   amount_with_tax: number;
+}
+
+export interface AdminPreviewWalletChargeImpactRequest {
+  customer_id: number;
+  amount_with_tax: number;
+}
+
+export interface AdminPreviewWalletChargeImpactResponse {
+  message: string;
+  success: boolean;
+  customer_id: number;
+  agency_id: number;
+  agency_discount_id: number;
+  discount_rate: number;
+  amount_with_tax: number;
+  amount: number;
+  tax: number;
+  free_increase: number;
+  credit_increase: number;
+  agency_share_with_tax: number;
+  system_share_with_tax: number;
 }
 
 export interface AdminListCustomersResponse {
