@@ -31,6 +31,8 @@ import {
   AdminUpdatePagePriceResponse,
   AdminChargeWalletRequest,
   AdminChargeWalletResponse,
+  AdminPreviewWalletChargeImpactRequest,
+  AdminPreviewWalletChargeImpactResponse,
   AdminListCustomersResponse,
 } from '../types/admin';
 
@@ -559,7 +561,7 @@ class AdminApiService {
   async listDepositReceipts(params: {
     status?: string;
     lang?: string;
-    customer_id?: number;
+    customer_name?: string;
     limit?: number;
     offset?: number;
     order?: string;
@@ -567,8 +569,7 @@ class AdminApiService {
     const search = new URLSearchParams();
     if (params.status) search.set('status', params.status);
     if (params.lang) search.set('lang', params.lang);
-    if (params.customer_id)
-      search.set('customer_id', String(params.customer_id));
+    if (params.customer_name) search.set('customer_name', params.customer_name);
     if (params.limit) search.set('limit', String(params.limit));
     if (params.offset) search.set('offset', String(params.offset));
     if (params.order) search.set('order', params.order);
@@ -644,6 +645,7 @@ class AdminApiService {
     start_date?: string;
     end_date?: string;
     customer_id?: number;
+    customer_name?: string;
   }): Promise<
     ApiResponse<import('../types/payments').AdminListTransactionsResponse>
   > {
@@ -654,6 +656,7 @@ class AdminApiService {
     if (params.end_date) search.set('end_date', params.end_date);
     if (params.customer_id)
       search.set('customer_id', String(params.customer_id));
+    if (params.customer_name) search.set('customer_name', params.customer_name);
 
     const response = await this.requestJson<
       import('../types/payments').AdminListTransactionsResponse
@@ -801,6 +804,26 @@ class AdminApiService {
     );
 
     return this.withFallbackData(response, {} as AdminChargeWalletResponse);
+  }
+
+  async previewWalletChargeImpact(
+    payload: AdminPreviewWalletChargeImpactRequest
+  ): Promise<ApiResponse<AdminPreviewWalletChargeImpactResponse>> {
+    const response =
+      await this.requestJson<AdminPreviewWalletChargeImpactResponse>(
+        '/admin/payments/charge-wallet/preview',
+        {
+          method: 'POST',
+          headers: this.getAdminAuthHeaders(),
+          body: JSON.stringify(payload),
+        },
+        { timeoutMs: 30000 }
+      );
+
+    return this.withFallbackData(
+      response,
+      {} as AdminPreviewWalletChargeImpactResponse
+    );
   }
 
   async listTickets(
