@@ -8,6 +8,7 @@ export interface TransactionHistoryItem {
   currency: string;
   operation: string;
   source: string;
+  deposit_method?: string | null;
   datetime: string; // ISO string from backend
   external_ref?: string | null;
   customer_invoice_uuid?: string | null;
@@ -59,6 +60,7 @@ export interface SubmitDepositReceiptResponse {
 export interface DepositReceiptItem {
   uuid: string;
   customer_id: number;
+  customer_full_name: string;
   amount: number;
   currency: string;
   status: string;
@@ -99,7 +101,7 @@ export interface AdminUpdateDepositReceiptStatusRequest {
 export interface AdminListDepositReceiptsParams {
   status?: string;
   lang?: string;
-  customer_id?: number;
+  customer_name?: string;
   limit?: number;
   offset?: number;
   order?: string;
@@ -108,6 +110,7 @@ export interface AdminListDepositReceiptsParams {
 export interface AdminTransactionItem {
   uuid: string;
   customer_id: number;
+  customer_full_name: string;
   customer: AdminTransactionCustomerInfo;
   status: string;
   amount: number;
@@ -116,6 +119,7 @@ export interface AdminTransactionItem {
   currency: string;
   operation: string;
   source: string;
+  deposit_method?: string | null;
   datetime: string;
   external_ref?: string | null;
   customer_invoice_uuid?: string | null;
@@ -158,6 +162,7 @@ export interface AdminListTransactionsParams {
   start_date?: string;
   end_date?: string;
   customer_id?: number;
+  customer_name?: string;
 }
 
 export interface AdminAddInvoiceToTransactionRequest {
