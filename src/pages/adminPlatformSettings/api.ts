@@ -5,7 +5,10 @@ import {
   AdminAddPlatformSettingsMetadataResponse,
   AdminChangePlatformSettingsStatusRequest,
   AdminChangePlatformSettingsStatusResponse,
+  AdminListPlatformBasePricesResponse,
   AdminListPlatformSettingsResponse,
+  AdminUpdatePlatformBasePriceRequest,
+  AdminUpdatePlatformBasePriceResponse,
 } from '../../types/admin';
 
 export const adminPlatformSettingsApi = {
@@ -21,6 +24,15 @@ export const adminPlatformSettingsApi = {
     adminApi.addPlatformSettingsMetadataByAdmin(payload) as Promise<
       ApiResponse<AdminAddPlatformSettingsMetadataResponse>
     >,
+  listBasePrices: () =>
+    adminApi.listPlatformBasePricesByAdmin() as Promise<
+      ApiResponse<AdminListPlatformBasePricesResponse>
+    >,
+  updateBasePrice: (payload: AdminUpdatePlatformBasePriceRequest) =>
+    adminApi.updatePlatformBasePriceByAdmin(payload) as Promise<
+      ApiResponse<AdminUpdatePlatformBasePriceResponse>
+    >,
   previewMultimedia: (uuid: string) => adminApi.previewMultimediaByAdmin(uuid),
-  downloadMultimedia: (uuid: string) => adminApi.downloadMultimediaByAdmin(uuid),
+  downloadMultimedia: (uuid: string) =>
+    adminApi.downloadMultimediaByAdmin(uuid),
 };
