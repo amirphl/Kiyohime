@@ -16,6 +16,13 @@ import {
   UploadMultimediaResponse,
 } from '../types/campaign';
 import {
+  CreateBundleRequest,
+  CreateBundleResponse,
+  GetBundleResponse,
+  ListBundlesParams,
+  ListBundlesResponse,
+} from '../types/bundle';
+import {
   CreatePlatformSettingsRequest,
   CreatePlatformSettingsResponse,
   ListPlatformSettingsResponse,
@@ -118,6 +125,7 @@ class ApiService {
   private baseUrl: string;
   private accessToken: string | null = null;
   private unauthorizedHandler: UnauthorizedHandler | null = null;
+  private inFlightRequests = new Map<string, Promise<ApiResponse<any>>>();
 
   constructor() {
     this.baseUrl = config.apiUrl;
@@ -126,7 +134,6 @@ class ApiService {
   // Method to set the global 401 handler
   setUnauthorizedHandler(handler: UnauthorizedHandler) {
     this.unauthorizedHandler = handler;
-    console.log('Unauthorized handler set successfully');
   }
 
   // Method to check if unauthorized handler is configured
@@ -402,6 +409,24 @@ class ApiService {
             : 'UNKNOWN_ERROR'
       );
     }
+  }
+
+  private requestOnce<T>(
+    cacheKey: string,
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    const existing = this.inFlightRequests.get(cacheKey);
+    if (existing) {
+      return existing as Promise<ApiResponse<T>>;
+    }
+
+    const requestPromise = this.request<T>(endpoint, options).finally(() => {
+      this.inFlightRequests.delete(cacheKey);
+    });
+
+    this.inFlightRequests.set(cacheKey, requestPromise);
+    return requestPromise;
   }
 
   private async requestBinary(endpoint: string): Promise<{
@@ -803,10 +828,56 @@ class ApiService {
     if (params.orderby) query.set('orderby', params.orderby);
     if (params.title) query.set('title', params.title);
     if (params.status) query.set('status', params.status);
+    if (params.bundle_id) query.set('bundle_id', String(params.bundle_id));
+    if (params.phase) query.set('phase', params.phase);
     const endpoint = `${config.endpoints.campaigns.list}?${query.toString()}`;
     return this.request<ListSMSCampaignsResponse>(endpoint, {
       method: 'GET',
       signal,
+    });
+  }
+
+  async listBundles(
+    params: ListBundlesParams,
+    signal?: AbortSignal
+  ): Promise<ApiResponse<ListBundlesResponse>> {
+    const query = new URLSearchParams();
+    query.set('page', String(params.page));
+    query.set('limit', String(params.limit));
+    if (params.title) query.set('title', params.title);
+    if (params.target_audience_persona) {
+      query.set('target_audience_persona', params.target_audience_persona);
+    }
+
+    const endpoint = `${config.endpoints.bundles.list}?${query.toString()}`;
+    const cacheKey = `GET:${endpoint}`;
+    return this.requestOnce<ListBundlesResponse>(cacheKey, endpoint, {
+      method: 'GET',
+      signal,
+    });
+  }
+
+  async getBundle(
+    id: number,
+    signal?: AbortSignal
+  ): Promise<ApiResponse<GetBundleResponse>> {
+    const endpoint = config.endpoints.bundles.get.replace(
+      ':id',
+      encodeURIComponent(String(id))
+    );
+    const cacheKey = `GET:${endpoint}`;
+    return this.requestOnce<GetBundleResponse>(cacheKey, endpoint, {
+      method: 'GET',
+      signal,
+    });
+  }
+
+  async createBundle(
+    payload: CreateBundleRequest
+  ): Promise<ApiResponse<CreateBundleResponse>> {
+    return this.request<CreateBundleResponse>(config.endpoints.bundles.create, {
+      method: 'POST',
+      body: JSON.stringify(payload),
     });
   }
 
