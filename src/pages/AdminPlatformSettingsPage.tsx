@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { useToast } from '../hooks/useToast';
 import { useNavigation } from '../contexts/NavigationContext';
@@ -8,14 +14,14 @@ import {
   AdminPlatformSettingsStatus,
 } from '../types/admin';
 import { adminPlatformSettingsApi } from './adminPlatformSettings/api';
-import {
-  adminPlatformSettingsTranslations,
-} from './adminPlatformSettings/translations';
+import { adminPlatformSettingsTranslations } from './adminPlatformSettings/translations';
 import PlatformSettingsTable from './adminPlatformSettings/components/PlatformSettingsTable';
+import PlatformBasePricesSection from './adminPlatformSettings/components/PlatformBasePricesSection';
 import StatusChangeModal from './adminPlatformSettings/components/StatusChangeModal';
 import MetadataModal from './adminPlatformSettings/components/MetadataModal';
 import { useAdminMultimedia } from './adminPlatformSettings/useAdminMultimedia';
 import { useAdminPlatformSettingsMetadata } from './adminPlatformSettings/useAdminPlatformSettingsMetadata';
+import { useAdminPlatformBasePrices } from './adminPlatformSettings/useAdminPlatformBasePrices';
 
 const AdminPlatformSettingsPage: React.FC = () => {
   const { language } = useLanguage();
@@ -35,11 +41,15 @@ const AdminPlatformSettingsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<AdminPlatformSettingsItem | null>(null);
-  const [nextStatus, setNextStatus] = useState<'in-progress' | 'active' | 'inactive' | ''>('');
+  const [selectedItem, setSelectedItem] =
+    useState<AdminPlatformSettingsItem | null>(null);
+  const [nextStatus, setNextStatus] = useState<
+    'in-progress' | 'active' | 'inactive' | ''
+  >('');
   const [submitting, setSubmitting] = useState(false);
   const [metadataModalOpen, setMetadataModalOpen] = useState(false);
-  const [metadataItem, setMetadataItem] = useState<AdminPlatformSettingsItem | null>(null);
+  const [metadataItem, setMetadataItem] =
+    useState<AdminPlatformSettingsItem | null>(null);
   const multimediaUuids = useMemo(
     () =>
       items
@@ -67,7 +77,8 @@ const AdminPlatformSettingsPage: React.FC = () => {
     loadingById: metadataLoadingById,
     getKeyOptionsForPlatform,
   } = useAdminPlatformSettingsMetadata({
-    getPlatformById: (id: number) => items.find(item => item.id === id)?.platform,
+    getPlatformById: (id: number) =>
+      items.find(item => item.id === id)?.platform,
     onError: showError,
     onSuccess: showSuccess,
     onMetadataUpdated: (id, metadata) => {
@@ -83,6 +94,27 @@ const AdminPlatformSettingsPage: React.FC = () => {
     },
     success: {
       metadataUpdated: copy.success.metadataUpdated,
+    },
+  });
+  const {
+    items: basePriceItems,
+    loading: basePricesLoading,
+    error: basePricesError,
+    load: loadBasePrices,
+    setDraftPrice: setBasePriceDraft,
+    getDraftPrice: getBasePriceDraft,
+    updatePrice: updateBasePrice,
+    updatingByPlatform,
+  } = useAdminPlatformBasePrices({
+    onError: showError,
+    onSuccess: showSuccess,
+    errors: {
+      listFailed: copy.errors.basePriceListFailed,
+      updateFailed: copy.errors.basePriceUpdateFailed,
+      invalidPrice: copy.errors.basePriceInvalid,
+    },
+    success: {
+      updated: copy.success.basePriceUpdated,
     },
   });
 
@@ -212,8 +244,11 @@ const AdminPlatformSettingsPage: React.FC = () => {
             <button
               type='button'
               className='rounded border border-blue-200 bg-blue-50 px-4 py-2 text-sm text-blue-700 hover:bg-blue-100'
-              onClick={load}
-              disabled={loading}
+              onClick={() => {
+                load();
+                loadBasePrices();
+              }}
+              disabled={loading || basePricesLoading}
             >
               {copy.refresh}
             </button>
@@ -239,6 +274,16 @@ const AdminPlatformSettingsPage: React.FC = () => {
           onAttachMetadata={submitMetadata}
           statusLabel={statusLabel}
           formatDateTime={formatDateTime}
+        />
+        <PlatformBasePricesSection
+          items={basePriceItems}
+          loading={basePricesLoading}
+          error={basePricesError}
+          copy={copy}
+          getDraftPrice={getBasePriceDraft}
+          onChangeDraftPrice={setBasePriceDraft}
+          onUpdatePrice={updateBasePrice}
+          updatingByPlatform={updatingByPlatform}
         />
       </div>
 
