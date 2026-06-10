@@ -38,6 +38,23 @@ export interface AdminPlatformSettingsCopy {
     save: string;
     cancel: string;
   };
+  basePrices: {
+    title: string;
+    subtitle: string;
+    update: string;
+    platformLabels: {
+      sms: string;
+      rubika: string;
+      bale: string;
+      splus: string;
+    };
+    columns: {
+      platform: string;
+      currentPrice: string;
+      newPrice: string;
+      actions: string;
+    };
+  };
   modal: {
     title: string;
     currentStatus: string;
@@ -56,10 +73,14 @@ export interface AdminPlatformSettingsCopy {
     metadataValueRequired: string;
     metadataKeyNotAllowedForPlatform: string;
     metadataUpdateFailed: string;
+    basePriceListFailed: string;
+    basePriceUpdateFailed: string;
+    basePriceInvalid: string;
   };
   success: {
     statusUpdated: string;
     metadataUpdated: string;
+    basePriceUpdated: string;
   };
   common: {
     loading: string;
@@ -107,6 +128,23 @@ const en: AdminPlatformSettingsCopy = {
     save: 'Save',
     cancel: 'Cancel',
   },
+  basePrices: {
+    title: 'Platform Base Prices',
+    subtitle: 'Review and update base prices for each platform.',
+    update: 'Update',
+    platformLabels: {
+      sms: 'SMS',
+      rubika: 'Rubika',
+      bale: 'Bale',
+      splus: 'Soroush Plus',
+    },
+    columns: {
+      platform: 'Platform',
+      currentPrice: 'Current Price',
+      newPrice: 'New Price',
+      actions: 'Actions',
+    },
+  },
   modal: {
     title: 'Change Platform Setting Status',
     currentStatus: 'Current Status',
@@ -126,10 +164,14 @@ const en: AdminPlatformSettingsCopy = {
     metadataKeyNotAllowedForPlatform:
       'Selected metadata key is not allowed for this platform',
     metadataUpdateFailed: 'Failed to update platform settings metadata',
+    basePriceListFailed: 'Failed to list platform base prices',
+    basePriceUpdateFailed: 'Failed to update platform base price',
+    basePriceInvalid: 'Price must be greater than 0',
   },
   success: {
     statusUpdated: 'Platform setting status updated',
     metadataUpdated: 'Platform settings metadata updated',
+    basePriceUpdated: 'Platform base price updated',
   },
   common: {
     loading: 'Loading...',
@@ -177,6 +219,23 @@ const fa: AdminPlatformSettingsCopy = {
     save: 'ذخیره',
     cancel: 'انصراف',
   },
+  basePrices: {
+    title: 'قیمت پایه کانال‌ها',
+    subtitle: 'قیمت پایه هر کانال را مشاهده و بروزرسانی کنید.',
+    update: 'بروزرسانی',
+    platformLabels: {
+      sms: 'SMS',
+      rubika: 'روبیکا',
+      bale: 'بله',
+      splus: 'سروش پلاس',
+    },
+    columns: {
+      platform: 'کانال',
+      currentPrice: 'قیمت فعلی',
+      newPrice: 'قیمت جدید',
+      actions: 'اقدامات',
+    },
+  },
   modal: {
     title: 'تغییر وضعیت تنظیمات کانال',
     currentStatus: 'وضعیت فعلی',
@@ -196,10 +255,14 @@ const fa: AdminPlatformSettingsCopy = {
     metadataKeyNotAllowedForPlatform:
       'کلید متادیتای انتخاب‌شده برای این کانال مجاز نیست',
     metadataUpdateFailed: 'بروزرسانی متادیتای تنظیمات کانال ناموفق بود',
+    basePriceListFailed: 'دریافت قیمت‌های پایه کانال ناموفق بود',
+    basePriceUpdateFailed: 'بروزرسانی قیمت پایه کانال ناموفق بود',
+    basePriceInvalid: 'قیمت باید بزرگ‌تر از صفر باشد',
   },
   success: {
     statusUpdated: 'وضعیت تنظیمات کانال بروزرسانی شد',
     metadataUpdated: 'متادیتای تنظیمات کانال بروزرسانی شد',
+    basePriceUpdated: 'قیمت پایه کانال بروزرسانی شد',
   },
   common: {
     loading: 'در حال بارگذاری...',
@@ -207,8 +270,10 @@ const fa: AdminPlatformSettingsCopy = {
   },
 };
 
-export const adminPlatformSettingsTranslations: Record<'en' | 'fa', AdminPlatformSettingsCopy> =
-  {
-    en,
-    fa,
-  };
+export const adminPlatformSettingsTranslations: Record<
+  'en' | 'fa',
+  AdminPlatformSettingsCopy
+> = {
+  en,
+  fa,
+};
