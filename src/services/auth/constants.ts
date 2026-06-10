@@ -5,7 +5,7 @@ export const AUTH_ENDPOINTS = {
 } as const;
 
 export const OTP_CODE_LENGTH = 6;
-export const OTP_RESEND_SECONDS = 60;
+export const OTP_RESEND_SECONDS = 120;
 
 export const AUTH_STORAGE_KEYS = {
   accessToken: 'access_token',
