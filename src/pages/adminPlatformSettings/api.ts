@@ -5,13 +5,7 @@ import {
   AdminAddPlatformSettingsMetadataResponse,
   AdminChangePlatformSettingsStatusRequest,
   AdminChangePlatformSettingsStatusResponse,
-  AdminListPlatformBasePricesResponse,
-  AdminGetPagePricesResponse,
-  AdminUpdatePagePriceRequest,
-  AdminUpdatePagePriceResponse,
   AdminListPlatformSettingsResponse,
-  AdminUpdatePlatformBasePriceRequest,
-  AdminUpdatePlatformBasePriceResponse,
 } from '../../types/admin';
 
 type AdminMultimediaResponse = {
@@ -34,22 +28,6 @@ export const adminPlatformSettingsApi = {
   addMetadata: (payload: AdminAddPlatformSettingsMetadataRequest) =>
     adminApi.addPlatformSettingsMetadataByAdmin(payload) as Promise<
       ApiResponse<AdminAddPlatformSettingsMetadataResponse>
-    >,
-  listBasePrices: () =>
-    adminApi.listPlatformBasePricesByAdmin() as Promise<
-      ApiResponse<AdminListPlatformBasePricesResponse>
-    >,
-  updateBasePrice: (payload: AdminUpdatePlatformBasePriceRequest) =>
-    adminApi.updatePlatformBasePriceByAdmin(payload) as Promise<
-      ApiResponse<AdminUpdatePlatformBasePriceResponse>
-    >,
-  listPagePrices: () =>
-    adminApi.getCampaignPagePricesByAdmin() as Promise<
-      ApiResponse<AdminGetPagePricesResponse>
-    >,
-  updatePagePrice: (payload: AdminUpdatePagePriceRequest) =>
-    adminApi.updateCampaignPagePriceByAdmin(payload) as Promise<
-      ApiResponse<AdminUpdatePagePriceResponse>
     >,
   previewMultimedia: (uuid: string) =>
     adminApi.previewMultimediaByAdmin(uuid) as Promise<AdminMultimediaResponse>,
