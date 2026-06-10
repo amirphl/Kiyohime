@@ -37,6 +37,11 @@ export interface EnvironmentConfig {
       lastInitiated: string;
       clone: string;
     };
+    bundles: {
+      list: string;
+      get: string;
+      create: string;
+    };
     wallet: {
       balance: string;
     };
@@ -112,6 +117,11 @@ const localConfig: EnvironmentConfig = {
       audienceSpec: '/campaigns/audience-spec',
       lastInitiated: '/campaigns/initiated/last',
       clone: '/campaigns/:uuid/clone',
+    },
+    bundles: {
+      list: '/bundles',
+      get: '/bundles/:id',
+      create: '/bundles',
     },
     wallet: {
       balance: '/wallet/balance',
