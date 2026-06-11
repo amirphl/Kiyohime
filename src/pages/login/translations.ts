@@ -2,8 +2,6 @@ export const loginTranslations = {
   en: {
     title: 'Welcome to SMS Platform',
     subtitle: 'Sign in to access your SMS marketing dashboard',
-    emailOrMobile: 'Email or Mobile Number',
-    emailOrMobilePlaceholder: 'Enter your email or mobile number',
     mobileOnly: 'Mobile Number',
     mobileOnlyPlaceholder: 'Enter your mobile number',
     password: 'Password',
@@ -27,8 +25,8 @@ export const loginTranslations = {
       invalidMobile: 'Please enter a valid mobile number',
     },
     error: {
-      invalidCredentials: 'Invalid email/mobile or password',
-      invalidIdentifier: 'Please enter a valid email address or mobile number',
+      invalidCredentials: 'Invalid mobile number or password',
+      invalidIdentifier: 'Please enter a valid mobile number',
       invalidPassword: 'Please enter a valid password',
       invalidMobile: 'Please enter a valid mobile number',
       invalidCustomerId:
@@ -51,8 +49,6 @@ export const loginTranslations = {
   fa: {
     title: 'به پلتفرم هوشمند و داده‌محور خوش آمدید',
     subtitle: 'برای دسترسی به پیشخوان بازاریابی هوشمند و داده‌محور وارد شوید',
-    emailOrMobile: 'ایمیل یا شماره موبایل',
-    emailOrMobilePlaceholder: 'ایمیل یا شماره موبایل خود را وارد کنید',
     mobileOnly: 'شماره موبایل',
     mobileOnlyPlaceholder: 'شماره موبایل خود را وارد کنید',
     password: 'رمز عبور',
@@ -76,8 +72,8 @@ export const loginTranslations = {
       invalidMobile: 'لطفاً شماره موبایل معتبر وارد کنید',
     },
     error: {
-      invalidCredentials: 'ایمیل/موبایل یا رمز عبور نامعتبر',
-      invalidIdentifier: 'لطفاً ایمیل یا شماره موبایل معتبر وارد کنید',
+      invalidCredentials: 'شماره موبایل یا رمز عبور نامعتبر است',
+      invalidIdentifier: 'لطفاً شماره موبایل معتبر وارد کنید',
       invalidPassword: 'لطفاً رمز عبور معتبر وارد کنید',
       invalidMobile: 'لطفاً شماره موبایل معتبر وارد کنید',
       invalidCustomerId:
