@@ -7,6 +7,9 @@ import DashboardPage from '../pages/DashboardPage';
 import CampaignCreationPage from '../pages/CampaignCreationPage';
 import WalletPage from '../pages/WalletPage';
 import ReportsPage from '../pages/ReportsPage';
+import BundlesPage from '../pages/BundlesPage';
+import CreateBundlePage from '../pages/CreateBundlePage';
+import BundleDetailPage from '../pages/BundleDetailPage';
 import HomePage from '../pages/HomePage';
 import CustomerManagementPage from '../pages/CustomerManagementPage';
 import AdminLoginPage from '../pages/AdminLoginPage';
@@ -29,6 +32,7 @@ import LandingPage from '../pages/LandingPage';
 import AdminPlatformSettingsPage from '../pages/AdminPlatformSettingsPage';
 import AdminPaymentsPage from '../pages/AdminPaymentsPage';
 import adminApi from '../services/adminApi';
+import BaleTermsRoute from './BaleTermsRoute';
 
 type PageType =
   | 'home'
@@ -41,9 +45,13 @@ type PageType =
   | 'campaign-creation'
   | 'wallet'
   | 'reports'
+  | 'bundles'
+  | 'bundles-create'
+  | 'bundles-detail'
   | 'customer-management'
   | 'contact'
   | 'terms'
+  | 'bale-terms'
   | 'pricing'
   | 'admin-login'
   | 'admin-sardis'
@@ -200,6 +208,9 @@ const AuthRouter: React.FC = () => {
       'campaign-creation',
       'wallet',
       'reports',
+      'bundles',
+      'bundles-create',
+      'bundles-detail',
       'customer-management',
       'settings',
       'support',
@@ -291,12 +302,20 @@ const AuthRouter: React.FC = () => {
       return <WalletPage />;
     case 'reports':
       return <ReportsPage />;
+    case 'bundles':
+      return <BundlesPage />;
+    case 'bundles-create':
+      return <CreateBundlePage />;
+    case 'bundles-detail':
+      return <BundleDetailPage />;
     case 'customer-management':
       return <CustomerManagementPage />;
     case 'contact':
       return <ContactUsPage />;
     case 'terms':
       return <TermsPage />;
+    case 'bale-terms':
+      return <BaleTermsRoute />;
     case 'pricing':
       return <PricingPage />;
     case 'support':
