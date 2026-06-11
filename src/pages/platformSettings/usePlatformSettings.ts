@@ -56,14 +56,19 @@ type UsePlatformSettingsCopy = {
   validation: {
     nameRequired: string;
     descriptionRequired: string;
+    descriptionTooLong: string;
     multimediaRequired: string;
     websiteRequired: string;
+    websiteTooLong: string;
     businessLicenseRequired: string;
     nameTooLong: string;
     notAuthenticated: string;
     networkError: string;
   };
 };
+
+const DESCRIPTION_MAX_LENGTH = 512;
+const WEBSITE_MAX_LENGTH = 512;
 
 type FormValidationResult =
   | {
@@ -175,11 +180,17 @@ export const usePlatformSettings = (
       if (!description) {
         return { valid: false, message: copy.validation.descriptionRequired };
       }
+      if (description.length > DESCRIPTION_MAX_LENGTH) {
+        return { valid: false, message: copy.validation.descriptionTooLong };
+      }
       if (!form.multimediaUuid) {
         return { valid: false, message: copy.validation.multimediaRequired };
       }
       if (!website) {
         return { valid: false, message: copy.validation.websiteRequired };
+      }
+      if (website.length > WEBSITE_MAX_LENGTH) {
+        return { valid: false, message: copy.validation.websiteTooLong };
       }
       if (!form.businessLicenseUuid) {
         return {
@@ -284,12 +295,12 @@ export const usePlatformSettings = (
   const createSetting = async () => {
     if (!accessToken) {
       showErrorRef.current(copy.validation.notAuthenticated);
-      return;
+      return false;
     }
     const validation = validateForm(state.form, state.selectedPlatform);
     if (!validation.valid) {
       showErrorRef.current(validation.message);
-      return;
+      return false;
     }
 
     dispatch({ type: 'create-start' });
@@ -300,17 +311,19 @@ export const usePlatformSettings = (
         showErrorRef.current(
           resolveError.current(res.error?.code, copy.api.createFailed)
         );
-        return;
+        return false;
       }
       showSuccessRef.current(copy.createSuccessToast);
       resetForm();
       await loadList();
+      return true;
     } catch (error) {
       const message =
         error instanceof Error && error.message
           ? error.message
           : copy.validation.networkError;
       showErrorRef.current(message);
+      return false;
     } finally {
       dispatch({ type: 'create-end' });
     }
