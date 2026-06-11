@@ -65,7 +65,7 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
     form.clearErrors();
     form.setValue(
       'identifier',
-      normalizeIdentifierInput(form.getValues('identifier')),
+      sanitizeOtpIdentifierInput(form.getValues('identifier')),
       {
         shouldDirty: false,
         shouldValidate: false,
@@ -308,28 +308,22 @@ export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
   ]);
 
   const identifierRules = useMemo(() => {
-    if (loginMethod === 'otp') {
-      return {
-        required: strings.validation.allFieldsRequired,
-        validate: (value: string) =>
-          isValidOtpIdentifier(value) || strings.validation.invalidMobile,
-      };
-    }
     return {
       required: strings.validation.allFieldsRequired,
+      validate: (value: string) =>
+        isValidOtpIdentifier(value) || strings.validation.invalidMobile,
     };
-  }, [loginMethod, strings]);
+  }, [strings]);
 
   const setIdentifierValue = useCallback(
     (value: string) => {
-      const nextValue =
-        loginMethod === 'otp' ? sanitizeOtpIdentifierInput(value) : value;
+      const nextValue = sanitizeOtpIdentifierInput(value);
       form.setValue('identifier', nextValue, {
         shouldDirty: true,
         shouldValidate: true,
       });
     },
-    [form, loginMethod]
+    [form]
   );
 
   const isSubmitting = loginMutation.isPending || requestOtpMutation.isPending;
