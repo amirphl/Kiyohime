@@ -6,13 +6,14 @@ import LanguageSwitcher from './LanguageSwitcher';
 import { headerI18n } from '../locales/header';
 import { useTheme } from '../hooks/useTheme';
 import { Moon, Sun } from 'lucide-react';
+import adminApi from '../services/adminApi';
+import { ROUTES } from '../config/routes';
 
 const Header: React.FC = () => {
   const { isRTL, language } = useLanguage();
   const { isAuthenticated, manualLogout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const t = headerI18n[language as keyof typeof headerI18n] || headerI18n.en;
-
 
   const handleLogout = () => {
     manualLogout();
@@ -27,7 +28,9 @@ const Header: React.FC = () => {
   };
 
   const handleHome = () => {
-    window.location.href = '/';
+    window.location.href = adminApi.getAccessToken()
+      ? ROUTES.ADMIN_SARDIS.path
+      : ROUTES.HOME.path;
   };
 
   return (
@@ -77,7 +80,11 @@ const Header: React.FC = () => {
               className={`flex items-center rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
               aria-label={t.darkMode}
             >
-              {theme === 'dark' ? <Sun className='h-4 w-4' /> : <Moon className='h-4 w-4' />}
+              {theme === 'dark' ? (
+                <Sun className='h-4 w-4' />
+              ) : (
+                <Moon className='h-4 w-4' />
+              )}
               <span>{t.darkMode}</span>
             </button>
             <LanguageSwitcher />
