@@ -6,7 +6,6 @@ interface IdentifierFieldProps {
   placeholder?: string;
   value: string;
   error?: string;
-  isOtp: boolean;
   onChange: (value: string) => void;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   inputRef?: React.Ref<HTMLInputElement>;
@@ -18,7 +17,6 @@ const IdentifierField: React.FC<IdentifierFieldProps> = ({
   placeholder,
   value,
   error,
-  isOtp,
   onChange,
   onBlur,
   inputRef,
@@ -32,7 +30,6 @@ const IdentifierField: React.FC<IdentifierFieldProps> = ({
         {label}
       </label>
       <input
-        key={isOtp ? 'otp-identifier' : 'password-identifier'}
         type='text'
         id={id}
         value={value}
@@ -45,8 +42,8 @@ const IdentifierField: React.FC<IdentifierFieldProps> = ({
         required
         autoCapitalize='none'
         autoCorrect='off'
-        autoComplete={isOtp ? 'tel' : 'username'}
-        inputMode={isOtp ? 'tel' : 'email'}
+        autoComplete='tel'
+        inputMode='tel'
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-error` : undefined}
       />
