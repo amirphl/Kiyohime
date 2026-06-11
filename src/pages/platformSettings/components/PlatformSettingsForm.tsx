@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import Button from '../../../components/ui/Button';
+import { ROUTES } from '../../../config/routes';
 
 interface PlatformSettingsFormProps {
   name: string;
@@ -10,10 +11,14 @@ interface PlatformSettingsFormProps {
   isUploading: boolean;
   isBusinessLicenseUploading: boolean;
   isSubmitting: boolean;
+  isSubmitDisabled?: boolean;
+  showTermsAcceptance?: boolean;
+  isTermsAccepted?: boolean;
   labels: {
     title: string;
     name: string;
     description: string;
+    descriptionHelp: string;
     website: string;
     upload: string;
     uploadHelp: string;
@@ -24,14 +29,25 @@ interface PlatformSettingsFormProps {
     uploading: string;
     fileSelected: string;
     noFile: string;
+    terms: string;
+    approvalRequired: string;
+    acceptTermsPrefix: string;
+    acceptTermsLink: string;
+    acceptTermsPostfix: string;
+    nameMaxReached: string;
+    descriptionMaxReached: string;
+    websiteMaxReached: string;
     validation: {
       nameRequired: string;
       descriptionRequired: string;
+      descriptionTooLong: string;
       multimediaRequired: string;
       websiteRequired: string;
+      websiteTooLong: string;
       businessLicenseRequired: string;
       invalidFileType: string;
       fileTooLarge: string;
+      imageTooSmall: string;
     };
   };
   onNameChange: (value: string) => void;
@@ -41,6 +57,7 @@ interface PlatformSettingsFormProps {
   onClearFile: () => void;
   onUploadBusinessLicense: (file: File) => void;
   onClearBusinessLicense: () => void;
+  onTermsAcceptedChange?: (checked: boolean) => void;
   onSubmit: () => Promise<void> | void;
   onError: (message: string) => void;
 }
@@ -65,6 +82,11 @@ const BUSINESS_LICENSE_TYPES = [
 ];
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
+const NAME_MAX_LENGTH = 255;
+const DESCRIPTION_MAX_LENGTH = 512;
+const WEBSITE_MAX_LENGTH = 512;
+const MIN_IMAGE_WIDTH = 512;
+const MIN_IMAGE_HEIGHT = 512;
 
 interface FileUploadRowProps {
   inputRef: React.RefObject<HTMLInputElement>;
@@ -118,6 +140,29 @@ const FileUploadRow: React.FC<FileUploadRowProps> = ({
   </div>
 );
 
+const isImageFile = (file: File) => file.type.startsWith('image/');
+
+const hasMinimumImageDimensions = (file: File) =>
+  new Promise<boolean>(resolve => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+
+    image.onload = () => {
+      const valid =
+        image.naturalWidth >= MIN_IMAGE_WIDTH &&
+        image.naturalHeight >= MIN_IMAGE_HEIGHT;
+      URL.revokeObjectURL(objectUrl);
+      resolve(valid);
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(false);
+    };
+
+    image.src = objectUrl;
+  });
+
 const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
   name,
   description,
@@ -127,6 +172,9 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
   isUploading,
   isBusinessLicenseUploading,
   isSubmitting,
+  isSubmitDisabled = false,
+  showTermsAcceptance = false,
+  isTermsAccepted = false,
   labels,
   onNameChange,
   onDescriptionChange,
@@ -135,6 +183,7 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
   onClearFile,
   onUploadBusinessLicense,
   onClearBusinessLicense,
+  onTermsAcceptedChange,
   onSubmit,
   onError,
 }) => {
@@ -143,7 +192,7 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
 
   const makeFileChangeHandler =
     (allowedTypes: string[], onUpload: (file: File) => void) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
       if (!allowedTypes.includes(file.type)) {
@@ -155,6 +204,14 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
         onError(labels.validation.fileTooLarge);
         event.target.value = '';
         return;
+      }
+      if (isImageFile(file)) {
+        const hasMinimumDimensions = await hasMinimumImageDimensions(file);
+        if (!hasMinimumDimensions) {
+          onError(labels.validation.imageTooSmall);
+          event.target.value = '';
+          return;
+        }
       }
       onUpload(file);
       event.target.value = '';
@@ -180,9 +237,13 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
           type='text'
           value={name}
           onChange={e => onNameChange(e.target.value)}
+          maxLength={NAME_MAX_LENGTH}
           required
           className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500'
         />
+        {name.length >= NAME_MAX_LENGTH && (
+          <p className='text-xs text-amber-700'>{labels.nameMaxReached}</p>
+        )}
       </div>
 
       <div className='space-y-2'>
@@ -192,10 +253,16 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
         <textarea
           value={description}
           onChange={e => onDescriptionChange(e.target.value)}
+          maxLength={DESCRIPTION_MAX_LENGTH}
           rows={4}
           required
           className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500'
         />
+        {description.length >= DESCRIPTION_MAX_LENGTH && (
+          <p className='text-xs text-amber-700'>
+            {labels.descriptionMaxReached}
+          </p>
+        )}
       </div>
 
       <div className='space-y-2'>
@@ -206,9 +273,14 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
           type='url'
           value={website}
           onChange={e => onWebsiteChange(e.target.value)}
+          maxLength={WEBSITE_MAX_LENGTH}
           required
           className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500'
         />
+        {website.length >= WEBSITE_MAX_LENGTH && (
+          <p className='text-xs text-amber-700'>{labels.websiteMaxReached}</p>
+        )}
+        <p className='text-xs text-gray-500'>{labels.descriptionHelp}</p>
       </div>
 
       <div className='space-y-2'>
@@ -246,11 +318,49 @@ const PlatformSettingsForm: React.FC<PlatformSettingsFormProps> = ({
         <p className='text-xs text-gray-500'>{labels.businessLicenseHelp}</p>
       </div>
 
-      <div>
+      <div className='space-y-3'>
+        {showTermsAcceptance && (
+          <div className='space-y-2'>
+            <div className='flex items-start gap-2'>
+              <input
+                id='acceptBaleTerms'
+                type='checkbox'
+                checked={isTermsAccepted}
+                onChange={e => onTermsAcceptedChange?.(e.target.checked)}
+                className='mt-1 h-4 w-4 rounded border-gray-300'
+              />
+              <label
+                htmlFor='acceptBaleTerms'
+                className='text-sm text-gray-700'
+              >
+                {labels.acceptTermsPrefix}{' '}
+                <a
+                  href={ROUTES.BALE_TERMS.path}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-primary-600 hover:text-primary-700 underline underline-offset-2'
+                  onClick={event => event.stopPropagation()}
+                >
+                  {labels.acceptTermsLink}
+                </a>
+                {labels.acceptTermsPostfix
+                  ? ` ${labels.acceptTermsPostfix}`
+                  : ''}
+              </label>
+            </div>
+            <p className='text-sm text-amber-700'>{labels.approvalRequired}</p>
+          </div>
+        )}
+
         <Button
           variant='primary'
           onClick={onSubmit}
-          disabled={isSubmitting || isUploading || isBusinessLicenseUploading}
+          disabled={
+            isSubmitDisabled ||
+            isSubmitting ||
+            isUploading ||
+            isBusinessLicenseUploading
+          }
           loading={isSubmitting}
         >
           {labels.submit}
