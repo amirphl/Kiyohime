@@ -21,7 +21,8 @@ const LoginPage: React.FC<LoginPageProps> = ({
 }) => {
   const { t } = useTranslation();
   const { isRTL, language } = useLanguage();
-  const strings = loginTranslations[language as LoginLocale] || loginTranslations.en;
+  const strings =
+    loginTranslations[language as LoginLocale] || loginTranslations.en;
   const {
     form,
     loginMethod,
@@ -70,14 +71,13 @@ const LoginPage: React.FC<LoginPageProps> = ({
               rules={identifierRules}
               render={({ field }) => (
                 <IdentifierField
-                  label={loginMethod === 'otp' ? strings.mobileOnly : strings.emailOrMobile}
-                  placeholder={loginMethod === 'otp' ? strings.mobileOnlyPlaceholder : strings.emailOrMobilePlaceholder}
+                  label={strings.mobileOnly}
+                  placeholder={strings.mobileOnlyPlaceholder}
                   value={field.value || ''}
                   onChange={setIdentifierValue}
                   onBlur={field.onBlur}
                   inputRef={field.ref}
                   error={errors.identifier?.message as string | undefined}
-                  isOtp={loginMethod === 'otp'}
                 />
               )}
             />
@@ -106,7 +106,9 @@ const LoginPage: React.FC<LoginPageProps> = ({
 
             <SubmitButton
               isLoading={isSubmitting}
-              label={loginMethod === 'password' ? strings.signIn : strings.sendOtp}
+              label={
+                loginMethod === 'password' ? strings.signIn : strings.sendOtp
+              }
               showArrow={loginMethod === 'password'}
               isRTL={isRTL}
             />
