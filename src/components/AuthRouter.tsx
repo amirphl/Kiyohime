@@ -19,7 +19,7 @@ import { ROUTES, getRouteByPath } from '../config/routes';
 import { useTranslation } from '../hooks/useTranslation';
 import AdminCustomerManagementPage from '../pages/AdminCustomerManagementPage';
 import SupportPage from '../pages/SupportPage';
-import SettingsPage from '../pages/SettingsPage';
+import PlatformSettingsPage from '../pages/PlatformSettingsPage';
 import AdminTicketsPage from '../pages/AdminTicketsPage';
 import PricingPage from '../pages/PricingPage';
 import TermsPage from '../pages/TermsPage';
@@ -274,7 +274,7 @@ const AuthRouter: React.FC = () => {
     case 'support':
       return <SupportPage />;
     case 'settings':
-      return <SettingsPage />;
+      return <PlatformSettingsPage />;
 
     case 'admin-login':
       return <AdminLoginPage />;
