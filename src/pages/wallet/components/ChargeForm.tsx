@@ -8,6 +8,7 @@ interface ChargeFormProps {
   onAmountChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSelectRecommended: (amount: number) => void;
   onPay: () => void;
+  onPayByDeposit: () => void;
   recommendedAmounts: number[];
   currencyLabel: string;
   copy: WalletCopy;
@@ -19,15 +20,14 @@ const ChargeForm: React.FC<ChargeFormProps> = ({
   onAmountChange,
   onSelectRecommended,
   onPay,
+  onPayByDeposit,
   recommendedAmounts,
   currencyLabel,
   copy,
 }) => {
   return (
     <div className='space-y-4'>
-      <h2 className='text-lg font-medium text-gray-900'>
-        {copy.chargeTitle}
-      </h2>
+      <h2 className='text-lg font-medium text-gray-900'>{copy.chargeTitle}</h2>
       <div>
         <label
           htmlFor='chargeAmount'
@@ -62,7 +62,7 @@ const ChargeForm: React.FC<ChargeFormProps> = ({
         ))}
       </div>
 
-      <div className='pt-2'>
+      <div className='pt-2 space-y-2'>
         <Button
           variant='primary'
           disabled={!!error || amount === ''}
@@ -70,6 +70,14 @@ const ChargeForm: React.FC<ChargeFormProps> = ({
           onClick={onPay}
         >
           {copy.pay}
+        </Button>
+        <Button
+          variant='outline'
+          disabled={!!error || amount === ''}
+          className='w-full'
+          onClick={onPayByDeposit}
+        >
+          {copy.payByDeposit}
         </Button>
       </div>
     </div>
