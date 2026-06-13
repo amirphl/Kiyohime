@@ -86,10 +86,22 @@ export interface AdminCustomerManagementCopy {
     noData: string;
   };
   campaignDetails: {
+    sections: {
+      overview: string;
+      specification: string;
+      message: string;
+      pricing: string;
+      performance: string;
+      ownership: string;
+      admin: string;
+    };
+    campaignId: string;
     id: string;
     uuid: string;
     status: string;
     platform: string;
+    platformChannel: string;
+    platformSettingsName: string;
     platformSettingsId: string;
     mediaUuid: string;
     created: string;
@@ -109,12 +121,18 @@ export interface AdminCustomerManagementCopy {
     schedule: string;
     lineNumber: string;
     budget: string;
+    numAudience: string;
     comment: string;
     segmentPriceFactor: string;
     lineNumberPriceFactor: string;
     statistics: string;
     totalClicks: string;
     clickRate: string;
+    customerFullName: string;
+    agencyFullName: string;
+    targetAudienceExcelFileUuid: string;
+    totalSent: string;
+    totalDelivered: string;
   };
   discountsTable: {
     rate: string;
@@ -219,10 +237,22 @@ const adminCustomerManagementEn: AdminCustomerManagementCopy = {
     noData: 'No campaigns found',
   },
   campaignDetails: {
+    sections: {
+      overview: 'Overview',
+      specification: 'Specification',
+      message: 'Message',
+      pricing: 'Pricing',
+      performance: 'Performance',
+      ownership: 'Ownership',
+      admin: 'Admin',
+    },
+    campaignId: 'Campaign ID',
     id: 'ID',
     uuid: 'UUID',
     status: 'Status',
     platform: 'Platform',
+    platformChannel: 'Channel',
+    platformSettingsName: 'Platform Settings Name',
     platformSettingsId: 'Platform Settings ID',
     mediaUuid: 'Media UUID',
     created: 'Created',
@@ -242,12 +272,18 @@ const adminCustomerManagementEn: AdminCustomerManagementCopy = {
     schedule: 'Schedule',
     lineNumber: 'Line Number',
     budget: 'Budget',
+    numAudience: 'Audience',
     comment: 'Comment',
     segmentPriceFactor: 'Segment Price Factor',
     lineNumberPriceFactor: 'Line Number Price Factor',
     statistics: 'Statistics',
     totalClicks: 'Total Clicks',
     clickRate: 'Click Rate',
+    customerFullName: 'Customer Full Name',
+    agencyFullName: 'Agency Full Name',
+    targetAudienceExcelFileUuid: 'Audience Excel File UUID',
+    totalSent: 'Total Sent',
+    totalDelivered: 'Total Delivered',
   },
   discountsTable: {
     rate: 'Rate (%)',
@@ -352,10 +388,22 @@ const adminCustomerManagementFa: AdminCustomerManagementCopy = {
     noData: 'کمپینی یافت نشد',
   },
   campaignDetails: {
+    sections: {
+      overview: 'نمای کلی',
+      specification: 'مشخصات کمپین',
+      message: 'پیام',
+      pricing: 'قیمت‌گذاری',
+      performance: 'عملکرد',
+      ownership: 'مالکیت',
+      admin: 'ادمین',
+    },
+    campaignId: 'شناسه کمپین',
     id: 'شناسه',
     uuid: 'شناسه یکتا',
     status: 'وضعیت',
     platform: 'کانال',
+    platformChannel: 'کانال ارسال',
+    platformSettingsName: 'نام تنظیمات کانال',
     platformSettingsId: 'شناسه تنظیمات کانال',
     mediaUuid: 'شناسه رسانه',
     created: 'تاریخ ایجاد',
@@ -375,12 +423,18 @@ const adminCustomerManagementFa: AdminCustomerManagementCopy = {
     schedule: 'زمان‌بندی',
     lineNumber: 'سرشماره',
     budget: 'بودجه',
+    numAudience: 'تعداد مخاطب',
     comment: 'توضیحات ادمین',
     segmentPriceFactor: 'ضریب قیمت بخش',
     lineNumberPriceFactor: 'ضریب قیمت سرشماره',
     statistics: 'آمار',
     totalClicks: 'تعداد کلیک',
     clickRate: 'نرخ کلیک',
+    customerFullName: 'نام مشتری',
+    agencyFullName: 'نام آژانس',
+    targetAudienceExcelFileUuid: 'شناسه فایل اکسل مخاطبان',
+    totalSent: 'کل ارسال',
+    totalDelivered: 'کل تحویل',
   },
   discountsTable: {
     rate: 'درصد شارژ هدیه',
@@ -402,7 +456,8 @@ const adminCustomerManagementMap = {
   fa: adminCustomerManagementFa,
 } as const;
 
-export type AdminCustomerManagementLocale = keyof typeof adminCustomerManagementMap;
+export type AdminCustomerManagementLocale =
+  keyof typeof adminCustomerManagementMap;
 
 export const getAdminCustomerManagementCopy = (
   language: string
