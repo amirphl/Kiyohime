@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Download } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import { useTranslation } from '../../../hooks/useTranslation';
@@ -23,6 +23,57 @@ interface HistoryTableProps {
   copy: WalletCopy;
 }
 
+type HistoryKind = 'charge-free' | 'charge-credit' | 'agency-share';
+
+interface HistoryRow {
+  id: string;
+  source: TransactionHistoryItem;
+  kind: HistoryKind;
+  amount: number;
+  invoiceEligible: boolean;
+}
+
+const getPositive = (value?: number | null) => Math.max(0, Number(value || 0));
+
+const buildHistoryRows = (items: TransactionHistoryItem[]): HistoryRow[] => {
+  return items.flatMap(item => {
+    const freeInc = getPositive(item.amount);
+    const creditInc = getPositive(item.customer_credit);
+    const agencyShare = getPositive(item.agency_share_with_tax);
+
+    const rows: HistoryRow[] = [];
+    if (freeInc > 0) {
+      rows.push({
+        id: `${item.uuid}-charge-free`,
+        source: item,
+        kind: 'charge-free',
+        amount: freeInc,
+        invoiceEligible: true,
+      });
+    }
+    if (creditInc > 0) {
+      rows.push({
+        id: `${item.uuid}-charge-credit`,
+        source: item,
+        kind: 'charge-credit',
+        amount: creditInc,
+        invoiceEligible: false,
+      });
+    }
+    if (agencyShare > 0) {
+      rows.push({
+        id: `${item.uuid}-agency-share`,
+        source: item,
+        kind: 'agency-share',
+        amount: agencyShare,
+        invoiceEligible: true,
+      });
+    }
+
+    return rows;
+  });
+};
+
 const HistoryTable: React.FC<HistoryTableProps> = ({
   items,
   loading,
@@ -40,18 +91,27 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   const { t } = useTranslation();
   const { showError } = useToast();
   const [invoiceLoadingId, setInvoiceLoadingId] = useState<string | null>(null);
+  const rows = useMemo(() => buildHistoryRows(items), [items]);
 
-  const handleInvoice = async (item: TransactionHistoryItem) => {
+  const kindLabel = (kind: HistoryKind) => {
+    switch (kind) {
+      case 'charge-free':
+        return copy.historyKindLabels.chargeFree;
+      case 'charge-credit':
+        return copy.historyKindLabels.chargeCredit;
+      case 'agency-share':
+        return copy.historyKindLabels.agencyShare;
+      default:
+        return '-';
+    }
+  };
+
+  const handleInvoice = async (row: HistoryRow) => {
     if (!accessToken) return;
-    setInvoiceLoadingId(item.uuid);
+    setInvoiceLoadingId(row.id);
     apiService.setAccessToken(accessToken);
     try {
-      // Mirror invoice generation logic used in DepositReceiptSection (taxed amount)
-      const baseAmount =
-        (item.amount || 0) +
-        (item.customer_credit || 0) +
-        (item.agency_share_with_tax || 0);
-      const taxedAmount = Math.round(baseAmount * 1.1);
+      const taxedAmount = Math.round(row.amount * 1.1);
       const resp = await apiService.previewProformaInvoiceByAmount(
         taxedAmount,
         language
@@ -91,13 +151,10 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                 {copy.table.status}
               </th> */}
               <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                {copy.table.freeIncrease}
+                {copy.table.kind}
               </th>
               <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                {copy.table.creditIncrease}
-              </th>
-              <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                {copy.agencyShareWithTax}
+                {copy.table.amount}
               </th>
               <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
                 {copy.table.invoice}
@@ -110,29 +167,26 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
           <tbody className='bg-white divide-y divide-gray-200'>
             {error && (
               <tr>
-                <td colSpan={9} className='px-4 py-6 text-center text-red-600'>
+                <td colSpan={5} className='px-4 py-6 text-center text-red-600'>
                   {error}
                 </td>
               </tr>
             )}
-            {!error && items.length === 0 && !loading && (
+            {!error && rows.length === 0 && !loading && (
               <tr>
-                <td colSpan={9} className='px-4 py-6 text-center text-gray-500'>
+                <td colSpan={5} className='px-4 py-6 text-center text-gray-500'>
                   {copy.table.noTransactions}
                 </td>
               </tr>
             )}
-            {items.map((item, idx) => {
-              const freeInc = Math.max(0, item.amount ?? 0);
-              const creditInc = Math.max(0, item.customer_credit ?? 0);
-              const agencyShare = Math.max(0, item.agency_share_with_tax ?? 0);
+            {rows.map((row, idx) => {
               return (
-                <tr key={item.uuid} className='hover:bg-gray-50'>
+                <tr key={row.id} className='hover:bg-gray-50'>
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
                     {idx + 1}
                   </td>
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
-                    {formatDatetime(item.datetime)}
+                    {formatDatetime(row.source.datetime)}
                   </td>
                   {/* <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
                     {copy.operationTypes[item.operation] || item.operation}
@@ -141,27 +195,18 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                     {copy.statuses[item.status] || item.status}
                   </td> */}
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
-                    {freeInc > 0
-                      ? `${freeInc.toLocaleString()} ${currencyLabel}`
-                      : '-'}
+                    {kindLabel(row.kind)}
                   </td>
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
-                    {creditInc > 0
-                      ? `${creditInc.toLocaleString()} ${currencyLabel}`
-                      : '-'}
+                    {`${row.amount.toLocaleString()} ${currencyLabel}`}
                   </td>
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
-                    {agencyShare > 0
-                      ? `${agencyShare.toLocaleString()} ${currencyLabel}`
-                      : '-'}
-                  </td>
-                  <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
-                    {accessToken ? (
+                    {accessToken && row.invoiceEligible ? (
                       <Button
                         size='sm'
                         variant='outline'
-                        onClick={() => handleInvoice(item)}
-                        disabled={invoiceLoadingId === item.uuid}
+                        onClick={() => handleInvoice(row)}
+                        disabled={invoiceLoadingId === row.id}
                         aria-label={copy.table.invoice}
                         // title={copy.table.invoice}
                       >
