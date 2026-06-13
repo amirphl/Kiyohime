@@ -302,8 +302,8 @@ const fa: AdminCampaignManagementCopy = {
     notAvailable: '-',
   },
   filters: {
-    titleLabel: 'عنوان',
-    titlePlaceholder: 'جستجو بر اساس عنوان',
+    titleLabel: 'عنوان/نام مشتری',
+    titlePlaceholder: 'جستجو بر اساس عنوان/نام مشتری',
     statusLabel: 'وضعیت',
     startDateLabel: 'تاریخ شروع',
     endDateLabel: 'تاریخ پایان',
