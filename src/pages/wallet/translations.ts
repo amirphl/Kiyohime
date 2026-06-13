@@ -1,6 +1,8 @@
 export interface WalletTableTranslations {
   row: string;
   datetime: string;
+  kind: string;
+  amount: string;
   type: string;
   status: string;
   freeIncrease: string;
@@ -32,6 +34,7 @@ export interface WalletTranslations {
   errorMinAmount: string;
   errorMultipleOf: string;
   pay: string;
+  payByDeposit: string;
   depositTitle: string;
   depositAmountLabel: string;
   depositUploadLabel: string;
@@ -63,6 +66,11 @@ export interface WalletTranslations {
   depositFileTooLarge: string;
   depositSizeHint: string;
   historyTitle: string;
+  historyKindLabels: {
+    chargeFree: string;
+    chargeCredit: string;
+    agencyShare: string;
+  };
   table: WalletTableTranslations;
   operationTypes: Record<string, string>;
   statuses: Record<string, string>;
@@ -96,6 +104,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     errorMinAmount: 'Amount must be at least 1,000,000 Toman',
     errorMultipleOf: 'Amount must be a multiple of 100,000 Toman',
     pay: 'Pay (Gateway)',
+    payByDeposit: 'Pay via Deposit Receipt',
     depositTitle: 'Pay With Deposit Receipt',
     depositAmountLabel: 'Amount (Toman)',
     depositUploadLabel: 'Receipt file (JPG, PNG, PDF)',
@@ -129,9 +138,16 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     depositFileTooLarge: 'File must be 5 MB or smaller.',
     depositSizeHint: 'Supported: JPG, PNG, PDF up to 5 MB.',
     historyTitle: 'Payment & Charge History',
+    historyKindLabels: {
+      chargeFree: 'Charge Free',
+      chargeCredit: 'Charge Credit',
+      agencyShare: 'Agency Share',
+    },
     table: {
       row: 'Row',
       datetime: 'Datetime',
+      kind: 'Kind',
+      amount: 'Amount',
       type: 'Type',
       status: 'Status',
       freeIncrease: 'Free Increase',
@@ -148,7 +164,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       'Fund Unfreeze': 'Fund Unfreeze',
       'Fund Lock': 'Fund Lock',
       'Fund Unlock': 'Fund Unlock',
-      'Refund': 'Refund',
+      Refund: 'Refund',
       'Service Fee': 'Service Fee',
       'Balance Adjustment': 'Balance Adjustment',
       'Wallet Credit': 'Wallet Credit',
@@ -191,6 +207,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     errorMinAmount: 'مبلغ باید حداقل ۱،۰۰۰،۰۰۰ تومان باشد',
     errorMultipleOf: 'مبلغ باید مضربی از ۱۰۰،۰۰۰ تومان باشد',
     pay: 'پرداخت از طریق درگاه پرداخت',
+    payByDeposit: 'پرداخت از طریق فیش واریزی',
     depositTitle: 'پرداخت از طریق فیش واریزی',
     depositAmountLabel: 'مبلغ (تومان)',
     depositUploadLabel: 'فایل رسید (JPG, PNG, PDF)',
@@ -208,7 +225,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
     depositColumnUpdate: 'به‌روزرسانی',
     depositColumnDelete: 'حذف',
     depositColumnProforma: 'پیش‌فاکتور',
-    depositColumnRejection: 'کامنت ادمین',
+    depositColumnRejection: 'وضعیت',
     depositColumnLang: 'زبان',
     depositColumnPreview: 'پیش‌نمایش',
     depositConfirmTitle: 'فیش واریز ارسال شود؟',
@@ -223,10 +240,17 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       'برای دریافت پیش‌فاکتور ابتدا رسید ثبت کنید.',
     depositFileTooLarge: 'حجم فایل نباید بیش از ۵ مگابایت باشد.',
     depositSizeHint: 'فرمت‌های مجاز: JPG، PNG، PDF تا ۵ مگابایت.',
-    historyTitle: 'تاریخچه پرداخت و شارژ',
+    historyTitle: 'تراکنش‌های مالی',
+    historyKindLabels: {
+      chargeFree: 'شارژ سامانه',
+      chargeCredit: 'شارژ اعتبار هدیه',
+      agencyShare: 'سهم از فروش',
+    },
     table: {
       row: 'ردیف',
       datetime: 'تاریخ و زمان',
+      kind: 'نوع',
+      amount: 'مبلغ',
       type: 'نوع',
       status: 'وضعیت',
       freeIncrease: 'افزایش موجودی آزاد',
@@ -243,7 +267,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       'Fund Unfreeze': 'آزادسازی وجه',
       'Fund Lock': 'قفل‌کردن وجه',
       'Fund Unlock': 'بازکردن قفل وجه',
-      'Refund': 'بازپرداخت',
+      Refund: 'بازپرداخت',
       'Service Fee': 'کارمزد خدمات',
       'Balance Adjustment': 'تعدیل موجودی',
       'Wallet Credit': 'واریز به کیف پول',
