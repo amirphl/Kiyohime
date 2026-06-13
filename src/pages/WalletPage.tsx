@@ -12,6 +12,7 @@ import { useWalletHistory } from './wallet/hooks/useWalletHistory';
 import { formatWalletDatetime, recommendedAmounts } from './wallet/utils';
 import { WalletCopy, getWalletCopy } from './wallet/translations';
 import DepositReceiptSection from './wallet/components/DepositReceiptSection';
+import { X } from 'lucide-react';
 
 const WalletPage: React.FC = () => {
   const { language } = useLanguage();
@@ -45,6 +46,7 @@ const WalletPage: React.FC = () => {
   const [chargeAmount, setChargeAmount] = useState<number | ''>('');
   const [error, setError] = useState<string>('');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showDepositModal, setShowDepositModal] = useState(false);
   const [paymentSubmitting, setPaymentSubmitting] = useState<boolean>(false);
 
   const handleChargeAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,6 +82,14 @@ const WalletPage: React.FC = () => {
   const handlePayClick = () => {
     if (!error && chargeAmount !== '') {
       setShowPaymentModal(true);
+    }
+  };
+
+  const handleDepositPayClick = () => {
+    if (!error && chargeAmount !== '') {
+      setShowDepositModal(true);
+    } else {
+      setError(walletCopy.depositNeedAmount);
     }
   };
 
@@ -144,6 +154,7 @@ const WalletPage: React.FC = () => {
               onAmountChange={handleChargeAmountChange}
               onSelectRecommended={handleRecommendedAmountClick}
               onPay={handlePayClick}
+              onPayByDeposit={handleDepositPayClick}
               recommendedAmounts={recommendedAmounts}
               currencyLabel={currencyLabel}
               copy={walletCopy}
@@ -163,12 +174,6 @@ const WalletPage: React.FC = () => {
               onPrev={prevHistory}
               copy={walletCopy}
             />
-
-            <DepositReceiptSection
-              accessToken={accessToken}
-              language={language}
-              currencyLabel={currencyLabel}
-            />
           </div>
         </div>
       </div>
@@ -182,6 +187,32 @@ const WalletPage: React.FC = () => {
         onCancel={() => setShowPaymentModal(false)}
         copy={walletCopy}
       />
+
+      {showDepositModal && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
+          <div className='w-full max-w-5xl rounded-lg bg-white shadow-xl max-h-[90vh] overflow-y-auto'>
+            <div className='flex items-center justify-between border-b border-gray-200 px-6 py-4'>
+              <h3 className='text-lg font-semibold text-gray-900'>
+                {walletCopy.payByDeposit}
+              </h3>
+              <button
+                onClick={() => setShowDepositModal(false)}
+                className='text-gray-400 hover:text-gray-600'
+              >
+                <X className='h-5 w-5' />
+              </button>
+            </div>
+            <div className='p-6'>
+              <DepositReceiptSection
+                accessToken={accessToken}
+                language={language}
+                currencyLabel={currencyLabel}
+                amount={chargeAmount}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
