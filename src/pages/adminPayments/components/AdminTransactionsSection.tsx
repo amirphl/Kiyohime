@@ -8,6 +8,7 @@ import { adminPaymentsTranslations } from '../translations';
 import { useAdminTransactions } from '../hooks/useAdminTransactions';
 import { AdminTransactionItem } from '../../../types/payments';
 import { adminPaymentsApi } from '../api';
+import { formatAdminPaymentsDateTime } from '../utils';
 
 const DEFAULT_PAGE_SIZE = 20;
 const TOAST_DURATION_MS = 15_000;
@@ -40,7 +41,7 @@ const AdminTransactionsSection: React.FC<AdminTransactionsSectionProps> = ({
       page_size: DEFAULT_PAGE_SIZE,
     });
 
-  const [customerId, setCustomerId] = useState('');
+  const [customerName, setCustomerName] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -52,12 +53,6 @@ const AdminTransactionsSection: React.FC<AdminTransactionsSectionProps> = ({
     useState<AdminTransactionItem | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [attaching, setAttaching] = useState(false);
-  const parseCustomerId = (value: string): number | undefined => {
-    if (!value) return undefined;
-    const parsed = Number(value);
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
-  };
-
   const getErrorMessage = useCallback(
     (errorCode?: string) => {
       switch (errorCode) {
@@ -121,7 +116,7 @@ const AdminTransactionsSection: React.FC<AdminTransactionsSectionProps> = ({
     await loadTransactions({
       page: 1,
       page_size: pageSize,
-      customer_id: parseCustomerId(customerId),
+      customer_name: customerName.trim() || undefined,
       start_date: startRfc3339,
       end_date: endRfc3339,
     });
@@ -198,12 +193,11 @@ const AdminTransactionsSection: React.FC<AdminTransactionsSectionProps> = ({
         <h2 className='text-xl font-semibold'>{copy.transactions.title}</h2>
         <div className='flex flex-wrap gap-2 text-sm'>
           <input
-            type='number'
-            min={1}
-            value={customerId}
-            placeholder={copy.transactions.customerFilter}
-            onChange={e => setCustomerId(e.target.value)}
-            className='w-32 rounded border border-gray-300 px-2 py-1'
+            type='text'
+            value={customerName}
+            placeholder={copy.transactions.customerNameFilter}
+            onChange={e => setCustomerName(e.target.value)}
+            className='w-40 rounded border border-gray-300 px-2 py-1'
           />
           <input
             type='datetime-local'
@@ -263,9 +257,13 @@ const AdminTransactionsSection: React.FC<AdminTransactionsSectionProps> = ({
               return (
                 <tr key={item.uuid} className='bg-white'>
                   <td className='px-3 py-2'>
-                    {new Date(item.datetime).toLocaleString()}
+                    {formatAdminPaymentsDateTime(item.datetime, language)}
                   </td>
-                  <td className='px-3 py-2'>{item.customer_id}</td>
+                  <td className='px-3 py-2'>
+                    {item.customer_full_name ||
+                      item.customer?.full_name ||
+                      copy.transactions.customerInfo.missingValue}
+                  </td>
                   <td className='px-3 py-2'>
                     {item.amount.toLocaleString()} {item.currency}
                   </td>
