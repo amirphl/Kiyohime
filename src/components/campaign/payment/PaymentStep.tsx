@@ -102,6 +102,7 @@ const PaymentStep: React.FC = () => {
       <div className='space-y-6'>
         {/* Cost Breakdown */}
         <CostBreakdownCard
+          platform={platform}
           total={total}
           messageCount={messageCount}
           lastCalculation={lastCalculation}
