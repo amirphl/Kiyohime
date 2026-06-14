@@ -212,11 +212,11 @@ const AdminCampaignsPage: React.FC = () => {
   }, [runReplaceCampaigns]);
 
   return (
-    <div className='mx-auto max-w-[1400px] p-4'>
-      <div className='mb-4 flex items-center justify-between'>
+    <div className='mx-auto max-w-[1400px] px-3 py-4 sm:px-4'>
+      <div className='mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
         <h1 className='text-2xl font-semibold'>{copy.title}</h1>
         <button
-          className='rounded bg-gray-200 px-3 py-2 text-gray-800 hover:bg-gray-300'
+          className='w-full rounded bg-gray-200 px-3 py-2 text-gray-800 hover:bg-gray-300 sm:w-auto'
           onClick={() => navigate(ROUTES.ADMIN_SARDIS.path)}
         >
           {copy.backToSardis}
@@ -224,6 +224,7 @@ const AdminCampaignsPage: React.FC = () => {
       </div>
 
       <FiltersBar
+        language={language}
         title={title}
         status={status}
         start={start}
@@ -232,9 +233,7 @@ const AdminCampaignsPage: React.FC = () => {
         copy={copy}
         statusOptions={statusOptions}
         onTitleChange={setTitle}
-        onStatusChange={value =>
-          setStatus(value ?? DEFAULT_CAMPAIGN_STATUS_FILTER)
-        }
+        onStatusChange={setStatus}
         onStartChange={setStart}
         onEndChange={setEnd}
         onApply={handleApplyFilters}
