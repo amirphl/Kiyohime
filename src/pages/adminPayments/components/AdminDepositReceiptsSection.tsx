@@ -12,6 +12,7 @@ import {
   DepositReceiptItem,
 } from '../../../types/payments';
 import ConfirmationModal from '../../../components/ConfirmationModal';
+import { formatAdminPaymentsDateTime } from '../utils';
 
 interface AdminDepositReceiptsSectionProps {
   onReceiptStatusUpdated?: () => void;
@@ -28,19 +29,9 @@ const AdminDepositReceiptsSection: React.FC<
     [language]
   );
   const { showError, showSuccess } = useToast();
-  const parseCustomerId = (value: string): number | undefined => {
-    if (!value) return undefined;
-    const parsed = Number(value);
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
-  };
-  const formatDateTime = (value: string): string => {
-    const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? '-' : parsed.toLocaleString();
-  };
-
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [langFilter, setLangFilter] = useState<string>('');
-  const [customerId, setCustomerId] = useState<string>('');
+  const [customerName, setCustomerName] = useState<string>('');
   const [pendingAction, setPendingAction] = useState<{
     receipt: DepositReceiptItem;
     action: 'approve' | 'reject';
@@ -51,14 +42,18 @@ const AdminDepositReceiptsSection: React.FC<
     useAdminDepositReceipts({
       status: statusFilter || undefined,
       lang: langFilter || undefined,
-      customer_id: parseCustomerId(customerId),
+      customer_name: customerName.trim() || undefined,
     });
+  const renderCustomerFullName = (receipt: DepositReceiptItem) => {
+    const fullName = receipt.customer_full_name?.trim();
+    return fullName || <span className='text-gray-400'>-</span>;
+  };
 
   const handleRefresh = () =>
     refresh({
       status: statusFilter || undefined,
       lang: langFilter || undefined,
-      customer_id: parseCustomerId(customerId),
+      customer_name: customerName.trim() || undefined,
     });
 
   const handleDownload = async (receipt: DepositReceiptItem) => {
@@ -147,11 +142,11 @@ const AdminDepositReceiptsSection: React.FC<
             <option value='EN'>EN</option>
           </select>
           <input
-            type='number'
-            value={customerId}
+            type='text'
+            value={customerName}
             placeholder={copy.receipts.customerFilter}
-            onChange={e => setCustomerId(e.target.value)}
-            className='w-32 rounded border border-gray-300 px-2 py-1'
+            onChange={e => setCustomerName(e.target.value)}
+            className='w-40 rounded border border-gray-300 px-2 py-1'
           />
           <Button
             size='sm'
@@ -170,6 +165,9 @@ const AdminDepositReceiptsSection: React.FC<
         <table className='min-w-full divide-y divide-gray-200 text-sm text-center'>
           <thead className='bg-gray-50 text-gray-700'>
             <tr>
+              <th className='px-3 py-2'>
+                {copy.receipts.table.customerFullName}
+              </th>
               <th className='px-3 py-2'>{copy.receipts.table.amount}</th>
               <th className='px-3 py-2'>{copy.receipts.table.status}</th>
               {/* <th className='px-3 py-2'>{copy.receipts.table.lang}</th> */}
@@ -186,12 +184,13 @@ const AdminDepositReceiptsSection: React.FC<
           <tbody className='divide-y divide-gray-100'>
             {items.map(item => (
               <tr key={item.uuid} className='bg-white'>
+                <td className='px-3 py-2'>{renderCustomerFullName(item)}</td>
                 <td className='px-3 py-2'>
                   {item.amount.toLocaleString()} {item.currency}
                 </td>
                 <td className='px-3 py-2 capitalize'>{item.status}</td>
                 <td className='px-3 py-2'>
-                  {formatDateTime(item.created_at)}
+                  {formatAdminPaymentsDateTime(item.created_at, language)}
                 </td>
                 <td className='px-3 py-2'>
                   {item.preview_base64 ? (
@@ -246,7 +245,10 @@ const AdminDepositReceiptsSection: React.FC<
             ))}
             {items.length === 0 && !loading && (
               <tr>
-                <td className='px-3 py-4 text-center text-gray-500' colSpan={9}>
+                <td
+                  className='px-3 py-4 text-center text-gray-500'
+                  colSpan={10}
+                >
                   {copy.receipts.noData}
                 </td>
               </tr>
