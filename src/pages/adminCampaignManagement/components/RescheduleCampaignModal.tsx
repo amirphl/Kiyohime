@@ -66,7 +66,7 @@ const RescheduleCampaignModal: React.FC<RescheduleCampaignModalProps> = ({
         confirmText={copy.modal.rescheduleApply}
         cancelText={copy.common.cancel}
         loading={submitting}
-        containerClassName='max-w-lg'
+        containerClassName='max-w-lg sm:rounded-2xl'
       >
         <div className='space-y-3'>
           <div className='text-sm text-gray-700'>
@@ -142,7 +142,7 @@ const RescheduleCampaignModal: React.FC<RescheduleCampaignModalProps> = ({
         }
         cancelText={copy.common.cancel}
         loading={submitting}
-        containerClassName='max-w-md'
+        containerClassName='max-w-md sm:rounded-2xl'
       />
     </>
   );
