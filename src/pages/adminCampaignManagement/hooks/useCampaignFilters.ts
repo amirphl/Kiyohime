@@ -5,17 +5,17 @@ import {
   DEFAULT_CAMPAIGN_STATUS_FILTER,
 } from '../constants';
 import { AdminCampaignManagementCopy } from '../translations';
-import { parseDateTimeLocalToIso } from '../utils';
 
-type CampaignFilterStatus = NonNullable<AdminListCampaignsFilter['status']>;
+type CampaignFilterStatus = AdminListCampaignsFilter['status'];
+type CampaignFilterStatusValue = NonNullable<CampaignFilterStatus>;
 
 export interface CampaignStatusOption {
-  value: CampaignFilterStatus | '';
+  value: CampaignFilterStatusValue | '';
   label: string;
 }
 
 const statusKeyByFilterValue: Record<
-  CampaignFilterStatus,
+  CampaignFilterStatusValue,
   keyof AdminCampaignManagementCopy['filters']['statuses']
 > = {
   initiated: 'initiated',
@@ -82,21 +82,27 @@ export const useCampaignFilters = ({
       params.status = status;
     }
 
-    const parsedStart = parseDateTimeLocalToIso(
-      start,
-      copy.errors.invalidStartDate
-    );
-    if (parsedStart.error) return { error: parsedStart.error };
-    if (parsedStart.value) params.start_date = parsedStart.value;
+    if (start) {
+      const parsedStart = new Date(start);
+      if (Number.isNaN(parsedStart.getTime())) {
+        return { error: copy.errors.invalidStartDate };
+      }
+      params.start_date = parsedStart.toISOString();
+    }
 
-    const parsedEnd = parseDateTimeLocalToIso(end, copy.errors.invalidEndDate);
-    if (parsedEnd.error) return { error: parsedEnd.error };
-    if (parsedEnd.value) params.end_date = parsedEnd.value;
+    if (end) {
+      const parsedEnd = new Date(end);
+      if (Number.isNaN(parsedEnd.getTime())) {
+        return { error: copy.errors.invalidEndDate };
+      }
+      params.end_date = parsedEnd.toISOString();
+    }
 
     if (
       params.start_date &&
       params.end_date &&
-      params.start_date > params.end_date
+      new Date(params.start_date).getTime() >
+        new Date(params.end_date).getTime()
     ) {
       return { error: copy.errors.invalidDateRange };
     }
