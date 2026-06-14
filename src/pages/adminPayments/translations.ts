@@ -2,6 +2,7 @@ export interface AdminPaymentsCopy {
   title: string;
   subtitle: string;
   backToSardis: string;
+  currency: string;
   form: {
     customerSearchLabel: string;
     customerSearchPlaceholder: string;
@@ -9,6 +10,8 @@ export interface AdminPaymentsCopy {
     customerPlaceholder: string;
     amountLabel: string;
     amountPlaceholder: string;
+    adminNoteLabel: string;
+    adminNotePlaceholder: string;
     submit: string;
     submitting: string;
   };
@@ -16,16 +19,20 @@ export interface AdminPaymentsCopy {
     listLoaded: string;
     noCustomersFound: string;
     taxPreview: string;
+    previewEmpty: string;
   };
   validation: {
     customerRequired: string;
     amountRequired: string;
     amountMustBeNumber: string;
     amountRange: string;
+    adminNoteRequired: string;
+    adminNoteLength: string;
   };
   errors: {
     listCustomersFailed: string;
     chargeFailed: string;
+    previewFailed: string;
   };
   success: {
     chargeSuccess: string;
@@ -39,6 +46,22 @@ export interface AdminPaymentsCopy {
     totalAmount: string;
     confirm: string;
     cancel: string;
+  };
+  preview: {
+    title: string;
+    action: string;
+    loading: string;
+    customerId: string;
+    agencyId: string;
+    agencyDiscountId: string;
+    discountRate: string;
+    amount: string;
+    tax: string;
+    amountWithTax: string;
+    freeIncrease: string;
+    creditIncrease: string;
+    agencyShareWithTax: string;
+    systemShareWithTax: string;
   };
   result: {
     title: string;
@@ -56,6 +79,7 @@ export interface AdminPaymentsCopy {
     langFilter: string;
     refresh: string;
     table: {
+      customerFullName: string;
       amount: string;
       status: string;
       lang: string;
@@ -84,6 +108,7 @@ export interface AdminPaymentsCopy {
     refresh: string;
     applyFilters: string;
     customerFilter: string;
+    customerNameFilter: string;
     startDate: string;
     endDate: string;
     pageSize: string;
@@ -160,6 +185,7 @@ const en: AdminPaymentsCopy = {
   title: 'Admin Payments',
   subtitle: 'Directly charge a customer wallet without gateway redirect.',
   backToSardis: 'Back to Sardis',
+  currency: 'Toman',
   form: {
     customerSearchLabel: 'Search customer',
     customerSearchPlaceholder:
@@ -168,6 +194,9 @@ const en: AdminPaymentsCopy = {
     customerPlaceholder: 'Select a customer',
     amountLabel: 'Amount Before Tax',
     amountPlaceholder: 'Enter amount (1000 - 1000000000)',
+    adminNoteLabel: 'Admin Note',
+    adminNotePlaceholder:
+      'Enter the admin note (required, up to 1000 characters)',
     submit: 'Charge Wallet',
     submitting: 'Charging...',
   },
@@ -175,16 +204,20 @@ const en: AdminPaymentsCopy = {
     listLoaded: 'Customer list loaded.',
     noCustomersFound: 'No customers found for this search.',
     taxPreview: 'Tax: {{tax}} | Total with tax: {{total}}',
+    previewEmpty: 'Run preview to see free balance, credit, and share changes.',
   },
   validation: {
     customerRequired: 'Please select a customer.',
     amountRequired: 'Amount is required.',
     amountMustBeNumber: 'Amount must be a number.',
     amountRange: 'Amount must be between 1000 and 1000000000.',
+    adminNoteRequired: 'Admin note is required.',
+    adminNoteLength: 'Admin note must be at most 1000 characters.',
   },
   errors: {
     listCustomersFailed: 'Failed to retrieve customers list.',
     chargeFailed: 'Wallet charging by admin failed.',
+    previewFailed: 'Wallet charge impact preview failed.',
   },
   success: {
     chargeSuccess: 'Wallet charged successfully by admin.',
@@ -200,6 +233,22 @@ const en: AdminPaymentsCopy = {
     confirm: 'Confirm Charge',
     cancel: 'Cancel',
   },
+  preview: {
+    title: 'Wallet Charge Impact Preview',
+    action: 'Preview Impact',
+    loading: 'Previewing...',
+    customerId: 'Customer ID',
+    agencyId: 'Agency ID',
+    agencyDiscountId: 'Agency Discount ID',
+    discountRate: 'Discount Rate',
+    amount: 'Amount',
+    tax: 'Tax',
+    amountWithTax: 'Amount with Tax',
+    freeIncrease: 'Free Increase',
+    creditIncrease: 'Credit Increase',
+    agencyShareWithTax: 'Agency Share With Tax',
+    systemShareWithTax: 'System Share With Tax',
+  },
   result: {
     title: 'Latest Charge Result',
     paymentRequestId: 'Payment Request ID',
@@ -212,10 +261,11 @@ const en: AdminPaymentsCopy = {
   receipts: {
     title: 'Deposit Receipts',
     statusFilter: 'Status',
-    customerFilter: 'Customer ID',
+    customerFilter: 'Customer Name',
     langFilter: 'Language',
     refresh: 'Refresh',
     table: {
+      customerFullName: 'Customer Name',
       amount: 'Amount',
       status: 'Status',
       lang: 'Lang',
@@ -244,6 +294,7 @@ const en: AdminPaymentsCopy = {
     refresh: 'Refresh',
     applyFilters: 'Apply Filters',
     customerFilter: 'Customer ID',
+    customerNameFilter: 'Customer Name',
     startDate: 'Start Date',
     endDate: 'End Date',
     pageSize: 'Page Size',
@@ -252,7 +303,7 @@ const en: AdminPaymentsCopy = {
     paginationLabel: 'Page {{current}} of {{total}}',
     table: {
       datetime: 'Date/Time',
-      customerId: 'Customer ID',
+      customerId: 'Customer Name',
       amount: 'Amount',
       customerInfo: 'Customer Info',
       status: 'Status',
@@ -321,6 +372,7 @@ const fa: AdminPaymentsCopy = {
   title: 'شارژ توسط ادمین',
   subtitle: 'شارژ مستقیم کیف پول مشتری بدون هدایت به درگاه پرداخت.',
   backToSardis: 'بازگشت به ساردیس',
+  currency: 'تومن',
   form: {
     customerSearchLabel: 'جستجوی مشتری',
     customerSearchPlaceholder: 'جستجو بر اساس نام، نام خانوادگی یا نام شرکت',
@@ -328,6 +380,9 @@ const fa: AdminPaymentsCopy = {
     customerPlaceholder: 'یک مشتری انتخاب کنید',
     amountLabel: 'مبلغ قبل از مالیات (تومان)',
     amountPlaceholder: 'مبلغ را وارد کنید (1000 تا 1000000000)',
+    adminNoteLabel: 'یادداشت ادمین',
+    adminNotePlaceholder:
+      'یادداشت ادمین را وارد کنید (الزامی، حداکثر ۱۰۰۰ کاراکتر)',
     submit: 'شارژ کیف پول',
     submitting: 'در حال شارژ...',
   },
@@ -335,16 +390,21 @@ const fa: AdminPaymentsCopy = {
     listLoaded: 'لیست مشتریان دریافت شد.',
     noCustomersFound: 'مشتری‌ای با این جستجو پیدا نشد.',
     taxPreview: 'مالیات: {{tax}} | مبلغ با مالیات: {{total}}',
+    previewEmpty:
+      'برای مشاهده تغییرات موجودی آزاد، کردیت و سهم‌ها پیش‌نمایش را اجرا کنید.',
   },
   validation: {
     customerRequired: 'لطفا یک مشتری انتخاب کنید.',
     amountRequired: 'مبلغ الزامی است.',
     amountMustBeNumber: 'مبلغ باید عدد باشد.',
     amountRange: 'مبلغ باید بین 1000 و 1000000000 باشد.',
+    adminNoteRequired: 'یادداشت ادمین الزامی است.',
+    adminNoteLength: 'یادداشت ادمین باید حداکثر ۱۰۰۰ کاراکتر باشد.',
   },
   errors: {
     listCustomersFailed: 'دریافت لیست مشتریان ناموفق بود.',
     chargeFailed: 'شارژ کیف پول توسط ادمین ناموفق بود.',
+    previewFailed: 'پیش‌نمایش اثر شارژ کیف پول ناموفق بود.',
   },
   success: {
     chargeSuccess: 'کیف پول با موفقیت توسط ادمین شارژ شد.',
@@ -360,6 +420,22 @@ const fa: AdminPaymentsCopy = {
     confirm: 'تأیید شارژ',
     cancel: 'انصراف',
   },
+  preview: {
+    title: 'پیش‌نمایش اثر شارژ کیف پول',
+    action: 'پیش‌نمایش',
+    loading: 'در حال پیش‌نمایش...',
+    customerId: 'شناسه مشتری',
+    agencyId: 'شناسه آژانس',
+    agencyDiscountId: 'شناسه تخفیف آژانس',
+    discountRate: 'نرخ تخفیف',
+    amount: 'مبلغ',
+    tax: 'مالیات',
+    amountWithTax: 'مبلغ با مالیات',
+    freeIncrease: 'افزایش موجودی آزاد',
+    creditIncrease: 'افزایش کردیت',
+    agencyShareWithTax: 'سهم آژانس با مالیات',
+    systemShareWithTax: 'سهم سیستم با مالیات',
+  },
   result: {
     title: 'نتیجه آخرین شارژ',
     paymentRequestId: 'شناسه درخواست پرداخت',
@@ -372,10 +448,11 @@ const fa: AdminPaymentsCopy = {
   receipts: {
     title: 'فیش‌های واریز',
     statusFilter: 'وضعیت',
-    customerFilter: 'شناسه مشتری',
+    customerFilter: 'نام مشتری',
     langFilter: 'زبان',
     refresh: 'بروزرسانی',
     table: {
+      customerFullName: 'نام مشتری',
       amount: 'مبلغ',
       status: 'وضعیت',
       lang: 'زبان',
@@ -404,6 +481,7 @@ const fa: AdminPaymentsCopy = {
     refresh: 'بروزرسانی',
     applyFilters: 'اعمال فیلتر',
     customerFilter: 'شناسه مشتری',
+    customerNameFilter: 'نام مشتری',
     startDate: 'از تاریخ',
     endDate: 'تا تاریخ',
     pageSize: 'اندازه صفحه',
@@ -412,7 +490,7 @@ const fa: AdminPaymentsCopy = {
     paginationLabel: 'صفحه {{current}} از {{total}}',
     table: {
       datetime: 'تاریخ/زمان',
-      customerId: 'شناسه مشتری',
+      customerId: 'نام مشتری',
       amount: 'مبلغ',
       customerInfo: 'اطلاعات مشتری',
       status: 'وضعیت',
