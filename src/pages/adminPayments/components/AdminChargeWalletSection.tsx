@@ -14,12 +14,19 @@ import { useLanguage } from '../../../hooks/useLanguage';
 import {
   AdminChargeWalletResponse,
   AdminCustomerDetailDTO,
+  AdminPreviewWalletChargeImpactResponse,
 } from '../../../types/admin';
 import ConfirmationModal from '../../../components/ConfirmationModal';
+import {
+  formatAdminPaymentsAmountInput,
+  sanitizeAdminPaymentsAmountInput,
+} from '../utils';
 
 const MIN_AMOUNT = 1000;
 const MAX_AMOUNT = 1000000000;
 const TAX_RATE = 0.1;
+const MAX_AMOUNT_DIGITS = String(MAX_AMOUNT).length;
+const MAX_ADMIN_NOTE_LENGTH = 1000;
 
 const createIdempotencyKey = (): string => {
   if (
@@ -49,11 +56,16 @@ const AdminChargeWalletSection: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [amount, setAmount] = useState('');
+  const [adminNote, setAdminNote] = useState('');
   const [idempotencyKey] = useState<string>(() => createIdempotencyKey());
   const [submitting, setSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [chargeResult, setChargeResult] =
     useState<AdminChargeWalletResponse | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [previewData, setPreviewData] =
+    useState<AdminPreviewWalletChargeImpactResponse | null>(null);
 
   const loadCustomers = useCallback(async () => {
     setLoadingCustomers(true);
@@ -99,6 +111,16 @@ const AdminChargeWalletSection: React.FC = () => {
     return `${fullName || customer.email}${company} (#${customer.id})`;
   }, []);
 
+  const formattedAmount = useMemo(
+    () => formatAdminPaymentsAmountInput(amount, language),
+    [amount, language]
+  );
+  const formatAmountWithCurrency = useCallback(
+    (value: number) =>
+      `${value.toLocaleString(language === 'fa' ? 'fa-IR' : 'en-US')} ${copy.currency}`,
+    [copy.currency, language]
+  );
+
   const parsedBaseAmount = amount.trim() ? Number(amount) : NaN;
   const amountIsNumeric =
     amount.trim().length > 0 &&
@@ -114,8 +136,14 @@ const AdminChargeWalletSection: React.FC = () => {
     : null;
   const amountWithTax =
     amountIsValid && taxAmount !== null ? parsedBaseAmount + taxAmount : null;
+  const trimmedAdminNote = adminNote.trim();
 
-  const validateSubmission = useCallback(() => {
+  useEffect(() => {
+    setPreviewError(null);
+    setPreviewData(null);
+  }, [selectedCustomerId, amount]);
+
+  const validatePreview = useCallback(() => {
     const customerId = Number(selectedCustomerId);
     if (!customerId || customerId < 1) {
       showError(copy.validation.customerRequired);
@@ -151,10 +179,84 @@ const AdminChargeWalletSection: React.FC = () => {
     showError,
   ]);
 
+  const validateSubmission = useCallback(() => {
+    const customerId = Number(selectedCustomerId);
+    if (!customerId || customerId < 1) {
+      showError(copy.validation.customerRequired);
+      return false;
+    }
+
+    if (!amount.trim()) {
+      showError(copy.validation.amountRequired);
+      return false;
+    }
+
+    if (!amountIsNumeric) {
+      showError(copy.validation.amountMustBeNumber);
+      return false;
+    }
+
+    if (!amountIsValid || amountWithTax === null) {
+      showError(copy.validation.amountRange);
+      return false;
+    }
+
+    if (!trimmedAdminNote) {
+      showError(copy.validation.adminNoteRequired);
+      return false;
+    }
+
+    if (trimmedAdminNote.length > MAX_ADMIN_NOTE_LENGTH) {
+      showError(copy.validation.adminNoteLength);
+      return false;
+    }
+
+    return true;
+  }, [
+    amount,
+    amountIsNumeric,
+    amountIsValid,
+    amountWithTax,
+    copy.validation.adminNoteLength,
+    copy.validation.adminNoteRequired,
+    copy.validation.amountMustBeNumber,
+    copy.validation.amountRange,
+    copy.validation.amountRequired,
+    copy.validation.customerRequired,
+    selectedCustomerId,
+    showError,
+    trimmedAdminNote,
+  ]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!validateSubmission()) return;
     setShowConfirmation(true);
+  };
+
+  const handlePreview = async () => {
+    if (!validatePreview()) return;
+
+    const customerId = Number(selectedCustomerId);
+    setPreviewLoading(true);
+    setPreviewError(null);
+
+    const res = await adminPaymentsApi.previewWalletChargeImpact({
+      customer_id: customerId,
+      amount_with_tax: amountWithTax!,
+    });
+
+    setPreviewLoading(false);
+
+    if (!res.success || !res.data) {
+      const msg = res.message || copy.errors.previewFailed;
+      setPreviewError(msg);
+      setPreviewData(null);
+      showError(msg);
+      return;
+    }
+
+    setPreviewData(res.data);
   };
 
   const handleConfirmCharge = async () => {
@@ -165,6 +267,7 @@ const AdminChargeWalletSection: React.FC = () => {
     const res = await adminPaymentsApi.chargeWallet({
       customer_id: customerId,
       amount_with_tax: amountWithTax!,
+      admin_note: trimmedAdminNote,
       idempotency_key: idempotencyKey,
     });
     setSubmitting(false);
@@ -246,12 +349,17 @@ const AdminChargeWalletSection: React.FC = () => {
             {copy.form.amountLabel}
           </label>
           <input
-            type='number'
-            min={MIN_AMOUNT}
-            max={MAX_AMOUNT}
-            step={1}
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
+            type='text'
+            inputMode='numeric'
+            value={formattedAmount}
+            onChange={e =>
+              setAmount(
+                sanitizeAdminPaymentsAmountInput(
+                  e.target.value,
+                  MAX_AMOUNT_DIGITS
+                )
+              )
+            }
             placeholder={copy.form.amountPlaceholder}
             className='w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
           />
@@ -264,19 +372,147 @@ const AdminChargeWalletSection: React.FC = () => {
           )}
         </div>
 
+        <div>
+          <label className='block text-sm font-medium text-gray-700 mb-1'>
+            {copy.form.adminNoteLabel}
+          </label>
+          <textarea
+            value={adminNote}
+            onChange={e => setAdminNote(e.target.value)}
+            placeholder={copy.form.adminNotePlaceholder}
+            maxLength={MAX_ADMIN_NOTE_LENGTH}
+            rows={4}
+            className='w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
+          />
+        </div>
+
         <div className='flex items-center justify-between'>
           <p className='text-xs text-gray-500'>
             {loadingCustomers ? 'Loading...' : copy.info.listLoaded}
           </p>
-          <button
-            type='submit'
-            disabled={submitting || loadingCustomers}
-            className='rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300'
-          >
-            {submitting ? copy.form.submitting : copy.form.submit}
-          </button>
+          <div className='flex items-center gap-2'>
+            <button
+              type='button'
+              onClick={() => {
+                void handlePreview();
+              }}
+              disabled={previewLoading || submitting || loadingCustomers}
+              className='rounded border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:bg-blue-50 disabled:text-blue-300'
+            >
+              {previewLoading ? copy.preview.loading : copy.preview.action}
+            </button>
+            <button
+              type='submit'
+              disabled={submitting || loadingCustomers}
+              className='rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300'
+            >
+              {submitting ? copy.form.submitting : copy.form.submit}
+            </button>
+          </div>
         </div>
       </form>
+
+      <div className='rounded-lg border border-gray-200 bg-gray-50 p-4'>
+        <h2 className='text-sm font-semibold text-gray-900'>
+          {copy.preview.title}
+        </h2>
+        {previewError && (
+          <div className='mt-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700'>
+            {previewError}
+          </div>
+        )}
+        {!previewError && !previewData ? (
+          <p className='mt-2 text-sm text-gray-500'>{copy.info.previewEmpty}</p>
+        ) : null}
+        {previewData && (
+          <div className='mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2'>
+            <div className='rounded border border-gray-200 bg-white p-3'>
+              <div className='text-xs text-gray-500'>
+                {copy.preview.customerId}
+              </div>
+              <div className='mt-1 text-sm font-medium text-gray-900'>
+                {previewData.customer_id}
+              </div>
+            </div>
+            <div className='rounded border border-gray-200 bg-white p-3'>
+              <div className='text-xs text-gray-500'>
+                {copy.preview.agencyId}
+              </div>
+              <div className='mt-1 text-sm font-medium text-gray-900'>
+                {previewData.agency_id}
+              </div>
+            </div>
+            <div className='rounded border border-gray-200 bg-white p-3'>
+              <div className='text-xs text-gray-500'>
+                {copy.preview.agencyDiscountId}
+              </div>
+              <div className='mt-1 text-sm font-medium text-gray-900'>
+                {previewData.agency_discount_id}
+              </div>
+            </div>
+            <div className='rounded border border-gray-200 bg-white p-3'>
+              <div className='text-xs text-gray-500'>
+                {copy.preview.discountRate}
+              </div>
+              <div className='mt-1 text-sm font-medium text-gray-900'>
+                {previewData.discount_rate}
+              </div>
+            </div>
+            <div className='rounded border border-gray-200 bg-white p-3'>
+              <div className='text-xs text-gray-500'>{copy.preview.amount}</div>
+              <div className='mt-1 text-sm font-medium text-gray-900'>
+                {formatAmountWithCurrency(previewData.amount)}
+              </div>
+            </div>
+            <div className='rounded border border-gray-200 bg-white p-3'>
+              <div className='text-xs text-gray-500'>{copy.preview.tax}</div>
+              <div className='mt-1 text-sm font-medium text-gray-900'>
+                {formatAmountWithCurrency(previewData.tax)}
+              </div>
+            </div>
+            <div className='rounded border border-green-200 bg-green-50 p-3'>
+              <div className='text-xs text-green-700'>
+                {copy.preview.freeIncrease}
+              </div>
+              <div className='mt-1 text-sm font-medium text-green-900'>
+                {formatAmountWithCurrency(previewData.free_increase)}
+              </div>
+            </div>
+            <div className='rounded border border-blue-200 bg-blue-50 p-3'>
+              <div className='text-xs text-blue-700'>
+                {copy.preview.creditIncrease}
+              </div>
+              <div className='mt-1 text-sm font-medium text-blue-900'>
+                {formatAmountWithCurrency(previewData.credit_increase)}
+              </div>
+            </div>
+            <div className='rounded border border-amber-200 bg-amber-50 p-3'>
+              <div className='text-xs text-amber-700'>
+                {copy.preview.agencyShareWithTax}
+              </div>
+              <div className='mt-1 text-sm font-medium text-amber-900'>
+                {formatAmountWithCurrency(previewData.agency_share_with_tax)}
+              </div>
+            </div>
+            <div className='rounded border border-purple-200 bg-purple-50 p-3'>
+              <div className='text-xs text-purple-700'>
+                {copy.preview.systemShareWithTax}
+              </div>
+              <div className='mt-1 text-sm font-medium text-purple-900'>
+                {formatAmountWithCurrency(previewData.system_share_with_tax)}
+              </div>
+            </div>
+            <div className='rounded border border-gray-200 bg-white p-3 sm:col-span-2'>
+              <div className='text-xs text-gray-500'>
+                {copy.preview.amountWithTax}
+              </div>
+              <div className='mt-1 text-sm font-semibold text-gray-900'>
+                {formatAmountWithCurrency(previewData.amount_with_tax)}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       <ConfirmationModal
         isOpen={showConfirmation}
@@ -308,7 +544,9 @@ const AdminChargeWalletSection: React.FC = () => {
                 {copy.confirmation.baseAmount}
               </span>
               <span className='text-gray-900'>
-                {amountIsValid ? parsedBaseAmount.toLocaleString() : '-'}
+                {amountIsValid
+                  ? formatAmountWithCurrency(parsedBaseAmount)
+                  : '-'}
               </span>
             </div>
             <div className='flex items-center justify-between gap-3'>
@@ -316,7 +554,7 @@ const AdminChargeWalletSection: React.FC = () => {
                 {copy.confirmation.taxAmount}
               </span>
               <span className='text-gray-900'>
-                {taxAmount !== null ? taxAmount.toLocaleString() : '-'}
+                {taxAmount !== null ? formatAmountWithCurrency(taxAmount) : '-'}
               </span>
             </div>
             <div className='flex items-center justify-between gap-3 border-t border-gray-200 pt-2 font-medium'>
@@ -324,7 +562,9 @@ const AdminChargeWalletSection: React.FC = () => {
                 {copy.confirmation.totalAmount}
               </span>
               <span className='text-gray-900'>
-                {amountWithTax !== null ? amountWithTax.toLocaleString() : '-'}
+                {amountWithTax !== null
+                  ? formatAmountWithCurrency(amountWithTax)
+                  : '-'}
               </span>
             </div>
           </div>
