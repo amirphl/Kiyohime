@@ -32,7 +32,7 @@ interface UseSignupFormParams {
 
 type SignupAction = 'submit' | 'verifyOtp' | 'resendOtp';
 
-const OTP_RESEND_SECONDS = 60;
+const OTP_RESEND_SECONDS = 120;
 
 const fieldErrorCodeMap: Partial<Record<string, keyof FormErrors>> = {
   EMAIL_EXISTS: 'email',
