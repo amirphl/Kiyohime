@@ -1,9 +1,12 @@
 import React from 'react';
-import { Link, Tag } from 'lucide-react';
+import { ExternalLink, Link, Tag } from 'lucide-react';
 import Card from '../../ui/Card';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { contentI18n } from './contentTranslations';
-import { useLinkUidPlaceholder } from './useLinkUidPlaceholder';
+import {
+  UID_PLACEHOLDER,
+  useLinkUidPlaceholder,
+} from './useLinkUidPlaceholder';
 
 interface LinkInsertionCardProps {
   insertLink: boolean;
@@ -46,6 +49,13 @@ const LinkInsertionCard: React.FC<LinkInsertionCardProps> = ({
 
   const { hasPlaceholder, inputRef, saveCursor, toggle } =
     useLinkUidPlaceholder(link);
+  const canPreviewUidLink = Boolean(link) && hasPlaceholder && !linkError;
+
+  const handlePreviewUidLink = () => {
+    if (!canPreviewUidLink) return;
+    const previewLink = (link || '').split(UID_PLACEHOLDER).join('123456');
+    window.open(previewLink, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <Card className='h-full'>
@@ -121,20 +131,40 @@ const LinkInsertionCard: React.FC<LinkInsertionCardProps> = ({
               )}
             </div>
 
-            <button
-              type='button'
-              onClick={() => toggle(onLinkChange)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-sm font-medium transition-colors ${
-                hasPlaceholder
-                  ? 'bg-primary-50 border-primary-500 text-primary-700 hover:bg-primary-100'
-                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <Tag className='h-4 w-4' />
-              {hasPlaceholder
-                ? t.uidPlaceholderInserted
-                : t.insertUidPlaceholder}
-            </button>
+            <div className='flex flex-wrap items-center gap-2'>
+              <button
+                type='button'
+                onClick={() => toggle(onLinkChange)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-sm font-medium transition-colors ${
+                  hasPlaceholder
+                    ? 'bg-primary-50 border-primary-500 text-primary-700 hover:bg-primary-100'
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <Tag className='h-4 w-4' />
+                {hasPlaceholder
+                  ? t.uidPlaceholderInserted
+                  : t.insertUidPlaceholder}
+              </button>
+
+              <button
+                type='button'
+                onClick={handlePreviewUidLink}
+                disabled={!canPreviewUidLink}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-sm font-medium transition-colors ${
+                  canPreviewUidLink
+                    ? 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                <ExternalLink className='h-4 w-4' />
+                {t.previewUidLink}
+              </button>
+            </div>
+
+            {hasPlaceholder && (
+              <p className='text-sm text-gray-600'>{t.uidPlaceholderHelp}</p>
+            )}
 
             {linkError && <p className='text-sm text-red-600'>{linkError}</p>}
             <div
