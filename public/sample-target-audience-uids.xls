@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Worksheet ss:Name="Sheet1">
+  <Table>
+   <Row><Cell><Data ss:Type="String">A7K2Q9</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">M4P8XZ</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">T9L3VN</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">R2D7YW</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">H6N1KC</Data></Cell></Row>
+  </Table>
+ </Worksheet>
+</Workbook>
