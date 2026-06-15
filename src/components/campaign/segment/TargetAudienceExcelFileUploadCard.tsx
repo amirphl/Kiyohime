@@ -5,6 +5,8 @@ import Card from '../../ui/Card';
 interface TargetAudienceExcelFileUploadCardProps {
   label: string;
   help: string;
+  sampleFileHref: string;
+  sampleFileLabel: string;
   uploadingLabel: string;
   uploadedLabel: string;
   removeLabel: string;
@@ -24,6 +26,8 @@ const TargetAudienceExcelFileUploadCard: React.FC<
 > = ({
   label,
   help,
+  sampleFileHref,
+  sampleFileLabel,
   uploadingLabel,
   uploadedLabel,
   removeLabel,
@@ -55,6 +59,13 @@ const TargetAudienceExcelFileUploadCard: React.FC<
           className='block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100'
         />
         <p className='text-xs text-gray-500'>{help}</p>
+        <a
+          href={sampleFileHref}
+          download
+          className='inline-flex w-fit text-sm font-medium text-primary-700 hover:text-primary-800 hover:underline'
+        >
+          {sampleFileLabel}
+        </a>
 
         {isUploading && (
           <p className='text-sm text-gray-600'>{uploadingLabel}</p>
