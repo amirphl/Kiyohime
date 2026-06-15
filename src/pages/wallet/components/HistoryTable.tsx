@@ -35,6 +35,16 @@ interface HistoryRow {
 
 const getPositive = (value?: number | null) => Math.max(0, Number(value || 0));
 
+const getDepositMethodLabel = (
+  depositMethod: TransactionHistoryItem['deposit_method'],
+  copy: WalletCopy
+) => {
+  const normalized =
+    typeof depositMethod === 'string' ? depositMethod.trim() : '';
+  if (!normalized) return '-';
+  return copy.depositMethods[normalized] || normalized;
+};
+
 const buildHistoryRows = (items: TransactionHistoryItem[]): HistoryRow[] => {
   return items.flatMap(item => {
     const freeInc = getPositive(item.amount);
@@ -260,6 +270,9 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                 {copy.table.kind}
               </th>
               <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                {copy.table.depositMethod}
+              </th>
+              <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
                 {copy.table.amount}
               </th>
               <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
@@ -270,14 +283,14 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
           <tbody className='bg-white divide-y divide-gray-200'>
             {error && (
               <tr>
-                <td colSpan={5} className='px-4 py-6 text-center text-red-600'>
+                <td colSpan={6} className='px-4 py-6 text-center text-red-600'>
                   {error}
                 </td>
               </tr>
             )}
             {!error && rows.length === 0 && !loading && (
               <tr>
-                <td colSpan={5} className='px-4 py-6 text-center text-gray-500'>
+                <td colSpan={6} className='px-4 py-6 text-center text-gray-500'>
                   {copy.table.noTransactions}
                 </td>
               </tr>
@@ -293,6 +306,9 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                   </td>
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
                     {kindLabel(row.kind)}
+                  </td>
+                  <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
+                    {getDepositMethodLabel(row.source.deposit_method, copy)}
                   </td>
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center'>
                     {`${row.amount.toLocaleString()} ${currencyLabel}`}
