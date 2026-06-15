@@ -41,6 +41,7 @@ import {
 import TargetAudienceExcelFileUploadCard, {
   isTargetAudienceExcelFile,
 } from './TargetAudienceExcelFileUploadCard';
+import BundleInfoCard from '../content/BundleInfoCard';
 
 const LevelStep: React.FC = () => {
   const { language } = useLanguage();
@@ -225,6 +226,8 @@ const LevelStep: React.FC = () => {
         capacity: capacityValue,
         jobCategory: campaign.job_category || '',
         job: campaign.job || '',
+        bundleId: campaign.bundle_id ?? null,
+        phase: campaign.phase ?? undefined,
       };
 
       const content = {
@@ -672,6 +675,14 @@ const LevelStep: React.FC = () => {
     updateLevel,
   ]);
 
+  const handleBundleChange = (value: number | null) => {
+    updateLevel({ bundleId: value });
+  };
+
+  const handlePhaseChange = (value: string) => {
+    updateLevel({ phase: value });
+  };
+
   const handleCampaignTitleChange = (value: string) => {
     setCampaignTitle(value);
     updateLevel({ campaignTitle: value });
@@ -839,6 +850,8 @@ const LevelStep: React.FC = () => {
       capacityTooLow: false,
       jobCategory: '',
       job: '',
+      bundleId: null,
+      phase: 'execution',
     });
 
     localStorage.removeItem('campaign_creation_data');
@@ -851,6 +864,26 @@ const LevelStep: React.FC = () => {
   return (
     <div className='space-y-8'>
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch'>
+        {/* Bundle Info */}
+        <div className='md:col-span-2'>
+          <BundleInfoCard
+            bundleId={campaignData.segment.bundleId}
+            phase={campaignData.segment.phase}
+            onBundleChange={handleBundleChange}
+            onPhaseChange={handlePhaseChange}
+            accessToken={accessToken}
+            title={t.bundleInfoTitle}
+            bundleLabel={t.bundle}
+            bundlePlaceholder={t.bundlePlaceholder}
+            phaseLabel={t.phase}
+            phasePlaceholder={t.phasePlaceholder}
+            phaseTestLabel={t.phaseTest}
+            phaseExecutionLabel={t.phaseExecution}
+            loadingLabel={t.bundleLoading}
+            errorLabel={t.bundleLoadError}
+          />
+        </div>
+
         {/* Platform Selection */}
         <div className='md:col-span-2'>
           <PlatformSelectionCard
@@ -944,6 +977,10 @@ const LevelStep: React.FC = () => {
             <TargetAudienceExcelFileUploadCard
               label={t.segmentationByTargetAudienceExcelFileTitle}
               help={t.segmentationByTargetAudienceExcelFileHelp}
+              sampleFileHref='/sample-target-audience-uids.xls'
+              sampleFileLabel={
+                t.segmentationByTargetAudienceExcelFileSampleDownload
+              }
               uploadingLabel={t.segmentationByTargetAudienceExcelFileUploading}
               uploadedLabel={t.segmentationByTargetAudienceExcelFileUploaded}
               removeLabel={t.segmentationByTargetAudienceExcelFileRemove}
