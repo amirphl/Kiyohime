@@ -112,6 +112,8 @@ const campaignLevelEn = {
   segmentationByTargetAudienceExcelFileTitle: 'Target Audience Excel File',
   segmentationByTargetAudienceExcelFileHelp:
     'Upload .xls or .xlsx file to segment audience',
+  segmentationByTargetAudienceExcelFileSampleDownload:
+    'Download sample Excel file',
   segmentationByTargetAudienceExcelFileUploading: 'Uploading Excel file...',
   segmentationByTargetAudienceExcelFileUploaded: 'Uploaded',
   segmentationByTargetAudienceExcelFileRemove: 'Remove',
@@ -119,6 +121,17 @@ const campaignLevelEn = {
     'Please upload a valid Excel file (.xls or .xlsx)',
   segmentationByTargetAudienceExcelFileRequired:
     'Please upload your Excel file',
+
+  // Bundle info
+  bundleInfoTitle: 'Bundle Information',
+  bundle: 'Related Bundle',
+  bundlePlaceholder: 'Select a bundle',
+  bundleLoading: 'Loading bundles...',
+  bundleLoadError: 'Failed to load bundles. Please try again.',
+  phase: 'Sending Phase',
+  phasePlaceholder: 'Select a phase',
+  phaseTest: 'Test',
+  phaseExecution: 'Execution',
 
   // Common fields
   loading: 'Loading...',
@@ -250,6 +263,8 @@ const campaignLevelFa = {
   segmentationByTargetAudienceExcelFileTitle: 'فایل اکسل مخاطبان',
   segmentationByTargetAudienceExcelFileHelp:
     'فایل با فرمت xls. یا xlsx. بارگذاری کنید',
+  segmentationByTargetAudienceExcelFileSampleDownload:
+    'دانلود فایل نمونه اکسل',
   segmentationByTargetAudienceExcelFileUploading:
     'در حال بارگذاری فایل اکسل...',
   segmentationByTargetAudienceExcelFileUploaded: 'بارگذاری شد',
@@ -258,6 +273,17 @@ const campaignLevelFa = {
     'لطفاً یک فایل اکسل معتبر با فرمت xls. یا xlsx. بارگذاری کنید',
   segmentationByTargetAudienceExcelFileRequired:
     'لطفاً فایل اکسل را بارگذاری کنید',
+
+  // Bundle info
+  bundleInfoTitle: 'اطلاعات بقچه',
+  bundle: 'بقچه مرتبط',
+  bundlePlaceholder: 'انتخاب بقچه',
+  bundleLoading: 'در حال بارگذاری بقچه‌ها...',
+  bundleLoadError: 'خطا در بارگذاری بقچه‌ها. لطفاً دوباره تلاش کنید.',
+  phase: 'فاز ارسال',
+  phasePlaceholder: 'انتخاب فاز',
+  phaseTest: 'آزمایشی',
+  phaseExecution: 'اجرایی',
 
   // Common fields
   loading: 'در حال بارگذاری...',
