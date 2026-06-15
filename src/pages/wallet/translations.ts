@@ -2,6 +2,7 @@ export interface WalletTableTranslations {
   row: string;
   datetime: string;
   kind: string;
+  depositMethod: string;
   amount: string;
   type: string;
   status: string;
@@ -125,6 +126,7 @@ export interface WalletTranslations {
   table: WalletTableTranslations;
   operationTypes: Record<string, string>;
   statuses: Record<string, string>;
+  depositMethods: Record<string, string>;
   modalTitle: string;
   modalChargeAmount: string;
   modalTax: string;
@@ -216,6 +218,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       row: 'Row',
       datetime: 'Datetime',
       kind: 'Kind',
+      depositMethod: 'Deposit Method',
       amount: 'Amount',
       type: 'Type',
       status: 'Status',
@@ -251,6 +254,11 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       Failed: 'Failed',
       Cancelled: 'Cancelled',
       Reversed: 'Reversed',
+    },
+    depositMethods: {
+      payment_gateway: 'Payment Gateway',
+      deposit_receipt: 'Deposit Receipt',
+      admin_charge: 'Admin Charge',
     },
     modalTitle: 'Payment Confirmation',
     modalChargeAmount: 'Charge Amount:',
@@ -388,6 +396,7 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       row: 'ردیف',
       datetime: 'تاریخ و زمان',
       kind: 'نوع',
+      depositMethod: 'نوع تراکنش',
       amount: 'مبلغ',
       type: 'نوع',
       status: 'وضعیت',
@@ -423,6 +432,11 @@ export const walletTranslations: Record<'en' | 'fa', WalletTranslations> = {
       Failed: 'ناموفق',
       Cancelled: 'لغو شده',
       Reversed: 'معکوس شده',
+    },
+    depositMethods: {
+      payment_gateway: 'درگاه پرداخت',
+      deposit_receipt: 'فیش واریزی',
+      admin_charge: 'شارژ ادمین',
     },
     modalTitle: 'تأیید پرداخت',
     modalChargeAmount: 'مبلغ شارژ:',
