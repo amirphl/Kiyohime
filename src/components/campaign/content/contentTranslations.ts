@@ -18,6 +18,9 @@ const contentEn = {
     'By enabling this feature you can analyze click results on your landing link.',
   insertUidPlaceholder: 'Add Tracking Term',
   uidPlaceholderInserted: 'Tracking term inserted',
+  previewUidLink: 'Open Test Link',
+  uidPlaceholderHelp:
+    'Each recipient ID will be inserted uniquely at the selected position. Make sure the link still opens correctly, points to the right page, and records data properly on the destination site.',
 
   // Schedule section
   scheduleAt: 'Schedule At (Optional)',
@@ -77,6 +80,17 @@ const contentEn = {
   shortLinkDomainEnabled: 'Short link domain is enabled',
   shortLinkDomainDisabled: 'Short link domain is disabled',
   reset: 'Reset',
+
+  // Bundle info
+  bundleInfoTitle: 'Bundle Information',
+  bundle: 'Related Bundle',
+  bundlePlaceholder: 'Select a bundle',
+  bundleLoading: 'Loading bundles...',
+  bundleLoadError: 'Failed to load bundles. Please try again.',
+  phase: 'Sending Phase',
+  phasePlaceholder: 'Select a phase',
+  phaseTest: 'Test',
+  phaseExecution: 'Execution',
 };
 
 const contentFa = {
@@ -99,6 +113,9 @@ const contentFa = {
     'با فعال‌کردن این قابلیت امکان تحلیل نتایج کلیک روی لینک مورد نظر شما فراهم می‌شود.',
   insertUidPlaceholder: 'افزودن شناسه رهگیری',
   uidPlaceholderInserted: 'شناسه رهگیری درج شد',
+  previewUidLink: 'باز کردن لینک آزمایشی',
+  uidPlaceholderHelp:
+    'مقدار ID هر مخاطب ارسالی در موقعیت انتخابی شما به صورت یکتا قرار می‌گیرد. حتما از بازشدن لینک بعد از این تغییر، ارجاع به صفحه درست و ثبت صحیح اطلاعات در سایت مقصد مطمئن شوید.',
 
   // Schedule section
   scheduleAt: 'زمان‌بندی (اختیاری)',
@@ -159,6 +176,17 @@ const contentFa = {
   shortLinkDomainEnabled: 'کوتاه‌کننده لینک فعال است',
   shortLinkDomainDisabled: 'کوتاه‌کننده لینک غیرفعال است',
   reset: 'بازنشانی',
+
+  // Bundle info
+  bundleInfoTitle: 'اطلاعات بقچه',
+  bundle: 'بقچه مرتبط',
+  bundlePlaceholder: 'انتخاب بقچه',
+  bundleLoading: 'در حال بارگذاری بقچه‌ها...',
+  bundleLoadError: 'خطا در بارگذاری بقچه‌ها. لطفاً دوباره تلاش کنید.',
+  phase: 'فاز ارسال',
+  phasePlaceholder: 'انتخاب فاز',
+  phaseTest: 'آزمایشی',
+  phaseExecution: 'اجرایی',
 };
 
 export const contentI18n = {
