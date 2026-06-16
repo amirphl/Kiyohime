@@ -4,6 +4,8 @@ import {
   AdminChargeWalletRequest,
   AdminChargeWalletResponse,
   AdminListCustomersResponse,
+  AdminPreviewWalletChargeImpactRequest,
+  AdminPreviewWalletChargeImpactResponse,
 } from '../../types/admin';
 import {
   AdminListDepositReceiptsParams,
@@ -25,6 +27,10 @@ export const adminPaymentsApi = {
   chargeWallet: (payload: AdminChargeWalletRequest) =>
     adminApi.chargeWallet(payload) as Promise<
       ApiResponse<AdminChargeWalletResponse>
+    >,
+  previewWalletChargeImpact: (payload: AdminPreviewWalletChargeImpactRequest) =>
+    adminApi.previewWalletChargeImpact(payload) as Promise<
+      ApiResponse<AdminPreviewWalletChargeImpactResponse>
     >,
   listDepositReceipts: (params: AdminListDepositReceiptsParams) =>
     adminApi.listDepositReceipts(params) as Promise<
