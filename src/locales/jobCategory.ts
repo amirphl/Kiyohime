@@ -602,3 +602,8 @@ export const jobCategoryI18n = {
 } as const;
 
 export type JobCategoryLocale = keyof typeof jobCategoryI18n;
+export type JobCategoryMap = Record<string, readonly string[]>;
+
+export const getJobCategories = (language: string): JobCategoryMap =>
+  (jobCategoryI18n[language as JobCategoryLocale] ||
+    jobCategoryI18n.en) as JobCategoryMap;
