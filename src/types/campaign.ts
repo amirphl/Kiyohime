@@ -12,6 +12,8 @@ export interface CampaignSegment {
   capacity?: number; // Total audience capacity
   jobCategory?: string;
   job?: string;
+  bundleId?: number | null;
+  phase?: string;
 }
 
 export interface CustomFilter {
@@ -74,6 +76,8 @@ export interface CreateCampaignPayload {
   platform?: CampaignPlatform;
   platform_settings_id?: number | null;
   media_uuid?: string | null;
+  bundle_id?: number | null;
+  phase?: string;
 }
 
 // API response interface matching Go backend structure
@@ -207,6 +211,8 @@ export interface UpdateSMSCampaignRequest {
   platform?: CampaignPlatform;
   platform_settings_id?: number | null;
   media_uuid?: string | null;
+  bundle_id?: number | null;
+  phase?: string;
 }
 
 export interface UploadMultimediaResponse {
@@ -302,6 +308,9 @@ export interface GetCampaignResponse {
   total_clicks?: number;
   platform?: CampaignPlatform | null;
   platform_settings_name?: string | null;
+  bundle_id?: number | null;
+  bundle_title?: string | null;
+  phase?: string | null;
 }
 
 export interface PaginationInfo {
@@ -333,6 +342,8 @@ export interface ListSMSCampaignsParams {
     | 'cancelled-by-admin'
     | 'expired'
     | 'executed';
+  bundle_id?: number;
+  phase?: 'test' | 'execution';
 }
 
 // Audience Spec types
