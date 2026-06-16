@@ -156,7 +156,7 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
   },
   INVALID_LINE_NUMBER: {
     en: 'Invalid line number provided for cost calculation',
-    fa: 'شماره خط ارائه شده برای محاسبه هزینه نامعتبر است',
+    fa: 'سرشماره ارائه شده برای محاسبه هزینه نامعتبر است',
   },
   COST_CALCULATION_TIMEOUT: {
     en: 'Cost calculation timed out. Please try again',
@@ -185,6 +185,48 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
   CAMPAIGN_SCHEDULE_INVALID: {
     en: 'Invalid campaign schedule provided',
     fa: 'زمان‌بندی کمپین نامعتبر است',
+  },
+
+  // Bundle errors
+  INVALID_BUNDLE_ID: {
+    en: 'Invalid bundle ID provided',
+    fa: 'شناسه کمپین نامعتبر است',
+  },
+  MISSING_CUSTOMER_ID: {
+    en: 'Customer information is missing. Please sign in again',
+    fa: 'اطلاعات مشتری موجود نیست. لطفاً دوباره وارد شوید',
+  },
+  BUNDLE_NOT_FOUND: {
+    en: 'Bundle not found',
+    fa: 'کمپین یافت نشد',
+  },
+  BUNDLE_ACCESS_DENIED: {
+    en: 'You do not have access to this bundle',
+    fa: 'شما به این کمپین دسترسی ندارید',
+  },
+  CREATE_BUNDLE_VALIDATION_FAILED: {
+    en: 'Bundle validation failed. Please review the form and try again',
+    fa: 'اعتبارسنجی کمپین ناموفق بود. لطفاً فرم را بررسی کرده و دوباره تلاش کنید',
+  },
+  CREATE_BUNDLE_FAILED: {
+    en: 'Failed to create the bundle. Please try again',
+    fa: 'ایجاد کمپین ناموفق بود. لطفاً دوباره تلاش کنید',
+  },
+  GET_BUNDLE_FAILED: {
+    en: 'Failed to retrieve the bundle',
+    fa: 'دریافت کمپین ناموفق بود',
+  },
+  LIST_BUNDLES_FAILED: {
+    en: 'Failed to retrieve bundles',
+    fa: 'دریافت کمپین‌ها ناموفق بود',
+  },
+  INVALID_PAGE: {
+    en: 'Invalid page number provided',
+    fa: 'شماره صفحه نامعتبر است',
+  },
+  INVALID_LIMIT: {
+    en: 'Invalid page size provided',
+    fa: 'تعداد نمایش در صفحه نامعتبر است',
   },
 
   // Generic errors
@@ -429,8 +471,6 @@ export function clearAllUserData(): void {
       console.log(`💾 Preserved (user preference): ${key}`);
     }
   });
-
-  console.log('✅ User data cleanup completed');
 }
 
 /**
@@ -441,8 +481,6 @@ export function clearCampaignData(): void {
   // Clear campaign-specific items
   localStorage.removeItem('campaign_creation_data');
   localStorage.removeItem('campaign_creation_step');
-
-  console.log('✅ Campaign data cleared');
 }
 
 /**
