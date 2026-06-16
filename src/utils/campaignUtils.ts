@@ -230,9 +230,11 @@ export const serializeCampaignPayload = (
           ? campaignData.content.lineNumber
           : null
         : null,
-    short_link_domain: campaignData.content.insertLink
-      ? getShortLinkDomainOrDefault(campaignData.content.shortLinkDomain)
-      : undefined,
+    short_link_domain:
+      campaignData.content.insertLink &&
+      campaignData.content.shortLinkDomain?.trim()
+        ? campaignData.content.shortLinkDomain.trim()
+        : undefined,
     job_category: campaignData.segment.jobCategory || undefined,
     job: campaignData.segment.job || undefined,
     platform,
@@ -242,6 +244,8 @@ export const serializeCampaignPayload = (
         : (campaignData.content.platformSettingsId ?? null),
     media_uuid:
       platform === 'sms' ? null : (campaignData.content.mediaUuid ?? null),
+    bundle_id: campaignData.segment.bundleId ?? null,
+    phase: campaignData.segment.phase || undefined,
   };
 
   if (options?.includeContent) {
