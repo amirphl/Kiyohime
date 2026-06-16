@@ -150,6 +150,7 @@ export interface AdminGetCampaignResponse {
   target_audience_excel_file_uuid?: string | null;
   platform_settings_name?: string | null;
   bundle_id?: number | null;
+  bundle_title?: string | null;
   phase?: string | null;
 }
 
