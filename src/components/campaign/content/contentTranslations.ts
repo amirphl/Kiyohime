@@ -178,15 +178,15 @@ const contentFa = {
   reset: 'بازنشانی',
 
   // Bundle info
-  bundleInfoTitle: 'اطلاعات بقچه',
-  bundle: 'بقچه مرتبط',
-  bundlePlaceholder: 'انتخاب بقچه',
-  bundleLoading: 'در حال بارگذاری بقچه‌ها...',
-  bundleLoadError: 'خطا در بارگذاری بقچه‌ها. لطفاً دوباره تلاش کنید.',
+  bundleInfoTitle: 'اطلاعات کمپین',
+  bundle: 'کمپین مرتبط',
+  bundlePlaceholder: 'انتخاب کمپین',
+  bundleLoading: 'در حال بارگذاری کمپین‌ها...',
+  bundleLoadError: 'خطا در بارگذاری کمپین‌ها. لطفاً دوباره تلاش کنید.',
   phase: 'فاز ارسال',
   phasePlaceholder: 'انتخاب فاز',
-  phaseTest: 'آزمایشی',
-  phaseExecution: 'اجرایی',
+  phaseTest: 'مرحله ۱ - ارسال اولیه',
+  phaseExecution: 'مرحله ۲ - ارسال نهایی',
 };
 
 export const contentI18n = {
