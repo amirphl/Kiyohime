@@ -2,10 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useCampaign } from '../../../hooks/useCampaign';
 import { apiService } from '../../../services/api';
 import { useAuth } from '../../../hooks/useAuth';
-import {
-  jobCategoryI18n,
-  JobCategoryLocale,
-} from '../../../locales/jobCategory';
+import { getJobCategories } from '../../../locales/jobCategory';
 import TitleCard from './TitleCard';
 import CapacityCard from './CapacityCard';
 import LevelOneCard from './LevelOneCard';
@@ -59,8 +56,7 @@ const LevelStep: React.FC = () => {
   const { showError } = useToast();
   const { uploadMedia, isUploading } = useMediaUpload(accessToken);
   const showErrorRef = useRef(showError);
-  const categories = (jobCategoryI18n[language as JobCategoryLocale] ||
-    jobCategoryI18n.en) as Record<string, readonly string[]>;
+  const categories = getJobCategories(language);
   const isAgency = user?.account_type === 'marketing_agency';
 
   // Local state for selections
@@ -881,6 +877,8 @@ const LevelStep: React.FC = () => {
             phaseExecutionLabel={t.phaseExecution}
             loadingLabel={t.bundleLoading}
             errorLabel={t.bundleLoadError}
+            emptyLabel={t.bundleEmpty}
+            createLabel={t.bundleCreateAction}
           />
         </div>
 
