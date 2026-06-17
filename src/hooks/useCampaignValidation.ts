@@ -27,7 +27,9 @@ export const useCampaignValidation = (
       (!isTargetAudienceExcelFileMode || excelFileUploaded) &&
       (isTargetAudienceExcelFileMode || hasValidLevelSelection) &&
       (isTargetAudienceExcelFileMode || segment.capacityTooLow !== true) &&
-      (!isAgency || (segment.jobCategory && segment.job))
+      (!isAgency || (segment.jobCategory && segment.job)) &&
+      segment.bundleId &&
+      segment.phase
     );
   }, [campaignData, isAgency]);
 
@@ -136,6 +138,12 @@ export const useCampaignValidation = (
           ) {
             errors.push('Please upload your Excel file');
           }
+          if (!campaignData.segment.bundleId) {
+            errors.push('Please select a bundle');
+          }
+          if (!campaignData.segment.phase) {
+            errors.push('Please select a sending phase');
+          }
         }
         break;
       case 2:
@@ -163,15 +171,20 @@ export const useCampaignValidation = (
             if (!campaignData.content.lineNumber) {
               errors.push('Please select a line number');
             }
-          } else if (!campaignData.content.platformSettingsId) {
-            errors.push('Please select an active service');
-          } else if (campaignData.budget.totalBudget <= 0) {
-            errors.push('Please set a total budget greater than 0');
+          } else {
+            if (!campaignData.content.platformSettingsId) {
+              errors.push('Please select an active service');
+            }
+          }
+          if (campaignData.budget.totalBudget < MIN_BUDGET) {
+            errors.push('Please set a total budget of at least 100,000');
+          } else if (campaignData.budget.totalBudget > MAX_BUDGET) {
+            errors.push('Total budget exceeds the maximum allowed');
           }
         }
         break;
       case 4:
-        if (campaignData.payment.hasEnoughBalance === false) {
+        if (campaignData.payment.hasEnoughBalance !== true) {
           errors.push('Insufficient wallet balance for campaign');
         }
         break;
