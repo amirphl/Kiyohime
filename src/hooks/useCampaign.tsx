@@ -87,6 +87,8 @@ const createDefaultCampaignData = (): CampaignData => ({
     capacity: undefined,
     jobCategory: '',
     job: '',
+    bundleId: null,
+    phase: 'execution',
   },
   content: {
     insertLink: false,
@@ -137,6 +139,8 @@ const normalizeStoredCampaignData = (
       platform: storedSegment.platform || defaults.segment.platform,
       jobCategory: storedSegment.jobCategory || defaults.segment.jobCategory,
       job: storedSegment.job || defaults.segment.job,
+      bundleId: storedSegment.bundleId ?? defaults.segment.bundleId,
+      phase: storedSegment.phase ?? defaults.segment.phase,
     },
     content: {
       ...defaults.content,
@@ -301,6 +305,8 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
         capacity: undefined,
         jobCategory: '',
         job: '',
+        bundleId: null,
+        phase: 'execution',
       },
       content: {
         insertLink: false,
@@ -364,6 +370,8 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
         capacity: undefined,
         jobCategory: '',
         job: '',
+        bundleId: null,
+        phase: 'execution',
       },
       content: {
         insertLink: false,
@@ -419,11 +427,15 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
       targetAudienceExcelFileUuid.trim().length > 0;
     if (
       campaignData.segment.campaignTitle &&
-      campaignData.segment.level1 &&
-      campaignData.segment.level3s.length > 0 &&
-      (!isTargetAudienceExcelFileMode || excelFileUploaded) &&
+      (!isTargetAudienceExcelFileMode
+        ? campaignData.segment.level1 &&
+          campaignData.segment.level3s.length > 0 &&
+          campaignData.segment.capacityTooLow !== true
+        : excelFileUploaded) &&
       (!isAgency ||
-        (campaignData.segment.jobCategory && campaignData.segment.job))
+        (campaignData.segment.jobCategory && campaignData.segment.job)) &&
+      campaignData.segment.bundleId &&
+      campaignData.segment.phase
     ) {
       completedSteps++;
     }
@@ -442,10 +454,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
     ) {
       completedSteps++;
     }
-    if (
-      campaignData.payment.paymentMethod &&
-      campaignData.payment.termsAccepted
-    ) {
+    if (campaignData.payment.hasEnoughBalance === true) {
       completedSteps++;
     }
 
