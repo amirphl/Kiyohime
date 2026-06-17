@@ -128,6 +128,8 @@ const campaignLevelEn = {
   bundlePlaceholder: 'Select a bundle',
   bundleLoading: 'Loading bundles...',
   bundleLoadError: 'Failed to load bundles. Please try again.',
+  bundleEmpty: 'No bundles found yet. Create one to continue.',
+  bundleCreateAction: 'Create a new bundle',
   phase: 'Sending Phase',
   phasePlaceholder: 'Select a phase',
   phaseTest: 'Test',
@@ -263,8 +265,7 @@ const campaignLevelFa = {
   segmentationByTargetAudienceExcelFileTitle: 'فایل اکسل مخاطبان',
   segmentationByTargetAudienceExcelFileHelp:
     'فایل با فرمت xls. یا xlsx. بارگذاری کنید',
-  segmentationByTargetAudienceExcelFileSampleDownload:
-    'دانلود فایل نمونه اکسل',
+  segmentationByTargetAudienceExcelFileSampleDownload: 'دانلود فایل نمونه اکسل',
   segmentationByTargetAudienceExcelFileUploading:
     'در حال بارگذاری فایل اکسل...',
   segmentationByTargetAudienceExcelFileUploaded: 'بارگذاری شد',
@@ -275,15 +276,17 @@ const campaignLevelFa = {
     'لطفاً فایل اکسل را بارگذاری کنید',
 
   // Bundle info
-  bundleInfoTitle: 'اطلاعات بقچه',
-  bundle: 'بقچه مرتبط',
-  bundlePlaceholder: 'انتخاب بقچه',
-  bundleLoading: 'در حال بارگذاری بقچه‌ها...',
-  bundleLoadError: 'خطا در بارگذاری بقچه‌ها. لطفاً دوباره تلاش کنید.',
+  bundleInfoTitle: 'اطلاعات کمپین',
+  bundle: 'کمپین مرتبط',
+  bundlePlaceholder: 'انتخاب کمپین',
+  bundleLoading: 'در حال بارگذاری کمپین‌ها...',
+  bundleLoadError: 'خطا در بارگذاری کمپین‌ها. لطفاً دوباره تلاش کنید.',
+  bundleEmpty: 'هنوز کمپین‌ای ایجاد نشده است. برای ادامه یک کمپین جدید بسازید.',
+  bundleCreateAction: 'ایجاد کمپین جدید',
   phase: 'فاز ارسال',
   phasePlaceholder: 'انتخاب فاز',
-  phaseTest: 'آزمایشی',
-  phaseExecution: 'اجرایی',
+  phaseTest: 'مرحله ۱ - ارسال اولیه',
+  phaseExecution: 'مرحله ۲ - ارسال نهایی',
 
   // Common fields
   loading: 'در حال بارگذاری...',
