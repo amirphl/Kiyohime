@@ -4,7 +4,7 @@ import Card from '../../ui/Card';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { contentI18n } from './contentTranslations';
 import {
-  UID_PLACEHOLDER,
+  replaceUidPlaceholder,
   useLinkUidPlaceholder,
 } from './useLinkUidPlaceholder';
 
@@ -53,7 +53,7 @@ const LinkInsertionCard: React.FC<LinkInsertionCardProps> = ({
 
   const handlePreviewUidLink = () => {
     if (!canPreviewUidLink) return;
-    const previewLink = (link || '').split(UID_PLACEHOLDER).join('123456');
+    const previewLink = replaceUidPlaceholder(link || '', '123456');
     window.open(previewLink, '_blank', 'noopener,noreferrer');
   };
 
