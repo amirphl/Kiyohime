@@ -7,6 +7,7 @@ interface FormFieldProps extends FormFieldType {
   error?: string;
   className?: string;
   inputClassName?: string;
+  disabled?: boolean;
   rows?: number;
   onBlur?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 }
@@ -24,6 +25,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
   error,
   className = '',
   inputClassName = '',
+  disabled = false,
   rows,
   onBlur,
 }, ref) => {
@@ -51,6 +53,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             onBlur={onBlur}
             placeholder={placeholder}
             required={required}
+            disabled={disabled}
             className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none ${error ? 'border-red-300' : 'border-gray-300'} ${inputClassName}`}
             ref={ref}
           />
@@ -64,6 +67,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             onChange={handleChange}
             onBlur={onBlur}
             required={required}
+            disabled={disabled}
             className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${error ? 'border-red-300' : 'border-gray-300'} ${inputClassName}`}
           >
             <option value="">{placeholder || 'Select an option'}</option>
@@ -84,6 +88,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             onChange={handleChange}
             onBlur={onBlur}
             required={required}
+            disabled={disabled}
             className={`h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded ${inputClassName}`}
           />
         );
@@ -100,6 +105,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
                   checked={value === option.value}
                   onChange={handleChange}
                   onBlur={onBlur}
+                  disabled={disabled}
                   className={`h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 ${inputClassName}`}
                 />
                 <span className="ml-2 text-sm text-gray-700">{option.label}</span>
@@ -118,6 +124,7 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
             onBlur={onBlur}
             placeholder={placeholder}
             required={required}
+            disabled={disabled}
             min={validation?.min}
             max={validation?.max}
             step={validation?.step}
