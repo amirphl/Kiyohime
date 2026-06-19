@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import Toast, { ToastType } from './Toast';
 import { useLanguage } from '../hooks/useLanguage';
 
@@ -59,8 +59,10 @@ export const ToastProvider: React.FC<ToastContainerProps> = ({ children }) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   }, []);
 
+  const contextValue = useMemo(() => ({ showToast }), [showToast]);
+
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
       <div
         className={`fixed top-4 z-50 flex flex-col gap-2 ${
