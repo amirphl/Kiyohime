@@ -1,6 +1,13 @@
 export interface ReportsTranslations {
   title: string;
   filterPlaceholder: string;
+  filterByBundle: string;
+  filterByPhase: string;
+  bundleAll: string;
+  phaseAll: string;
+  phaseTest: string;
+  phaseExecution: string;
+  bundleLoading: string;
   sortBy: string;
   sortNewest: string;
   sortOldest: string;
@@ -31,6 +38,8 @@ export interface ReportsTranslations {
     adlink: string;
     updatedAt: string;
     actions: string;
+    bundle: string;
+    phase: string;
   };
   statuses: {
     initiated: string;
@@ -67,6 +76,8 @@ export interface ReportsTranslations {
     rejected: string;
     close: string;
     fixAndRestart: string;
+    bundleTitle: string;
+    phase: string;
     lineNumber: string;
     platform: string;
     subsegments: string;
@@ -89,6 +100,8 @@ export interface ReportsTranslations {
     totalSentSuccessfully: string;
     totalSentRecords: string;
     totalFailedRecords: string;
+    estimatedDeliveredCost: string;
+    estimatedDeliveredCostNote: string;
     inactiveChannelNumbers: string;
     numAudience: string;
     linkShortener: string;
@@ -116,6 +129,13 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
   en: {
     title: 'Reports',
     filterPlaceholder: 'Filter by title...',
+    filterByBundle: 'Filter by bundle',
+    filterByPhase: 'Filter by phase',
+    bundleAll: 'All bundles',
+    phaseAll: 'All phases',
+    phaseTest: 'Test',
+    phaseExecution: 'Execution',
+    bundleLoading: 'Loading bundles...',
     sortBy: 'Sort by',
     sortNewest: 'Newest',
     sortOldest: 'Oldest',
@@ -146,6 +166,8 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       adlink: 'Ad Link',
       updatedAt: 'Updated At',
       actions: 'Actions',
+      bundle: 'Bundle',
+      phase: 'Phase',
     },
     statuses: {
       initiated: 'Initiated',
@@ -182,6 +204,8 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       rejected: 'Rejected',
       close: 'Close',
       fixAndRestart: 'Fix and restart the campaign?',
+      bundleTitle: 'Bundle Title',
+      phase: 'Phase',
       lineNumber: 'Line Number/Service',
       platform: 'Platform',
       subsegments: 'Subsegments',
@@ -204,6 +228,9 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       totalSentSuccessfully: 'Total Sent Successfully',
       totalSentRecords: 'Total Sent Records',
       totalFailedRecords: 'Total Failed Records',
+      estimatedDeliveredCost: 'Estimated Cost of Delivered Messages',
+      estimatedDeliveredCostNote:
+        'This estimate is considered reliable 48 hours after the campaign is sent.',
       inactiveChannelNumbers: 'Inactive numbers for this channel',
       numAudience: 'Total',
       linkShortener: 'Link Shortener',
@@ -229,6 +256,13 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
   fa: {
     title: 'گزارش و تحلیل',
     filterPlaceholder: 'فیلتر بر اساس عنوان...',
+    filterByBundle: 'فیلتر بر اساس کمپین',
+    filterByPhase: 'فیلتر بر اساس فاز',
+    bundleAll: 'همه کمپین‌ها',
+    phaseAll: 'همه فازها',
+    phaseTest: 'تست',
+    phaseExecution: 'اجرا',
+    bundleLoading: 'در حال بارگذاری کمپین‌ها...',
     sortBy: 'مرتب‌سازی بر اساس',
     sortNewest: 'جدیدترین',
     sortOldest: 'قدیمی‌ترین',
@@ -259,6 +293,8 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       adlink: 'لینک ضمیمه شده',
       updatedAt: 'به‌روزرسانی',
       actions: 'اقدامات',
+      bundle: 'کمپین مرتبط',
+      phase: 'فاز ارسال',
     },
     statuses: {
       initiated: 'آغاز شده',
@@ -295,6 +331,8 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       rejected: 'رد شده',
       close: 'بستن',
       fixAndRestart: 'اصلاح و شروع مجدد کمپین؟',
+      bundleTitle: 'عنوان کمپین مرتبط',
+      phase: 'فاز ارسال',
       lineNumber: 'سر شماره/سرویس',
       platform: 'کانال ارسال',
       subsegments: 'زیربخش‌ها',
@@ -317,6 +355,9 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       totalSentSuccessfully: 'تعداد پیام‌های رسیده',
       totalSentRecords: 'تعداد پیام‌های ارسالی',
       totalFailedRecords: 'تعداد پیام‌های خطا خورده',
+      estimatedDeliveredCost: 'هزینه نهایی',
+      estimatedDeliveredCostNote:
+        'این مقدار ۴۸ ساعت پس از ارسال کمپین معتبر است.',
       inactiveChannelNumbers: 'تعداد شماره‌های غیرفعال برای این کانال',
       numAudience: 'تعداد پیام های ارسالی',
       linkShortener: 'کوتاه کننده لینک',
