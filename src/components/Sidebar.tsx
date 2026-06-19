@@ -13,6 +13,7 @@ import {
   Ticket,
   UserCog,
   Settings,
+  Package,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
@@ -141,6 +142,14 @@ const Sidebar: React.FC = () => {
       onClick: () => navigateToPage('/dashboard'),
     },
     {
+      id: 'bundles',
+      icon: <Package className='h-5 w-5' />,
+      label: 'Bundles',
+      translationKey: 'dashboard.bundles',
+      href: '/dashboard/bundles',
+      onClick: () => navigateToPage('/dashboard/bundles'),
+    },
+    {
       id: 'targeted-send',
       icon: <Send className='h-5 w-5' />,
       label: 'targeted send',
@@ -238,7 +247,9 @@ const Sidebar: React.FC = () => {
             <nav className='space-y-2'>
               {sidebarItems.map(item => {
                 if (item.showForAgency && !isAgency) return null;
-                const isActive = currentPath === item.href;
+                const isActive =
+                  currentPath === item.href ||
+                  currentPath.startsWith(`${item.href}/`);
                 return (
                   <button
                     key={item.id}
