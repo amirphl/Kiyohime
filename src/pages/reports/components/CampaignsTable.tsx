@@ -11,13 +11,10 @@ import { useToast } from '../../../hooks/useToast';
 import { apiService } from '../../../services/api';
 import { ROUTES } from '../../../config/routes';
 import {
-  clearLevelSelection,
-  saveLevelSelection,
-} from '../../../types/segment';
-import {
   getShortLinkDomainOrDefault,
   normalizeLinkPlaceholder,
 } from '../../../utils/campaignUtils';
+import { prepareCampaignCreationDraft } from '../../../utils/campaignCreationDraft';
 
 const getChannelDisplay = (c: GetCampaignResponse): string => {
   if (!c.platform || c.platform === 'sms') return c.line_number || '-';
@@ -71,6 +68,8 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
       capacity: capacityValue,
       jobCategory: campaign.job_category || '',
       job: campaign.job || '',
+      bundleId: campaign.bundle_id ?? null,
+      phase: campaign.phase ?? undefined,
     };
 
     const content: CampaignData['content'] = {
@@ -105,30 +104,6 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
       budget,
       payment: { paymentMethod: '', termsAccepted: false },
     };
-  };
-
-  const persistDraft = (draft: CampaignData) => {
-    localStorage.setItem('campaign_creation_data', JSON.stringify(draft));
-    localStorage.setItem('campaign_creation_step', '1');
-    saveLevelSelection({
-      campaignTitle: draft.segment.campaignTitle || '',
-      level1s: draft.segment.level1 ? [draft.segment.level1] : [],
-      level2s: draft.segment.level2s || [],
-      level3s: draft.segment.level3s || [],
-      targetAudienceExcelFileUuid:
-        draft.segment.targetAudienceExcelFileUuid ?? null,
-      metadata: {},
-      tags: draft.segment.tags || [],
-      count: draft.segment.capacity || 0,
-      lastUpdated: new Date().toISOString(),
-    });
-  };
-
-  const prepareCampaignCreationDraft = (draft: CampaignData) => {
-    clearLevelSelection();
-    localStorage.removeItem('campaign_creation_data');
-    localStorage.removeItem('campaign_creation_step');
-    persistDraft(draft);
   };
 
   const handleClone = async (c: GetCampaignResponse) => {
@@ -201,6 +176,8 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                 <th className={th}>{copy.table.platform}</th>
                 <th className={th}>{copy.table.lineNumber}</th>
                 <th className={th}>{copy.table.segment}</th>
+                <th className={th}>{copy.table.bundle}</th>
+                <th className={th}>{copy.table.phase}</th>
                 <th className={th}>{copy.table.numAudience}</th>
                 <th className={th}>{copy.table.sent}</th>
                 <th className={th}>{copy.table.status}</th>
@@ -227,6 +204,14 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                     {Array.isArray(c.level3s)
                       ? c.level3s.join(', ')
                       : c.level3s || '-'}
+                  </td>
+                  <td className={td}>{c.bundle_title || '-'}</td>
+                  <td className={td}>
+                    {c.phase
+                      ? copy[
+                          c.phase === 'test' ? 'phaseTest' : 'phaseExecution'
+                        ]
+                      : '-'}
                   </td>
                   <td className='px-4 py-2 text-sm text-gray-500 text-center'>
                     {c.num_audience || '-'}
