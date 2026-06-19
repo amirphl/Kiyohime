@@ -1099,8 +1099,8 @@ export const translations = {
 
       // Sidebar Navigation
       dashboard: 'پیشخوان',
-      bundles: 'بقچه‌ها',
-      targetedSend: 'مدیریت ارسال‌ها',
+      bundles: 'کمپین‌ها',
+      targetedSend: 'ارسال‌ها',
       reports: 'گزارش و تحلیل',
       wallet: 'مدیریت مالی',
       settings: 'تنظیمات',
