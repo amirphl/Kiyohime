@@ -37,6 +37,10 @@ const ReportsPage: React.FC = () => {
   const [titleFilter, setTitleFilter] = useState('');
   const titleDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Bundle and phase filter state
+  const [bundleIdFilter, setBundleIdFilter] = useState<number | null>(null);
+  const [phaseFilter, setPhaseFilter] = useState('');
+
   // Modal state
   const [showModal, setShowModal] = useState(false);
   const [selected, setSelected] = useState<GetCampaignResponse | null>(null);
@@ -44,6 +48,24 @@ const ReportsPage: React.FC = () => {
   // Guards for double-invocation (StrictMode) and concurrent fetches
   const isFetchingRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Initialize filters from URL query parameters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const phaseParam = params.get('phase');
+    const bundleIdParam = params.get('bundleId');
+
+    if (phaseParam && ['test', 'execution'].includes(phaseParam)) {
+      setPhaseFilter(phaseParam);
+    }
+
+    if (bundleIdParam) {
+      const bundleId = Number(bundleIdParam);
+      if (Number.isFinite(bundleId) && bundleId > 0) {
+        setBundleIdFilter(bundleId);
+      }
+    }
+  }, []);
 
   // Fetch campaigns whenever page/order/filter change
   useEffect(() => {
@@ -64,6 +86,8 @@ const ReportsPage: React.FC = () => {
         if (titleFilter && titleFilter.trim().length > 0) {
           params.title = titleFilter.trim();
         }
+        if (bundleIdFilter) params.bundle_id = bundleIdFilter;
+        if (phaseFilter) params.phase = phaseFilter;
 
         const res = await apiService.listCampaigns(params, controller.signal);
         if (controller.signal.aborted) return;
@@ -101,15 +125,15 @@ const ReportsPage: React.FC = () => {
     return () => {
       controller.abort();
     };
-  }, [accessToken, page, orderBy, titleFilter]);
+  }, [accessToken, page, orderBy, titleFilter, bundleIdFilter, phaseFilter]);
 
-  // Reset pagination when order or title filter changes
+  // Reset pagination when filters change
   useEffect(() => {
     if (!accessToken) return;
     setItems([]);
     setHasMore(true);
     setPage(1);
-  }, [orderBy, titleFilter, accessToken]);
+  }, [orderBy, titleFilter, bundleIdFilter, phaseFilter, accessToken]);
 
   // Debounce title input
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -221,6 +245,11 @@ const ReportsPage: React.FC = () => {
           onTitleChange={handleTitleChange}
           orderBy={orderBy}
           onOrderChange={setOrderBy}
+          bundleIdFilter={bundleIdFilter}
+          onBundleIdChange={setBundleIdFilter}
+          phaseFilter={phaseFilter}
+          onPhaseChange={setPhaseFilter}
+          accessToken={accessToken}
           copy={copy}
         />
 
