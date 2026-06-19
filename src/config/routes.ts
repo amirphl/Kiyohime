@@ -233,8 +233,16 @@ export const ROUTES: Record<string, RouteConfig> = {
   },
 };
 
+const normalizeRoutePath = (path: string): string => {
+  const [pathname] = path.split(/[?#]/, 1);
+  return pathname || '/';
+};
+
 export const getRouteByPath = (path: string): RouteConfig | null => {
-  return Object.values(ROUTES).find(route => route.path === path) || null;
+  const normalizedPath = normalizeRoutePath(path);
+  return (
+    Object.values(ROUTES).find(route => route.path === normalizedPath) || null
+  );
 };
 
 export const getRouteByPage = (page: string): RouteConfig | null => {
