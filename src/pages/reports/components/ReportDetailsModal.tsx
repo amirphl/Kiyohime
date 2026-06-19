@@ -141,10 +141,25 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
     totalRecords !== null && totalSent !== null
       ? totalRecords - totalSent
       : null;
+  const estimatedDeliveredCost =
+    totalSent !== null &&
+    typeof campaign.budget === 'number' &&
+    Number.isFinite(campaign.budget) &&
+    typeof campaign.num_audience === 'number' &&
+    Number.isFinite(campaign.num_audience) &&
+    campaign.num_audience > 0
+      ? totalSent * (campaign.budget / campaign.num_audience)
+      : null;
 
   const channelValue = isSms
     ? campaign.line_number || '—'
     : campaign.platform_settings_name || '—';
+  const phaseValue = (() => {
+    if (!campaign.phase) return '—';
+    if (campaign.phase === 'test') return copy.phaseTest;
+    if (campaign.phase === 'execution') return copy.phaseExecution;
+    return campaign.phase;
+  })();
 
   const getExportErrorMessage = (message?: string): string => {
     const code = (message || '').trim().toUpperCase();
@@ -254,6 +269,11 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
                 label={copy.modal.platform}
                 value={copy.platforms[platform] ?? platform}
               />
+              <InfoItem
+                label={copy.modal.bundleTitle}
+                value={campaign.bundle_title || '—'}
+              />
+              <InfoItem label={copy.modal.phase} value={phaseValue} />
             </InfoGrid>
           </Section>
 
@@ -337,6 +357,23 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
                 label={copy.modal.totalFailedRecords}
                 value={totalFailed ?? '—'}
               />
+              <InfoItem
+                label={copy.modal.estimatedDeliveredCost}
+                value={
+                  <div className='space-y-1'>
+                    <div>
+                      {estimatedDeliveredCost !== null
+                        ? estimatedDeliveredCost.toLocaleString(undefined, {
+                            maximumFractionDigits: 2,
+                          })
+                        : '—'}
+                    </div>
+                    <p className='text-xs font-normal text-slate-500'>
+                      {copy.modal.estimatedDeliveredCostNote}
+                    </p>
+                  </div>
+                }
+              />
               <InfoItem label={copy.modal.inactiveChannelNumbers} value='—' />
               {hasAdlink && (
                 <InfoItem
@@ -365,7 +402,9 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
           {hasAdlink && (
             <Section title={copy.modal.linkShortener}>
               <div className='rounded-xl border border-slate-100 bg-slate-50 px-4 py-3'>
-                <span className='text-sm text-slate-800'>{shortLinkDomain}</span>
+                <span className='text-sm text-slate-800'>
+                  {shortLinkDomain}
+                </span>
               </div>
             </Section>
           )}
