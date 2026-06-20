@@ -135,6 +135,12 @@ const campaignLevelEn = {
   phaseTest: 'Test',
   phaseExecution: 'Execution',
 
+  // Audience grade selection
+  audienceGradeTitle: 'Audience Grade Selection',
+  audienceGradeA: 'Class A',
+  audienceGradeB: 'Class B',
+  audienceGradeC: 'Class C',
+
   // Common fields
   loading: 'Loading...',
   reset: 'Reset',
@@ -287,6 +293,12 @@ const campaignLevelFa = {
   phasePlaceholder: 'انتخاب فاز',
   phaseTest: 'مرحله ۱ - ارسال اولیه',
   phaseExecution: 'مرحله ۲ - ارسال نهایی',
+
+  // Audience grade selection
+  audienceGradeTitle: 'کلاس نمره مخاطب',
+  audienceGradeA: 'دسته الف',
+  audienceGradeB: 'دسته ب',
+  audienceGradeC: 'دسته ج',
 
   // Common fields
   loading: 'در حال بارگذاری...',
