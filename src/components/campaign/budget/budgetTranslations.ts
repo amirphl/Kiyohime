@@ -43,6 +43,8 @@ const budgetEn = {
   estimatedMessagesLabel: 'Estimated Messages:',
   calculateMessageCount: 'Calculate Message Count',
   calculatingMessageCount: 'Calculating message count...',
+  campaignIdRequiredForCostCalculation:
+    'Campaign ID is missing. Please create the campaign again before calculating message count.',
   messageCountResult: '{count} messages can be sent',
   messageCountError:
     'Unable to calculate message count. Please check your selections.',
@@ -141,6 +143,8 @@ const budgetFa = {
   estimatedMessagesLabel: 'تعداد پیام‌های تخمینی:',
   calculateMessageCount: 'محاسبه تعداد پیام',
   calculatingMessageCount: 'در حال محاسبه تعداد پیام...',
+  campaignIdRequiredForCostCalculation:
+    'شناسه کمپین موجود نیست. لطفاً پیش از محاسبه تعداد پیام، دوباره کمپین را ایجاد کنید.',
   messageCountResult: '{count} پیام می‌توان با بودجه شما ارسال کرد',
   messageCountError:
     'قادر به محاسبه تعداد پیام نیست. لطفاً انتخاب‌های خود را بررسی کنید.',
