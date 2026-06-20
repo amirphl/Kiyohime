@@ -6,37 +6,35 @@ interface MessageCountCardProps {
   messageCount?: number;
   maxMessageCount?: number;
   isLoading: boolean;
+  isQueued: boolean;
   error: string | null;
-  lineNumber: string;
-  totalBudget: number;
   title: string;
   calculatingLabel: string;
   messagesLabel: string;
-  calculatingText: string;
   enterBudgetText: string;
   sentLabel: string;
   capacityLabel: string;
   showCapacity?: boolean;
+  idleText?: string;
 }
 
 const MessageCountCard: React.FC<MessageCountCardProps> = ({
   messageCount,
   maxMessageCount,
   isLoading,
+  isQueued,
   error,
-  lineNumber,
-  totalBudget,
   title,
   calculatingLabel,
   messagesLabel,
-  calculatingText,
   enterBudgetText,
   sentLabel,
   capacityLabel,
   showCapacity = true,
+  idleText,
 }) => {
   const renderContent = () => {
-    if (isLoading) {
+    if (isLoading || isQueued) {
       return (
         <div className='flex items-center space-x-2 text-gray-600'>
           <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600'></div>
@@ -74,7 +72,7 @@ const MessageCountCard: React.FC<MessageCountCardProps> = ({
 
     return (
       <div className='text-gray-500 text-center'>
-        {lineNumber && totalBudget > 0 ? calculatingText : enterBudgetText}
+        {idleText || enterBudgetText}
       </div>
     );
   };
