@@ -35,6 +35,7 @@ export const createCampaignCreationDraft = (overrides?: {
       tags: [],
       capacityTooLow: false,
       capacity: undefined,
+      audienceGrades: [],
       jobCategory: '',
       job: '',
       bundleId: null,
