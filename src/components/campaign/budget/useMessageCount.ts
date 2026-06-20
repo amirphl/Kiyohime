@@ -1,9 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { apiService } from '../../../services/api';
-import { serializeCampaignPayload } from '../../../utils/campaignUtils';
 import { useToast } from '../../../hooks/useToast';
 import { CampaignData } from '../../../types/campaign';
 import { useAuth } from '../../../hooks/useAuth';
+import { useLanguage } from '../../../hooks/useLanguage';
+import { budgetI18n } from './budgetTranslations';
 
 export const useMessageCount = (campaignData: CampaignData) => {
   const [messageCount, setMessageCount] = useState<number | undefined>(
@@ -13,11 +14,13 @@ export const useMessageCount = (campaignData: CampaignData) => {
     undefined
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [isQueued, setIsQueued] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
   const [lastApiCall, setLastApiCall] = useState<number>(0);
   const { accessToken } = useAuth();
-
+  const { language } = useLanguage();
+  const t = budgetI18n[language as keyof typeof budgetI18n] || budgetI18n.en;
   const { showToast } = useToast();
   const requestInFlightRef = useRef(false);
   const initialCalculatedRef = useRef(false);
@@ -28,44 +31,51 @@ export const useMessageCount = (campaignData: CampaignData) => {
     setError(null);
     setHasError(false);
     setLastApiCall(0);
+    setIsQueued(false);
   }, []);
 
   useEffect(() => {
     apiService.setAccessToken(accessToken || null);
   }, [accessToken]);
 
+  const resolveCampaignId = useCallback(() => {
+    if (typeof campaignData.id === 'number' && campaignData.id > 0) {
+      return campaignData.id;
+    }
+    return null;
+  }, [campaignData.id]);
+
   // API call for message count calculation
   const calculateMessageCount = useCallback(
     async (currentLineNumber?: string, currentBudget?: number) => {
+      void currentLineNumber;
+      setIsQueued(false);
+
       if (hasError) return;
 
-      const lineNumber = currentLineNumber || campaignData.content.lineNumber;
       const budget = currentBudget || campaignData.budget.totalBudget;
 
       if (budget <= 0) return;
       if (requestInFlightRef.current) return;
+
+      const campaignId = resolveCampaignId();
+      if (!campaignId || campaignId <= 0) {
+        const errorMessage = t.campaignIdRequiredForCostCalculation;
+        setError(errorMessage);
+        setHasError(true);
+        showToast('error', errorMessage);
+        return;
+      }
 
       requestInFlightRef.current = true;
       setIsLoading(true);
       setError(null);
 
       try {
-        const payload = serializeCampaignPayload(campaignData, {
-          includeContent: true,
-          includeBudget: true,
+        const response = await apiService.calculateCampaignCost({
+          campaign_id: campaignId,
+          budget,
         });
-        payload.line_number =
-          campaignData.segment.platform === 'sms'
-            ? lineNumber
-              ? lineNumber
-              : null
-            : null;
-        payload.platform_settings_id =
-          campaignData.segment.platform === 'sms'
-            ? null
-            : (campaignData.content.platformSettingsId ?? null);
-        payload.budget = budget;
-        const response = await apiService.calculateCampaignCost(payload);
 
         if (response.success && response.data) {
           setMessageCount(response.data.msg_target);
@@ -93,7 +103,7 @@ export const useMessageCount = (campaignData: CampaignData) => {
         requestInFlightRef.current = false;
       }
     },
-    [hasError, campaignData, showToast]
+    [campaignData, hasError, resolveCampaignId, showToast, t]
   );
 
   // Debounced calculation
@@ -102,6 +112,7 @@ export const useMessageCount = (campaignData: CampaignData) => {
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
       }
+      setIsQueued(true);
       debounceRef.current = setTimeout(() => {
         calculateMessageCount(lineNumber, budget);
       }, 1000);
@@ -138,6 +149,7 @@ export const useMessageCount = (campaignData: CampaignData) => {
       setHasError(false);
       setError(null);
     }
+    setIsQueued(false);
   }, [
     hasError,
     campaignData.content.lineNumber,
@@ -158,6 +170,7 @@ export const useMessageCount = (campaignData: CampaignData) => {
     messageCount,
     maxMessageCount,
     isLoading,
+    isQueued,
     error,
     lastApiCall,
     calculateMessageCount,
