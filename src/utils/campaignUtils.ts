@@ -207,6 +207,10 @@ export const serializeCampaignPayload = (
     targetAudienceExcelFileUuid.trim()
       ? targetAudienceExcelFileUuid.trim()
       : null;
+  const normalizedAdlink =
+    campaignData.content.insertLink && campaignData.content.link?.trim()
+      ? campaignData.content.link.trim()
+      : undefined;
 
   const payload: UpdateSMSCampaignRequest = {
     title: campaignData.segment.campaignTitle || undefined,
@@ -249,7 +253,7 @@ export const serializeCampaignPayload = (
   };
 
   if (options?.includeContent) {
-    payload.adlink = campaignData.content.link;
+    payload.adlink = normalizedAdlink;
     payload.content = normalizeLinkPlaceholder(campaignData.content.text);
     payload.scheduleat = campaignData.content.scheduleAt;
   }
@@ -261,6 +265,12 @@ export const serializeCampaignPayload = (
   if (options?.finalize !== undefined) {
     payload.finalize = options.finalize;
   }
+
+  payload.audience_grades =
+    campaignData.segment.audienceGrades &&
+    campaignData.segment.audienceGrades.length > 0
+      ? campaignData.segment.audienceGrades
+      : [];
 
   return payload;
 };
