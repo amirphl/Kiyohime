@@ -1,5 +1,7 @@
 // Campaign Types and Interfaces
 
+export type AudienceGrade = 'A' | 'B' | 'C';
+
 export interface CampaignSegment {
   campaignTitle: string;
   level1: string; // Level 1 selection (single)
@@ -9,7 +11,8 @@ export interface CampaignSegment {
   platform: CampaignPlatform;
   tags?: string[]; // Union of tags from selected level3s
   capacityTooLow?: boolean;
-  capacity?: number; // Total audience capacity
+  capacity?: number; // Total audience capacity (calculated from CSV)
+  audienceGrades?: AudienceGrade[]; // Selected audience quality grades
   jobCategory?: string;
   job?: string;
   bundleId?: number | null;
@@ -47,6 +50,7 @@ export interface CampaignPayment {
 }
 
 export interface CampaignData {
+  id?: number;
   uuid: string;
   segment: CampaignSegment;
   content: CampaignContent;
@@ -78,11 +82,13 @@ export interface CreateCampaignPayload {
   media_uuid?: string | null;
   bundle_id?: number | null;
   phase?: string;
+  audience_grades?: AudienceGrade[];
 }
 
 // API response interface matching Go backend structure
 export interface CreateSMSCampaignResponse {
   message: string;
+  id?: number;
   uuid: string;
   status: string;
   created_at: string;
@@ -103,23 +109,7 @@ export interface CreateCampaignResponse {
 
 // Campaign capacity calculation request interface
 export interface CalculateCampaignCapacityRequest {
-  title?: string;
-  level1?: string; // Level 1 selection (single)
-  level2s?: string[]; // Level 2 selections (multiple)
-  level3s?: string[]; // Level 3 selections (multiple)
-  target_audience_excel_file_uuid?: string | null;
-  tags?: string[]; // Union of tags from selected level3s
-  adlink?: string;
-  content?: string;
-  scheduleat?: string;
-  line_number?: string | null;
-  budget?: number;
-  short_link_domain?: string | null;
-  job_category?: string;
-  job?: string;
-  platform?: CampaignPlatform;
-  platform_settings_id?: number | null;
-  media_uuid?: string | null;
+  campaign_id: number;
 }
 
 // Campaign capacity calculation response interface
@@ -130,42 +120,12 @@ export interface CalculateCampaignCapacityResponse {
 
 // Campaign cost calculation request interface
 export interface CalculateCampaignCostRequest {
-  title?: string;
-  level1?: string; // Level 1 selection (single)
-  level2s?: string[]; // Level 2 selections (multiple)
-  level3s?: string[]; // Level 3 selections (multiple)
-  target_audience_excel_file_uuid?: string | null;
-  tags?: string[]; // Union of tags from selected level3s
-  adlink?: string;
-  content?: string;
-  scheduleat?: string;
-  line_number?: string | null;
   budget?: number;
-  short_link_domain?: string | null;
-  job_category?: string;
-  job?: string;
-  platform?: CampaignPlatform;
-  platform_settings_id?: number | null;
-  media_uuid?: string | null;
+  campaign_id: number;
 }
 
 export interface CalculateCampaignCostV2Request {
-  title?: string;
-  level1?: string;
-  level2s?: string[];
-  level3s?: string[];
-  target_audience_excel_file_uuid?: string | null;
-  tags?: string[];
-  adlink?: string;
-  content?: string;
-  scheduleat?: string;
-  line_number?: string | null;
-  short_link_domain?: string | null;
-  job_category?: string;
-  job?: string;
-  platform?: CampaignPlatform;
-  platform_settings_id?: number | null;
-  media_uuid?: string | null;
+  campaign_id: number;
   num_messages: number;
 }
 
@@ -213,6 +173,7 @@ export interface UpdateSMSCampaignRequest {
   media_uuid?: string | null;
   bundle_id?: number | null;
   phase?: string;
+  audience_grades?: AudienceGrade[];
 }
 
 export interface UploadMultimediaResponse {
@@ -307,7 +268,10 @@ export interface GetCampaignResponse {
   click_rate?: number;
   total_clicks?: number;
   platform?: CampaignPlatform | null;
+  platform_settings_id?: number | null;
   platform_settings_name?: string | null;
+  media_uuid?: string | null;
+  audience_grades?: AudienceGrade[];
   bundle_id?: number | null;
   bundle_title?: string | null;
   phase?: string | null;
