@@ -21,12 +21,18 @@ export const useCampaignValidation = (
       segment.targetAudienceExcelFileUuid.trim().length > 0;
     const hasValidLevelSelection =
       !!segment.level1 && !!segment.level3s && segment.level3s.length > 0;
+    // Block when level3s are selected but CSV gives 0 capacity (not found or truly 0)
+    const csvCapacityBlocked =
+      !isTargetAudienceExcelFileMode &&
+      hasValidLevelSelection &&
+      (segment.capacity ?? 0) === 0;
     return !!(
       segment.campaignTitle &&
       segment.platform &&
       (!isTargetAudienceExcelFileMode || excelFileUploaded) &&
       (isTargetAudienceExcelFileMode || hasValidLevelSelection) &&
       (isTargetAudienceExcelFileMode || segment.capacityTooLow !== true) &&
+      !csvCapacityBlocked &&
       (!isAgency || (segment.jobCategory && segment.job)) &&
       segment.bundleId &&
       segment.phase
@@ -124,6 +130,13 @@ export const useCampaignValidation = (
             campaignData.segment.capacityTooLow === true
           ) {
             errors.push('Audience capacity is too low');
+          }
+          if (
+            campaignData.segment.targetAudienceExcelFileUuid == null &&
+            campaignData.segment.level3s.length > 0 &&
+            (campaignData.segment.capacity ?? 0) === 0
+          ) {
+            errors.push('Selected audience category not found in data');
           }
           if (isAgency && !campaignData.segment.jobCategory) {
             errors.push('Please select a category');
