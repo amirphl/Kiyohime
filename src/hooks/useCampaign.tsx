@@ -34,6 +34,7 @@ interface CampaignContextType {
   updatePayment: (data: Partial<CampaignPayment>) => void;
 
   // UUID management
+  setCampaignId: (id: number | undefined) => void;
   setCampaignUuid: (uuid: string) => void;
 
   // Storage management
@@ -74,6 +75,7 @@ type StoredCampaignData = Partial<CampaignData> & {
 };
 
 const createDefaultCampaignData = (): CampaignData => ({
+  id: undefined,
   uuid: '',
   segment: {
     campaignTitle: '',
@@ -85,6 +87,7 @@ const createDefaultCampaignData = (): CampaignData => ({
     tags: [],
     capacityTooLow: false,
     capacity: undefined,
+    audienceGrades: [],
     jobCategory: '',
     job: '',
     bundleId: null,
@@ -121,6 +124,10 @@ const normalizeStoredCampaignData = (
     };
 
   return {
+    id:
+      typeof data.id === 'number' && Number.isFinite(data.id) && data.id > 0
+        ? data.id
+        : defaults.id,
     uuid: typeof data.uuid === 'string' ? data.uuid : defaults.uuid,
     segment: {
       ...defaults.segment,
@@ -137,6 +144,9 @@ const normalizeStoredCampaignData = (
       targetAudienceExcelFileUuid:
         storedSegment.targetAudienceExcelFileUuid ?? null,
       platform: storedSegment.platform || defaults.segment.platform,
+      audienceGrades: Array.isArray(storedSegment.audienceGrades)
+        ? storedSegment.audienceGrades
+        : defaults.segment.audienceGrades,
       jobCategory: storedSegment.jobCategory || defaults.segment.jobCategory,
       job: storedSegment.job || defaults.segment.job,
       bundleId: storedSegment.bundleId ?? defaults.segment.bundleId,
@@ -289,9 +299,20 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
     });
   }, []);
 
+  const setCampaignId = useCallback((id: number | undefined) => {
+    setCampaignData(prev => {
+      const updatedData = {
+        ...prev,
+        id,
+      };
+      return updatedData;
+    });
+  }, []);
+
   const resetCampaign = useCallback(() => {
     setCurrentStep(1);
     setCampaignData({
+      id: undefined,
       uuid: '', // Reset UUID
       segment: {
         campaignTitle: '',
@@ -303,6 +324,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
         tags: [], // Union of tags from selected level3s
         capacityTooLow: false,
         capacity: undefined,
+        audienceGrades: [],
         jobCategory: '',
         job: '',
         bundleId: null,
@@ -357,6 +379,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
     // Reset state
     setCurrentStep(1);
     setCampaignData({
+      id: undefined,
       uuid: '',
       segment: {
         campaignTitle: '',
@@ -368,6 +391,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
         tags: [], // Union of tags from selected level3s
         capacityTooLow: false,
         capacity: undefined,
+        audienceGrades: [],
         jobCategory: '',
         job: '',
         bundleId: null,
@@ -427,6 +451,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
       targetAudienceExcelFileUuid.trim().length > 0;
     if (
       campaignData.segment.campaignTitle &&
+      campaignData.segment.platform &&
       (!isTargetAudienceExcelFileMode
         ? campaignData.segment.level1 &&
           campaignData.segment.level3s.length > 0 &&
@@ -478,6 +503,7 @@ export const CampaignProvider: React.FC<CampaignProviderProps> = ({
     updateContent,
     updateBudget,
     updatePayment,
+    setCampaignId,
     setCampaignUuid,
     saveCampaignData,
     clearCampaignData,
