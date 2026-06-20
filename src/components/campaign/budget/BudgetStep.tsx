@@ -38,10 +38,16 @@ const BudgetStep: React.FC = () => {
     messageCount,
     maxMessageCount,
     isLoading: isLoadingMessageCount,
+    isQueued: isQueuedMessageCount,
     error: messageCountError,
     calculateDebounced,
     resetMessageCount,
   } = useMessageCount(campaignData);
+  const hasCalculationInputs =
+    campaignData.budget.totalBudget >= MIN_TEXT_BUDGET &&
+    campaignData.budget.totalBudget <= MAX_BUDGET &&
+    ((platform === 'sms' && !!campaignData.content.lineNumber) ||
+      (platform !== 'sms' && !!campaignData.content.platformSettingsId));
 
   const handleTotalBudgetChange = (value: number) => {
     const numeric = Number.isFinite(value) ? value : 0;
@@ -135,23 +141,18 @@ const BudgetStep: React.FC = () => {
             messageCount={messageCount}
             maxMessageCount={maxMessageCount}
             isLoading={isLoadingMessageCount}
+            isQueued={isQueuedMessageCount}
             error={messageCountError}
-            lineNumber={
-              platform === 'sms'
-                ? campaignData.content.lineNumber || ''
-                : campaignData.content.platformSettingsId
-                  ? String(campaignData.content.platformSettingsId)
-                  : ''
-            }
-            totalBudget={campaignData.budget.totalBudget}
             title={t.estimatedMessages}
             calculatingLabel={t.calculatingMessageCount}
             messagesLabel={t.messages}
-            calculatingText={t.calculating}
             enterBudgetText={t.enterBudgetToSee}
             sentLabel={t.sentCountLabel}
             capacityLabel={t.capacityCountLabel}
             showCapacity={!isTargetAudienceExcelFileMode}
+            idleText={
+              hasCalculationInputs ? t.calculateMessageCount : undefined
+            }
           />
         </div>
 
