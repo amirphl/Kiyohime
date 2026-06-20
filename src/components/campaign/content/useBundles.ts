@@ -5,10 +5,12 @@ type BundleOption = { value: string; label: string };
 
 let bundlesCache: Array<BundleOption> | null = null;
 let bundlesFetchInFlight: Promise<Array<BundleOption>> | null = null;
+let bundlesCacheToken: string | null = null;
 
 export const resetBundlesCache = () => {
   bundlesCache = null;
   bundlesFetchInFlight = null;
+  bundlesCacheToken = null;
 };
 
 export const useBundles = (accessToken: string | null) => {
@@ -21,6 +23,13 @@ export const useBundles = (accessToken: string | null) => {
   useEffect(() => {
     if (!accessToken) return;
     apiService.setAccessToken(accessToken);
+
+    // Invalidate cache when a different token is used (e.g. after re-login)
+    if (bundlesCacheToken !== null && bundlesCacheToken !== accessToken) {
+      bundlesCache = null;
+      bundlesFetchInFlight = null;
+      bundlesCacheToken = null;
+    }
 
     if (bundlesCache) {
       setBundleOptions(bundlesCache);
@@ -46,7 +55,7 @@ export const useBundles = (accessToken: string | null) => {
     setError(null);
 
     bundlesFetchInFlight = (async () => {
-      const res = await apiService.listBundles({ page: 1, limit: 100 });
+      const res = await apiService.listBundles({ page: 1, limit: 500 });
       if (!res.success || !res.data) {
         throw new Error(res.error?.code || res.message || 'FETCH_FAILED');
       }
@@ -61,6 +70,7 @@ export const useBundles = (accessToken: string | null) => {
     bundlesFetchInFlight
       .then(opts => {
         bundlesCache = opts;
+        bundlesCacheToken = accessToken;
         setBundleOptions(opts);
       })
       .catch(err => {
