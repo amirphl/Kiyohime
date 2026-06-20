@@ -18,7 +18,7 @@ import {
 import {
   CreateBundleRequest,
   CreateBundleResponse,
-  GetBundleResponse,
+  GetBundlePayload,
   ListBundlesParams,
   ListBundlesResponse,
 } from '../types/bundle';
@@ -144,7 +144,6 @@ class ApiService {
   // Test method to verify 401 handling (for debugging)
   testUnauthorizedHandler() {
     if (this.unauthorizedHandler) {
-      console.log('Triggering test unauthorized handler...');
       this.unauthorizedHandler();
     } else {
       console.warn('No unauthorized handler available for testing');
@@ -860,13 +859,13 @@ class ApiService {
   async getBundle(
     id: number,
     signal?: AbortSignal
-  ): Promise<ApiResponse<GetBundleResponse>> {
+  ): Promise<ApiResponse<GetBundlePayload>> {
     const endpoint = config.endpoints.bundles.get.replace(
       ':id',
       encodeURIComponent(String(id))
     );
     const cacheKey = `GET:${endpoint}`;
-    return this.requestOnce<GetBundleResponse>(cacheKey, endpoint, {
+    return this.requestOnce<GetBundlePayload>(cacheKey, endpoint, {
       method: 'GET',
       signal,
     });
@@ -910,12 +909,14 @@ class ApiService {
     );
   }
 
-  async cloneCampaign(uuid: string): Promise<ApiResponse<{ uuid: string }>> {
+  async cloneCampaign(
+    uuid: string
+  ): Promise<ApiResponse<{ uuid: string; id?: number }>> {
     const endpoint = config.endpoints.campaigns.clone.replace(
       ':uuid',
       encodeURIComponent(uuid)
     );
-    return this.request<{ uuid: string }>(endpoint, {
+    return this.request<{ uuid: string; id?: number }>(endpoint, {
       method: 'POST',
     });
   }
