@@ -8,6 +8,7 @@ import CapacityCard from './CapacityCard';
 import LevelOneCard from './LevelOneCard';
 import LevelTwoCard from './LevelTwoCard';
 import SegmentPriceFactorsCard from './SegmentPriceFactorsCard';
+import AudienceGradeCard from './AudienceGradeCard';
 import PlatformSelectionCard from './PlatformSelectionCard';
 import { useAudienceSpec } from './useAudienceSpec';
 import {
@@ -24,7 +25,16 @@ import {
   createEmptyLevelSelection,
   clearLevelSelection,
 } from '../../../types/segment';
-import { CampaignData, CampaignPlatform } from '../../../types/campaign';
+import {
+  AudienceGrade,
+  CampaignData,
+  CampaignPlatform,
+} from '../../../types/campaign';
+import {
+  getLayer3Stat,
+  calcTotalCapacity,
+  calcGradeCapacity,
+} from '../../../data/layer3Stats';
 import { campaignLevelI18n } from './segmentTranslations';
 import { useLanguage } from '../../../hooks/useLanguage';
 import CategoryJobFields from '../../CategoryJobFields';
@@ -50,6 +60,7 @@ const LevelStep: React.FC = () => {
     updateLevel,
     updateContent,
     updateBudget,
+    setCampaignId,
     setCampaignUuid,
   } = useCampaign();
   const { accessToken, user } = useAuth();
@@ -75,7 +86,6 @@ const LevelStep: React.FC = () => {
   const [level3s, setLevel3s] = useState<string[]>(
     campaignData.segment.level3s || []
   );
-  const [capacity, setCapacity] = useState<number>(0);
   const [jobCategory, setJobCategory] = useState<string>(
     campaignData.segment.jobCategory || ''
   );
@@ -84,6 +94,12 @@ const LevelStep: React.FC = () => {
     category?: string;
     job?: string;
   }>({});
+  const [audienceGrades, setAudienceGrades] = useState<AudienceGrade[]>(
+    campaignData.segment.audienceGrades ?? []
+  );
+  const [gradeCapacities, setGradeCapacities] = useState<
+    Record<AudienceGrade, number>
+  >({ A: 0, B: 0, C: 0 });
   const [segmentPriceFactors, setSegmentPriceFactors] = useState<
     Record<string, number>
   >({});
@@ -220,6 +236,9 @@ const LevelStep: React.FC = () => {
             ? capacityValue > 0 && capacityValue < 500
             : false,
         capacity: capacityValue,
+        audienceGrades: Array.isArray(campaign.audience_grades)
+          ? campaign.audience_grades
+          : [],
         jobCategory: campaign.job_category || '',
         job: campaign.job || '',
         bundleId: campaign.bundle_id ?? null,
@@ -252,6 +271,10 @@ const LevelStep: React.FC = () => {
       };
 
       return {
+        id:
+          typeof campaign.id === 'number' && campaign.id > 0
+            ? campaign.id
+            : undefined,
         uuid: campaign.uuid || '',
         segment,
         content,
@@ -334,6 +357,7 @@ const LevelStep: React.FC = () => {
         console.warn('Failed to persist last initiated campaign', storageError);
       }
 
+      setCampaignId(normalized.id);
       setCampaignUuid(normalized.uuid);
       updateLevel(normalized.segment);
       updateContent(normalized.content);
@@ -349,7 +373,7 @@ const LevelStep: React.FC = () => {
           ? t.segmentationByTargetAudienceExcelFileUploaded
           : null
       );
-      setCapacity(normalized.segment.capacity || 0);
+      setAudienceGrades(normalized.segment.audienceGrades || []);
       setJobCategory(normalized.segment.jobCategory || '');
       setJob(normalized.segment.job || '');
 
@@ -376,6 +400,7 @@ const LevelStep: React.FC = () => {
     accessToken,
     hasLocalDraftCampaign,
     normalizeLastInitiatedCampaign,
+    setCampaignId,
     setCampaignUuid,
     t.segmentationByTargetAudienceExcelFileUploaded,
     updateBudget,
@@ -445,7 +470,6 @@ const LevelStep: React.FC = () => {
         setLevel1(savedSelection.level1s[0]);
         setLevel2s(savedSelection.level2s);
         setLevel3s(savedSelection.level3s);
-        setCapacity(savedSelection.count);
       }
 
       // Restore target audience excel mode/upload state.
@@ -563,7 +587,7 @@ const LevelStep: React.FC = () => {
   // Stores to dedicated localStorage: level1s, level2s, level3s, metadata, tags, count
   useEffect(() => {
     if (!audienceSpec || !level1 || level2s.length === 0) {
-      setCapacity(0);
+      setGradeCapacities({ A: 0, B: 0, C: 0 });
       return;
     }
 
@@ -586,13 +610,17 @@ const LevelStep: React.FC = () => {
       return; // Exit early to prevent duplicate updates
     }
 
-    // Calculate capacity, collect tags union, and gather metadata from selected level3s
-    let totalCapacity = 0;
+    // Collect tags and metadata from audienceSpec; calculate capacity from CSV
+    let csvCapacity = 0;
+    const nextGradeCapacities: Record<AudienceGrade, number> = {
+      A: 0,
+      B: 0,
+      C: 0,
+    };
     const tags = new Set<string>();
     const metadata: Record<string, any> = {};
 
     level2s.forEach(l2 => {
-      // Collect metadata for this level2
       const l2Meta = getLevel2Metadata(audienceSpec, level1, l2);
       if (l2Meta) {
         metadata[l2] = l2Meta;
@@ -604,28 +632,33 @@ const LevelStep: React.FC = () => {
       const selectedForL3 = l3Array.filter(l3 => l3Options.includes(l3));
 
       selectedForL3.forEach(l3 => {
+        // Tags and metadata from audienceSpec
         const item = (audienceSpec as any)?.[level1]?.[l2]?.items?.[l3];
-        const count =
-          typeof item?.available_audience === 'number'
-            ? item.available_audience
-            : 0;
-        totalCapacity += count;
-
-        // Collect tags from each selected level3 item
         const itemTags = getItemTags(audienceSpec, level1, l2, l3);
         itemTags.forEach(tag => tags.add(tag));
-
-        // Store level3 item metadata
         if (item) {
           metadata[`${l2}.${l3}`] = {
             tags: item.tags || [],
             available_audience: item.available_audience || 0,
           };
         }
+
+        // Capacity and grade capacities from CSV
+        const stat = getLayer3Stat(l3);
+        if (stat) {
+          csvCapacity += calcTotalCapacity(stat, platform);
+          (['A', 'B', 'C'] as AudienceGrade[]).forEach(grade => {
+            nextGradeCapacities[grade] += calcGradeCapacity(
+              stat,
+              grade,
+              platform
+            );
+          });
+        }
       });
     });
 
-    setCapacity(totalCapacity);
+    setGradeCapacities(nextGradeCapacities);
 
     // Create level selection state
     const selectionState: LevelSelectionState = {
@@ -637,24 +670,24 @@ const LevelStep: React.FC = () => {
         campaignData.segment.targetAudienceExcelFileUuid ?? null,
       metadata: metadata,
       tags: Array.from(tags),
-      count: totalCapacity,
+      count: csvCapacity,
       lastUpdated: new Date().toISOString(),
     };
 
     // Save to dedicated level selection storage
     saveLevelSelection(selectionState);
 
-    // Also update campaign data for API compatibility
-    const capacityTooLow = totalCapacity > 0 && totalCapacity < 500;
+    // Block when level3s are selected but CSV has no match (capacity = 0) or capacity < 500
+    const capacityTooLow = l3Array.length > 0 && csvCapacity < 500;
 
     updateLevel({
-      level1: level1, // Level 1 selection
-      level2s: level2s, // Level 2 selections
-      level3s: l3Array, // Level 3 selections
+      level1: level1,
+      level2s: level2s,
+      level3s: l3Array,
       targetAudienceExcelFileUuid:
         campaignData.segment.targetAudienceExcelFileUuid ?? null,
-      tags: Array.from(tags), // Union of tags from selected level3s
-      capacity: totalCapacity,
+      tags: Array.from(tags),
+      capacity: csvCapacity,
       capacityTooLow: capacityTooLow,
       jobCategory,
       job,
@@ -664,12 +697,18 @@ const LevelStep: React.FC = () => {
     level1,
     level2s,
     level3s,
+    platform,
     campaignData.segment.targetAudienceExcelFileUuid,
     campaignTitle,
     jobCategory,
     job,
     updateLevel,
   ]);
+
+  const handleAudienceGradesChange = (grades: AudienceGrade[]) => {
+    setAudienceGrades(grades);
+    updateLevel({ audienceGrades: grades });
+  };
 
   const handleBundleChange = (value: number | null) => {
     updateLevel({ bundleId: value });
@@ -730,7 +769,6 @@ const LevelStep: React.FC = () => {
     setLevel1(value);
     setLevel2s([]);
     setLevel3s([]);
-    setCapacity(0);
 
     // Save empty state to level selection storage (preserve campaignTitle)
     const emptySelection = createEmptyLevelSelection();
@@ -797,7 +835,8 @@ const LevelStep: React.FC = () => {
     setLevel1('');
     setLevel2s([]);
     setLevel3s([]);
-    setCapacity(0);
+    setGradeCapacities({ A: 0, B: 0, C: 0 });
+    setAudienceGrades([]);
     setTargetAudienceExcelFileName(null);
     clearLevelSelection();
     // Platform-specific settings selection from content step must be reset on platform switch.
@@ -811,6 +850,7 @@ const LevelStep: React.FC = () => {
       tags: [],
       capacity: 0,
       capacityTooLow: false,
+      audienceGrades: [],
     });
   };
 
@@ -827,7 +867,8 @@ const LevelStep: React.FC = () => {
     setLevel1('');
     setLevel2s([]);
     setLevel3s([]);
-    setCapacity(0);
+    setGradeCapacities({ A: 0, B: 0, C: 0 });
+    setAudienceGrades([]);
     setTargetAudienceExcelFileName(null);
     setJobCategory('');
     setJob('');
@@ -844,6 +885,7 @@ const LevelStep: React.FC = () => {
       tags: [],
       capacity: 0,
       capacityTooLow: false,
+      audienceGrades: [],
       jobCategory: '',
       job: '',
       bundleId: null,
@@ -1039,17 +1081,35 @@ const LevelStep: React.FC = () => {
                   label={t.segmentPriceFactors}
                   notSetLabel={t.notSet}
                 />
+                {level3s.length > 0 && (
+                  <AudienceGradeCard
+                    title={t.audienceGradeTitle}
+                    gradeALabel={t.audienceGradeA}
+                    gradeBLabel={t.audienceGradeB}
+                    gradeCLabel={t.audienceGradeC}
+                    selectedGrades={audienceGrades}
+                    gradeCapacities={gradeCapacities}
+                    onChange={handleAudienceGradesChange}
+                    unitsLabel={t.users}
+                  />
+                )}
               </div>
             )}
 
-            {/* Capacity Display */}
+            {/* Capacity Display — sum of selected grade capacities */}
             <div className='md:col-span-2'>
               <CapacityCard
                 title={t.campaignCapacity}
                 help={t.campaignCapacityHelp}
                 isLoading={false}
-                capacity={capacity}
-                fallbackCapacity={capacity}
+                capacity={audienceGrades.reduce(
+                  (sum, g) => sum + gradeCapacities[g],
+                  0
+                )}
+                fallbackCapacity={audienceGrades.reduce(
+                  (sum, g) => sum + gradeCapacities[g],
+                  0
+                )}
                 unitsLabel={t.users}
                 calculatingLabel={t.calculating}
                 notSetLabel={t.notSet}
