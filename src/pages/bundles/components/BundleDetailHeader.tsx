@@ -32,7 +32,6 @@ const BundleDetailHeader: React.FC<BundleDetailHeaderProps> = ({
           <h1 className='mt-4 text-3xl font-bold text-gray-900 sm:text-4xl'>
             {getBundleTitle(bundle, copy.detailPage.titleFallback)}
           </h1>
-          <div className='mt-3 flex flex-wrap items-center gap-3 text-sm text-gray-500'></div>
         </div>
 
         <Button variant='outline' icon={ArrowLeft} onClick={onBack}>
