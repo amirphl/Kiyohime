@@ -66,6 +66,9 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
       tags: Array.isArray(campaign.tags) ? campaign.tags : [],
       capacityTooLow: capacityValue > 0 && capacityValue < 500,
       capacity: capacityValue,
+      audienceGrades: Array.isArray(campaign.audience_grades)
+        ? campaign.audience_grades
+        : [],
       jobCategory: campaign.job_category || '',
       job: campaign.job || '',
       bundleId: campaign.bundle_id ?? null,
@@ -84,9 +87,8 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
       platformSettingsId:
         platformValue === 'sms'
           ? null
-          : ((campaign as any).platform_settings_id ?? null),
-      mediaUuid:
-        platformValue === 'sms' ? null : ((campaign as any).media_uuid ?? null),
+          : (campaign.platform_settings_id ?? null),
+      mediaUuid: platformValue === 'sms' ? null : (campaign.media_uuid ?? null),
     };
 
     const budget: CampaignData['budget'] = {
@@ -98,6 +100,10 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
     };
 
     return {
+      id:
+        typeof campaign.id === 'number' && campaign.id > 0
+          ? campaign.id
+          : undefined,
       uuid: campaign.uuid || '',
       segment,
       content,
@@ -126,6 +132,10 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
       }
       const clonedDraft: CampaignData = {
         ...normalizeCampaignToDraft(c),
+        id:
+          typeof cloneRes.data.id === 'number' && cloneRes.data.id > 0
+            ? cloneRes.data.id
+            : undefined,
         uuid: cloneRes.data.uuid,
       };
       prepareCampaignCreationDraft(clonedDraft);
@@ -207,11 +217,11 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                   </td>
                   <td className={td}>{c.bundle_title || '-'}</td>
                   <td className={td}>
-                    {c.phase
-                      ? copy[
-                          c.phase === 'test' ? 'phaseTest' : 'phaseExecution'
-                        ]
-                      : '-'}
+                    {c.phase === 'test'
+                      ? copy.phaseTest
+                      : c.phase === 'execution'
+                        ? copy.phaseExecution
+                        : c.phase || '-'}
                   </td>
                   <td className='px-4 py-2 text-sm text-gray-500 text-center'>
                     {c.num_audience || '-'}
