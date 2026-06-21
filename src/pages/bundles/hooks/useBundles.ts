@@ -47,6 +47,18 @@ const normalizePagination = (
   };
 };
 
+const buildCustomerOptions = (bundles: BundleListItem[]): string[] => {
+  const seen = new Map<string, string>();
+  bundles.forEach(bundle => {
+    const name = getBundleTargetCustomerName(bundle);
+    const key = name.toLowerCase();
+    if (name && !seen.has(key)) {
+      seen.set(key, name);
+    }
+  });
+  return Array.from(seen.values());
+};
+
 export const useBundles = ({ copy }: UseBundlesOptions) => {
   const { accessToken } = useAuth();
   const { language } = useLanguage();
@@ -58,6 +70,7 @@ export const useBundles = ({ copy }: UseBundlesOptions) => {
   const [titleFilter, setTitleFilter] = useState('');
   const [debouncedTitleFilter, setDebouncedTitleFilter] = useState('');
   const [customerFilter, setCustomerFilter] = useState('');
+  const [customerOptions, setCustomerOptions] = useState<string[]>([]);
   const [pagination, setPagination] =
     useState<BundlePagination>(DEFAULT_PAGINATION);
   const requestIdRef = useRef(0);
@@ -120,6 +133,23 @@ export const useBundles = ({ copy }: UseBundlesOptions) => {
     page,
   ]);
 
+  // Separate fetch to populate customer filter options across all pages.
+  // Uses a high limit so the dropdown is not limited to the current page.
+  useEffect(() => {
+    if (!accessToken) return;
+
+    apiService.setAccessToken(accessToken);
+    bundlesApi
+      .list({ page: 1, limit: 500 })
+      .then(response => {
+        if (!response.success || !response.data) return;
+        setCustomerOptions(buildCustomerOptions(response.data.items || []));
+      })
+      .catch(() => {
+        // Non-critical — options will remain empty
+      });
+  }, [accessToken]);
+
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       setDebouncedTitleFilter(titleFilter);
@@ -140,18 +170,6 @@ export const useBundles = ({ copy }: UseBundlesOptions) => {
       return customerName === normalizedCustomerFilter;
     });
   }, [customerFilter, items]);
-
-  const customerOptions = useMemo(() => {
-    const values = new Map<string, string>();
-    items.forEach(bundle => {
-      const name = getBundleTargetCustomerName(bundle);
-      const normalizedName = name.toLowerCase();
-      if (name && !values.has(normalizedName)) {
-        values.set(normalizedName, name);
-      }
-    });
-    return Array.from(values.values());
-  }, [items]);
 
   const clearFilters = useCallback(() => {
     setTitleFilter('');
