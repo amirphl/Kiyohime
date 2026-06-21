@@ -368,9 +368,11 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
                           })
                         : '—'}
                     </div>
-                    <p className='text-xs font-normal text-slate-500'>
-                      {copy.modal.estimatedDeliveredCostNote}
-                    </p>
+                    {estimatedDeliveredCost !== null && (
+                      <p className='text-xs font-normal text-slate-500'>
+                        {copy.modal.estimatedDeliveredCostNote}
+                      </p>
+                    )}
                   </div>
                 }
               />
