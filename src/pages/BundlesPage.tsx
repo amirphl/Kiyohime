@@ -126,7 +126,7 @@ const BundlesPage: React.FC = () => {
       return;
     }
 
-    if (action === 'createCampaign') {
+    if (action === 'executionCampaigns') {
       const bundleId = getBundleId(bundle);
       if (!bundleId) {
         showError(copy.messages.missingBundleId, BUNDLE_TOAST_DURATION_MS);
