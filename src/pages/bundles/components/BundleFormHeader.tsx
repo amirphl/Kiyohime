@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import { BundlesCopy } from '../translations';
 
@@ -33,7 +33,7 @@ const BundleFormHeader: React.FC<BundleFormHeaderProps> = ({
           </p>
         </div>
 
-        <Button variant='outline' icon={ChevronLeft} onClick={onBack}>
+        <Button variant='outline' icon={ArrowLeft} onClick={onBack}>
           {copy.createPage.back}
         </Button>
       </div>
