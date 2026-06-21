@@ -39,6 +39,7 @@ const CampaignCreationPage: React.FC = () => {
     nextStep,
     previousStep,
     goToStep,
+    setCampaignId,
     setCampaignUuid,
     resetCampaign,
   } = useCampaign();
@@ -129,6 +130,11 @@ const CampaignCreationPage: React.FC = () => {
           const response = await apiService.createCampaign(payload);
           if (response.success && response.data && response.data.uuid) {
             setCampaignUuid(response.data.uuid);
+            setCampaignId(
+              typeof response.data.id === 'number' && response.data.id > 0
+                ? response.data.id
+                : undefined
+            );
           } else {
             const errorMessage = getApiErrorMessage(
               response,
