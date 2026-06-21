@@ -2,7 +2,9 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { apiService } from '../../../services/api';
 import { CampaignData } from '../../../types/campaign';
 import { useAuth } from '../../../hooks/useAuth';
-import { serializeCampaignPayload } from '../../../utils/campaignUtils';
+import { useToast } from '../../../hooks/useToast';
+import { useLanguage } from '../../../hooks/useLanguage';
+import { paymentI18n } from './paymentTranslations';
 
 export const useCostCalculation = (
   campaignData: CampaignData,
@@ -16,6 +18,9 @@ export const useCostCalculation = (
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { accessToken } = useAuth();
+  const { language } = useLanguage();
+  const t = paymentI18n[language as keyof typeof paymentI18n] || paymentI18n.en;
+  const { showToast } = useToast();
 
   // Guards to avoid duplicate API calls
   const requestInFlightRef = useRef(false);
@@ -41,8 +46,15 @@ export const useCostCalculation = (
     const line_number = campaignData.content.lineNumber;
     const platform_settings_id = campaignData.content.platformSettingsId;
     const budget = campaignData.budget.totalBudget;
+    const campaignId = campaignData.id;
 
     if (!title || !level1 || !content || !budget) {
+      return;
+    }
+    if (!campaignId || campaignId <= 0) {
+      const errorMessage = t.campaignIdRequiredForCostCalculation;
+      setError(errorMessage);
+      showToast('error', errorMessage);
       return;
     }
 
@@ -83,11 +95,10 @@ export const useCostCalculation = (
     setError(null);
 
     try {
-      const payload = serializeCampaignPayload(campaignData, {
-        includeContent: true,
-        includeBudget: true,
+      const response = await apiService.calculateCampaignCost({
+        campaign_id: campaignId,
+        budget,
       });
-      const response = await apiService.calculateCampaignCost(payload);
 
       if (response.success && response.data) {
         setTotal(response.data.total_cost);
@@ -107,7 +118,7 @@ export const useCostCalculation = (
       setIsLoading(false);
       requestInFlightRef.current = false;
     }
-  }, [campaignData, onUpdatePayment]);
+  }, [campaignData, onUpdatePayment, showToast, t]);
 
   return {
     total,
