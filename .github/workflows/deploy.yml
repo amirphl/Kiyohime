@@ -83,7 +83,7 @@ jobs:
       packages: read
     steps:
       - name: Deploy to staging server
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         env:
           IMAGE: ${{ needs.build-and-push.outputs.image }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -139,7 +139,7 @@ jobs:
       packages: read
     steps:
       - name: Deploy to production server with canary health-check
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         env:
           IMAGE: ${{ needs.build-and-push.outputs.image }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
