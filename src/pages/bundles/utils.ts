@@ -64,7 +64,7 @@ export const getBundleJob = (bundle: BundleListItem): string => {
   return bundle.job?.trim() || '';
 };
 
-export const getBundleDeliveredCount = (
+export const getBundleTotalRecordsCount = (
   bundle: BundleListItem
 ): number | null => toFiniteNumber(bundle.statistics?.aggregatedTotalRecords);
 
