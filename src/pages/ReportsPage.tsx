@@ -20,8 +20,8 @@ const ReportsPage: React.FC = () => {
     updateBudget,
     updatePayment,
     setCampaignUuid,
+    setCampaignId,
     goToStep,
-    saveCampaignData,
   } = useCampaign();
   const { navigate } = useNavigation();
   const [items, setItems] = useState<GetCampaignResponse[]>([]);
@@ -49,6 +49,14 @@ const ReportsPage: React.FC = () => {
   const isFetchingRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
 
+  // Track previous filter values to skip stale-page fetch when filters reset pagination
+  const prevFiltersRef = useRef({
+    orderBy,
+    titleFilter,
+    bundleIdFilter,
+    phaseFilter,
+  });
+
   // Initialize filters from URL query parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -70,6 +78,21 @@ const ReportsPage: React.FC = () => {
   // Fetch campaigns whenever page/order/filter change
   useEffect(() => {
     if (!accessToken) return;
+
+    // When filters change while page > 1, skip: the reset effect will set page=1 and re-trigger
+    const prev = prevFiltersRef.current;
+    const filtersChanged =
+      prev.orderBy !== orderBy ||
+      prev.titleFilter !== titleFilter ||
+      prev.bundleIdFilter !== bundleIdFilter ||
+      prev.phaseFilter !== phaseFilter;
+    prevFiltersRef.current = {
+      orderBy,
+      titleFilter,
+      bundleIdFilter,
+      phaseFilter,
+    };
+    if (filtersChanged && page > 1) return;
 
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -181,25 +204,35 @@ const ReportsPage: React.FC = () => {
 
   const handleFixAndRestart = () => {
     if (!selected) return;
-    // Prefill campaign creation data from selected campaign, but clear UUID to create a new one later
+    // Clear id and uuid so step 1 creates a fresh campaign
+    setCampaignId(undefined);
     setCampaignUuid('');
     updateLevel({
       campaignTitle: selected.title || '',
-      level1: (selected as any).level1 || (selected as any).segment || '',
-      level3s: (selected as any).level3s || (selected as any).subsegment || [],
-      tags: (selected as any).tags || [],
+      platform: selected.platform ?? 'sms',
+      level1: selected.level1 || '',
+      level2s: Array.isArray(selected.level2s) ? selected.level2s : [],
+      level3s: Array.isArray(selected.level3s) ? selected.level3s : [],
+      audienceGrades: Array.isArray(selected.audience_grades)
+        ? selected.audience_grades
+        : [],
+      tags: Array.isArray(selected.tags) ? selected.tags : [],
+      bundleId: selected.bundle_id ?? null,
+      phase: selected.phase ?? undefined,
     });
     updateContent({
       insertLink: false,
       link: selected.adlink || '',
       text: selected.content || '',
       scheduleAt: selected.scheduleat || undefined,
+      lineNumber: selected.line_number || '',
+      platformSettingsId: selected.platform_settings_id ?? null,
+      mediaUuid: selected.media_uuid ?? null,
     });
     updateBudget({
       totalBudget: selected.budget || 0,
     });
     updatePayment({ termsAccepted: false });
-    saveCampaignData();
     goToStep(1);
     navigate('/campaign-creation');
     closeModal();
