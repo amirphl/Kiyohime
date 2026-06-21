@@ -10,7 +10,7 @@ import {
   getBundleClickRate,
   getBundleClicksCount,
   getBundleCustomerName,
-  getBundleDeliveredCount,
+  getBundleTotalRecordsCount,
   getBundleObjective,
   getBundlePersona,
   getBundleSentCount,
@@ -93,7 +93,7 @@ const BundlesTable: React.FC<BundlesTableProps> = ({
       <button
         type='button'
         className={`${actionButtonClass} flex-col`}
-        onClick={() => onActionClick('createCampaign', bundle)}
+        onClick={() => onActionClick('executionCampaigns', bundle)}
       >
         <Send className='h-4 w-4 shrink-0' />
         <span className='max-w-full truncate'>
@@ -116,7 +116,7 @@ const BundlesTable: React.FC<BundlesTableProps> = ({
         onClick={() => onActionClick('runNow', bundle)}
       >
         <Rocket className='h-4 w-4 shrink-0' />
-        <span className='max-w-full truncate'>{copy.actions.New}</span>
+        <span className='max-w-full truncate'>{copy.actions.new}</span>
       </button>
     </div>
   );
@@ -201,13 +201,13 @@ const BundlesTable: React.FC<BundlesTableProps> = ({
                       )}
                     </td>
                     <td className='px-1.5 py-3 text-center text-xs text-gray-900'>
-                      {formatBundleNumber(getBundleSentCount(bundle), locale)}
-                    </td>
-                    <td className='px-1.5 py-3 text-center text-xs text-gray-900'>
                       {formatBundleNumber(
-                        getBundleDeliveredCount(bundle),
+                        getBundleTotalRecordsCount(bundle),
                         locale
                       )}
+                    </td>
+                    <td className='px-1.5 py-3 text-center text-xs text-gray-900'>
+                      {formatBundleNumber(getBundleSentCount(bundle), locale)}
                     </td>
                     <td className='px-1.5 py-3 text-center text-xs text-gray-900'>
                       {formatBundleNumber(getBundleClicksCount(bundle), locale)}
@@ -272,16 +272,16 @@ const BundlesTable: React.FC<BundlesTableProps> = ({
                   </dd>
                 </div>
                 <div>
-                  <dt className='text-gray-500'>{copy.table.totalSent}</dt>
+                  <dt className='text-gray-500'>{copy.table.delivered}</dt>
                   <dd className='mt-1 font-medium text-gray-900'>
                     {formatBundleNumber(getBundleSentCount(bundle), locale)}
                   </dd>
                 </div>
                 <div>
-                  <dt className='text-gray-500'>{copy.table.delivered}</dt>
+                  <dt className='text-gray-500'>{copy.table.totalSent}</dt>
                   <dd className='mt-1 font-medium text-gray-900'>
                     {formatBundleNumber(
-                      getBundleDeliveredCount(bundle),
+                      getBundleTotalRecordsCount(bundle),
                       locale
                     )}
                   </dd>
