@@ -34,7 +34,7 @@ export interface BundlesCopy {
     view: string;
     campaignsWithPhaseAsExecution: string;
     campaignsWithPhaseAsTest: string;
-    New: string;
+    new: string;
   };
   pagination: {
     previous: string;
@@ -190,7 +190,7 @@ const bundlesEn: BundlesCopy = {
     view: 'View',
     campaignsWithPhaseAsExecution: 'Execution phase',
     campaignsWithPhaseAsTest: 'Test phase',
-    New: 'New',
+    new: 'New',
   },
   pagination: {
     previous: 'Previous',
@@ -367,7 +367,7 @@ const bundlesFa: BundlesCopy = {
     view: 'مشاهده',
     campaignsWithPhaseAsExecution: 'ارسال‌های اجرا',
     campaignsWithPhaseAsTest: 'ارسال‌های تست',
-    New: 'ساخت ارسال',
+    new: 'ساخت ارسال',
   },
   pagination: {
     previous: 'قبلی',
