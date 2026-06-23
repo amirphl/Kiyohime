@@ -28,8 +28,8 @@ export interface CalculatorTranslations {
 
 export const calculatorTranslations: Record<'en' | 'fa', CalculatorTranslations> = {
   en: {
-    openCalculator: 'Calculator',
-    title: 'Your Calculator',
+    openCalculator: 'Sub-agency Customer Calculator',
+    title: '',
     amountLabel: 'Customer Top-up Amount (Toman)',
     amountPlaceholder: 'e.g. 300000000',
     amountPreview: 'Preview:',
@@ -56,7 +56,7 @@ export const calculatorTranslations: Record<'en' | 'fa', CalculatorTranslations>
     times: '×',
   },
   fa: {
-    openCalculator: 'ماشین‌حساب',
+    openCalculator: 'ماشین‌حساب مشتری زیرمجموعه',
     title: '',
     amountLabel: 'میزان شارژ مشتری (تومان)',
     amountPlaceholder: 'مثلاً 300000000',
