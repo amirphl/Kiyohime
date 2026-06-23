@@ -50,7 +50,7 @@ ENV NODE_ENV=production \
 RUN npm run build:production
 
 # Stage 2: Production stage
-FROM nginx:1.29-alpine AS production
+FROM nginx:1.31-alpine AS production
 
 # Install security updates and necessary packages
 RUN apk update && \
