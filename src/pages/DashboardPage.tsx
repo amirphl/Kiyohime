@@ -13,6 +13,9 @@ import { Upload, X, Calculator } from 'lucide-react';
 import AgencyCalculatorModal, {
   calculatorTranslations,
 } from '../components/calculator/Calculator';
+import CpaCalculatorModal, {
+  cpaCalculatorTranslations,
+} from '../components/cpaCalculator/CpaCalculator';
 import {
   PricingRowDraft,
   useDashboardPricingCalculation,
@@ -51,6 +54,7 @@ const DashboardPage: React.FC = () => {
     file?: string;
   }>({});
   const [showCalcModal, setShowCalcModal] = useState(false);
+  const [showCpaCalcModal, setShowCpaCalcModal] = useState(false);
   const [showPricingCalcModal, setShowPricingCalcModal] = useState(false);
   // Profile modal state
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -185,6 +189,10 @@ const DashboardPage: React.FC = () => {
   const calcT =
     calculatorTranslations[language as keyof typeof calculatorTranslations] ||
     calculatorTranslations.en;
+  const cpaCalcT =
+    cpaCalculatorTranslations[
+      language as keyof typeof cpaCalculatorTranslations
+    ] || cpaCalculatorTranslations.en;
   const formatNum = (n: number) =>
     n.toLocaleString(language === 'fa' ? 'fa-IR' : 'en-US');
   const pricingTableCopy = {
@@ -520,6 +528,20 @@ const DashboardPage: React.FC = () => {
                   className='btn-primary flex items-center justify-center w-full'
                 >
                   <Calculator className='h-4 w-4 mr-2' /> {calcT.openCalculator}
+                </button>
+              </div>
+            )}
+            {isAgency && (
+              <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200 md:col-span-2 lg:col-span-1'>
+                <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                  {cpaCalcT.title}
+                </h3>
+                <button
+                  onClick={() => setShowCpaCalcModal(true)}
+                  className='btn-primary flex items-center justify-center w-full'
+                >
+                  <Calculator className='h-4 w-4 mr-2' />{' '}
+                  {cpaCalcT.openCalculator}
                 </button>
               </div>
             )}
@@ -873,6 +895,13 @@ const DashboardPage: React.FC = () => {
         isOpen={showCalcModal}
         onClose={() => setShowCalcModal(false)}
         translations={calcT}
+        dir={isRTL ? 'rtl' : 'ltr'}
+      />
+
+      <CpaCalculatorModal
+        isOpen={showCpaCalcModal}
+        onClose={() => setShowCpaCalcModal(false)}
+        translations={cpaCalcT}
         dir={isRTL ? 'rtl' : 'ltr'}
       />
 
