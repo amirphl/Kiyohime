@@ -34,23 +34,23 @@ export const useLinkCharacter = (text: string) => {
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
 
-    // Insert the backend placeholder at cursor position, then place the caret
-    // on the following line so users can keep typing message text naturally.
+    // Insert a single new line before the placeholder and keep the caret at
+    // the end of the placeholder without adding a trailing new line.
     const lineBreak = '\n';
     const newText =
       safeText.substring(0, start) +
-      LINK_PLACEHOLDER +
       lineBreak +
+      LINK_PLACEHOLDER +
       safeText.substring(end);
 
     onTextChange(newText);
     setLinkCharacterInserted(true);
 
-    // Set cursor position on the new line after the inserted placeholder.
+    // Set cursor position at the end of the inserted placeholder.
     setTimeout(() => {
       textarea.focus();
       const nextCursorPosition =
-        start + LINK_PLACEHOLDER.length + lineBreak.length;
+        start + lineBreak.length + LINK_PLACEHOLDER.length;
       textarea.setSelectionRange(nextCursorPosition, nextCursorPosition);
     }, 0);
   };
