@@ -51,7 +51,10 @@ const Footer: React.FC = () => {
   };
 
   const phoneHref = getPrimaryPhoneHref(contactT.phone || '');
-  const enamadHtml = `<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP' alt='' style='cursor:pointer' code='FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'></a>`;
+  const enamadUrl =
+    'https://trustseal.enamad.ir/?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP';
+  const enamadLogoUrl =
+    'https://trustseal.enamad.ir/logo.aspx?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP';
 
   return (
     <footer className='bg-gray-900 text-white'>
@@ -167,12 +170,26 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className='border-t border-gray-800 mt-8 pt-8 text-center relative'>
-          {/* Enamad trust seal - left side */}
-          <div
-            className='absolute left-0 top-1/2 -translate-y-1/2'
-            dangerouslySetInnerHTML={{ __html: enamadHtml }}
-          />
+        <div
+          className={`border-t border-gray-800 mt-8 pt-8 flex flex-col gap-4 sm:flex-row sm:items-center ${
+            isRTL ? 'sm:flex-row-reverse' : 'sm:flex-row'
+          } sm:justify-between`}
+        >
+          <a
+            href={enamadUrl}
+            target='_blank'
+            rel='noreferrer'
+            referrerPolicy='origin'
+            className='mx-auto sm:mx-0 inline-flex shrink-0 items-center justify-center rounded-lg bg-white p-2'
+            aria-label='Enamad trust seal'
+          >
+            <img
+              src={enamadLogoUrl}
+              alt='Enamad trust seal'
+              referrerPolicy='origin'
+              className='block h-20 w-auto'
+            />
+          </a>
           <p className='text-gray-400'>{footerT.copyright}</p>
         </div>
       </div>
