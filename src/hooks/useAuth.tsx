@@ -80,13 +80,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // Keep API service token in sync with accessToken state (runs immediately after mount)
     if (accessToken) {
       apiService.setAccessToken(accessToken);
-      console.log(
-        '✅ Access token synced with API service:',
-        accessToken.substring(0, 20) + '...'
-      );
     } else {
       apiService.setAccessToken(null);
-      console.log('✅ API service token cleared');
     }
   }, [accessToken]);
 
@@ -105,9 +100,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setUser(parsedUser);
         setIsAuthenticated(true);
         apiService.setAccessToken(token);
-        console.log(
-          '✅ Access token synced with API service on app initialization'
-        );
       } catch (error) {
         console.error('Error parsing stored user data:', error);
         // Clear localStorage on error
@@ -140,22 +132,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // Attach token to API service immediately
     apiService.setAccessToken(tokens.token);
-
-    console.log('User data stored successfully. Authentication state updated.');
-    console.log('Account type:', userData.account_type);
   };
 
   const logout = useCallback((redirectToLogin: boolean = false) => {
-    console.log(
-      '🔄 Starting comprehensive logout - clearing all localStorage data...'
-    );
-
     // Clear campaign data first (this will clear localStorage items)
     clearCampaignData();
 
     // Clear campaign context data if available
     if (campaignContextClearFunction) {
-      console.log('🧹 Clearing campaign context data...');
       campaignContextClearFunction();
     }
 
@@ -171,12 +155,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // Clear API service token
     apiService.setAccessToken(null);
 
-    console.log('✅ Logout completed - all localStorage data cleared');
-    console.log('🧹 localStorage items remaining:', Object.keys(localStorage));
-
     // If redirect is requested, handle it after state is cleared
     if (redirectToLogin) {
-      console.log('🔄 Manual logout - redirecting to login page...');
       setTimeout(() => {
         window.location.replace('/signin');
       }, 100);
@@ -184,7 +164,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const logoutAndRedirect = useCallback(() => {
-    console.log('🚨 Logging out due to 401 Unauthorized response');
     // Prevent duplicate alerts/redirects if multiple requests hit 401
     if (customerUnauthorizedHandled) {
       return;
@@ -224,20 +203,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Set up the unauthorized handler for the API service
   useEffect(() => {
-    console.log('Setting up unauthorized handler for API service...');
     apiService.setUnauthorizedHandler(logoutAndRedirect);
 
-    // Verify the handler was set up correctly
-    if (apiService.isUnauthorizedHandlerConfigured()) {
-      console.log('✅ Unauthorized handler configured successfully');
-    } else {
+    if (!apiService.isUnauthorizedHandlerConfigured()) {
       console.error('❌ Failed to configure unauthorized handler');
     }
   }, [logoutAndRedirect]);
 
   // Manual logout function for user-initiated logout
   const manualLogout = useCallback(() => {
-    console.log('👤 User initiated logout');
     logout(true); // Pass true to redirect to login
   }, [logout]);
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Copy } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import { BundleListItem } from '../../../types/bundle';
 import { BundlesCopy } from '../translations';

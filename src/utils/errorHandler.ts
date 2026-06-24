@@ -468,7 +468,6 @@ export function clearAllUserData(): void {
     ) {
       localStorage.removeItem(key);
     } else {
-      console.log(`💾 Preserved (user preference): ${key}`);
     }
   });
 }
