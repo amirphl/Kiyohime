@@ -48,7 +48,9 @@ const CategoryJobFields: React.FC<Props> = ({
           </option>
         ))}
       </select>
-      {errors?.category && <p className='mt-1 text-sm text-red-600'>{errors.category}</p>}
+      {errors?.category && (
+        <p className='mt-1 text-sm text-red-600'>{errors.category}</p>
+      )}
     </div>
 
     <div>

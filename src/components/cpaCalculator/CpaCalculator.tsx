@@ -146,7 +146,10 @@ const CpaCalculatorModal: React.FC<CpaCalculatorProps> = ({
 
   if (!isOpen) return null;
 
-  const recalculate = (nextValues: typeof values, nextActiveId: CpaFieldId | null) => {
+  const recalculate = (
+    nextValues: typeof values,
+    nextActiveId: CpaFieldId | null
+  ) => {
     setValues(calculateCpaValues(nextValues, nextActiveId, supplementActive));
   };
 
@@ -169,7 +172,9 @@ const CpaCalculatorModal: React.FC<CpaCalculatorProps> = ({
         {
           ...current,
           [fieldId]:
-            current[fieldId] === '' || current[fieldId] === '-' || current[fieldId] === '.'
+            current[fieldId] === '' ||
+            current[fieldId] === '-' ||
+            current[fieldId] === '.'
               ? '0'
               : current[fieldId],
         },

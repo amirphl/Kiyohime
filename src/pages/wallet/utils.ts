@@ -22,9 +22,5 @@ export const formatWalletDatetime = (iso: string, language: string) => {
 };
 
 export const recommendedAmounts = [
-  10_000_000,
-  15_000_000,
-  30_000_000,
-  50_000_000,
-  100_000_000,
+  10_000_000, 15_000_000, 30_000_000, 50_000_000, 100_000_000,
 ];

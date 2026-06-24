@@ -55,9 +55,7 @@ const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
               disabled={submitting}
             >
               <option value=''>{copy.modal.nextStatus}</option>
-              <option value='in-progress'>
-                {statusLabel('in-progress')}
-              </option>
+              <option value='in-progress'>{statusLabel('in-progress')}</option>
               <option value='active'>{statusLabel('active')}</option>
               <option value='inactive'>{statusLabel('inactive')}</option>
             </select>

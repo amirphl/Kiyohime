@@ -57,11 +57,13 @@ export const cpaCalculatorTranslations: Record<
       },
       suppConversions: {
         label: 'Supplemental send signups',
-        formula: 'Delivered messages of supplemental send × supplemental signup rate',
+        formula:
+          'Delivered messages of supplemental send × supplemental signup rate',
       },
       suppRate: {
         label: 'Supplemental send signup rate',
-        formula: '(Supplemental signups ÷ delivered messages of supplemental send) × 100',
+        formula:
+          '(Supplemental signups ÷ delivered messages of supplemental send) × 100',
       },
       suppSendCost: {
         label: 'Your cost per supplemental send message',
@@ -73,7 +75,8 @@ export const cpaCalculatorTranslations: Record<
     pricingFields: {
       capacity: {
         label: 'Available capacity of selected segment',
-        formula: 'Main send capacity; supplemental send does not increase capacity',
+        formula:
+          'Main send capacity; supplemental send does not increase capacity',
       },
       offerPrice: {
         label: 'Suggested price per signup',

@@ -44,7 +44,9 @@ const PLATFORM_KEY_PREFIX: Record<'bale' | 'rubika' | 'splus', string> = {
   splus: 'splus_',
 };
 
-const getKeyPrefixByPlatform = (platform?: AdminPlatformKey | null): string | null => {
+const getKeyPrefixByPlatform = (
+  platform?: AdminPlatformKey | null
+): string | null => {
   if (!platform) return null;
   const normalized = String(platform).toLowerCase();
   if (normalized === 'bale') return PLATFORM_KEY_PREFIX.bale;

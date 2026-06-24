@@ -1,4 +1,10 @@
-import { useState, useEffect, useContext, createContext, useCallback } from 'react';
+import {
+  useState,
+  useEffect,
+  useContext,
+  createContext,
+  useCallback,
+} from 'react';
 import { apiService } from '../services/api';
 import { clearAllUserData, clearCampaignData } from '../utils/errorHandler';
 
@@ -51,7 +57,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   // Initialize state from localStorage synchronously to avoid token race on first render
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => localStorage.getItem('is_authenticated') === 'true');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    () => localStorage.getItem('is_authenticated') === 'true'
+  );
   const [user, setUser] = useState<Customer | null>(() => {
     const userData = localStorage.getItem('customer_data');
     if (!userData) return null;
@@ -61,14 +69,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       return null;
     }
   });
-  const [accessToken, setAccessToken] = useState<string | null>(() => localStorage.getItem('access_token'));
-  const [refreshToken, setRefreshToken] = useState<string | null>(() => localStorage.getItem('refresh_token'));
+  const [accessToken, setAccessToken] = useState<string | null>(() =>
+    localStorage.getItem('access_token')
+  );
+  const [refreshToken, setRefreshToken] = useState<string | null>(() =>
+    localStorage.getItem('refresh_token')
+  );
 
   useEffect(() => {
     // Keep API service token in sync with accessToken state (runs immediately after mount)
     if (accessToken) {
       apiService.setAccessToken(accessToken);
-      console.log('✅ Access token synced with API service:', accessToken.substring(0, 20) + '...');
+      console.log(
+        '✅ Access token synced with API service:',
+        accessToken.substring(0, 20) + '...'
+      );
     } else {
       apiService.setAccessToken(null);
       console.log('✅ API service token cleared');
@@ -90,7 +105,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setUser(parsedUser);
         setIsAuthenticated(true);
         apiService.setAccessToken(token);
-        console.log('✅ Access token synced with API service on app initialization');
+        console.log(
+          '✅ Access token synced with API service on app initialization'
+        );
       } catch (error) {
         console.error('Error parsing stored user data:', error);
         // Clear localStorage on error
@@ -129,7 +146,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const logout = useCallback((redirectToLogin: boolean = false) => {
-    console.log('🔄 Starting comprehensive logout - clearing all localStorage data...');
+    console.log(
+      '🔄 Starting comprehensive logout - clearing all localStorage data...'
+    );
 
     // Clear campaign data first (this will clear localStorage items)
     clearCampaignData();
@@ -181,7 +200,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const docLang = (document?.documentElement?.lang || '').toLowerCase();
       const storedLang = (localStorage.getItem('language') || '').toLowerCase();
       if (docLang === 'fa' || storedLang === 'fa') lang = 'fa';
-    } catch { }
+    } catch {}
 
     // Show alert to user before redirecting
     try {
@@ -190,12 +209,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       } else {
         alert('Session expired. Redirecting to login page...');
       }
-    } catch { }
+    } catch {}
 
     // Ensure all local storage is cleared before redirecting
     try {
       localStorage.clear();
-    } catch { }
+    } catch {}
 
     // Redirect after a short delay
     setTimeout(() => {
@@ -223,13 +242,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [logout]);
 
   // Function to update user data
-  const updateUser = useCallback((userData: Partial<Customer>) => {
-    if (user) {
-      const updatedUser = { ...user, ...userData };
-      setUser(updatedUser);
-      localStorage.setItem('customer_data', JSON.stringify(updatedUser));
-    }
-  }, [user]);
+  const updateUser = useCallback(
+    (userData: Partial<Customer>) => {
+      if (user) {
+        const updatedUser = { ...user, ...userData };
+        setUser(updatedUser);
+        localStorage.setItem('customer_data', JSON.stringify(updatedUser));
+      }
+    },
+    [user]
+  );
 
   const value: AuthContextType = {
     accessToken,
@@ -244,11 +266,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     updateUser,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

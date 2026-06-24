@@ -24,7 +24,9 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({
     ) : (
       <>
         <span>{label}</span>
-        {showArrow && <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />}
+        {showArrow && (
+          <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
+        )}
       </>
     )}
   </button>

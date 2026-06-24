@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useCallback, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useCallback,
+  ReactNode,
+} from 'react';
 import { getRouteByPath } from '../config/routes';
 
 interface NavigationContextType {
@@ -8,13 +13,17 @@ interface NavigationContextType {
   isCurrentRoute: (path: string) => boolean;
 }
 
-const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
+const NavigationContext = createContext<NavigationContextType | undefined>(
+  undefined
+);
 
 interface NavigationProviderProps {
   children: ReactNode;
 }
 
-export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children }) => {
+export const NavigationProvider: React.FC<NavigationProviderProps> = ({
+  children,
+}) => {
   const navigate = useCallback((path: string) => {
     // Validate the route exists
     const route = getRouteByPath(path);
@@ -62,4 +71,4 @@ export const useNavigation = (): NavigationContextType => {
     throw new Error('useNavigation must be used within a NavigationProvider');
   }
   return context;
-}; 
+};

@@ -26,14 +26,22 @@ export interface CalculatorTranslations {
   times?: string;
 }
 
-export const calculatorTranslations: Record<'en' | 'fa', CalculatorTranslations> = {
+export const calculatorTranslations: Record<
+  'en' | 'fa',
+  CalculatorTranslations
+> = {
   en: {
     openCalculator: 'Sub-agency Customer Calculator',
     title: '',
     amountLabel: 'Customer Top-up Amount (Toman)',
     amountPlaceholder: 'e.g. 300000000',
     amountPreview: 'Preview:',
-    amountChips: ['20 million Toman', '60 million Toman', '140 million Toman', '300 million Toman'],
+    amountChips: [
+      '20 million Toman',
+      '60 million Toman',
+      '140 million Toman',
+      '300 million Toman',
+    ],
     percentLabel: 'Customer Gift Percent (0 to 100%)',
     percentHint: 'Quick picks:',
     percentChips: ['0%', '20%', '40%', '60%', '80%', '90%', '100%'],
@@ -43,7 +51,8 @@ export const calculatorTranslations: Record<'en' | 'fa', CalculatorTranslations>
     reductionTip:
       'Reduction of your revenue compared to when the gift percent is zero. Depends on customer top-up and the gift percent you set.',
     giftLabel: 'Gift amount you give the customer',
-    giftTip: 'The gift balance you are granting to the customer based on their top-up and your chosen gift percent.',
+    giftTip:
+      'The gift balance you are granting to the customer based on their top-up and your chosen gift percent.',
     ruleFixed: 'Fixed rule:',
     yourRevenueLabel: 'Your final revenue',
     totalChargeLabel: 'Customer final balance',
@@ -61,7 +70,12 @@ export const calculatorTranslations: Record<'en' | 'fa', CalculatorTranslations>
     amountLabel: 'میزان شارژ مشتری (تومان)',
     amountPlaceholder: 'مثلاً 300000000',
     amountPreview: 'نمایش:',
-    amountChips: ['۲۰ میلیون تومان', '۶۰ میلیون تومان', '۱۴۰ میلیون تومان', '۳۰۰ میلیون تومان'],
+    amountChips: [
+      '۲۰ میلیون تومان',
+      '۶۰ میلیون تومان',
+      '۱۴۰ میلیون تومان',
+      '۳۰۰ میلیون تومان',
+    ],
     percentLabel: 'درصد شارژ هدیه مشتری (۰ تا ۱۰۰٪)',
     percentHint: 'انتخاب نمونه‌ها:',
     percentChips: ['۰٪', '۲۰٪', '۴۰٪', '۶۰٪', '۸۰٪', '۹۰٪', '۱۰۰٪'],

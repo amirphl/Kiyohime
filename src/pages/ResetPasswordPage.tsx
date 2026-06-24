@@ -25,7 +25,9 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
   maskedPhone: propMaskedPhone,
 }) => {
   const { isRTL, language } = useLanguage();
-  const resetPasswordT = resetPasswordI18n[language as keyof typeof resetPasswordI18n] || resetPasswordI18n.en;
+  const resetPasswordT =
+    resetPasswordI18n[language as keyof typeof resetPasswordI18n] ||
+    resetPasswordI18n.en;
 
   const formatMessage = (template: string, params: Record<string, any>) =>
     template.replace(/\{(\w+)\}/g, (_, key) => String(params[key] ?? ''));
@@ -160,11 +162,13 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
         setError(errorMessage);
       }
     } catch (error) {
-      setError(getApiErrorMessage(
-        { success: false, error: { code: 'NETWORK_ERROR' } },
-        language,
-        resetPasswordT.error.networkError
-      ));
+      setError(
+        getApiErrorMessage(
+          { success: false, error: { code: 'NETWORK_ERROR' } },
+          language,
+          resetPasswordT.error.networkError
+        )
+      );
     } finally {
       setIsLoading(false);
     }

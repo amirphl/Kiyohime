@@ -20,7 +20,8 @@ export const forgotPasswordI18n = {
     success: {
       title: 'Reset Link Sent',
       subtitle: 'Check your mobile for the OTP',
-      message: 'Password reset OTP has been sent to {phone} Please check your messages.',
+      message:
+        'Password reset OTP has been sent to {phone} Please check your messages.',
       expiresIn: 'OTP expires in {minutes} minutes',
       tryAgain: 'Try Another Email/Mobile',
       resetPassword: 'Reset Password',
@@ -40,8 +41,7 @@ export const forgotPasswordI18n = {
       identifierRequired: 'لطفاً ایمیل یا شماره موبایل خود را وارد کنید',
     },
     error: {
-      requestFailed:
-        'ارسال لینک بازنشانی ناموفق بود. لطفاً دوباره تلاش کنید.',
+      requestFailed: 'ارسال لینک بازنشانی ناموفق بود. لطفاً دوباره تلاش کنید.',
       customerNotFound: 'مشتری یافت نشد. لطفاً اطلاعات خود را بررسی کنید.',
       accountInactive:
         'حساب کاربری غیرفعال است. لطفاً با پشتیبانی تماس بگیرید.',
@@ -58,7 +58,7 @@ export const forgotPasswordI18n = {
       resetPassword: 'بازنشانی رمز عبور',
       backToLogin: 'بازگشت به ورود',
     },
-  }
+  },
 } as const;
 
 export type ForgotPasswordLocale = keyof typeof forgotPasswordI18n;

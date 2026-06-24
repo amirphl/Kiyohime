@@ -24,7 +24,10 @@ export const replaceUidPlaceholder = (
   return link
     .split(UID_PLACEHOLDER)
     .join(replacement)
-    .replace(new RegExp(escapeRegExp(ENCODED_UID_PLACEHOLDER), 'gi'), replacement);
+    .replace(
+      new RegExp(escapeRegExp(ENCODED_UID_PLACEHOLDER), 'gi'),
+      replacement
+    );
 };
 
 export const useLinkUidPlaceholder = (link: string) => {

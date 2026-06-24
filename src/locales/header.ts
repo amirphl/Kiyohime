@@ -31,4 +31,4 @@ export const headerI18n = {
   },
 } as const;
 
-export type HeaderLocale = keyof typeof headerI18n; 
+export type HeaderLocale = keyof typeof headerI18n;

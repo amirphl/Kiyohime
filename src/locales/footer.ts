@@ -16,8 +16,9 @@ export const footerI18n = {
     helpCenter: 'مرکز راهنمایی',
     contactUs: 'تماس با ما',
     termsOfService: 'شرایط خدمات',
-    copyright: 'کلیه حقوق این سامانه برای شرکت راه‌کارهای هدفمند خلاق محفوظ است.',
+    copyright:
+      'کلیه حقوق این سامانه برای شرکت راه‌کارهای هدفمند خلاق محفوظ است.',
   },
 } as const;
 
-export type FooterLocale = keyof typeof footerI18n; 
+export type FooterLocale = keyof typeof footerI18n;

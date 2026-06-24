@@ -67,7 +67,11 @@ export interface CpaCalculatorTranslations {
   >;
   resultSectionTitle: string;
   resultFields: Record<
-    'possibleConversions' | 'revenue' | 'totalCost' | 'profit' | 'profitPercent',
+    | 'possibleConversions'
+    | 'revenue'
+    | 'totalCost'
+    | 'profit'
+    | 'profitPercent',
     { label: string; formula: string }
   >;
   reset: string;

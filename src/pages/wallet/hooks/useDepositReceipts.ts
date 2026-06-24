@@ -5,7 +5,10 @@ import {
   DepositReceiptItem,
 } from '../../../types/payments';
 
-export const useDepositReceipts = (accessToken?: string | null, lang?: string) => {
+export const useDepositReceipts = (
+  accessToken?: string | null,
+  lang?: string
+) => {
   const [items, setItems] = useState<DepositReceiptItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

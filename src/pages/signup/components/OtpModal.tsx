@@ -40,9 +40,16 @@ const OtpModal: React.FC<Props> = ({
   return (
     <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
       <div className='bg-white rounded-lg max-w-md w-full p-6'>
-        <div className={`flex justify-between items-center mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <h3 className='text-lg font-medium text-gray-900'>{strings.verifyMobile}</h3>
-          <button onClick={onClose} className='text-gray-400 hover:text-gray-600'>
+        <div
+          className={`flex justify-between items-center mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}
+        >
+          <h3 className='text-lg font-medium text-gray-900'>
+            {strings.verifyMobile}
+          </h3>
+          <button
+            onClick={onClose}
+            className='text-gray-400 hover:text-gray-600'
+          >
             <X className='h-5 w-5' />
           </button>
         </div>
@@ -61,7 +68,9 @@ const OtpModal: React.FC<Props> = ({
             <input
               type='text'
               value={otpCode}
-              onChange={e => onOtpChange(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={e =>
+                onOtpChange(e.target.value.replace(/\D/g, '').slice(0, 6))
+              }
               className='input-field text-center text-2xl tracking-widest'
               placeholder='000000'
               maxLength={6}

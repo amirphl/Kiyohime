@@ -76,33 +76,34 @@ const LandingPage: React.FC = () => {
 
   return (
     <div
-      dir="rtl"
-      className="min-h-screen"
+      dir='rtl'
+      className='min-h-screen'
       style={{
         background:
           'radial-gradient(1200px 700px at 80% 10%, rgba(11,103,255,.22), transparent 55%), radial-gradient(900px 520px at 15% 85%, rgba(255,43,43,.16), transparent 60%), linear-gradient(180deg, var(--bg1), var(--bg2))',
         color: 'var(--text)',
-        fontFamily: '"Vazirmatn", "Vazir", system-ui, -apple-system, "Segoe UI", Tahoma, Arial',
+        fontFamily:
+          '"Vazirmatn", "Vazir", system-ui, -apple-system, "Segoe UI", Tahoma, Arial',
       }}
     >
       <style>{gradientStyles}</style>
-      <div className="min-h-screen flex items-center justify-center px-4 py-7">
+      <div className='min-h-screen flex items-center justify-center px-4 py-7'>
         <main
-          className="grid gap-5 w-full grid-cols-1 md:[grid-template-columns:1.15fr_.85fr]"
+          className='grid gap-5 w-full grid-cols-1 md:[grid-template-columns:1.15fr_.85fr]'
           style={{ width: 'min(980px, 100%)' }}
         >
           <section
-            className="relative rounded-[18px] border border-white/5 shadow-2xl overflow-hidden"
+            className='relative rounded-[18px] border border-white/5 shadow-2xl overflow-hidden'
             style={{
               padding: '28px 26px',
               background:
                 'linear-gradient(180deg, rgba(17,28,52,.92), rgba(15,23,42,.92))',
               boxShadow: 'var(--shadow)',
             }}
-            aria-label="معرفی جاذبه"
+            aria-label='معرفی جاذبه'
           >
             <div
-              className="absolute"
+              className='absolute'
               style={{
                 inset: '-120px -140px auto auto',
                 width: 420,
@@ -116,7 +117,7 @@ const LandingPage: React.FC = () => {
               }}
             />
             <div
-              className="absolute"
+              className='absolute'
               style={{
                 inset: 'auto auto -160px -160px',
                 width: 520,
@@ -129,43 +130,48 @@ const LandingPage: React.FC = () => {
               }}
             />
 
-            <div className="relative flex items-center justify-between gap-3 mb-4">
-              <div className="flex items-center gap-3">
+            <div className='relative flex items-center justify-between gap-3 mb-4'>
+              <div className='flex items-center gap-3'>
                 <div
-                  className="w-11 h-11 rounded-2xl bg-white/5 grid place-items-center border border-white/10 shadow-lg overflow-hidden"
-                  aria-hidden="true"
+                  className='w-11 h-11 rounded-2xl bg-white/5 grid place-items-center border border-white/10 shadow-lg overflow-hidden'
+                  aria-hidden='true'
                 >
                   <img
-                    src="/Jazebeh.png"
-                    alt="لوگوی جاذبه"
-                    className="w-9 h-9 object-contain"
-                    loading="lazy"
+                    src='/Jazebeh.png'
+                    alt='لوگوی جاذبه'
+                    className='w-9 h-9 object-contain'
+                    loading='lazy'
                   />
                 </div>
                 <div>
-                  <h1 className="m-0 text-lg">جاذبه</h1>
-                  <div className="text-[13px] text-slate-300/80 mt-0.5">
+                  <h1 className='m-0 text-lg'>جاذبه</h1>
+                  <div className='text-[13px] text-slate-300/80 mt-0.5'>
                     سامانه ارسال پیامک هدفمند و قابل اندازه‌گیری
                   </div>
                 </div>
               </div>
-              <div className="text-[12px] text-indigo-100 bg-indigo-500/15 border border-indigo-500/35 px-3 py-2 rounded-full whitespace-nowrap">
+              <div className='text-[12px] text-indigo-100 bg-indigo-500/15 border border-indigo-500/35 px-3 py-2 rounded-full whitespace-nowrap'>
                 هدف دقیق • گزارش شفاف • نتیجه واقعی
               </div>
             </div>
 
-            <div className="relative z-10 mt-2 space-y-4">
-              <h2 className="text-[34px] leading-snug m-0">
-                پیامک را <span className="bg-gradient-to-r from-indigo-500/30 to-rose-500/20 px-2.5 py-1 rounded-[14px] border border-white/10 text-white">به هدف دقیق</span>{' '}
+            <div className='relative z-10 mt-2 space-y-4'>
+              <h2 className='text-[34px] leading-snug m-0'>
+                پیامک را{' '}
+                <span className='bg-gradient-to-r from-indigo-500/30 to-rose-500/20 px-2.5 py-1 rounded-[14px] border border-white/10 text-white'>
+                  به هدف دقیق
+                </span>{' '}
                 برسانید، نه ارسال کور!
               </h2>
-              <p className="m-0 text-[15px] leading-8 text-slate-100/90 max-w-[56ch]">
-                جاذبه یک پلتفرم SMS Marketing داده‌محور است که کمک می‌کند پیام درست را در زمان درست به مخاطب درست برسانید؛
-                با سگمنت‌بندی هوشمند، لینک قابل رهگیری و گزارش‌های روشن برای تصمیم‌گیری سریع‌تر و کمپین‌های پربازده‌تر.
+              <p className='m-0 text-[15px] leading-8 text-slate-100/90 max-w-[56ch]'>
+                جاذبه یک پلتفرم SMS Marketing داده‌محور است که کمک می‌کند پیام
+                درست را در زمان درست به مخاطب درست برسانید؛ با سگمنت‌بندی
+                هوشمند، لینک قابل رهگیری و گزارش‌های روشن برای تصمیم‌گیری
+                سریع‌تر و کمپین‌های پربازده‌تر.
               </p>
 
               <div
-                className="grid"
+                className='grid'
                 style={{ gridTemplateColumns: '1fr 1fr', gap: '10px 14px' }}
               >
                 {[
@@ -176,17 +182,17 @@ const LandingPage: React.FC = () => {
                 ].map(text => (
                   <div
                     key={text}
-                    className="flex gap-3 items-start px-3 py-2.5 rounded-[14px] bg-white/5 border border-white/10 backdrop-blur-md"
+                    className='flex gap-3 items-start px-3 py-2.5 rounded-[14px] bg-white/5 border border-white/10 backdrop-blur-md'
                   >
                     <span
-                      className="mt-1 w-2.5 h-2.5 rounded-full"
+                      className='mt-1 w-2.5 h-2.5 rounded-full'
                       style={{
                         background:
                           'linear-gradient(180deg, var(--blue), rgba(11,103,255,.35))',
                         boxShadow: '0 0 0 6px rgba(11,103,255,.10)',
                       }}
                     />
-                    <p className="m-0 text-[13px] text-slate-100/90 leading-6">
+                    <p className='m-0 text-[13px] text-slate-100/90 leading-6'>
                       {text}
                     </p>
                   </div>
@@ -196,17 +202,17 @@ const LandingPage: React.FC = () => {
           </section>
 
           <aside
-            className="relative rounded-[18px] border border-white/5 shadow-2xl overflow-hidden flex flex-col gap-3"
+            className='relative rounded-[18px] border border-white/5 shadow-2xl overflow-hidden flex flex-col gap-3'
             style={{
               padding: '22px',
               background:
                 'linear-gradient(180deg, rgba(17,28,52,.92), rgba(15,23,42,.92))',
               boxShadow: 'var(--shadow)',
             }}
-            aria-label="ثبت شماره تماس"
+            aria-label='ثبت شماره تماس'
           >
             <div
-              className="absolute"
+              className='absolute'
               style={{
                 inset: '-120px auto auto -140px',
                 width: 360,
@@ -218,51 +224,53 @@ const LandingPage: React.FC = () => {
                 pointerEvents: 'none',
               }}
             />
-            <h2 className="relative z-10 m-0 text-[20px]">
+            <h2 className='relative z-10 m-0 text-[20px]'>
               برای دریافت دمو، شماره خود را وارد کنید
             </h2>
-            <p className="relative z-10 m-0 text-[13px] text-slate-400 leading-7">
+            <p className='relative z-10 m-0 text-[13px] text-slate-400 leading-7'>
               تیم ما در سریع‌ترین زمان برای هماهنگی دمو با شما تماس می‌گیرد.
             </p>
 
             <form
-              className="relative z-10 flex flex-wrap gap-2.5 mt-2"
+              className='relative z-10 flex flex-wrap gap-2.5 mt-2'
               onSubmit={handleSubmit}
             >
-              <div className="flex items-center flex-1 min-w-[220px] bg-white/5 border border-white/10 rounded-[14px] px-3 py-3 focus-within:border-primary-400 focus-within:ring-2 focus-within:ring-[rgba(11,103,255,.35)] transition">
+              <div className='flex items-center flex-1 min-w-[220px] bg-white/5 border border-white/10 rounded-[14px] px-3 py-3 focus-within:border-primary-400 focus-within:ring-2 focus-within:ring-[rgba(11,103,255,.35)] transition'>
                 <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  inputMode="tel"
-                  autoComplete="tel"
-                  placeholder="مثال: 0912xxxxxxx یا 98912xxxxxxx"
-                  aria-label="شماره تماس"
-                  className="w-full bg-transparent border-0 outline-none text-[14px] text-slate-100 placeholder:text-slate-400"
+                  id='phone'
+                  name='phone'
+                  type='tel'
+                  inputMode='tel'
+                  autoComplete='tel'
+                  placeholder='مثال: 0912xxxxxxx یا 98912xxxxxxx'
+                  aria-label='شماره تماس'
+                  className='w-full bg-transparent border-0 outline-none text-[14px] text-slate-100 placeholder:text-slate-400'
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
                   disabled={submitting}
                 />
               </div>
               <button
-                type="submit"
+                type='submit'
                 disabled={submitting}
-                className="px-4 py-3 rounded-[14px] text-white font-bold text-[14px] bg-gradient-to-r from-primary-600 to-primary-500 shadow-lg hover:brightness-105 active:translate-y-[1px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className='px-4 py-3 rounded-[14px] text-white font-bold text-[14px] bg-gradient-to-r from-primary-600 to-primary-500 shadow-lg hover:brightness-105 active:translate-y-[1px] disabled:opacity-50 disabled:cursor-not-allowed'
               >
                 {submitting ? 'در حال ارسال...' : 'ثبت شماره'}
               </button>
             </form>
 
-            <div className="relative z-10 flex items-center justify-between gap-3 text-[12px] text-slate-300/90 mt-1">
-              <span className="inline-flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_0_0_rgba(255,43,43,.35)] animate-ping" />
+            <div className='relative z-10 flex items-center justify-between gap-3 text-[12px] text-slate-300/90 mt-1'>
+              <span className='inline-flex items-center gap-2'>
+                <span className='w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_0_0_rgba(255,43,43,.35)] animate-ping' />
                 پاسخ‌گویی سریع در ساعات کاری
               </span>
-              <span className="text-emerald-400">{statusMessage}</span>
+              <span className='text-emerald-400'>{statusMessage}</span>
             </div>
 
-            <div className="relative z-10 mt-2 p-3 rounded-[14px] bg-white/5 border border-white/10 text-[12px] text-slate-100/90 leading-7">
-              <b className="text-white">قول جاذبه:</b> اگر کمپین قابل اندازه‌گیری می‌خواهید، ما از روز اول گزارش شفاف و قابل تصمیم ارائه می‌دهیم.
+            <div className='relative z-10 mt-2 p-3 rounded-[14px] bg-white/5 border border-white/10 text-[12px] text-slate-100/90 leading-7'>
+              <b className='text-white'>قول جاذبه:</b> اگر کمپین قابل
+              اندازه‌گیری می‌خواهید، ما از روز اول گزارش شفاف و قابل تصمیم ارائه
+              می‌دهیم.
             </div>
           </aside>
         </main>

@@ -146,9 +146,7 @@ const LevelTwoCard: React.FC<LevelTwoCardProps> = ({
                               </span>
                               <span
                                 className={`text-gray-100 ${
-                                  isJustifiedMetaField(k)
-                                    ? ''
-                                    : 'text-left'
+                                  isJustifiedMetaField(k) ? '' : 'text-left'
                                 }`}
                                 style={
                                   isJustifiedMetaField(k)

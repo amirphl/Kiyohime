@@ -18,9 +18,10 @@ const LoginMethodToggle: React.FC<LoginMethodToggleProps> = ({
     <button
       type='button'
       onClick={() => onChange('password')}
-      className={`flex-1 text-sm font-medium py-2 rounded-md transition ${method === 'password'
-        ? 'bg-white text-gray-900 shadow'
-        : 'text-gray-600 hover:text-gray-900'
+      className={`flex-1 text-sm font-medium py-2 rounded-md transition ${
+        method === 'password'
+          ? 'bg-white text-gray-900 shadow'
+          : 'text-gray-600 hover:text-gray-900'
       }`}
     >
       {passwordLabel}
@@ -28,9 +29,10 @@ const LoginMethodToggle: React.FC<LoginMethodToggleProps> = ({
     <button
       type='button'
       onClick={() => onChange('otp')}
-      className={`flex-1 text-sm font-medium py-2 rounded-md transition ${method === 'otp'
-        ? 'bg-white text-gray-900 shadow'
-        : 'text-gray-600 hover:text-gray-900'
+      className={`flex-1 text-sm font-medium py-2 rounded-md transition ${
+        method === 'otp'
+          ? 'bg-white text-gray-900 shadow'
+          : 'text-gray-600 hover:text-gray-900'
       }`}
     >
       {otpLabel}

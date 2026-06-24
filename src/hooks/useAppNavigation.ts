@@ -7,11 +7,26 @@ export const useAppNavigation = () => {
 
   const goToHome = useCallback(() => navigate(ROUTES.HOME.path), [navigate]);
   const goToLogin = useCallback(() => navigate(ROUTES.LOGIN.path), [navigate]);
-  const goToSignup = useCallback(() => navigate(ROUTES.SIGNUP.path), [navigate]);
-  const goToDashboard = useCallback(() => navigate(ROUTES.DASHBOARD.path), [navigate]);
-  const goToCampaignCreation = useCallback(() => navigate(ROUTES.CAMPAIGN_CREATION.path), [navigate]);
-  const goToForgotPassword = useCallback(() => navigate(ROUTES.FORGOT_PASSWORD.path), [navigate]);
-  const goToResetPassword = useCallback(() => navigate(ROUTES.RESET_PASSWORD.path), [navigate]);
+  const goToSignup = useCallback(
+    () => navigate(ROUTES.SIGNUP.path),
+    [navigate]
+  );
+  const goToDashboard = useCallback(
+    () => navigate(ROUTES.DASHBOARD.path),
+    [navigate]
+  );
+  const goToCampaignCreation = useCallback(
+    () => navigate(ROUTES.CAMPAIGN_CREATION.path),
+    [navigate]
+  );
+  const goToForgotPassword = useCallback(
+    () => navigate(ROUTES.FORGOT_PASSWORD.path),
+    [navigate]
+  );
+  const goToResetPassword = useCallback(
+    () => navigate(ROUTES.RESET_PASSWORD.path),
+    [navigate]
+  );
 
   return {
     // Navigation actions
@@ -30,4 +45,4 @@ export const useAppNavigation = () => {
     // Route constants
     ROUTES,
   };
-}; 
+};

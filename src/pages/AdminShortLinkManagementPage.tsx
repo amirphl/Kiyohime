@@ -11,32 +11,47 @@ const AdminShortLinkManagementPage: React.FC = () => {
   const { isRTL } = useLanguage();
   const { navigate } = useNavigation();
 
-  const [selectedDomain, setSelectedDomain] = useState<string>('https://jo1n.ir');
+  const [selectedDomain, setSelectedDomain] =
+    useState<string>('https://jo1n.ir');
   const [file, setFile] = useState<File | null>(null);
   const [scenarioName, setScenarioName] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<string>('');
-  const [statusType, setStatusType] = useState<'idle' | 'success' | 'error'>('idle');
-  const [uploadedScenarioId, setUploadedScenarioId] = useState<number | null>(null);
+  const [statusType, setStatusType] = useState<'idle' | 'success' | 'error'>(
+    'idle'
+  );
+  const [uploadedScenarioId, setUploadedScenarioId] = useState<number | null>(
+    null
+  );
   const [scenarioId, setScenarioId] = useState<string>('');
   const [downloading, setDownloading] = useState<boolean>(false);
   const [downloadMessage, setDownloadMessage] = useState<string>('');
-  const [downloadType, setDownloadType] = useState<'idle' | 'success' | 'error'>('idle');
+  const [downloadType, setDownloadType] = useState<
+    'idle' | 'success' | 'error'
+  >('idle');
   const [scenarioIdClicks, setScenarioIdClicks] = useState<string>('');
   const [downloadingClicks, setDownloadingClicks] = useState<boolean>(false);
-  const [downloadMessageClicks, setDownloadMessageClicks] = useState<string>('');
-  const [downloadTypeClicks, setDownloadTypeClicks] = useState<'idle' | 'success' | 'error'>('idle');
+  const [downloadMessageClicks, setDownloadMessageClicks] =
+    useState<string>('');
+  const [downloadTypeClicks, setDownloadTypeClicks] = useState<
+    'idle' | 'success' | 'error'
+  >('idle');
   const [scenarioFromRange, setScenarioFromRange] = useState<string>('');
   const [scenarioToRange, setScenarioToRange] = useState<string>('');
   const [downloadingRange, setDownloadingRange] = useState<boolean>(false);
   const [downloadMessageRange, setDownloadMessageRange] = useState<string>('');
-  const [downloadTypeRange, setDownloadTypeRange] = useState<'idle' | 'success' | 'error'>('idle');
+  const [downloadTypeRange, setDownloadTypeRange] = useState<
+    'idle' | 'success' | 'error'
+  >('idle');
   const [scenarioNameRegex, setScenarioNameRegex] = useState<string>('');
   const [downloadingByName, setDownloadingByName] = useState<boolean>(false);
-  const [downloadByNameMessage, setDownloadByNameMessage] = useState<string>('');
-  const [downloadByNameType, setDownloadByNameType] = useState<'idle' | 'success' | 'error'>('idle');
+  const [downloadByNameMessage, setDownloadByNameMessage] =
+    useState<string>('');
+  const [downloadByNameType, setDownloadByNameType] = useState<
+    'idle' | 'success' | 'error'
+  >('idle');
 
-  const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+  const onSubmit: React.FormEventHandler<HTMLFormElement> = async e => {
     e.preventDefault();
     setStatusMessage('');
     setStatusType('idle');
@@ -49,16 +64,25 @@ const AdminShortLinkManagementPage: React.FC = () => {
     }
 
     if (!scenarioName.trim()) {
-      setStatusMessage(t('adminShortLinks.messages.validationScenarioNameRequired'));
+      setStatusMessage(
+        t('adminShortLinks.messages.validationScenarioNameRequired')
+      );
       setStatusType('error');
       return;
     }
 
     try {
       setSubmitting(true);
-      const resp = await adminApi.uploadShortLinksCSV(file, selectedDomain, scenarioName);
+      const resp = await adminApi.uploadShortLinksCSV(
+        file,
+        selectedDomain,
+        scenarioName
+      );
       if (resp.success) {
-        const id = typeof resp.data?.scenario_id === 'number' ? resp.data.scenario_id : parseInt(String(resp.data?.scenario_id || ''), 10);
+        const id =
+          typeof resp.data?.scenario_id === 'number'
+            ? resp.data.scenario_id
+            : parseInt(String(resp.data?.scenario_id || ''), 10);
         if (!isNaN(id)) setUploadedScenarioId(id);
         setStatusMessage(resp.message || t('adminShortLinks.messages.success'));
         setStatusType('success');
@@ -105,7 +129,9 @@ const AdminShortLinkManagementPage: React.FC = () => {
         const blob = await resp.blob();
         const cd = resp.headers.get('Content-Disposition') || '';
         const match = cd.match(/filename\s*=\s*([^;]+)/i);
-        const filename = match ? match[1].replace(/"/g, '').trim() : `short-links-${idNum}.csv`;
+        const filename = match
+          ? match[1].replace(/"/g, '').trim()
+          : `short-links-${idNum}.csv`;
         const urlObj = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = urlObj;
@@ -121,7 +147,7 @@ const AdminShortLinkManagementPage: React.FC = () => {
         try {
           const data = await resp.json();
           errorText = data?.message || data?.error?.code || errorText;
-        } catch { }
+        } catch {}
         setDownloadMessage(errorText);
         setDownloadType('error');
       }
@@ -164,7 +190,9 @@ const AdminShortLinkManagementPage: React.FC = () => {
         const blob = await resp.blob();
         const cd = resp.headers.get('Content-Disposition') || '';
         const match = cd.match(/filename\s*=\s*([^;]+)/i);
-        const filename = match ? match[1].replace(/"/g, '').trim() : `short-links-with-clicks-${idNum}.csv`;
+        const filename = match
+          ? match[1].replace(/"/g, '').trim()
+          : `short-links-with-clicks-${idNum}.csv`;
         const urlObj = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = urlObj;
@@ -173,14 +201,16 @@ const AdminShortLinkManagementPage: React.FC = () => {
         a.click();
         a.remove();
         URL.revokeObjectURL(urlObj);
-        setDownloadMessageClicks(t('adminShortLinks.downloadWithClicks.success'));
+        setDownloadMessageClicks(
+          t('adminShortLinks.downloadWithClicks.success')
+        );
         setDownloadTypeClicks('success');
       } else {
         let errorText = t('adminShortLinks.downloadWithClicks.error');
         try {
           const data = await resp.json();
           errorText = data?.message || data?.error?.code || errorText;
-        } catch { }
+        } catch {}
         setDownloadMessageClicks(errorText);
         setDownloadTypeClicks('error');
       }
@@ -199,7 +229,9 @@ const AdminShortLinkManagementPage: React.FC = () => {
     const fromNum = parseInt(scenarioFromRange, 10);
     const toNum = parseInt(scenarioToRange, 10);
     if (!fromNum || !toNum || fromNum <= 0 || toNum <= 0 || toNum <= fromNum) {
-      setDownloadMessageRange(t('adminShortLinks.downloadWithClicksRange.error'));
+      setDownloadMessageRange(
+        t('adminShortLinks.downloadWithClicksRange.error')
+      );
       setDownloadTypeRange('error');
       return;
     }
@@ -224,7 +256,9 @@ const AdminShortLinkManagementPage: React.FC = () => {
         const blob = await resp.blob();
         const cd = resp.headers.get('Content-Disposition') || '';
         const match = cd.match(/filename\s*=\s*([^;]+)/i);
-        const filename = match ? match[1].replace(/"/g, '').trim() : `short-links-with-clicks-${fromNum}-${toNum}.csv`;
+        const filename = match
+          ? match[1].replace(/"/g, '').trim()
+          : `short-links-with-clicks-${fromNum}-${toNum}.csv`;
         const urlObj = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = urlObj;
@@ -233,19 +267,23 @@ const AdminShortLinkManagementPage: React.FC = () => {
         a.click();
         a.remove();
         URL.revokeObjectURL(urlObj);
-        setDownloadMessageRange(t('adminShortLinks.downloadWithClicksRange.success'));
+        setDownloadMessageRange(
+          t('adminShortLinks.downloadWithClicksRange.success')
+        );
         setDownloadTypeRange('success');
       } else {
         let errorText = t('adminShortLinks.downloadWithClicksRange.error');
         try {
           const data = await resp.json();
           errorText = data?.message || data?.error?.code || errorText;
-        } catch { }
+        } catch {}
         setDownloadMessageRange(errorText);
         setDownloadTypeRange('error');
       }
     } catch {
-      setDownloadMessageRange(t('adminShortLinks.downloadWithClicksRange.error'));
+      setDownloadMessageRange(
+        t('adminShortLinks.downloadWithClicksRange.error')
+      );
       setDownloadTypeRange('error');
     } finally {
       setDownloadingRange(false);
@@ -266,12 +304,15 @@ const AdminShortLinkManagementPage: React.FC = () => {
     try {
       setDownloadingByName(true);
       const token = adminApi.getAccessToken();
-      const url = getApiUrl('/admin/short-links/download-with-clicks-by-scenario-name');
+      const url = getApiUrl(
+        '/admin/short-links/download-with-clicks-by-scenario-name'
+      );
       const resp = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/json',
+          Accept:
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ scenario_name_regex: regex }),
@@ -279,11 +320,18 @@ const AdminShortLinkManagementPage: React.FC = () => {
       });
 
       const contentType = resp.headers.get('Content-Type') || '';
-      if (resp.ok && contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+      if (
+        resp.ok &&
+        contentType.includes(
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+      ) {
         const blob = await resp.blob();
         const cd = resp.headers.get('Content-Disposition') || '';
         const match = cd.match(/filename\s*=\s*([^;]+)/i);
-        const filename = match ? match[1].replace(/"/g, '').trim() : `short-links-by-name.xlsx`;
+        const filename = match
+          ? match[1].replace(/"/g, '').trim()
+          : `short-links-by-name.xlsx`;
         const urlObj = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = urlObj;
@@ -299,7 +347,7 @@ const AdminShortLinkManagementPage: React.FC = () => {
         try {
           const data = await resp.json();
           errorText = data?.message || data?.error?.code || errorText;
-        } catch { }
+        } catch {}
         setDownloadByNameMessage(errorText);
         setDownloadByNameType('error');
       }
@@ -312,117 +360,145 @@ const AdminShortLinkManagementPage: React.FC = () => {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold">{t('adminShortLinks.title')}</h1>
+    <div className='px-4 sm:px-6 lg:px-8 py-6'>
+      <div className='flex items-center justify-between mb-6'>
+        <h1 className='text-xl font-semibold'>{t('adminShortLinks.title')}</h1>
         <button
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded"
+          className='bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded'
           onClick={() => navigate(ROUTES.ADMIN_SARDIS.path)}
         >
           {t('adminCommon.backToSardis')}
         </button>
       </div>
 
-      <p className="text-gray-600 mb-6">{t('adminShortLinks.subtitle')}</p>
+      <p className='text-gray-600 mb-6'>{t('adminShortLinks.subtitle')}</p>
 
-      <form onSubmit={onSubmit} className="max-w-xl space-y-5">
+      <form onSubmit={onSubmit} className='max-w-xl space-y-5'>
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="domain">
+          <label className='block text-sm font-medium mb-1' htmlFor='domain'>
             {t('adminShortLinks.form.domainLabel')}
           </label>
           <select
-            id="domain"
+            id='domain'
             value={selectedDomain}
-            onChange={(e) => setSelectedDomain(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+            onChange={e => setSelectedDomain(e.target.value)}
+            className='w-full border border-gray-300 rounded px-3 py-2 bg-white'
           >
-            <option value="https://jo1n.ir">{t('adminShortLinks.domain.jo1n')}</option>
-            <option value="https://joinsahel.ir">{t('adminShortLinks.domain.joinsahel')}</option>
+            <option value='https://jo1n.ir'>
+              {t('adminShortLinks.domain.jo1n')}
+            </option>
+            <option value='https://joinsahel.ir'>
+              {t('adminShortLinks.domain.joinsahel')}
+            </option>
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="scenario-name">
+          <label
+            className='block text-sm font-medium mb-1'
+            htmlFor='scenario-name'
+          >
             {t('adminShortLinks.form.scenarioNameLabel')}
           </label>
           <input
-            id="scenario-name"
-            type="text"
+            id='scenario-name'
+            type='text'
             value={scenarioName}
-            onChange={(e) => setScenarioName(e.target.value)}
+            onChange={e => setScenarioName(e.target.value)}
             placeholder={t('adminShortLinks.form.scenarioNamePlaceholder')}
             required
-            className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+            className='w-full border border-gray-300 rounded px-3 py-2 bg-white'
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="csv">
+          <label className='block text-sm font-medium mb-1' htmlFor='csv'>
             {t('adminShortLinks.form.fileLabel')}
           </label>
           <input
-            id="csv"
-            type="file"
-            accept=".csv"
-            onChange={(e) => setFile(e.target.files && e.target.files[0] ? e.target.files[0] : null)}
-            className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+            id='csv'
+            type='file'
+            accept='.csv'
+            onChange={e =>
+              setFile(
+                e.target.files && e.target.files[0] ? e.target.files[0] : null
+              )
+            }
+            className='w-full border border-gray-300 rounded px-3 py-2 bg-white'
           />
         </div>
 
-        <div className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}>
+        <div
+          className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}
+        >
           <button
-            type="submit"
+            type='submit'
             disabled={submitting}
             className={`px-4 py-2 rounded text-white ${submitting ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
           >
-            {submitting ? t('adminShortLinks.form.uploading') : t('adminShortLinks.form.upload')}
+            {submitting
+              ? t('adminShortLinks.form.uploading')
+              : t('adminShortLinks.form.upload')}
           </button>
 
           {statusMessage && (
-            <span className={`${statusType === 'error' ? 'text-red-600' : statusType === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}>
+            <span
+              className={`${statusType === 'error' ? 'text-red-600' : statusType === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}
+            >
               {statusMessage}
             </span>
           )}
         </div>
 
         {uploadedScenarioId !== null && (
-          <div className="text-sm text-gray-700">
+          <div className='text-sm text-gray-700'>
             {t('adminShortLinks.result.scenarioId', { id: uploadedScenarioId })}
           </div>
         )}
       </form>
 
       {/* Download by Scenario */}
-      <div className="mt-10 max-w-xl border-t border-gray-200 pt-6">
-        <h2 className="text-lg font-semibold mb-4">{t('adminShortLinks.download.title')}</h2>
-        <div className="space-y-4">
+      <div className='mt-10 max-w-xl border-t border-gray-200 pt-6'>
+        <h2 className='text-lg font-semibold mb-4'>
+          {t('adminShortLinks.download.title')}
+        </h2>
+        <div className='space-y-4'>
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="scenario-id">
+            <label
+              className='block text-sm font-medium mb-1'
+              htmlFor='scenario-id'
+            >
               {t('adminShortLinks.download.scenarioIdLabel')}
             </label>
             <input
-              id="scenario-id"
-              type="number"
-              inputMode="numeric"
+              id='scenario-id'
+              type='number'
+              inputMode='numeric'
               value={scenarioId}
-              onChange={(e) => setScenarioId(e.target.value)}
+              onChange={e => setScenarioId(e.target.value)}
               placeholder={t('adminShortLinks.download.scenarioIdPlaceholder')}
-              className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+              className='w-full border border-gray-300 rounded px-3 py-2 bg-white'
             />
           </div>
 
-          <div className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}>
+          <div
+            className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}
+          >
             <button
-              type="button"
+              type='button'
               onClick={onDownload}
               disabled={downloading}
               className={`px-4 py-2 rounded text-white ${downloading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
-              {downloading ? t('adminShortLinks.download.downloading') : t('adminShortLinks.download.download')}
+              {downloading
+                ? t('adminShortLinks.download.downloading')
+                : t('adminShortLinks.download.download')}
             </button>
 
             {downloadMessage && (
-              <span className={`${downloadType === 'error' ? 'text-red-600' : downloadType === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}>
+              <span
+                className={`${downloadType === 'error' ? 'text-red-600' : downloadType === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}
+              >
                 {downloadMessage}
               </span>
             )}
@@ -431,36 +507,49 @@ const AdminShortLinkManagementPage: React.FC = () => {
       </div>
 
       {/* Download with Clicks by Scenario */}
-      <div className="mt-10 max-w-xl border-t border-gray-200 pt-6">
-        <h2 className="text-lg font-semibold mb-4">{t('adminShortLinks.downloadWithClicks.title')}</h2>
-        <div className="space-y-4">
+      <div className='mt-10 max-w-xl border-t border-gray-200 pt-6'>
+        <h2 className='text-lg font-semibold mb-4'>
+          {t('adminShortLinks.downloadWithClicks.title')}
+        </h2>
+        <div className='space-y-4'>
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="scenario-id-clicks">
+            <label
+              className='block text-sm font-medium mb-1'
+              htmlFor='scenario-id-clicks'
+            >
               {t('adminShortLinks.downloadWithClicks.scenarioIdLabel')}
             </label>
             <input
-              id="scenario-id-clicks"
-              type="number"
-              inputMode="numeric"
+              id='scenario-id-clicks'
+              type='number'
+              inputMode='numeric'
               value={scenarioIdClicks}
-              onChange={(e) => setScenarioIdClicks(e.target.value)}
-              placeholder={t('adminShortLinks.downloadWithClicks.scenarioIdPlaceholder')}
-              className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+              onChange={e => setScenarioIdClicks(e.target.value)}
+              placeholder={t(
+                'adminShortLinks.downloadWithClicks.scenarioIdPlaceholder'
+              )}
+              className='w-full border border-gray-300 rounded px-3 py-2 bg-white'
             />
           </div>
 
-          <div className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}>
+          <div
+            className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}
+          >
             <button
-              type="button"
+              type='button'
               onClick={onDownloadWithClicks}
               disabled={downloadingClicks}
               className={`px-4 py-2 rounded text-white ${downloadingClicks ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
-              {downloadingClicks ? t('adminShortLinks.downloadWithClicks.downloading') : t('adminShortLinks.downloadWithClicks.download')}
+              {downloadingClicks
+                ? t('adminShortLinks.downloadWithClicks.downloading')
+                : t('adminShortLinks.downloadWithClicks.download')}
             </button>
 
             {downloadMessageClicks && (
-              <span className={`${downloadTypeClicks === 'error' ? 'text-red-600' : downloadTypeClicks === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}>
+              <span
+                className={`${downloadTypeClicks === 'error' ? 'text-red-600' : downloadTypeClicks === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}
+              >
                 {downloadMessageClicks}
               </span>
             )}
@@ -469,52 +558,70 @@ const AdminShortLinkManagementPage: React.FC = () => {
       </div>
 
       {/* Download with Clicks by Scenario Range */}
-      <div className="mt-10 max-w-xl border-t border-gray-200 pt-6">
-        <h2 className="text-lg font-semibold mb-4">{t('adminShortLinks.downloadWithClicksRange.title')}</h2>
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className='mt-10 max-w-xl border-t border-gray-200 pt-6'>
+        <h2 className='text-lg font-semibold mb-4'>
+          {t('adminShortLinks.downloadWithClicksRange.title')}
+        </h2>
+        <div className='space-y-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="scenario-from">
+              <label
+                className='block text-sm font-medium mb-1'
+                htmlFor='scenario-from'
+              >
                 {t('adminShortLinks.downloadWithClicksRange.scenarioFromLabel')}
               </label>
               <input
-                id="scenario-from"
-                type="number"
-                inputMode="numeric"
+                id='scenario-from'
+                type='number'
+                inputMode='numeric'
                 value={scenarioFromRange}
-                onChange={(e) => setScenarioFromRange(e.target.value)}
-                placeholder={t('adminShortLinks.downloadWithClicksRange.scenarioFromPlaceholder')}
-                className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+                onChange={e => setScenarioFromRange(e.target.value)}
+                placeholder={t(
+                  'adminShortLinks.downloadWithClicksRange.scenarioFromPlaceholder'
+                )}
+                className='w-full border border-gray-300 rounded px-3 py-2 bg-white'
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="scenario-to">
+              <label
+                className='block text-sm font-medium mb-1'
+                htmlFor='scenario-to'
+              >
                 {t('adminShortLinks.downloadWithClicksRange.scenarioToLabel')}
               </label>
               <input
-                id="scenario-to"
-                type="number"
-                inputMode="numeric"
+                id='scenario-to'
+                type='number'
+                inputMode='numeric'
                 value={scenarioToRange}
-                onChange={(e) => setScenarioToRange(e.target.value)}
-                placeholder={t('adminShortLinks.downloadWithClicksRange.scenarioToPlaceholder')}
-                className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+                onChange={e => setScenarioToRange(e.target.value)}
+                placeholder={t(
+                  'adminShortLinks.downloadWithClicksRange.scenarioToPlaceholder'
+                )}
+                className='w-full border border-gray-300 rounded px-3 py-2 bg-white'
               />
             </div>
           </div>
 
-          <div className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}>
+          <div
+            className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}
+          >
             <button
-              type="button"
+              type='button'
               onClick={onDownloadWithClicksRange}
               disabled={downloadingRange}
               className={`px-4 py-2 rounded text-white ${downloadingRange ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
-              {downloadingRange ? t('adminShortLinks.downloadWithClicksRange.downloading') : t('adminShortLinks.downloadWithClicksRange.download')}
+              {downloadingRange
+                ? t('adminShortLinks.downloadWithClicksRange.downloading')
+                : t('adminShortLinks.downloadWithClicksRange.download')}
             </button>
 
             {downloadMessageRange && (
-              <span className={`${downloadTypeRange === 'error' ? 'text-red-600' : downloadTypeRange === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}>
+              <span
+                className={`${downloadTypeRange === 'error' ? 'text-red-600' : downloadTypeRange === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}
+              >
                 {downloadMessageRange}
               </span>
             )}
@@ -523,35 +630,48 @@ const AdminShortLinkManagementPage: React.FC = () => {
       </div>
 
       {/* Download with Clicks by Scenario Name (Regex) */}
-      <div className="mt-10 max-w-xl border-t border-gray-200 pt-6">
-        <h2 className="text-lg font-semibold mb-4">{t('adminShortLinks.downloadByName.title')}</h2>
-        <div className="space-y-4">
+      <div className='mt-10 max-w-xl border-t border-gray-200 pt-6'>
+        <h2 className='text-lg font-semibold mb-4'>
+          {t('adminShortLinks.downloadByName.title')}
+        </h2>
+        <div className='space-y-4'>
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="scenario-name-regex">
+            <label
+              className='block text-sm font-medium mb-1'
+              htmlFor='scenario-name-regex'
+            >
               {t('adminShortLinks.downloadByName.scenarioNameRegexLabel')}
             </label>
             <input
-              id="scenario-name-regex"
-              type="text"
+              id='scenario-name-regex'
+              type='text'
               value={scenarioNameRegex}
-              onChange={(e) => setScenarioNameRegex(e.target.value)}
-              placeholder={t('adminShortLinks.downloadByName.scenarioNameRegexPlaceholder')}
-              className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+              onChange={e => setScenarioNameRegex(e.target.value)}
+              placeholder={t(
+                'adminShortLinks.downloadByName.scenarioNameRegexPlaceholder'
+              )}
+              className='w-full border border-gray-300 rounded px-3 py-2 bg-white'
             />
           </div>
 
-          <div className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}>
+          <div
+            className={`flex ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} items-center`}
+          >
             <button
-              type="button"
+              type='button'
               onClick={onDownloadWithClicksByScenarioName}
               disabled={downloadingByName}
               className={`px-4 py-2 rounded text-white ${downloadingByName ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
-              {downloadingByName ? t('adminShortLinks.downloadByName.downloading') : t('adminShortLinks.downloadByName.download')}
+              {downloadingByName
+                ? t('adminShortLinks.downloadByName.downloading')
+                : t('adminShortLinks.downloadByName.download')}
             </button>
 
             {downloadByNameMessage && (
-              <span className={`${downloadByNameType === 'error' ? 'text-red-600' : downloadByNameType === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}>
+              <span
+                className={`${downloadByNameType === 'error' ? 'text-red-600' : downloadByNameType === 'success' ? 'text-green-600' : 'text-gray-600'} text-sm`}
+              >
                 {downloadByNameMessage}
               </span>
             )}
@@ -562,4 +682,4 @@ const AdminShortLinkManagementPage: React.FC = () => {
   );
 };
 
-export default AdminShortLinkManagementPage; 
+export default AdminShortLinkManagementPage;

@@ -22,10 +22,7 @@ const FIELD_IDS: CpaFieldId[] = [
 ];
 
 export const createDefaultCpaValues = (): CpaFieldValues =>
-  FIELD_IDS.reduce(
-    (acc, id) => ({ ...acc, [id]: '0' }),
-    {} as CpaFieldValues
-  );
+  FIELD_IDS.reduce((acc, id) => ({ ...acc, [id]: '0' }), {} as CpaFieldValues);
 
 export const normalizeDigits = (value: string) => {
   const fa = '۰۱۲۳۴۵۶۷۸۹';
@@ -57,7 +54,8 @@ const formatNumber = (value: number, type: 'number' | 'percent' | 'money') => {
   });
 };
 
-const pct = (value: number) => (Number.isFinite(value) ? value / 100 : Number.NaN);
+const pct = (value: number) =>
+  Number.isFinite(value) ? value / 100 : Number.NaN;
 
 type NumericValues = Record<CpaFieldId, number>;
 
@@ -161,10 +159,7 @@ const updateClickRate = (
     if (Number.isFinite(numeric.clickRate)) {
       numeric.mainClicks = numeric.delivered * pct(numeric.clickRate);
       setNumericValue(nextValues, 'mainClicks', numeric.mainClicks);
-    } else if (
-      Number.isFinite(numeric.mainClicks) &&
-      numeric.delivered !== 0
-    ) {
+    } else if (Number.isFinite(numeric.mainClicks) && numeric.delivered !== 0) {
       numeric.clickRate = (numeric.mainClicks / numeric.delivered) * 100;
       setNumericValue(nextValues, 'clickRate', numeric.clickRate);
     }
@@ -269,7 +264,10 @@ export const calculateCpaValues = (
   let supplementMessagesAtScale = 0;
   let stage2 = 0;
 
-  if (Number.isFinite(numeric.capacity) && Number.isFinite(numeric.conversionRate)) {
+  if (
+    Number.isFinite(numeric.capacity) &&
+    Number.isFinite(numeric.conversionRate)
+  ) {
     stage1 = numeric.capacity * pct(numeric.conversionRate);
   }
 
@@ -291,7 +289,11 @@ export const calculateCpaValues = (
 
   if (Number.isFinite(stage1) && activeId !== 'possibleConversions') {
     numeric.possibleConversions = stage1 + stage2;
-    setNumericValue(nextValues, 'possibleConversions', numeric.possibleConversions);
+    setNumericValue(
+      nextValues,
+      'possibleConversions',
+      numeric.possibleConversions
+    );
   }
 
   if (
@@ -301,7 +303,8 @@ export const calculateCpaValues = (
     Number.isFinite(numeric.capacity) &&
     numeric.capacity !== 0
   ) {
-    numeric.conversionRate = (numeric.possibleConversions / numeric.capacity) * 100;
+    numeric.conversionRate =
+      (numeric.possibleConversions / numeric.capacity) * 100;
     setNumericValue(nextValues, 'conversionRate', numeric.conversionRate);
     numeric = readNumericValues(nextValues);
   }
@@ -348,7 +351,9 @@ export const calculateCpaValues = (
     numeric.revenue = numeric.totalCost + numeric.profit;
     numeric.offerPrice = numeric.revenue / numeric.possibleConversions;
     numeric.profitPercent =
-      numeric.totalCost !== 0 ? (numeric.profit / numeric.totalCost) * 100 : Number.NaN;
+      numeric.totalCost !== 0
+        ? (numeric.profit / numeric.totalCost) * 100
+        : Number.NaN;
     setNumericValue(nextValues, 'revenue', numeric.revenue);
     setNumericValue(nextValues, 'offerPrice', numeric.offerPrice);
     setNumericValue(nextValues, 'profitPercent', numeric.profitPercent);
@@ -412,13 +417,18 @@ export const calculateCpaValues = (
       numeric.breakEven = numeric.totalCost / numeric.possibleConversions;
       setNumericValue(nextValues, 'breakEven', numeric.breakEven);
     }
-    if (Number.isFinite(numeric.revenue) && Number.isFinite(numeric.totalCost)) {
+    if (
+      Number.isFinite(numeric.revenue) &&
+      Number.isFinite(numeric.totalCost)
+    ) {
       numeric.profit = numeric.revenue - numeric.totalCost;
       if (activeId !== 'profit') {
         setNumericValue(nextValues, 'profit', numeric.profit);
       }
       numeric.profitPercent =
-        numeric.totalCost !== 0 ? (numeric.profit / numeric.totalCost) * 100 : Number.NaN;
+        numeric.totalCost !== 0
+          ? (numeric.profit / numeric.totalCost) * 100
+          : Number.NaN;
       if (activeId !== 'profitPercent') {
         setNumericValue(nextValues, 'profitPercent', numeric.profitPercent);
       }

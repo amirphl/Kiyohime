@@ -75,7 +75,9 @@ const BundleTestCustomerSection: React.FC<BundleTestCustomerSectionProps> = ({
           placeholder={copy.createPage.placeholders.job}
           options={jobOptions}
           disabled={!values.jobCategory}
-          inputClassName={!values.jobCategory ? 'bg-gray-100 text-gray-400' : ''}
+          inputClassName={
+            !values.jobCategory ? 'bg-gray-100 text-gray-400' : ''
+          }
         />
       </div>
     </section>

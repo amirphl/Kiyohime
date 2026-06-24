@@ -32,7 +32,10 @@ export interface AgencyReportTranslations {
   discountGlobalCreate: string;
 }
 
-export const customerManagementTranslations: Record<'en' | 'fa', AgencyReportTranslations> = {
+export const customerManagementTranslations: Record<
+  'en' | 'fa',
+  AgencyReportTranslations
+> = {
   en: {
     invalidRange: 'End date must be greater than start date',
     startDate: 'Start Date',
@@ -101,8 +104,11 @@ export const customerManagementTranslations: Record<'en' | 'fa', AgencyReportTra
   },
 };
 
-export type CustomerManagementLocale = keyof typeof customerManagementTranslations;
+export type CustomerManagementLocale =
+  keyof typeof customerManagementTranslations;
 
-export const getCustomerManagementCopy = (language: string): AgencyReportTranslations =>
+export const getCustomerManagementCopy = (
+  language: string
+): AgencyReportTranslations =>
   customerManagementTranslations[language as CustomerManagementLocale] ||
   customerManagementTranslations.en;

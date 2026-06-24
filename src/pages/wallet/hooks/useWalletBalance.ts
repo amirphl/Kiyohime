@@ -56,7 +56,9 @@ export const useWalletBalance = (accessToken?: string | null) => {
             reserved: frozen,
             credit,
             total:
-              total !== undefined ? total : Number(free) + Number(locked) + Number(frozen),
+              total !== undefined
+                ? total
+                : Number(free) + Number(locked) + Number(frozen),
             spendOnCampaigns: spent_on_campaigns ?? null,
             agencyShareWithTax: agency_share_with_tax ?? null,
             lastUpdated: last_updated || null,

@@ -22,9 +22,7 @@ const PlatformSettingsCta: React.FC<PlatformSettingsCtaProps> = ({
           <AlertTriangle className='h-5 w-5' />
           <span className='text-sm font-semibold'>{actionRequiredLabel}</span>
         </div>
-        <p className='text-sm text-red-600'>
-          {label}
-        </p>
+        <p className='text-sm text-red-600'>{label}</p>
         <div>
           <button
             type='button'

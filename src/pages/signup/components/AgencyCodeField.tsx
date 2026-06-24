@@ -9,7 +9,12 @@ interface Props {
   strings: SignupTranslations;
 }
 
-const AgencyCodeField: React.FC<Props> = ({ formData, errors, onChange, strings }) => (
+const AgencyCodeField: React.FC<Props> = ({
+  formData,
+  errors,
+  onChange,
+  strings,
+}) => (
   <div>
     <label className='block text-sm font-medium text-gray-700 mb-2'>
       {strings.agencyCode}

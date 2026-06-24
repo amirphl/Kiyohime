@@ -21,7 +21,12 @@ interface BaleMessageCardProps {
   previewName?: string | null;
   previewType?: CampaignMediaType | null;
   onTextChange: (value: string) => void;
-  onMediaChange: (payload: { file: File; previewUrl: string; name: string; type: CampaignMediaType }) => void;
+  onMediaChange: (payload: {
+    file: File;
+    previewUrl: string;
+    name: string;
+    type: CampaignMediaType;
+  }) => void;
   onMediaClear: () => void;
   onMediaDownload?: () => void;
   downloadLabel: string;

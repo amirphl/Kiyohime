@@ -49,56 +49,110 @@ const AdminTicketsPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900">{t('adminTickets.title') || 'Admin Tickets'}</h1>
+    <div className='min-h-screen bg-gray-50'>
+      <div className='bg-white shadow-sm border-b border-gray-200'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+          <div className='flex items-center justify-between h-16'>
+            <div className='flex items-center'>
+              <h1 className='text-xl font-semibold text-gray-900'>
+                {t('adminTickets.title') || 'Admin Tickets'}
+              </h1>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         <Card>
-          <div className="space-y-4">
-            {error && <div className="text-sm text-red-600">{error}</div>}
+          <div className='space-y-4'>
+            {error && <div className='text-sm text-red-600'>{error}</div>}
             {loading ? (
-              <div className="text-sm text-gray-600">{t('common.loading') || 'Loading...'}</div>
+              <div className='text-sm text-gray-600'>
+                {t('common.loading') || 'Loading...'}
+              </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+              <div className='overflow-x-auto'>
+                <table className='min-w-full divide-y divide-gray-200'>
+                  <thead className='bg-gray-50'>
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      <th className='px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        #
+                      </th>
+                      <th className='px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        Customer
+                      </th>
+                      <th className='px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        Title
+                      </th>
+                      <th className='px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        Content
+                      </th>
+                      <th className='px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        Created At
+                      </th>
+                      <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        Actions
+                      </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className='bg-white divide-y divide-gray-200'>
                     {groups.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-4 py-6 text-center text-gray-500">No records</td>
+                        <td
+                          colSpan={6}
+                          className='px-4 py-6 text-center text-gray-500'
+                        >
+                          No records
+                        </td>
                       </tr>
                     ) : (
                       groups.map((g, idx) => {
                         const last = (g.items || [])[0];
-                        const customer = [last?.customer_first_name, last?.customer_last_name].filter(Boolean).join(' ') || last?.company_name || last?.phone_number || '-';
+                        const customer =
+                          [last?.customer_first_name, last?.customer_last_name]
+                            .filter(Boolean)
+                            .join(' ') ||
+                          last?.company_name ||
+                          last?.phone_number ||
+                          '-';
                         return (
-                          <tr key={g.correlation_id} className="hover:bg-gray-50">
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{idx + 1}</td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 max-w-[220px] truncate" title={customer}>{customer}</td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 max-w-[220px] truncate" title={last?.title || ''}>{last?.title || '-'}</td>
-                            <td className="px-4 py-3 text-sm text-gray-500 max-w-[280px] truncate" title={last?.content || ''}>{last?.content || '-'}</td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{last?.created_at ? new Date(last.created_at).toLocaleString() : '-'}</td>
-                            <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
+                          <tr
+                            key={g.correlation_id}
+                            className='hover:bg-gray-50'
+                          >
+                            <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900'>
+                              {idx + 1}
+                            </td>
+                            <td
+                              className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 max-w-[220px] truncate'
+                              title={customer}
+                            >
+                              {customer}
+                            </td>
+                            <td
+                              className='px-4 py-3 whitespace-nowrap text-sm text-gray-900 max-w-[220px] truncate'
+                              title={last?.title || ''}
+                            >
+                              {last?.title || '-'}
+                            </td>
+                            <td
+                              className='px-4 py-3 text-sm text-gray-500 max-w-[280px] truncate'
+                              title={last?.content || ''}
+                            >
+                              {last?.content || '-'}
+                            </td>
+                            <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900'>
+                              {last?.created_at
+                                ? new Date(last.created_at).toLocaleString()
+                                : '-'}
+                            </td>
+                            <td className='px-4 py-3 whitespace-nowrap text-sm text-center'>
                               <Button
-                                variant="outline"
-                                onClick={() => { setSelectedGroup(g); setDetailsOpen(true); }}
+                                variant='outline'
+                                onClick={() => {
+                                  setSelectedGroup(g);
+                                  setDetailsOpen(true);
+                                }}
                               >
                                 {t('common.details') || 'Details'}
                               </Button>
@@ -123,27 +177,43 @@ const AdminTicketsPage: React.FC = () => {
         confirmText={t('common.close') || 'Close'}
         cancelText={t('common.cancel')}
       >
-        <div className="space-y-3 max-h-[60vh] overflow-auto">
+        <div className='space-y-3 max-h-[60vh] overflow-auto'>
           {selectedGroup ? (
             selectedGroup.items.map(it => (
-              <div key={it.id} className="p-3 border rounded-md relative">
+              <div key={it.id} className='p-3 border rounded-md relative'>
                 {it.replied_by_admin && (
-                  <div className="absolute top-2 right-2">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <div className='absolute top-2 right-2'>
+                    <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
                       {language === 'fa' ? 'پاسخ ادمین' : 'Admin Reply'}
                     </span>
                   </div>
                 )}
-                <div className="text-sm text-gray-500">{new Date(it.created_at).toLocaleString()}</div>
-                <div className="font-medium text-gray-900 mt-1">{it.title || '-'}</div>
-                <div className="text-gray-700 mt-1 whitespace-pre-wrap">{it.content || '-'}</div>
+                <div className='text-sm text-gray-500'>
+                  {new Date(it.created_at).toLocaleString()}
+                </div>
+                <div className='font-medium text-gray-900 mt-1'>
+                  {it.title || '-'}
+                </div>
+                <div className='text-gray-700 mt-1 whitespace-pre-wrap'>
+                  {it.content || '-'}
+                </div>
               </div>
             ))
           ) : (
-            <div className="text-sm text-gray-500">No records</div>
+            <div className='text-sm text-gray-500'>No records</div>
           )}
-          <div className="pt-2 text-right">
-            <Button onClick={() => { setReplyOpen(true); setReplyError(null); setReplyContent(''); setReplyFile(null); }} variant="primary">{t('common.reply') || 'Reply'}</Button>
+          <div className='pt-2 text-right'>
+            <Button
+              onClick={() => {
+                setReplyOpen(true);
+                setReplyError(null);
+                setReplyContent('');
+                setReplyFile(null);
+              }}
+              variant='primary'
+            >
+              {t('common.reply') || 'Reply'}
+            </Button>
           </div>
         </div>
       </ConfirmationModal>
@@ -159,7 +229,11 @@ const AdminTicketsPage: React.FC = () => {
           try {
             const ticketId = selectedGroup?.items?.[0]?.id;
             if (!ticketId) throw new Error('Ticket id not found');
-            const resp = await adminApi.createTicketReply({ ticket_id: ticketId, content: replyContent, file: replyFile || undefined });
+            const resp = await adminApi.createTicketReply({
+              ticket_id: ticketId,
+              content: replyContent,
+              file: replyFile || undefined,
+            });
             if (resp.success) {
               setReplyOpen(false);
               setReplyContent('');
@@ -181,21 +255,41 @@ const AdminTicketsPage: React.FC = () => {
         cancelText={t('common.cancel')}
         loading={replySubmitting}
       >
-        <div className="space-y-3">
-          {replyError && <div className="text-sm text-red-600">{replyError}</div>}
+        <div className='space-y-3'>
+          {replyError && (
+            <div className='text-sm text-red-600'>{replyError}</div>
+          )}
           <div>
-            <label htmlFor="adminReplyContent" className="block text-sm font-medium text-gray-700">{t('dashboard.supportModal.contentLabel') || 'Content'}</label>
+            <label
+              htmlFor='adminReplyContent'
+              className='block text-sm font-medium text-gray-700'
+            >
+              {t('dashboard.supportModal.contentLabel') || 'Content'}
+            </label>
             <textarea
-              id="adminReplyContent"
+              id='adminReplyContent'
               rows={4}
               value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 border-gray-300"
+              onChange={e => setReplyContent(e.target.value)}
+              className='w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 border-gray-300'
             />
           </div>
           <div>
-            <label htmlFor="adminReplyFile" className="block text-sm font-medium text-gray-700">{t('dashboard.supportModal.fileLabel') || 'Attachment (optional)'}</label>
-            <input id="adminReplyFile" type="file" onChange={(e) => setReplyFile(e.target.files && e.target.files[0] ? e.target.files[0] : null)} />
+            <label
+              htmlFor='adminReplyFile'
+              className='block text-sm font-medium text-gray-700'
+            >
+              {t('dashboard.supportModal.fileLabel') || 'Attachment (optional)'}
+            </label>
+            <input
+              id='adminReplyFile'
+              type='file'
+              onChange={e =>
+                setReplyFile(
+                  e.target.files && e.target.files[0] ? e.target.files[0] : null
+                )
+              }
+            />
           </div>
         </div>
       </ConfirmationModal>
@@ -203,4 +297,4 @@ const AdminTicketsPage: React.FC = () => {
   );
 };
 
-export default AdminTicketsPage; 
+export default AdminTicketsPage;

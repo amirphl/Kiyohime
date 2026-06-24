@@ -1,4 +1,8 @@
-export type AccountType = 'individual' | 'independent_company' | 'marketing_agency' | '';
+export type AccountType =
+  | 'individual'
+  | 'independent_company'
+  | 'marketing_agency'
+  | '';
 
 export interface SignupFormData {
   accountType: AccountType;
@@ -20,4 +24,6 @@ export interface SignupFormData {
   job: string;
 }
 
-export type FormErrors = Partial<Record<keyof SignupFormData | 'accountType', string>>;
+export type FormErrors = Partial<
+  Record<keyof SignupFormData | 'accountType', string>
+>;

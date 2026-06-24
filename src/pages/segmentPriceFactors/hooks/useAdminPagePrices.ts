@@ -237,7 +237,9 @@ export const useAdminPagePrices = ({
           return;
         }
 
-        const nextPrice = Number(response.data.price || Math.round(parsedPrice));
+        const nextPrice = Number(
+          response.data.price || Math.round(parsedPrice)
+        );
         const nextCreatedAt = response.data.created_at;
 
         if (mountedRef.current) {

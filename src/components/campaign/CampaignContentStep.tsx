@@ -1,2 +1,2 @@
 import ContentStep from './content/ContentStep';
-export default ContentStep; 
+export default ContentStep;

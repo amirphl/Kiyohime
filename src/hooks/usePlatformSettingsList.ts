@@ -6,10 +6,14 @@ import { PlatformKey, PlatformSettingsItem } from '../types/platformSettings';
 type Option = { value: string; label: string };
 
 let platformSettingsCache: PlatformSettingsItem[] | null = null;
-let platformSettingsFetchInFlight: Promise<PlatformSettingsItem[]> | null = null;
+let platformSettingsFetchInFlight: Promise<PlatformSettingsItem[]> | null =
+  null;
 let fetchAttempted = false;
 
-export const usePlatformSettingsList = (accessToken: string | null, platform: PlatformKey) => {
+export const usePlatformSettingsList = (
+  accessToken: string | null,
+  platform: PlatformKey
+) => {
   const [items, setItems] = useState<PlatformSettingsItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +73,10 @@ export const usePlatformSettingsList = (accessToken: string | null, platform: Pl
         setItems(data);
       })
       .catch((err: unknown) => {
-        const message = err instanceof Error ? err.message : 'Failed to load platform settings';
+        const message =
+          err instanceof Error
+            ? err.message
+            : 'Failed to load platform settings';
         setError(message);
         showToastRef.current('error', message);
       })
@@ -84,7 +91,10 @@ export const usePlatformSettingsList = (accessToken: string | null, platform: Pl
     return items.filter(item => {
       const normalizedItemPlatform = item.platform?.trim().toLowerCase();
       const normalizedStatus = item.status?.trim().toLowerCase();
-      return normalizedItemPlatform === normalizedPlatform && normalizedStatus === 'active';
+      return (
+        normalizedItemPlatform === normalizedPlatform &&
+        normalizedStatus === 'active'
+      );
     });
   }, [items, platform]);
 

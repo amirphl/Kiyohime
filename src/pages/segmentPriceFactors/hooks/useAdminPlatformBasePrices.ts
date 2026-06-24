@@ -176,7 +176,9 @@ export const useAdminPlatformBasePrices = ({
           return;
         }
 
-        const nextPrice = Number(response.data.price || Math.round(parsedValue));
+        const nextPrice = Number(
+          response.data.price || Math.round(parsedValue)
+        );
         if (mountedRef.current) {
           setItems(prev =>
             prev.map(item =>

@@ -1,4 +1,7 @@
-export interface CityOption { value: string; label: string }
+export interface CityOption {
+  value: string;
+  label: string;
+}
 
 // Top ~200 Iran cities ordered approximately by population (largest to smallest)
 export const iranCitiesOrdered: CityOption[] = [

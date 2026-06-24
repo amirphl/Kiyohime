@@ -35,9 +35,7 @@ const BalanceSummary: React.FC<BalanceSummaryProps> = ({
       <div className='grid grid-cols-4 gap-4'>
         <div className='bg-gray-50 p-4 rounded-lg'>
           <p className='text-sm text-gray-500'>{copy.free}</p>
-          <p className='text-xl font-semibold'>
-            {renderAmount(balances.free)}
-          </p>
+          <p className='text-xl font-semibold'>{renderAmount(balances.free)}</p>
         </div>
         <div className='bg-gray-50 p-4 rounded-lg'>
           <p className='text-sm text-gray-500'>{copy.credit}</p>

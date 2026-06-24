@@ -1,2 +1,2 @@
 import PaymentStep from './payment/PaymentStep';
-export default PaymentStep; 
+export default PaymentStep;
