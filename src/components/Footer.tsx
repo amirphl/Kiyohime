@@ -51,10 +51,8 @@ const Footer: React.FC = () => {
   };
 
   const phoneHref = getPrimaryPhoneHref(contactT.phone || '');
-  const enamadUrl =
-    'https://trustseal.enamad.ir/?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP';
-  const enamadLogoUrl =
-    'https://trustseal.enamad.ir/logo.aspx?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP';
+  const enamadHtml =
+    "<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP' alt='' style='cursor:pointer' code='FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'></a>";
 
   return (
     <footer className='bg-gray-900 text-white'>
@@ -175,21 +173,7 @@ const Footer: React.FC = () => {
             isRTL ? 'sm:flex-row-reverse' : 'sm:flex-row'
           } sm:justify-between`}
         >
-          <a
-            href={enamadUrl}
-            target='_blank'
-            rel='noreferrer'
-            referrerPolicy='origin'
-            className='mx-auto sm:mx-0 inline-flex shrink-0 items-center justify-center rounded-lg bg-white p-2'
-            aria-label='Enamad trust seal'
-          >
-            <img
-              src={enamadLogoUrl}
-              alt='Enamad trust seal'
-              referrerPolicy='origin'
-              className='block h-20 w-auto'
-            />
-          </a>
+          <div dangerouslySetInnerHTML={{ __html: enamadHtml }} />
           <p className='text-gray-400'>{footerT.copyright}</p>
         </div>
       </div>
