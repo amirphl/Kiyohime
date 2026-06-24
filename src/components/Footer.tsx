@@ -51,6 +51,7 @@ const Footer: React.FC = () => {
   };
 
   const phoneHref = getPrimaryPhoneHref(contactT.phone || '');
+  const enamadHtml = `<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP' alt='' style='cursor:pointer' code='FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'></a>`;
 
   return (
     <footer className='bg-gray-900 text-white'>
@@ -168,23 +169,10 @@ const Footer: React.FC = () => {
 
         <div className='border-t border-gray-800 mt-8 pt-8 text-center relative'>
           {/* Enamad trust seal - left side */}
-          <div className='absolute left-0 top-1/2 -translate-y-1/2'>
-            <a
-              referrerPolicy='origin'
-              target='_blank'
-              href='https://trustseal.enamad.ir/?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'
-              rel='noreferrer'
-            >
-              <img
-                referrerPolicy='origin'
-                src='https://trustseal.enamad.ir/logo.aspx?id=661883&Code=FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'
-                alt='Enamad Trust Seal'
-                className='h-20 md:h-24 w-auto'
-                style={{ cursor: 'pointer' }}
-                data-code='FIH4Yi6KwGkuPSeweo3M7XGoegrAOrTP'
-              />
-            </a>
-          </div>
+          <div
+            className='absolute left-0 top-1/2 -translate-y-1/2'
+            dangerouslySetInnerHTML={{ __html: enamadHtml }}
+          />
           <p className='text-gray-400'>{footerT.copyright}</p>
         </div>
       </div>
