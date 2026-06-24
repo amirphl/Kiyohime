@@ -59,7 +59,7 @@ const FiltersBar: React.FC<FiltersBarProps> = ({
                 return;
               }
               try {
-                const jsDate = val.toDate ? val.toDate() : new Date(val);
+                const jsDate = val.toDate();
                 onStartChange(jsDate.toISOString());
               } catch {
                 onStartChange(undefined);
@@ -88,7 +88,7 @@ const FiltersBar: React.FC<FiltersBarProps> = ({
                 return;
               }
               try {
-                const jsDate = val.toDate ? val.toDate() : new Date(val);
+                const jsDate = val.toDate();
                 onEndChange(jsDate.toISOString());
               } catch {
                 onEndChange(undefined);
