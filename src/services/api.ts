@@ -121,6 +121,10 @@ export interface GetPagePricesResponse {
 // Global 401 handler type
 export type UnauthorizedHandler = () => void;
 
+interface ApiRequestOptions extends RequestInit {
+  timeoutMs?: number;
+}
+
 class ApiService {
   private baseUrl: string;
   private accessToken: string | null = null;
@@ -293,7 +297,7 @@ class ApiService {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: ApiRequestOptions = {}
   ): Promise<ApiResponse<T>> {
     const url = getApiUrl(endpoint);
 
@@ -327,7 +331,10 @@ class ApiService {
     const config: RequestInit = {
       ...options,
       headers: mergedHeaders,
-      signal: this.createTimeoutSignal(30000, options.signal),
+      signal: this.createTimeoutSignal(
+        options.timeoutMs ?? 30000,
+        options.signal
+      ),
     };
 
     try {
@@ -413,7 +420,7 @@ class ApiService {
   private requestOnce<T>(
     cacheKey: string,
     endpoint: string,
-    options: RequestInit = {}
+    options: ApiRequestOptions = {}
   ): Promise<ApiResponse<T>> {
     const existing = this.inFlightRequests.get(cacheKey);
     if (existing) {
@@ -1467,6 +1474,7 @@ class ApiService {
     return this.request<UpdateSMSCampaignResponse>(url, {
       method: 'PUT',
       body: JSON.stringify(campaignData),
+      timeoutMs: 60000,
     });
   }
 
