@@ -241,6 +241,11 @@ const DashboardPage: React.FC = () => {
       generic: t('dashboard.pricingCalculation.errors.generic'),
     },
   };
+  const actionCardClass =
+    'bg-white p-6 rounded-lg shadow-sm border border-gray-200 md:col-span-2 lg:col-span-1 flex items-center';
+  const actionButtonClass = `btn-primary w-full min-h-[4rem] px-5 py-3 flex items-center justify-center gap-2 text-center leading-6 ${
+    isRTL ? 'flex-row-reverse' : ''
+  }`;
 
   const {
     loading: pricingCalcLoading,
@@ -425,13 +430,13 @@ const DashboardPage: React.FC = () => {
         {!isReportsView ? (
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
             {user && (
-              <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200 md:col-span-2 lg:col-span-1'>
+              <div className={actionCardClass}>
                 <button
                   onClick={() => {
                     setShowProfileModal(true);
                     fetchProfile();
                   }}
-                  className='btn-primary flex items-center justify-center w-full'
+                  className={actionButtonClass}
                 >
                   {t('dashboard.profile.profile') || 'Profile'}
                 </button>
@@ -519,42 +524,34 @@ const DashboardPage: React.FC = () => {
             </div>
 
             {isAgency && (
-              <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200 md:col-span-2 lg:col-span-1'>
-                <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                  {calcT.title}
-                </h3>
+              <div className={actionCardClass}>
                 <button
                   onClick={() => setShowCalcModal(true)}
-                  className='btn-primary flex items-center justify-center w-full'
+                  className={actionButtonClass}
                 >
-                  <Calculator className='h-4 w-4 mr-2' /> {calcT.openCalculator}
+                  <Calculator className='h-4 w-4 shrink-0' />
+                  <span>{calcT.openCalculator}</span>
                 </button>
               </div>
             )}
             {isAgency && (
-              <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200 md:col-span-2 lg:col-span-1'>
-                <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                  {cpaCalcT.title}
-                </h3>
+              <div className={actionCardClass}>
                 <button
                   onClick={() => setShowCpaCalcModal(true)}
-                  className='btn-primary flex items-center justify-center w-full'
+                  className={actionButtonClass}
                 >
-                  <Calculator className='h-4 w-4 mr-2' />{' '}
-                  {cpaCalcT.openCalculator}
+                  <Calculator className='h-4 w-4 shrink-0' />
+                  <span>{cpaCalcT.openCalculator}</span>
                 </button>
               </div>
             )}
-            <div className='bg-white p-6 rounded-lg shadow-sm border border-gray-200 md:col-span-2 lg:col-span-1'>
-              {/* <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                {pricingTableCopy.modalTitle}
-              </h3> */}
+            <div className={actionCardClass}>
               <button
                 onClick={openPricingCalculationModal}
-                className='btn-primary flex items-center justify-center w-full'
+                className={actionButtonClass}
               >
-                <Calculator className='h-4 w-4 mr-2' />{' '}
-                {pricingTableCopy.openButton}
+                <Calculator className='h-4 w-4 shrink-0' />
+                <span>{pricingTableCopy.openButton}</span>
               </button>
             </div>
           </div>
