@@ -25,7 +25,6 @@ export interface BundlesCopy {
     delivered: string;
     clicks: string;
     clickRate: string;
-    status: string;
     actions: string;
     bundleId: string;
     empty: string;
@@ -55,11 +54,9 @@ export interface BundlesCopy {
     detailLoadFailed: string;
     actionTodo: string;
     creatingCampaignFromBundle: string;
-    saveAndCreateCampaignTodo: string;
     createSuccess: string;
     authRequired: string;
     missingBundleId: string;
-    detailActionTodo: string;
     redirectingToReports: string;
   };
   createPage: {
@@ -115,7 +112,6 @@ export interface BundlesCopy {
       link: string;
     };
     subtitles: {
-      overview: string;
       performance: string;
     };
     fields: {
@@ -124,8 +120,6 @@ export interface BundlesCopy {
       customerName: string;
       category: string;
       description: string;
-      bundleId: string;
-      status: string;
       link: string;
       shortLinkDomain: string;
       trackingPlaceholder: string;
@@ -147,11 +141,8 @@ export interface BundlesCopy {
       enabled: string;
       disabled: string;
       notAvailable: string;
-      yes: string;
-      no: string;
     };
   };
-  statuses: Record<string, string>;
 }
 
 const bundlesEn: BundlesCopy = {
@@ -181,7 +172,6 @@ const bundlesEn: BundlesCopy = {
     delivered: 'Delivered messages',
     clicks: 'Clicks',
     clickRate: 'Click rate',
-    status: 'Status',
     actions: 'Actions',
     bundleId: 'Bundle ID',
     empty: 'No bundles found.',
@@ -212,12 +202,9 @@ const bundlesEn: BundlesCopy = {
     actionTodo: 'TODO: implement bundle action behavior.',
     creatingCampaignFromBundle:
       'Opening a new campaign draft for this bundle...',
-    saveAndCreateCampaignTodo:
-      'TODO: implement save and create campaign behavior.',
     createSuccess: 'Bundle created successfully.',
     authRequired: 'Please sign in again to continue.',
     missingBundleId: 'Bundle ID is missing or invalid.',
-    detailActionTodo: 'TODO: implement detail page action behavior.',
     redirectingToReports: 'Redirecting to reports...',
   },
   createPage: {
@@ -276,7 +263,6 @@ const bundlesEn: BundlesCopy = {
       link: 'Link details',
     },
     subtitles: {
-      overview: 'Key information about this bundle.',
       performance: 'Overview of all bundle campaigns performance.',
     },
     fields: {
@@ -285,8 +271,6 @@ const bundlesEn: BundlesCopy = {
       customerName: 'Customer name',
       category: 'Business category',
       description: 'Additional description',
-      bundleId: 'Bundle ID',
-      status: 'Status',
       link: 'Bundle link',
       shortLinkDomain: 'Short link domain',
       trackingPlaceholder: 'Tracking placeholder',
@@ -308,26 +292,7 @@ const bundlesEn: BundlesCopy = {
       enabled: 'Enabled',
       disabled: 'Disabled',
       notAvailable: 'Not available',
-      yes: 'Yes',
-      no: 'No',
     },
-  },
-  statuses: {
-    active: 'Active',
-    inactive: 'Inactive',
-    initiated: 'Initiated',
-    in_progress: 'In progress',
-    waiting_for_approval: 'Waiting for approval',
-    draft: 'Draft',
-    pending: 'Pending',
-    scheduled: 'Scheduled',
-    running: 'Running',
-    completed: 'Completed',
-    failed: 'Failed',
-    paused: 'Paused',
-    stopped: 'Stopped',
-    cancelled: 'Cancelled',
-    archived: 'Archived',
   },
 };
 
@@ -358,7 +323,6 @@ const bundlesFa: BundlesCopy = {
     delivered: 'پیام‌های رسیده',
     clicks: 'کلیک‌ها',
     clickRate: 'نرخ کلیک',
-    status: 'وضعیت',
     actions: 'اقدامات',
     bundleId: 'شناسه کمپین',
     empty: 'کمپین‌ای پیدا نشد.',
@@ -389,11 +353,9 @@ const bundlesFa: BundlesCopy = {
     actionTodo: 'TODO: رفتار این اقدام بعداً پیاده‌سازی شود.',
     creatingCampaignFromBundle:
       'پیش‌نویس یک ارسال جدید بر اساس این کمپین در حال باز شدن است...',
-    saveAndCreateCampaignTodo: 'این قابلیت به زودی به سیستم افزوده می‌شود.',
     createSuccess: 'کمپین با موفقیت ایجاد شد.',
     authRequired: 'برای ادامه لطفاً دوباره وارد شوید.',
     missingBundleId: 'شناسه کمپین موجود نیست یا نامعتبر است.',
-    detailActionTodo: 'TODO: رفتار دکمه‌های صفحه جزئیات بعداً پیاده‌سازی شود.',
     redirectingToReports: 'در حال هدایت به گزارش و تحلیل...',
   },
   createPage: {
@@ -451,7 +413,6 @@ const bundlesFa: BundlesCopy = {
       link: 'جزئیات لینک',
     },
     subtitles: {
-      overview: 'اطلاعات کلیدی این کمپین را مشاهده کنید.',
       performance: 'نمای کلی عملکرد همه ارسال‌های این کمپین.',
     },
     fields: {
@@ -460,8 +421,6 @@ const bundlesFa: BundlesCopy = {
       customerName: 'نام مشتری (در حالت نمایندگی)',
       category: 'دسته‌بندی شغلی مشتری',
       description: 'توضیحات تکمیلی',
-      bundleId: 'شناسه کمپین',
-      status: 'وضعیت',
       link: 'لینک کمپین',
       shortLinkDomain: 'دامنه لینک کوتاه',
       trackingPlaceholder: 'شناسه رهگیری',
@@ -483,26 +442,7 @@ const bundlesFa: BundlesCopy = {
       enabled: 'فعال',
       disabled: 'غیرفعال',
       notAvailable: 'موجود نیست',
-      yes: 'بله',
-      no: 'خیر',
     },
-  },
-  statuses: {
-    active: 'فعال',
-    inactive: 'غیرفعال',
-    initiated: 'آغاز شده',
-    in_progress: 'در حال انجام',
-    waiting_for_approval: 'در انتظار تأیید',
-    draft: 'پیش‌نویس',
-    pending: 'در انتظار',
-    scheduled: 'زمان‌بندی شده',
-    running: 'در حال اجرا',
-    completed: 'تکمیل شده',
-    failed: 'ناموفق',
-    paused: 'متوقف',
-    stopped: 'متوقف شده',
-    cancelled: 'لغو شده',
-    archived: 'بایگانی شده',
   },
 };
 
