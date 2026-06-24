@@ -1,0 +1,149 @@
+data_dir = "/var/lib/vector"
+
+# ─────────────────────────────────────────────
+# Sources
+# ─────────────────────────────────────────────
+
+[sources.nginx_error_log]
+type        = "file"
+include     = ["/var/log/nginx/error.log"]
+read_from   = "end"   # skip existing lines on startup; change to "beginning" to backfill
+
+[sources.nginx_access_log]
+type        = "file"
+include     = ["/var/log/nginx/access.log"]
+read_from   = "end"
+
+# ─────────────────────────────────────────────
+# Transforms — error log
+# ─────────────────────────────────────────────
+
+# Nginx error log format:
+#   2024/06/21 12:00:00 [error] 7#7: *1 open() "/usr/share/nginx/html/x" failed (2: No such file or directory), client: 1.2.3.4, server: _, request: "GET /x HTTP/1.1"
+[transforms.parse_error_log]
+type   = "remap"
+inputs = ["nginx_error_log"]
+source = '''
+parsed, err = parse_regex(
+  .message,
+  r'^(?P<time>\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] \d+#\d+: (?:\*\d+ )?(?P<body>.+)$'
+)
+if err != null { abort }
+
+.level   = parsed.level
+.body    = parsed.body
+.log_time = parsed.time
+
+# keep only warn / error / crit / alert / emerg
+if !includes(["warn", "error", "crit", "alert", "emerg"], .level) { abort }
+'''
+
+[transforms.to_sentry_error]
+type   = "remap"
+inputs = ["parse_error_log"]
+source = '''
+level_map = {
+  "warn":  "warning",
+  "error": "error",
+  "crit":  "fatal",
+  "alert": "fatal",
+  "emerg": "fatal"
+}
+
+. = {
+  "event_id":  replace(uuid_v4(), "-", ""),
+  "timestamp": format_timestamp!(now(), format: "%+"),
+  "level":     get(level_map, [.level]) ?? "error",
+  "logger":    "nginx.error",
+  "platform":  "other",
+  "message":   .body,
+  "tags": {
+    "nginx_level": .level,
+    "source":      "nginx-error-log"
+  },
+  "extra": {
+    "log_time": .log_time
+  }
+}
+'''
+
+# ─────────────────────────────────────────────
+# Transforms — access log (5xx only)
+# ─────────────────────────────────────────────
+
+# nginx.conf uses the `main` log_format:
+#   $remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent ...
+[transforms.parse_access_log]
+type   = "remap"
+inputs = ["nginx_access_log"]
+source = '''
+parsed, err = parse_regex(
+  .message,
+  r'^(?P<remote_addr>\S+) - (?P<remote_user>\S+) \[(?P<time_local>[^\]]+)\] "(?P<request>[^"]*)" (?P<status>\d+) (?P<bytes_sent>\d+)'
+)
+if err != null { abort }
+
+.status      = to_int!(parsed.status)
+.remote_addr = parsed.remote_addr
+.request     = parsed.request
+.time_local  = parsed.time_local
+
+# only capture 5xx server errors
+if .status < 500 { abort }
+'''
+
+[transforms.to_sentry_5xx]
+type   = "remap"
+inputs = ["parse_access_log"]
+source = '''
+. = {
+  "event_id":  replace(uuid_v4(), "-", ""),
+  "timestamp": format_timestamp!(now(), format: "%+"),
+  "level":     "error",
+  "logger":    "nginx.access",
+  "platform":  "other",
+  "message":   "HTTP " + to_string!(.status) + " — " + .request,
+  "tags": {
+    "http_status": to_string!(.status),
+    "source":      "nginx-access-log"
+  },
+  "request": {
+    "url": .request,
+    "env": { "REMOTE_ADDR": .remote_addr }
+  },
+  "extra": {
+    "time_local": .time_local
+  }
+}
+'''
+
+# ─────────────────────────────────────────────
+# Sink — Sentry HTTP Events API
+# ─────────────────────────────────────────────
+#
+# Required env vars (set in .env):
+#   SENTRY_STORE_URL  e.g. https://o123456.ingest.sentry.io/api/789012/store/
+#   SENTRY_KEY        the public key from your DSN  (part before the @)
+
+[sinks.sentry]
+type    = "http"
+inputs  = ["to_sentry_error", "to_sentry_5xx"]
+uri     = "${SENTRY_STORE_URL}"
+method  = "post"
+
+encoding.codec = "json"
+
+# Send one event per request — Sentry's /store/ endpoint expects a single event
+[sinks.sentry.batch]
+max_events   = 1
+timeout_secs = 1
+
+[sinks.sentry.request]
+rate_limit_num        = 20   # max 20 events/s to Sentry
+rate_limit_duration_secs = 1
+retry_attempts        = 3
+retry_max_duration_secs = 30
+
+[sinks.sentry.request.headers]
+Content-Type  = "application/json"
+X-Sentry-Auth = "Sentry sentry_version=7, sentry_client=vector/0.42, sentry_key=${SENTRY_KEY}"
