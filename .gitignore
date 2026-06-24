@@ -163,5 +163,9 @@ cert/
 certs/
 
 data/
+!src/data/
+src/data/*
+!src/data/iranCities.ts
+!src/data/layer3Stats.ts
 
 *.mp4
