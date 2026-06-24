@@ -22,9 +22,11 @@ import { LoginFormValues, LoginMethod } from '../types';
 import { loginTranslations } from '../translations';
 import { getLoginErrorMessage } from '../utils';
 
+type LoginStrings = (typeof loginTranslations)[keyof typeof loginTranslations];
+
 interface UseLoginFormOptions {
   language: keyof typeof loginTranslations;
-  strings: typeof loginTranslations.en;
+  strings: LoginStrings;
 }
 
 export const useLoginForm = ({ language, strings }: UseLoginFormOptions) => {
