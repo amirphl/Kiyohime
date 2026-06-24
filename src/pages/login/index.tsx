@@ -15,14 +15,16 @@ import {
 } from './components';
 import { LoginPageProps } from './types';
 
+type LoginStrings = (typeof loginTranslations)[LoginLocale];
+
 const LoginPage: React.FC<LoginPageProps> = ({
   onNavigateToSignup,
   onNavigateToForgotPassword,
 }) => {
   const { t } = useTranslation();
   const { isRTL, language } = useLanguage();
-  const strings =
-    loginTranslations[language as LoginLocale] || loginTranslations.en;
+  const strings = (loginTranslations[language as LoginLocale] ||
+    loginTranslations.en) as LoginStrings;
   const {
     form,
     loginMethod,
