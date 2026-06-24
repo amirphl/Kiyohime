@@ -116,6 +116,7 @@ export interface AdminListCampaignsFilter {
 
 export interface AdminGetCampaignResponse {
   id: number;
+  campaign_id?: number | null;
   uuid: string;
   status: string;
   created_at: string;
@@ -142,6 +143,8 @@ export interface AdminGetCampaignResponse {
   segment_price_factor?: number;
   line_number_price_factor?: number;
   statistics?: Record<string, any>;
+  total_sent?: number | null;
+  total_delivered?: number | null;
   total_clicks?: number | null;
   click_rate?: number | null;
   num_audience?: number | null;
@@ -283,6 +286,7 @@ export interface AdminCustomerDetailDTO {
 
 export interface AdminCustomerCampaignItem {
   id: number;
+  campaign_id?: number | null;
   uuid: string;
   status: string;
   created_at: string; // ISO
@@ -309,6 +313,8 @@ export interface AdminCustomerCampaignItem {
   segment_price_factor?: number | null;
   line_number_price_factor?: number | null;
   statistics?: Record<string, any> | null;
+  total_sent?: number | null;
+  total_delivered?: number | null;
   total_clicks?: number | null;
   click_rate: number;
   num_audience?: number | null;
