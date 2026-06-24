@@ -1,0 +1,228 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*.*.*']
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # 1. Build Docker image and push to GitHub Container Registry
+  # ─────────────────────────────────────────────────────────────
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.image-ref.outputs.ref }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Compute a single predictable image reference for deploy jobs to use
+      - name: Compute image reference
+        id: image-ref
+        run: |
+          REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+            echo "ref=${{ env.REGISTRY }}/${REPO}:${VERSION}" >> $GITHUB_OUTPUT
+          else
+            echo "ref=${{ env.REGISTRY }}/${REPO}:main" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-,format=short
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Layer cache via GitHub Actions Cache (free, fast)
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            PRODUCTION_DOMAIN=${{ startsWith(github.ref, 'refs/tags/') && 'jazebeh.ir' || 'beta.jazebeh.ir' }}
+
+  # ─────────────────────────────────────────────────────────────
+  # 2a. Deploy to staging on every push to main
+  # ─────────────────────────────────────────────────────────────
+  deploy-staging:
+    name: Deploy → Staging
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    environment: staging
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Deploy to staging server
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          IMAGE: ${{ needs.build-and-push.outputs.image }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: IMAGE,GHCR_TOKEN,GHCR_USER
+          script: |
+            set -e
+
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --stdin
+
+            echo "Pulling ${IMAGE}..."
+            docker pull "$IMAGE"
+            docker logout ghcr.io
+
+            docker stop kiyohime-staging 2>/dev/null || true
+            docker rm   kiyohime-staging 2>/dev/null || true
+
+            docker run -d \
+              --name kiyohime-staging \
+              --restart unless-stopped \
+              --memory 256m \
+              --cpus 0.5 \
+              -p 8080:80 \
+              "$IMAGE"
+
+            echo "Waiting for nginx to be ready..."
+            sleep 5
+
+            curl -sf http://localhost:8080/health || {
+              echo "Health check failed — dumping logs:"
+              docker logs kiyohime-staging --tail 50
+              exit 1
+            }
+
+            docker image prune -f --filter "until=24h"
+            echo "Staging deployment successful"
+
+  # ─────────────────────────────────────────────────────────────
+  # 2b. Deploy to production on version tags (v*.*.*)
+  # ─────────────────────────────────────────────────────────────
+  deploy-production:
+    name: Deploy → Production
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment: production
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Deploy to production server with canary health-check
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          IMAGE: ${{ needs.build-and-push.outputs.image }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+          VERSION: ${{ github.ref_name }}
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: IMAGE,GHCR_TOKEN,GHCR_USER,VERSION
+          script: |
+            set -e
+
+            echo "Deploying $VERSION to production..."
+
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --stdin
+            docker pull "$IMAGE"
+            docker logout ghcr.io
+
+            # Start canary on a temp port for health check before going live
+            docker stop kiyohime-prod-canary 2>/dev/null || true
+            docker rm   kiyohime-prod-canary 2>/dev/null || true
+
+            docker run -d \
+              --name kiyohime-prod-canary \
+              --restart no \
+              --memory 512m \
+              --cpus 1.0 \
+              -p 8081:80 \
+              "$IMAGE"
+
+            echo "Running health check on canary..."
+            sleep 5
+
+            if curl -sf http://localhost:8081/health; then
+              echo "Canary healthy — switching live traffic..."
+
+              # Brief downtime here (~1 s) while we swap the container
+              docker stop kiyohime-prod 2>/dev/null || true
+              docker rm   kiyohime-prod 2>/dev/null || true
+
+              docker stop kiyohime-prod-canary
+              docker rm   kiyohime-prod-canary
+
+              docker run -d \
+                --name kiyohime-prod \
+                --restart unless-stopped \
+                --memory 512m \
+                --cpus 1.0 \
+                -p 80:80 \
+                "$IMAGE"
+
+              # Final health check on live port
+              sleep 3
+              curl -sf http://localhost:80/health || {
+                echo "Live health check failed after swap!"
+                exit 1
+              }
+
+              docker image prune -f --filter "until=72h"
+              echo "Production deployment successful: $VERSION"
+            else
+              echo "Canary health check failed — rolling back"
+              docker stop kiyohime-prod-canary || true
+              docker rm   kiyohime-prod-canary || true
+              exit 1
+            fi
+
+  # ─────────────────────────────────────────────────────────────
+  # 3. Create GitHub Release after successful production deploy
+  # ─────────────────────────────────────────────────────────────
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          make_latest: true
