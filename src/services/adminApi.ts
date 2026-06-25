@@ -4,6 +4,7 @@ import {
   AdminCaptchaInitResponse,
   AdminCaptchaVerifyRequest,
   AdminLoginInitResponse,
+  AdminLoginResponse,
   AdminLoginVerifyOTPRequest,
   AdminLoginVerifyOTPResponse,
   AdminCreateLineNumberRequest,
@@ -313,6 +314,31 @@ class AdminApiService {
     return candidate as AdminCaptchaInitResponse;
   }
 
+  private normalizeAdminLoginResponse(
+    payload: any
+  ): AdminLoginResponse | undefined {
+    const candidate = payload?.data ?? payload;
+
+    if (
+      candidate?.access_token &&
+      candidate?.refresh_token &&
+      candidate?.token_type &&
+      candidate?.admin
+    ) {
+      return candidate as AdminLoginVerifyOTPResponse;
+    }
+
+    if (
+      candidate?.challenge_id &&
+      candidate?.masked_phone &&
+      typeof candidate?.requires_two_factor === 'boolean'
+    ) {
+      return candidate as AdminLoginInitResponse;
+    }
+
+    return undefined;
+  }
+
   private handleUnauthorized() {
     // Clear tokens
     this.setAccessToken(null);
@@ -370,8 +396,8 @@ class AdminApiService {
 
   async verifyLogin(
     payload: AdminCaptchaVerifyRequest
-  ): Promise<ApiResponse<AdminLoginInitResponse>> {
-    const response = await this.requestJson<AdminLoginInitResponse>(
+  ): Promise<ApiResponse<AdminLoginResponse>> {
+    const response = await this.requestJson<AdminLoginResponse>(
       '/admin/auth/login',
       {
         method: 'POST',
@@ -384,15 +410,20 @@ class AdminApiService {
       return response;
     }
 
-    if (
-      !response.data.challenge_id ||
-      !response.data.masked_phone ||
-      typeof response.data.requires_two_factor !== 'boolean'
-    ) {
+    const responseData = this.normalizeAdminLoginResponse(response.data);
+    if (!responseData) {
       return this.createErrorResponse('INVALID_RESPONSE');
     }
 
-    return response;
+    if ('access_token' in responseData && 'refresh_token' in responseData) {
+      this.setAccessToken(responseData.access_token);
+      this.setRefreshToken(responseData.refresh_token);
+    }
+
+    return {
+      ...response,
+      data: responseData,
+    };
   }
 
   async verifyLoginOtp(
@@ -411,19 +442,22 @@ class AdminApiService {
       return response;
     }
 
+    const responseData = this.normalizeAdminLoginResponse(response.data);
     if (
-      !response.data.access_token ||
-      !response.data.refresh_token ||
-      !response.data.token_type ||
-      !response.data.admin
+      !responseData ||
+      !('access_token' in responseData) ||
+      !('refresh_token' in responseData)
     ) {
       return this.createErrorResponse('INVALID_RESPONSE');
     }
 
-    this.setAccessToken(response.data.access_token);
-    this.setRefreshToken(response.data.refresh_token);
+    this.setAccessToken(responseData.access_token);
+    this.setRefreshToken(responseData.refresh_token);
 
-    return response;
+    return {
+      ...response,
+      data: responseData,
+    };
   }
 
   async listLineNumbers(): Promise<ApiResponse<AdminLineNumberDTO[]>> {
