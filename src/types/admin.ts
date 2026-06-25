@@ -52,6 +52,10 @@ export interface AdminLoginVerifyOTPResponse {
   admin: AdminDTO;
 }
 
+export type AdminLoginResponse =
+  | AdminLoginInitResponse
+  | AdminLoginVerifyOTPResponse;
+
 // Line Numbers
 export interface AdminCreateLineNumberRequest {
   name?: string | null;
