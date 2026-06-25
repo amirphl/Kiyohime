@@ -3,6 +3,8 @@ import adminApi from '../../../services/adminApi';
 import {
   AdminCaptchaInitResponse,
   AdminLoginInitResponse,
+  AdminLoginResponse,
+  AdminLoginVerifyOTPResponse,
 } from '../../../types/admin';
 import { useToast } from '../../../hooks/useToast';
 import { useNavigation } from '../../../contexts/NavigationContext';
@@ -28,6 +30,14 @@ interface OtpChallengeState {
   otpExpiresAt: string | null;
   alreadySent: boolean;
 }
+
+const isAdminSessionResponse = (
+  response: AdminLoginResponse
+): response is AdminLoginVerifyOTPResponse =>
+  'access_token' in response &&
+  'refresh_token' in response &&
+  'token_type' in response &&
+  'admin' in response;
 
 export const useAdminLoginFlow = ({ locale }: UseAdminLoginFlowOptions) => {
   const strings = adminLoginTranslations[locale];
@@ -221,6 +231,12 @@ export const useAdminLoginFlow = ({ locale }: UseAdminLoginFlowOptions) => {
           return;
         }
 
+        if (isAdminSessionResponse(response.data)) {
+          showSuccessRef.current(strings.success.loginSuccessful);
+          navigate(ROUTES.ADMIN_SARDIS.path);
+          return;
+        }
+
         moveToOtpStep(response.data);
       } catch (error) {
         setError(getAdminAuthMessage(error as any, locale, 'loginInitFailed'));
@@ -241,9 +257,11 @@ export const useAdminLoginFlow = ({ locale }: UseAdminLoginFlowOptions) => {
       moveToOtpStep,
       password,
       setError,
+      navigate,
       strings.validation.captchaNotReady,
       strings.validation.passwordRequired,
       strings.validation.usernameRequired,
+      strings.success.loginSuccessful,
       submittingLogin,
       username,
     ]
