@@ -5,6 +5,10 @@ import {
   CalculateCampaignCapacityResponse,
   CalculateCampaignCostRequest,
   CalculateCampaignCostResponse,
+  HideCampaignsRequest,
+  HideCampaignsResponse,
+  UnhideCampaignsRequest,
+  UnhideCampaignsResponse,
   CalculateCampaignCostV2Request,
   GetWalletBalanceResponse,
   UpdateSMSCampaignRequest,
@@ -21,6 +25,8 @@ import {
   GetBundlePayload,
   ListBundlesParams,
   ListBundlesResponse,
+  UpdateBundleRequest,
+  UpdateBundleResponse,
 } from '../types/bundle';
 import {
   CreatePlatformSettingsRequest,
@@ -832,10 +838,17 @@ class ApiService {
     query.set('page', String(params.page));
     query.set('limit', String(params.limit));
     if (params.orderby) query.set('orderby', params.orderby);
-    if (params.title) query.set('title', params.title);
+    if (params.campaign_title) {
+      query.set('campaign_title', params.campaign_title);
+    }
+    if (params.bundle_title) query.set('bundle_title', params.bundle_title);
     if (params.status) query.set('status', params.status);
     if (params.bundle_id) query.set('bundle_id', String(params.bundle_id));
+    if (params.platform) query.set('platform', params.platform);
+    if (params.start_date) query.set('start_date', params.start_date);
+    if (params.end_date) query.set('end_date', params.end_date);
     if (params.phase) query.set('phase', params.phase);
+    if (params.hidden !== undefined) query.set('hidden', String(params.hidden));
     const endpoint = `${config.endpoints.campaigns.list}?${query.toString()}`;
     return this.request<ListSMSCampaignsResponse>(endpoint, {
       method: 'GET',
@@ -887,6 +900,21 @@ class ApiService {
     });
   }
 
+  async updateBundle(
+    id: number,
+    payload: UpdateBundleRequest
+  ): Promise<ApiResponse<UpdateBundleResponse>> {
+    const endpoint = config.endpoints.bundles.update.replace(
+      ':id',
+      encodeURIComponent(String(id))
+    );
+
+    return this.request<UpdateBundleResponse>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  }
+
   async getCampaigns(): Promise<ApiResponse> {
     return this.request(config.endpoints.campaigns.list, {
       method: 'GET',
@@ -926,6 +954,56 @@ class ApiService {
     return this.request<{ uuid: string; id?: number }>(endpoint, {
       method: 'POST',
     });
+  }
+
+  async hideCampaigns(
+    payload: HideCampaignsRequest
+  ): Promise<ApiResponse<HideCampaignsResponse>> {
+    const campaignIds = Array.isArray(payload.campaign_ids)
+      ? payload.campaign_ids.filter(
+          id => Number.isInteger(id) && Number.isFinite(id) && id > 0
+        )
+      : [];
+
+    if (campaignIds.length === 0) {
+      return this.createErrorResponse('VALIDATION_ERROR', 'VALIDATION_ERROR', [
+        'At least one valid campaign ID is required',
+      ]);
+    }
+
+    return this.request<HideCampaignsResponse>(
+      config.endpoints.campaigns.hide,
+      {
+        method: 'POST',
+        body: JSON.stringify({ campaign_ids: campaignIds }),
+        timeoutMs: 30000,
+      }
+    );
+  }
+
+  async unhideCampaigns(
+    payload: UnhideCampaignsRequest
+  ): Promise<ApiResponse<UnhideCampaignsResponse>> {
+    const campaignIds = Array.isArray(payload.campaign_ids)
+      ? payload.campaign_ids.filter(
+          id => Number.isInteger(id) && Number.isFinite(id) && id > 0
+        )
+      : [];
+
+    if (campaignIds.length === 0) {
+      return this.createErrorResponse('VALIDATION_ERROR', 'VALIDATION_ERROR', [
+        'At least one valid campaign ID is required',
+      ]);
+    }
+
+    return this.request<UnhideCampaignsResponse>(
+      config.endpoints.campaigns.unhide,
+      {
+        method: 'POST',
+        body: JSON.stringify({ campaign_ids: campaignIds }),
+        timeoutMs: 30000,
+      }
+    );
   }
 
   async exportCampaignReport(uuid: string): Promise<{
