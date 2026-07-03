@@ -27,6 +27,8 @@ export interface EnvironmentConfig {
     campaigns: {
       list: string;
       create: string;
+      hide: string;
+      unhide: string;
       calculateCosts: string;
       calculateCapacity: string;
       calculateCost: string;
@@ -41,6 +43,7 @@ export interface EnvironmentConfig {
       list: string;
       get: string;
       create: string;
+      update: string;
     };
     wallet: {
       balance: string;
@@ -108,6 +111,8 @@ const localConfig: EnvironmentConfig = {
     campaigns: {
       list: '/campaigns',
       create: '/campaigns',
+      hide: '/campaigns/hide',
+      unhide: '/campaigns/unhide',
       calculateCosts: '/campaigns/calculate-costs',
       calculateCapacity: '/campaigns/calculate-capacity',
       calculateCost: '/campaigns/calculate-cost',
@@ -122,6 +127,7 @@ const localConfig: EnvironmentConfig = {
       list: '/bundles',
       get: '/bundles/:id',
       create: '/bundles',
+      update: '/bundles/:id',
     },
     wallet: {
       balance: '/wallet/balance',
