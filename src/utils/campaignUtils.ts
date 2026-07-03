@@ -5,9 +5,7 @@ import { CampaignData, UpdateSMSCampaignRequest } from '../types/campaign';
  */
 
 /**
- * Counts characters in text with proper weighting for different character types
- * English characters and numbers = 1, others (Farsi, Arabic, etc.) = 2
- * Excludes the link placeholder token from counting
+ * Counts characters after applying the same link substitution rules as backend.
  */
 export const LINK_PLACEHOLDER = '{YOUR_LINK}';
 export const DEFAULT_SHORT_LINK_DOMAIN = 'jo1n.ir';
@@ -28,17 +26,34 @@ export const getShortLinkDomainOrDefault = (
     ? shortLinkDomain.trim()
     : DEFAULT_SHORT_LINK_DOMAIN;
 
-export const countCharacters = (text: string): number => {
-  if (!text) return 0;
+export const countCharacters = (
+  text: string,
+  adLink?: string | null,
+  shortLinkDomain?: string | null,
+  platform: 'sms' | 'rubika' | 'bale' | 'splus' = 'sms'
+): number => {
+  if (!text) {
+    return platform === 'sms' ? 6 : 0;
+  }
 
-  // Remove the link placeholder before counting
-  const textWithoutLinkPlaceholder = normalizeLinkPlaceholder(text)
-    .split(LINK_PLACEHOLDER)
-    .join('');
+  let textToCount = text;
+  const hasAdLink = Boolean(adLink?.trim());
+  const hasShortLinkDomain = Boolean(shortLinkDomain?.trim());
+
+  if (hasAdLink && hasShortLinkDomain) {
+    const shortLinkText = `${shortLinkDomain!.trim()}/123456`;
+    textToCount = textToCount.replace(/\{YOUR_LINK\}/g, shortLinkText);
+  } else if (hasAdLink) {
+    let resolvedAdLink = adLink!.trim();
+    if (resolvedAdLink.includes('{uid}')) {
+      resolvedAdLink = resolvedAdLink.replace(/\{uid\}/g, '123456');
+    }
+    textToCount = textToCount.replace(/\{YOUR_LINK\}/g, resolvedAdLink);
+  }
 
   let count = 0;
-  for (let i = 0; i < textWithoutLinkPlaceholder.length; i++) {
-    const char = textWithoutLinkPlaceholder.charCodeAt(i);
+  for (let i = 0; i < textToCount.length; i++) {
+    const char = textToCount.charCodeAt(i);
     // Check if character is English (ASCII range 32-126)
     if (char >= 32 && char <= 126) {
       count += 1; // English character
@@ -50,6 +65,11 @@ export const countCharacters = (text: string): number => {
       count += 1;
     }
   }
+
+  if (platform === 'sms') {
+    count += 6;
+  }
+
   return count;
 };
 
@@ -61,31 +81,25 @@ export const countCharacters = (text: string): number => {
  */
 export const calculateTotalCharacterCount = (
   userText: string,
-  insertLink: boolean
+  insertLink: boolean,
+  adLink?: string | null,
+  shortLinkDomain?: string | null,
+  platform: 'sms' | 'rubika' | 'bale' | 'splus' = 'sms'
 ) => {
-  const backendAppendChars = 6; // Backend appends 6 characters
-  const shortenedLinkChars = 14; // Shortened link takes 14 characters
   const maxCharacters = 330; // Maximum total characters allowed
 
   const normalizedText = normalizeLinkPlaceholder(userText || '');
-  const characterCount = countCharacters(normalizedText);
-  let startCount: number;
-
-  if (insertLink) {
-    // Check if link placeholder is present in text
-    if (normalizedText && normalizedText.includes(LINK_PLACEHOLDER)) {
-      // Link placeholder will be replaced by shortened link (14 chars) + backend append (6 chars)
-      startCount = shortenedLinkChars + backendAppendChars; // 20 chars
-    } else {
-      // No link placeholder, backend will append shortened link (14 chars) + backend append (6 chars)
-      startCount = shortenedLinkChars + backendAppendChars; // 20 chars
-    }
-  } else {
-    // No link insertion, only backend append
-    startCount = backendAppendChars; // 6 chars
-  }
-
-  const totalCharacterCount = startCount + characterCount;
+  const effectiveAdLink = insertLink ? adLink : null;
+  const effectiveShortLinkDomain = insertLink ? shortLinkDomain : null;
+  const totalCharacterCount = countCharacters(
+    normalizedText,
+    effectiveAdLink,
+    effectiveShortLinkDomain,
+    platform
+  );
+  const baseCharacterCount = countCharacters('', null, null, platform);
+  const startCount = Math.min(baseCharacterCount, totalCharacterCount);
+  const characterCount = Math.max(totalCharacterCount - startCount, 0);
   const isOverLimit = totalCharacterCount > maxCharacters;
 
   return {
@@ -122,6 +136,7 @@ export const validateCampaignContent = (
     text: string;
     insertLink: boolean;
     link?: string;
+    shortLinkDomain?: string | null;
     scheduleAt?: string;
   },
   platform: 'sms' | 'rubika' | 'bale' | 'splus' = 'sms'
@@ -177,7 +192,10 @@ export const validateCampaignContent = (
   // Check character limit
   const charCount = calculateTotalCharacterCount(
     content.text,
-    content.insertLink
+    content.insertLink,
+    content.link,
+    content.shortLinkDomain,
+    platform
   );
 
   if (charCount.isOverLimit) {
