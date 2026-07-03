@@ -191,6 +191,24 @@ export interface UpdateSMSCampaignResponse {
   message: string;
 }
 
+export interface HideCampaignsRequest {
+  campaign_ids: number[];
+}
+
+export interface HideCampaignsResponse {
+  message: string;
+  updated_count: number;
+}
+
+export interface UnhideCampaignsRequest {
+  campaign_ids: number[];
+}
+
+export interface UnhideCampaignsResponse {
+  message: string;
+  updated_count: number;
+}
+
 export interface SendCampaignTestMessageResponse {
   [key: string]: unknown;
 }
@@ -244,6 +262,7 @@ export interface GetCampaignResponse {
   status: string;
   created_at: string;
   updated_at?: string;
+  hidden?: boolean;
   title?: string;
   level1?: string;
   level2s?: string[];
@@ -270,6 +289,7 @@ export interface GetCampaignResponse {
   platform?: CampaignPlatform | null;
   platform_settings_id?: number | null;
   platform_settings_name?: string | null;
+  platform_base_price?: number | null;
   media_uuid?: string | null;
   audience_grades?: AudienceGrade[];
   bundle_id?: number | null;
@@ -293,8 +313,15 @@ export interface ListSMSCampaignsResponse {
 export interface ListSMSCampaignsParams {
   page: number;
   limit: number;
-  orderby?: 'newest' | 'oldest';
-  title?: string;
+  orderby?:
+    | 'newest'
+    | 'oldest'
+    | 'phase_test_first'
+    | 'phase_execution_first'
+    | 'highest_click_rate'
+    | 'lowest_click_rate';
+  campaign_title?: string;
+  bundle_title?: string;
   status?:
     | 'initiated'
     | 'in-progress'
@@ -307,7 +334,11 @@ export interface ListSMSCampaignsParams {
     | 'expired'
     | 'executed';
   bundle_id?: number;
+  platform?: 'sms' | 'rubika' | 'bale' | 'splus';
+  start_date?: string;
+  end_date?: string;
   phase?: 'test' | 'execution';
+  hidden?: boolean;
 }
 
 // Audience Spec types
