@@ -68,6 +68,14 @@ export interface CreateBundleResponse {
   [key: string]: unknown;
 }
 
+export type UpdateBundleRequest = CreateBundleRequest;
+
+export interface UpdateBundleResponse {
+  message?: string;
+  id: number;
+  updated_at: string;
+}
+
 export interface GetBundlePayload {
   message?: string;
   item?: BundleListItem | null;
