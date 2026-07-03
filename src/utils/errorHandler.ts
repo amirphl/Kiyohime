@@ -138,6 +138,14 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     en: 'Campaign not found',
     fa: 'کمپین یافت نشد',
   },
+  HIDE_CAMPAIGNS_FAILED: {
+    en: 'Failed to hide selected campaigns. Please try again',
+    fa: 'مخفی‌سازی ارسال‌های انتخاب‌شده ناموفق بود. لطفاً دوباره تلاش کنید',
+  },
+  UNHIDE_CAMPAIGNS_FAILED: {
+    en: 'Failed to unhide selected campaigns. Please try again',
+    fa: 'نمایش مجدد ارسال‌های انتخاب‌شده ناموفق بود. لطفاً دوباره تلاش کنید',
+  },
   INVALID_CAMPAIGN_DATA: {
     en: 'Invalid campaign data provided',
     fa: 'داده‌های کمپین نامعتبر است',
@@ -211,6 +219,10 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
   CREATE_BUNDLE_FAILED: {
     en: 'Failed to create the bundle. Please try again',
     fa: 'ایجاد کمپین ناموفق بود. لطفاً دوباره تلاش کنید',
+  },
+  UPDATE_BUNDLE_FAILED: {
+    en: 'Failed to update the bundle. Please try again',
+    fa: 'ویرایش کمپین ناموفق بود. لطفاً دوباره تلاش کنید',
   },
   GET_BUNDLE_FAILED: {
     en: 'Failed to retrieve the bundle',
