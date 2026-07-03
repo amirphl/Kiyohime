@@ -125,6 +125,7 @@ export interface AdminGetCampaignResponse {
   status: string;
   created_at: string;
   updated_at?: string | null;
+  hidden?: boolean;
   title?: string | null;
   level1?: string | null;
   level2s?: string[];
@@ -142,6 +143,7 @@ export interface AdminGetCampaignResponse {
   media_uuid?: string | null;
   platform_settings_id?: number | null;
   platform: string;
+  platform_base_price?: number | null;
   budget?: number | null;
   comment?: string | null;
   segment_price_factor?: number;
