@@ -83,7 +83,7 @@ const contentEn = {
 
   // Bundle info
   bundleInfoTitle: 'Bundle Information',
-  bundle: 'Related Bundle',
+  bundle: 'Bundle',
   bundlePlaceholder: 'Select a bundle',
   bundleLoading: 'Loading bundles...',
   bundleLoadError: 'Failed to load bundles. Please try again.',
@@ -179,14 +179,14 @@ const contentFa = {
 
   // Bundle info
   bundleInfoTitle: 'اطلاعات کمپین',
-  bundle: 'کمپین مرتبط',
+  bundle: 'عنوان کمپین',
   bundlePlaceholder: 'انتخاب کمپین',
   bundleLoading: 'در حال بارگذاری کمپین‌ها...',
   bundleLoadError: 'خطا در بارگذاری کمپین‌ها. لطفاً دوباره تلاش کنید.',
   phase: 'فاز ارسال',
   phasePlaceholder: 'انتخاب فاز',
-  phaseTest: 'مرحله ۱ - ارسال اولیه',
-  phaseExecution: 'مرحله ۲ - ارسال نهایی',
+  phaseTest: 'فاز تست',
+  phaseExecution: 'فاز اجرا',
 };
 
 export const contentI18n = {
