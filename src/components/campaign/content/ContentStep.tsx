@@ -362,6 +362,8 @@ const ContentStep: React.FC = () => {
             <MessageTextCard
               text={campaignData.content.text}
               insertLink={campaignData.content.insertLink}
+              adLink={campaignData.content.link}
+              shortLinkDomain={campaignData.content.shortLinkDomain}
               textAreaRef={textAreaRef}
               linkCharacterInserted={linkCharacterInserted}
               onTextChange={handleTextChange}
