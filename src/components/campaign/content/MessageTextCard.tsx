@@ -4,7 +4,6 @@ import Card from '../../ui/Card';
 import Button from '../../ui/Button';
 import FormField from '../../ui/FormField';
 import {
-  countCharacters,
   calculateTotalCharacterCount,
   calculateSMSParts,
   hasLinkPlaceholder,
@@ -13,6 +12,8 @@ import {
 interface MessageTextCardProps {
   text: string;
   insertLink: boolean;
+  adLink?: string | null;
+  shortLinkDomain?: string | null;
   textAreaRef: React.RefObject<HTMLTextAreaElement>;
   linkCharacterInserted: boolean;
   onTextChange: (value: string) => void;
@@ -37,6 +38,8 @@ interface MessageTextCardProps {
 const MessageTextCard: React.FC<MessageTextCardProps> = ({
   text,
   insertLink,
+  adLink,
+  shortLinkDomain,
   textAreaRef,
   linkCharacterInserted,
   onTextChange,
@@ -57,8 +60,14 @@ const MessageTextCard: React.FC<MessageTextCardProps> = ({
   withoutLinkExplanation,
   textExceedsLimit,
 }) => {
-  const characterCount = countCharacters(text || '');
-  const charCountResult = calculateTotalCharacterCount(text || '', insertLink);
+  const charCountResult = calculateTotalCharacterCount(
+    text || '',
+    insertLink,
+    adLink,
+    shortLinkDomain,
+    'sms'
+  );
+  const characterCount = charCountResult.characterCount;
   const totalCharacterCount = charCountResult.totalCharacterCount;
   const isOverLimit = charCountResult.isOverLimit;
   const maxCharacters = charCountResult.maxCharacters;
