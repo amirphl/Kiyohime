@@ -42,7 +42,6 @@ import Button from '../../ui/Button';
 import { useToast } from '../../../hooks/useToast';
 import { useMediaUpload } from '../../../hooks/useMediaUpload';
 import {
-  getShortLinkDomainOrDefault,
   normalizeLinkPlaceholder,
 } from '../../../utils/campaignUtils';
 import TargetAudienceExcelFileUploadCard, {
@@ -250,9 +249,7 @@ const LevelStep: React.FC = () => {
         link: campaign.adlink || '',
         text: normalizeLinkPlaceholder(campaign.content || ''),
         scheduleAt: campaign.scheduleat || undefined,
-        shortLinkDomain: campaign.adlink
-          ? getShortLinkDomainOrDefault(campaign.short_link_domain)
-          : null,
+        shortLinkDomain: campaign.short_link_domain?.trim() || null,
         lineNumber: campaign.line_number || '',
         platformSettingsId:
           platformValue === 'sms'
