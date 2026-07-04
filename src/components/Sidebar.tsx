@@ -24,6 +24,7 @@ interface SidebarItem {
   label: string;
   translationKey: string;
   href: string;
+  exactMatch?: boolean;
   showForAgency?: boolean;
   onClick?: () => void;
 }
@@ -139,6 +140,7 @@ const Sidebar: React.FC = () => {
       label: 'Dashboard',
       translationKey: 'dashboard.dashboard',
       href: '/dashboard',
+      exactMatch: true,
       onClick: () => navigateToPage('/dashboard'),
     },
     {
@@ -249,7 +251,7 @@ const Sidebar: React.FC = () => {
                 if (item.showForAgency && !isAgency) return null;
                 const isActive =
                   currentPath === item.href ||
-                  currentPath.startsWith(`${item.href}/`);
+                  (!item.exactMatch && currentPath.startsWith(`${item.href}/`));
                 return (
                   <button
                     key={item.id}
