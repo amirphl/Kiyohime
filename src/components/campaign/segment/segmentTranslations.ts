@@ -124,7 +124,7 @@ const campaignLevelEn = {
 
   // Bundle info
   bundleInfoTitle: 'Bundle Information',
-  bundle: 'Related Bundle',
+  bundle: 'Bundle',
   bundlePlaceholder: 'Select a bundle',
   bundleLoading: 'Loading bundles...',
   bundleLoadError: 'Failed to load bundles. Please try again.',
@@ -265,9 +265,9 @@ const campaignLevelFa = {
   platformSplus: 'سروش پلاس',
 
   // Segmentation mode
-  segmentationMode: 'روش ارسال',
-  segmentationByLevels: 'انتخاب سطوح',
-  segmentationByTargetAudienceExcelFile: 'آپلود فایل اکسل',
+  segmentationMode: 'نوع هدف‌گیری',
+  segmentationByLevels: 'دسته‌بندی عادی',
+  segmentationByTargetAudienceExcelFile: 'مخاطبان مشخص',
   segmentationByTargetAudienceExcelFileTitle: 'فایل اکسل مخاطبان',
   segmentationByTargetAudienceExcelFileHelp:
     'فایل با فرمت xls. یا xlsx. بارگذاری کنید',
@@ -283,7 +283,7 @@ const campaignLevelFa = {
 
   // Bundle info
   bundleInfoTitle: 'اطلاعات کمپین',
-  bundle: 'کمپین مرتبط',
+  bundle: 'عنوان کمپین',
   bundlePlaceholder: 'انتخاب کمپین',
   bundleLoading: 'در حال بارگذاری کمپین‌ها...',
   bundleLoadError: 'خطا در بارگذاری کمپین‌ها. لطفاً دوباره تلاش کنید.',
@@ -291,8 +291,8 @@ const campaignLevelFa = {
   bundleCreateAction: 'ایجاد کمپین جدید',
   phase: 'فاز ارسال',
   phasePlaceholder: 'انتخاب فاز',
-  phaseTest: 'مرحله ۱ - ارسال اولیه',
-  phaseExecution: 'مرحله ۲ - ارسال نهایی',
+  phaseTest: 'فاز تست',
+  phaseExecution: 'فاز اجرا',
 
   // Audience grade selection
   audienceGradeTitle: 'کلاس نمره مخاطب',
