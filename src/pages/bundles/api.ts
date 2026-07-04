@@ -5,6 +5,8 @@ import {
   GetBundlePayload,
   ListBundlesParams,
   ListBundlesResponse,
+  UpdateBundleRequest,
+  UpdateBundleResponse,
 } from '../../types/bundle';
 
 export const bundlesApi = {
@@ -17,6 +19,10 @@ export const bundlesApi = {
   create: (payload: CreateBundleRequest) =>
     apiService.createBundle(payload) as Promise<
       ApiResponse<CreateBundleResponse>
+    >,
+  update: (id: number, payload: UpdateBundleRequest) =>
+    apiService.updateBundle(id, payload) as Promise<
+      ApiResponse<UpdateBundleResponse>
     >,
 };
 
