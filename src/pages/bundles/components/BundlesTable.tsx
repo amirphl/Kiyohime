@@ -1,18 +1,14 @@
 import React from 'react';
-import { Eye, FlaskConical, Rocket, Send } from 'lucide-react';
+import { BarChart3, Eye, Rocket } from 'lucide-react';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { BundleListItem } from '../../../types/bundle';
 import { BundlesCopy } from '../translations';
 import {
-  formatBundleNumber,
   formatBundleRate,
-  getBundleCategory,
+  formatBundleNumber,
   getBundleClickRate,
-  getBundleClicksCount,
   getBundleCustomerName,
-  getBundleTotalRecordsCount,
-  getBundleObjective,
-  getBundlePersona,
+  getBundleTotalCampaigns,
   getBundleSentCount,
   getBundleTitle,
 } from '../utils';
@@ -20,6 +16,7 @@ import BundlesPagination from './BundlesPagination';
 
 interface BundlesTableProps {
   copy: BundlesCopy;
+  isAgency: boolean;
   items: BundleListItem[];
   page: number;
   limit: number;
@@ -30,15 +27,27 @@ interface BundlesTableProps {
   onActionClick: (action: string, bundle: BundleListItem) => void;
 }
 
+interface BundleDesktopColumn {
+  key: string;
+  header: string;
+  className: string;
+  cellClassName: string;
+  render: (bundle: BundleListItem) => React.ReactNode;
+}
+
+interface BundleMobileField {
+  key: string;
+  label: string;
+  value: (bundle: BundleListItem) => string;
+  valueClassName: string;
+}
+
 const actionButtonClass =
   'inline-flex min-h-11 min-w-0 items-center justify-center gap-0.5 rounded-lg border border-gray-200 bg-white px-1 py-1 text-center text-[9px] font-medium leading-3 text-gray-700 transition hover:border-primary-200 hover:text-primary-700';
 
 const TRUNCATION_LENGTHS = {
   title: 22,
-  objective: 28,
-  persona: 24,
   customer: 20,
-  category: 18,
 };
 
 const truncateText = (value: string, maxLength: number): string => {
@@ -68,6 +77,7 @@ const renderTruncatedText = (
 
 const BundlesTable: React.FC<BundlesTableProps> = ({
   copy,
+  isAgency,
   items,
   page,
   limit,
@@ -81,7 +91,7 @@ const BundlesTable: React.FC<BundlesTableProps> = ({
   const locale = language === 'fa' ? 'fa-IR' : 'en-US';
 
   const renderActions = (bundle: BundleListItem) => (
-    <div className='grid grid-cols-2 gap-1 2xl:grid-cols-4'>
+    <div className='grid grid-cols-2 gap-1 xl:grid-cols-3'>
       <button
         type='button'
         className={`${actionButtonClass} flex-col`}
@@ -93,22 +103,10 @@ const BundlesTable: React.FC<BundlesTableProps> = ({
       <button
         type='button'
         className={`${actionButtonClass} flex-col`}
-        onClick={() => onActionClick('executionCampaigns', bundle)}
+        onClick={() => onActionClick('reports', bundle)}
       >
-        <Send className='h-4 w-4 shrink-0' />
-        <span className='max-w-full truncate'>
-          {copy.actions.campaignsWithPhaseAsExecution}
-        </span>
-      </button>
-      <button
-        type='button'
-        className={`${actionButtonClass} flex-col`}
-        onClick={() => onActionClick('testCampaigns', bundle)}
-      >
-        <FlaskConical className='h-4 w-4 shrink-0' />
-        <span className='max-w-full truncate'>
-          {copy.actions.campaignsWithPhaseAsTest}
-        </span>
+        <BarChart3 className='h-4 w-4 shrink-0' />
+        <span className='max-w-full truncate'>{copy.actions.reports}</span>
       </button>
       <button
         type='button'
@@ -121,108 +119,151 @@ const BundlesTable: React.FC<BundlesTableProps> = ({
     </div>
   );
 
+  const desktopColumns: BundleDesktopColumn[] = [
+    {
+      key: 'title',
+      header: copy.table.title,
+      className: 'w-[17%]',
+      render: (bundle: BundleListItem) => (
+        <>
+          {renderTruncatedText(
+            getBundleTitle(bundle, copy.states.unknown),
+            TRUNCATION_LENGTHS.title
+          )}
+          {bundle.id > 0 && (
+            <div className='mt-1 truncate whitespace-nowrap text-[10px] font-medium text-gray-400'>
+              {copy.table.bundleId}: {bundle.id}
+            </div>
+          )}
+        </>
+      ),
+      cellClassName: 'text-xs font-semibold text-gray-900',
+    },
+    ...(isAgency
+      ? [
+          {
+            key: 'customer',
+            header: copy.table.customer,
+            className: 'w-[14%]',
+            render: (bundle: BundleListItem) =>
+              renderTruncatedText(
+                getBundleCustomerName(bundle),
+                TRUNCATION_LENGTHS.customer
+              ),
+            cellClassName: 'text-xs text-gray-600',
+          },
+        ]
+      : []),
+    {
+      key: 'totalCampaigns',
+      header: copy.table.totalCampaigns,
+      className: isAgency ? 'w-[11%]' : 'w-[14%]',
+      render: (bundle: BundleListItem) =>
+        formatBundleNumber(getBundleTotalCampaigns(bundle), locale),
+      cellClassName: 'text-xs text-gray-900',
+    },
+    {
+      key: 'delivered',
+      header: copy.table.delivered,
+      className: isAgency ? 'w-[11%]' : 'w-[14%]',
+      render: (bundle: BundleListItem) =>
+        formatBundleNumber(getBundleSentCount(bundle), locale),
+      cellClassName: 'text-xs text-gray-900',
+    },
+    {
+      key: 'averageClickRate',
+      header: copy.table.averageClickRate,
+      className: isAgency ? 'w-[12%]' : 'w-[15%]',
+      render: (bundle: BundleListItem) =>
+        formatBundleRate(
+          getBundleClickRate(bundle),
+          locale,
+          copy.states.noClickRate
+        ),
+      cellClassName: 'text-xs font-semibold text-primary-700',
+    },
+    {
+      key: 'actions',
+      header: copy.table.actions,
+      className: isAgency ? 'w-[22%]' : 'w-[23%]',
+      render: (bundle: BundleListItem) => renderActions(bundle),
+      cellClassName: '',
+    },
+  ];
+
+  const mobileFields: BundleMobileField[] = [
+    ...(isAgency
+      ? [
+          {
+            key: 'customer',
+            label: copy.table.customer,
+            value: (bundle: BundleListItem) => getBundleCustomerName(bundle),
+            valueClassName: 'font-medium text-gray-900',
+          },
+        ]
+      : []),
+    {
+      key: 'delivered',
+      label: copy.table.delivered,
+      value: (bundle: BundleListItem) =>
+        formatBundleNumber(getBundleSentCount(bundle), locale),
+      valueClassName: 'font-medium text-gray-900',
+    },
+    {
+      key: 'totalCampaigns',
+      label: copy.table.totalCampaigns,
+      value: (bundle: BundleListItem) =>
+        formatBundleNumber(getBundleTotalCampaigns(bundle), locale),
+      valueClassName: 'font-medium text-gray-900',
+    },
+    {
+      key: 'averageClickRate',
+      label: copy.table.averageClickRate,
+      value: (bundle: BundleListItem) =>
+        formatBundleRate(
+          getBundleClickRate(bundle),
+          locale,
+          copy.states.noClickRate
+        ),
+      valueClassName: 'font-semibold text-primary-700',
+    },
+  ];
+
   return (
     <section className='overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm'>
       <div className='hidden xl:block'>
         <div className='overflow-x-auto'>
           <table className='w-full min-w-0 table-fixed divide-y divide-gray-200'>
             <colgroup>
-              <col className='w-[11%]' />
-              <col className='w-[12%]' />
-              <col className='w-[11%]' />
-              <col className='w-[10%]' />
-              <col className='w-[9%]' />
-              <col className='w-[6%]' />
-              <col className='w-[6%]' />
-              <col className='w-[6%]' />
-              <col className='w-[7%]' />
-              <col className='w-[22%]' />
+              {desktopColumns.map(column => (
+                <col key={column.key} className={column.className} />
+              ))}
             </colgroup>
             <thead className='bg-gray-50'>
               <tr>
-                {[
-                  copy.table.title,
-                  copy.table.objective,
-                  copy.table.persona,
-                  copy.table.customer,
-                  copy.table.category,
-                  copy.table.totalSent,
-                  copy.table.delivered,
-                  copy.table.clicks,
-                  copy.table.clickRate,
-                  copy.table.actions,
-                ].map(header => (
+                {desktopColumns.map(column => (
                   <th
-                    key={header}
+                    key={column.key}
                     className='px-1.5 py-3 text-center text-[10px] font-semibold uppercase tracking-normal text-gray-500'
                   >
-                    {header}
+                    {column.header}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody className='divide-y divide-gray-200 bg-white'>
-              {items.map(bundle => {
-                return (
-                  <tr key={`${bundle.id}`}>
-                    <td className='px-1.5 py-3 text-center text-xs font-semibold text-gray-900'>
-                      {renderTruncatedText(
-                        getBundleTitle(bundle, copy.states.unknown),
-                        TRUNCATION_LENGTHS.title
-                      )}
-                      {bundle.id > 0 && (
-                        <div className='mt-1 truncate whitespace-nowrap text-[10px] font-medium text-gray-400'>
-                          {copy.table.bundleId}: {bundle.id}
-                        </div>
-                      )}
+              {items.map(bundle => (
+                <tr key={`${bundle.id}`}>
+                  {desktopColumns.map(column => (
+                    <td
+                      key={column.key}
+                      className={`px-1.5 py-3 text-center ${column.cellClassName}`}
+                    >
+                      {column.render(bundle)}
                     </td>
-                    <td className='px-1.5 py-3 text-center text-xs text-gray-600'>
-                      {renderTruncatedText(
-                        getBundleObjective(bundle, copy.states.unknown),
-                        TRUNCATION_LENGTHS.objective
-                      )}
-                    </td>
-                    <td className='px-1.5 py-3 text-center text-xs text-gray-600'>
-                      {renderTruncatedText(
-                        getBundlePersona(bundle, copy.states.unknown),
-                        TRUNCATION_LENGTHS.persona
-                      )}
-                    </td>
-                    <td className='px-1.5 py-3 text-center text-xs text-gray-600'>
-                      {renderTruncatedText(
-                        getBundleCustomerName(bundle),
-                        TRUNCATION_LENGTHS.customer
-                      )}
-                    </td>
-                    <td className='px-1.5 py-3 text-center text-xs text-gray-600'>
-                      {renderTruncatedText(
-                        getBundleCategory(bundle, copy.states.unknown),
-                        TRUNCATION_LENGTHS.category
-                      )}
-                    </td>
-                    <td className='px-1.5 py-3 text-center text-xs text-gray-900'>
-                      {formatBundleNumber(
-                        getBundleTotalRecordsCount(bundle),
-                        locale
-                      )}
-                    </td>
-                    <td className='px-1.5 py-3 text-center text-xs text-gray-900'>
-                      {formatBundleNumber(getBundleSentCount(bundle), locale)}
-                    </td>
-                    <td className='px-1.5 py-3 text-center text-xs text-gray-900'>
-                      {formatBundleNumber(getBundleClicksCount(bundle), locale)}
-                    </td>
-                    <td className='px-1.5 py-3 text-center text-xs font-semibold text-primary-700'>
-                      {formatBundleRate(
-                        getBundleClickRate(bundle),
-                        locale,
-                        copy.states.noClickRate
-                      )}
-                    </td>
-                    <td className='px-1.5 py-3'>{renderActions(bundle)}</td>
-                  </tr>
-                );
-              })}
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -247,61 +288,14 @@ const BundlesTable: React.FC<BundlesTableProps> = ({
               </div>
 
               <dl className='mt-4 grid grid-cols-2 gap-3 text-sm'>
-                <div>
-                  <dt className='text-gray-500'>{copy.table.objective}</dt>
-                  <dd className='mt-1 font-medium text-gray-900'>
-                    {getBundleObjective(bundle, copy.states.unknown)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className='text-gray-500'>{copy.table.persona}</dt>
-                  <dd className='mt-1 font-medium text-gray-900'>
-                    {getBundlePersona(bundle, copy.states.unknown)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className='text-gray-500'>{copy.table.customer}</dt>
-                  <dd className='mt-1 font-medium text-gray-900'>
-                    {getBundleCustomerName(bundle)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className='text-gray-500'>{copy.table.category}</dt>
-                  <dd className='mt-1 font-medium text-gray-900'>
-                    {getBundleCategory(bundle, copy.states.unknown)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className='text-gray-500'>{copy.table.delivered}</dt>
-                  <dd className='mt-1 font-medium text-gray-900'>
-                    {formatBundleNumber(getBundleSentCount(bundle), locale)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className='text-gray-500'>{copy.table.totalSent}</dt>
-                  <dd className='mt-1 font-medium text-gray-900'>
-                    {formatBundleNumber(
-                      getBundleTotalRecordsCount(bundle),
-                      locale
-                    )}
-                  </dd>
-                </div>
-                <div>
-                  <dt className='text-gray-500'>{copy.table.clicks}</dt>
-                  <dd className='mt-1 font-medium text-gray-900'>
-                    {formatBundleNumber(getBundleClicksCount(bundle), locale)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className='text-gray-500'>{copy.table.clickRate}</dt>
-                  <dd className='mt-1 font-semibold text-primary-700'>
-                    {formatBundleRate(
-                      getBundleClickRate(bundle),
-                      locale,
-                      copy.states.noClickRate
-                    )}
-                  </dd>
-                </div>
+                {mobileFields.map(field => (
+                  <div key={field.key}>
+                    <dt className='text-gray-500'>{field.label}</dt>
+                    <dd className={`mt-1 ${field.valueClassName}`}>
+                      {field.value(bundle)}
+                    </dd>
+                  </div>
+                ))}
               </dl>
 
               <div className='mt-4'>{renderActions(bundle)}</div>
