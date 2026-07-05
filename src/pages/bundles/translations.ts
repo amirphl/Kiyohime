@@ -17,20 +17,18 @@ export interface BundlesCopy {
   };
   table: {
     title: string;
-    objective: string;
-    persona: string;
     customer: string;
     category: string;
-    totalSent: string;
+    totalCampaigns: string;
     delivered: string;
-    clicks: string;
-    clickRate: string;
+    averageClickRate: string;
     actions: string;
     bundleId: string;
     empty: string;
   };
   actions: {
     view: string;
+    reports: string;
     campaignsWithPhaseAsExecution: string;
     campaignsWithPhaseAsTest: string;
     new: string;
@@ -52,9 +50,11 @@ export interface BundlesCopy {
     listLoadFailed: string;
     createLoadFailed: string;
     detailLoadFailed: string;
+    updateLoadFailed: string;
     actionTodo: string;
     creatingCampaignFromBundle: string;
     createSuccess: string;
+    updateSuccessWarning: string;
     authRequired: string;
     missingBundleId: string;
     redirectingToReports: string;
@@ -93,6 +93,8 @@ export interface BundlesCopy {
       cancel: string;
       save: string;
       saveAndCreateCampaign: string;
+      update: string;
+      updating: string;
       saving: string;
     };
     validation: {
@@ -110,15 +112,18 @@ export interface BundlesCopy {
       overview: string;
       performance: string;
       link: string;
+      quickAccess: string;
     };
     subtitles: {
       performance: string;
     };
     fields: {
+      title: string;
       objective: string;
       persona: string;
       customerName: string;
       category: string;
+      job: string;
       description: string;
       link: string;
       shortLinkDomain: string;
@@ -133,9 +138,14 @@ export interface BundlesCopy {
       totalClicks: string;
     };
     actions: {
+      edit: string;
       createCampaign: string;
       viewCampaignsWithPhaseAsTest: string;
       viewCampaignsWithPhaseAsExecution: string;
+      createTestCampaign: string;
+      createExecutionCampaign: string;
+      viewTestReports: string;
+      viewExecutionReports: string;
     };
     values: {
       enabled: string;
@@ -164,20 +174,18 @@ const bundlesEn: BundlesCopy = {
   },
   table: {
     title: 'Bundle title',
-    objective: 'Bundle objective',
-    persona: 'Audience persona',
     customer: 'Customer name',
     category: 'Category',
-    totalSent: 'Total sends',
-    delivered: 'Delivered messages',
-    clicks: 'Clicks',
-    clickRate: 'Click rate',
+    totalCampaigns: 'Total Campaigns',
+    delivered: '#Delivered messages',
+    averageClickRate: 'Average Click Rate',
     actions: 'Actions',
     bundleId: 'Bundle ID',
     empty: 'No bundles found.',
   },
   actions: {
     view: 'View',
+    reports: 'Reports',
     campaignsWithPhaseAsExecution: 'Execution phase',
     campaignsWithPhaseAsTest: 'Test phase',
     new: 'New',
@@ -199,18 +207,20 @@ const bundlesEn: BundlesCopy = {
     listLoadFailed: 'Failed to load bundles.',
     createLoadFailed: 'Failed to create the bundle.',
     detailLoadFailed: 'Failed to load bundle details.',
+    updateLoadFailed: 'Failed to update the bundle.',
     actionTodo: 'TODO: implement bundle action behavior.',
     creatingCampaignFromBundle:
       'Opening a new campaign draft for this bundle...',
     createSuccess: 'Bundle created successfully.',
+    updateSuccessWarning:
+      'Warning: Editing campaign information may make previous delivery data suitable only for analytical reference. Please consider this in your analysis.',
     authRequired: 'Please sign in again to continue.',
     missingBundleId: 'Bundle ID is missing or invalid.',
     redirectingToReports: 'Redirecting to reports...',
   },
   createPage: {
     title: 'Create new bundle',
-    subtitle:
-      'Enter your bundle information so you can design and run related campaigns.',
+    subtitle: '',
     back: 'Back to bundles',
     sections: {
       bundleInfo: 'Bundle information',
@@ -244,6 +254,8 @@ const bundlesEn: BundlesCopy = {
       cancel: 'Cancel',
       save: 'Save bundle',
       saveAndCreateCampaign: 'Save and create campaign',
+      update: 'Update bundle',
+      updating: 'Updating...',
       saving: 'Saving...',
     },
     validation: {
@@ -261,15 +273,18 @@ const bundlesEn: BundlesCopy = {
       overview: 'Bundle information',
       performance: 'Bundle performance summary',
       link: 'Link details',
+      quickAccess: 'Quick Access',
     },
     subtitles: {
       performance: 'Overview of all bundle campaigns performance.',
     },
     fields: {
+      title: 'Bundle title',
       objective: 'Bundle objective',
       persona: 'Audience persona',
       customerName: 'Customer name',
-      category: 'Business category',
+      category: 'Main business category',
+      job: 'Sub business category',
       description: 'Additional description',
       link: 'Bundle link',
       shortLinkDomain: 'Short link domain',
@@ -284,9 +299,14 @@ const bundlesEn: BundlesCopy = {
       totalClicks: 'Total clicks',
     },
     actions: {
+      edit: 'Edit',
       createCampaign: 'Create campaign',
-      viewCampaignsWithPhaseAsTest: 'View phase = test',
-      viewCampaignsWithPhaseAsExecution: 'View phase = execution',
+      viewCampaignsWithPhaseAsTest: 'View phase = Test',
+      viewCampaignsWithPhaseAsExecution: 'View phase = Execution',
+      createTestCampaign: 'New Test Campaign',
+      createExecutionCampaign: 'New Execution Campaign',
+      viewTestReports: 'Test Campaign Reports',
+      viewExecutionReports: 'Execution Campaign Reports',
     },
     values: {
       enabled: 'Enabled',
@@ -315,23 +335,21 @@ const bundlesFa: BundlesCopy = {
   },
   table: {
     title: 'عنوان کمپین',
-    objective: 'هدف کمپین',
-    persona: 'پرسونای مخاطب',
     customer: 'نام مشتری',
     category: 'دسته‌بندی شغلی',
-    totalSent: 'تعداد ارسال‌ها',
-    delivered: 'پیام‌های رسیده',
-    clicks: 'کلیک‌ها',
-    clickRate: 'نرخ کلیک',
+    totalCampaigns: 'تعداد کل ارسال‌ها',
+    delivered: 'تعداد پیام‌های رسیده',
+    averageClickRate: 'میانگین نرخ کلیک',
     actions: 'اقدامات',
     bundleId: 'شناسه کمپین',
     empty: 'کمپین‌ای پیدا نشد.',
   },
   actions: {
-    view: 'مشاهده',
+    view: 'جزئیات',
+    reports: 'گزارش و تحلیل',
     campaignsWithPhaseAsExecution: 'ارسال‌های اجرا',
     campaignsWithPhaseAsTest: 'ارسال‌های تست',
-    new: 'ساخت ارسال',
+    new: 'ارسال جدید',
   },
   pagination: {
     previous: 'قبلی',
@@ -350,18 +368,20 @@ const bundlesFa: BundlesCopy = {
     listLoadFailed: 'دریافت کمپین‌ها ناموفق بود.',
     createLoadFailed: 'ایجاد کمپین ناموفق بود.',
     detailLoadFailed: 'دریافت جزئیات کمپین ناموفق بود.',
+    updateLoadFailed: 'ویرایش کمپین ناموفق بود.',
     actionTodo: 'TODO: رفتار این اقدام بعداً پیاده‌سازی شود.',
     creatingCampaignFromBundle:
       'پیش‌نویس یک ارسال جدید بر اساس این کمپین در حال باز شدن است...',
     createSuccess: 'کمپین با موفقیت ایجاد شد.',
+    updateSuccessWarning:
+      'هشدار: ویرایش اطلاعات کمپین می‌تواند باعث شود فقط از لحاظ تحلیلی اطلاعات ارسال‌های پیشین قابل استناد نباشد. این نکته را در تحلیل‌های خود در نظر بگیرید',
     authRequired: 'برای ادامه لطفاً دوباره وارد شوید.',
     missingBundleId: 'شناسه کمپین موجود نیست یا نامعتبر است.',
     redirectingToReports: 'در حال هدایت به گزارش و تحلیل...',
   },
   createPage: {
     title: 'ساخت کمپین جدید',
-    subtitle:
-      'اطلاعات کمپین خود را وارد کنید تا بتوانید ارسال‌های مرتبط را طراحی و اجرا نمایید.',
+    subtitle: '',
     back: 'بازگشت به کمپین‌ها',
     sections: {
       bundleInfo: 'اطلاعات کمپین',
@@ -379,9 +399,10 @@ const bundlesFa: BundlesCopy = {
     },
     placeholders: {
       title: 'عنوان کمپین خود را وارد کنید',
-      objective: 'هدف کمپین خود را به صورت خلاصه و شفاف وارد کنید',
+      objective:
+        'هدف کمپین خود را به صورت خلاصه و شفاف وارد کنید مثل ثبت‌نام اولیه در لندینگ محصول، نصب اپلیکیشن، ثبت‌نام در وبینار',
       persona:
-        'ویژگی‌های مخاطبان هدف خود را وارد کنید (مانند سن، جنسیت، علاقه‌مندی‌ها، رفتار و ...)',
+        'ویژگی‌های مخاطبان هدف خود را وارد کنید (اغلب بر اساس سوابق آنان مانند سرمایه‌گذار، سابقه خرید طلای آنلاین، مصرف‌کننده تحلیل‌های مالی و ...)',
       description: 'توضیحات و نکات تکمیلی در مورد این کمپین را وارد کنید',
       customerName: 'نام مشتری را وارد کنید (اختیاری)',
       jobCategory: 'دسته‌بندی اصلی کسب‌وکار را انتخاب کنید (اختیاری)',
@@ -394,6 +415,8 @@ const bundlesFa: BundlesCopy = {
       cancel: 'انصراف',
       save: 'ذخیره کمپین',
       saveAndCreateCampaign: 'ذخیره و ساخت ارسال',
+      update: 'ویرایش کمپین',
+      updating: 'در حال ویرایش...',
       saving: 'در حال ذخیره...',
     },
     validation: {
@@ -410,16 +433,19 @@ const bundlesFa: BundlesCopy = {
     sections: {
       overview: 'اطلاعات کمپین',
       performance: 'خلاصه عملکرد کمپین',
-      link: 'جزئیات لینک',
+      link: 'لندینگ هدف',
+      quickAccess: 'دسترسی سریع',
     },
     subtitles: {
       performance: 'نمای کلی عملکرد همه ارسال‌های این کمپین.',
     },
     fields: {
+      title: 'عنوان کمپین',
       objective: 'هدف کمپین',
       persona: 'پرسونای مخاطب هدف',
       customerName: 'نام مشتری (در حالت نمایندگی)',
-      category: 'دسته‌بندی شغلی مشتری',
+      category: 'دسته‌بندی اصلی کسب‌وکار',
+      job: 'زیر‌دسته فعالیت',
       description: 'توضیحات تکمیلی',
       link: 'لینک کمپین',
       shortLinkDomain: 'دامنه لینک کوتاه',
@@ -434,9 +460,14 @@ const bundlesFa: BundlesCopy = {
       totalClicks: 'مجموع کلیک‌ها',
     },
     actions: {
-      createCampaign: 'ساخت ارسال',
+      edit: 'ویرایش',
+      createCampaign: 'ارسال جدید',
       viewCampaignsWithPhaseAsTest: 'مشاهده ارسال‌های تست',
       viewCampaignsWithPhaseAsExecution: 'مشاهده ارسال‌های اجرا',
+      createTestCampaign: 'ارسال تست جدید',
+      createExecutionCampaign: 'ارسال اجرا جدید',
+      viewTestReports: 'گزارش ارسال‌های تست',
+      viewExecutionReports: 'گزارش ارسال‌های اجرا',
     },
     values: {
       enabled: 'فعال',
