@@ -82,6 +82,7 @@ const BundlesPage: React.FC = () => {
           bundleId,
           jobCategory,
           job,
+          phase: 'execution',
         },
         content: {
           insertLink: Boolean(link),
@@ -115,25 +116,13 @@ const BundlesPage: React.FC = () => {
       return;
     }
 
-    if (action === 'testCampaigns') {
+    if (action === 'reports') {
       const bundleId = getBundleId(bundle);
       if (!bundleId) {
         showError(copy.messages.missingBundleId, BUNDLE_TOAST_DURATION_MS);
         return;
       }
-      showInfo(copy.messages.redirectingToReports, BUNDLE_TOAST_DURATION_MS);
-      navigate(getReportsPathWithFilters({ phase: 'test', bundleId }));
-      return;
-    }
-
-    if (action === 'executionCampaigns') {
-      const bundleId = getBundleId(bundle);
-      if (!bundleId) {
-        showError(copy.messages.missingBundleId, BUNDLE_TOAST_DURATION_MS);
-        return;
-      }
-      showInfo(copy.messages.redirectingToReports, BUNDLE_TOAST_DURATION_MS);
-      navigate(getReportsPathWithFilters({ phase: 'execution', bundleId }));
+      navigate(getReportsPathWithFilters({ bundleId }));
       return;
     }
 
@@ -223,6 +212,7 @@ const BundlesPage: React.FC = () => {
         ) : (
           <BundlesTable
             copy={copy}
+            isAgency={isAgency}
             items={items}
             page={page}
             limit={limit}
