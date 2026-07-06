@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import Button from '../components/ui/Button';
 import { useLanguage } from '../hooks/useLanguage';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useToast } from '../hooks/useToast';
@@ -12,6 +11,7 @@ import {
 import { getBundlesCopy } from './bundles/translations';
 import BundleFormHeader from './bundles/components/BundleFormHeader';
 import BundleInfoSection from './bundles/components/BundleInfoSection';
+import BundleFormActions from './bundles/components/BundleFormActions';
 import BundleTestCustomerSection from './bundles/components/BundleTestCustomerSection';
 import { useCreateBundleForm } from './bundles/hooks/useCreateBundleForm';
 import { useUrlValidation } from '../components/campaign/content/useUrlValidation';
@@ -181,28 +181,14 @@ const CreateBundlePage: React.FC = () => {
           />
         )}
 
-        <section className='rounded-3xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6'>
-          <div className='flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between'>
-            <Button variant='outline' onClick={handleBack}>
-              {copy.createPage.actions.cancel}
-            </Button>
-
-            <div className='flex flex-col gap-3 sm:flex-row'>
-              <Button
-                variant='outline'
-                onClick={handleSaveAndCreateCampaign}
-                disabled={submitting}
-              >
-                {copy.createPage.actions.saveAndCreateCampaign}
-              </Button>
-              <Button onClick={handleSave} loading={submitting}>
-                {submitting
-                  ? copy.createPage.actions.saving
-                  : copy.createPage.actions.save}
-              </Button>
-            </div>
-          </div>
-        </section>
+        <BundleFormActions
+          copy={copy}
+          mode='create'
+          submitting={submitting}
+          onCancel={handleBack}
+          onPrimaryAction={handleSave}
+          onSecondaryAction={handleSaveAndCreateCampaign}
+        />
       </div>
     </div>
   );
