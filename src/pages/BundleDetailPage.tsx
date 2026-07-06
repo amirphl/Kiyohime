@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Button from '../components/ui/Button';
 import { useLanguage } from '../hooks/useLanguage';
 import { useNavigation } from '../contexts/NavigationContext';
@@ -6,10 +6,11 @@ import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 import { getReportsPathWithFilters } from '../utils/reportsNavigation';
 import BundleDetailActionBar from './bundles/components/BundleDetailActionBar';
+import BundleEditSection from './bundles/components/BundleEditSection';
 import BundleDetailHeader from './bundles/components/BundleDetailHeader';
 import BundleLinkDetailsSection from './bundles/components/BundleLinkDetailsSection';
 import BundleOverviewSection from './bundles/components/BundleOverviewSection';
-import BundlePerformanceSection from './bundles/components/BundlePerformanceSection';
+import BundleQuickAccessSection from './bundles/components/BundleQuickAccessSection';
 import { useBundleDetails } from './bundles/hooks/useBundleDetails';
 import { getBundlesCopy } from './bundles/translations';
 import { BundleListItem } from '../types/bundle';
@@ -32,6 +33,7 @@ const BundleDetailPage: React.FC = () => {
   const { user } = useAuth();
   const copy = useMemo(() => getBundlesCopy(language), [language]);
   const isAgency = user?.account_type === 'marketing_agency';
+  const [isEditing, setIsEditing] = useState(false);
   const bundleId = useMemo(() => {
     const value = new URLSearchParams(window.location.search).get('id');
     const parsed = Number(value);
@@ -50,12 +52,20 @@ const BundleDetailPage: React.FC = () => {
   }, [error, showError]);
 
   const handleBack = () => navigate('/dashboard/bundles');
+  const handleEditCancel = () => setIsEditing(false);
+  const handleEditSuccess = () => {
+    setIsEditing(false);
+    retry();
+  };
 
   const getBundleId = (bundleItem: BundleListItem): number | null => {
     return bundleItem.id > 0 ? bundleItem.id : null;
   };
 
-  const openCampaignDraftForBundle = (bundleItem: BundleListItem) => {
+  const openCampaignDraftForBundle = (
+    bundleItem: BundleListItem,
+    phase: 'test' | 'execution' = 'execution'
+  ) => {
     const bundleId = getBundleId(bundleItem);
     if (!bundleId) {
       showError(copy.messages.missingBundleId, BUNDLE_TOAST_DURATION_MS);
@@ -78,6 +88,7 @@ const BundleDetailPage: React.FC = () => {
           bundleId,
           jobCategory,
           job,
+          phase,
         },
         content: {
           insertLink: Boolean(link),
@@ -101,13 +112,22 @@ const BundleDetailPage: React.FC = () => {
       return;
     }
 
+    if (action === 'create-campaign-test') {
+      openCampaignDraftForBundle(bundleItem, 'test');
+      return;
+    }
+
+    if (action === 'create-campaign-execution') {
+      openCampaignDraftForBundle(bundleItem, 'execution');
+      return;
+    }
+
     if (action === 'test-campaigns') {
       const bundleId = getBundleId(bundleItem);
       if (!bundleId) {
         showError(copy.messages.missingBundleId, BUNDLE_TOAST_DURATION_MS);
         return;
       }
-      showInfo(copy.messages.redirectingToReports, BUNDLE_TOAST_DURATION_MS);
       navigate(getReportsPathWithFilters({ phase: 'test', bundleId }));
       return;
     }
@@ -118,7 +138,6 @@ const BundleDetailPage: React.FC = () => {
         showError(copy.messages.missingBundleId, BUNDLE_TOAST_DURATION_MS);
         return;
       }
-      showInfo(copy.messages.redirectingToReports, BUNDLE_TOAST_DURATION_MS);
       navigate(getReportsPathWithFilters({ phase: 'execution', bundleId }));
       return;
     }
@@ -169,14 +188,33 @@ const BundleDetailPage: React.FC = () => {
     <div className='min-h-screen bg-gray-50'>
       <div className='mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8'>
         <BundleDetailHeader copy={copy} bundle={bundle} onBack={handleBack} />
-        <BundleDetailActionBar
-          copy={copy}
-          bundle={bundle}
-          onAction={handleAction}
-        />
-        <BundleOverviewSection bundle={bundle} copy={copy} />
-        <BundleLinkDetailsSection bundle={bundle} copy={copy} />
-        <BundlePerformanceSection bundle={bundle} copy={copy} />
+        {isEditing ? (
+          <BundleEditSection
+            bundle={bundle}
+            copy={copy}
+            onCancel={handleEditCancel}
+            onUpdated={handleEditSuccess}
+          />
+        ) : (
+          <>
+            <BundleDetailActionBar
+              copy={copy}
+              bundle={bundle}
+              onAction={handleAction}
+            />
+            <BundleOverviewSection
+              bundle={bundle}
+              copy={copy}
+              onEdit={() => setIsEditing(true)}
+            />
+            <BundleLinkDetailsSection bundle={bundle} copy={copy} />
+            <BundleQuickAccessSection
+              copy={copy}
+              bundle={bundle}
+              onAction={handleAction}
+            />
+          </>
+        )}
       </div>
     </div>
   );
