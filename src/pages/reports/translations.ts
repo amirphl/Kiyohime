@@ -1,36 +1,87 @@
 export interface ReportsTranslations {
   title: string;
-  filterPlaceholder: string;
+  campaignFilterPlaceholder: string;
   filterByBundle: string;
+  filterByCampaign: string;
   filterByPhase: string;
+  filterByPlatform: string;
+  filterByStartDate: string;
+  filterByEndDate: string;
   bundleAll: string;
   phaseAll: string;
   phaseTest: string;
   phaseExecution: string;
   bundleLoading: string;
-  sortBy: string;
-  sortNewest: string;
-  sortOldest: string;
+  platformAll: string;
+  orderBy: string;
+  startDatePlaceholder: string;
+  endDatePlaceholder: string;
   noMore: string;
   loading: string;
+  invalidDateRange: string;
   platforms: {
     sms: string;
     rubika: string;
     bale: string;
     splus: string;
   };
+  orderOptions: {
+    newest: string;
+    oldest: string;
+    phaseTestFirst: string;
+    phaseExecutionFirst: string;
+    highestClickRate: string;
+    lowestClickRate: string;
+  };
+  bulkHide: {
+    modeToggle: string;
+    modeHint: string;
+    selectionColumn: string;
+    selectionCount: (count: number) => string;
+    button: string;
+    submitting: string;
+    confirm: (count: number) => string;
+    success: (count: number) => string;
+    errors: {
+      emptySelection: string;
+      fallback: string;
+      unauthorized: string;
+    };
+  };
+  bulkUnhide: {
+    modeToggle: string;
+    modeHint: string;
+    selectionColumn: string;
+    selectionCount: (count: number) => string;
+    button: string;
+    submitting: string;
+    confirm: (count: number) => string;
+    success: (count: number) => string;
+    errors: {
+      emptySelection: string;
+      fallback: string;
+      unauthorized: string;
+      notFound: string;
+    };
+  };
+  showHiddenCampaigns: {
+    toggle: string;
+    hint: string;
+  };
   table: {
-    row: string;
-    title: string;
+    bundleTitle: string;
+    campaignTitle: string;
     text: string;
     lineNumber: string;
     platform: string;
     segment: string;
-    sent: string;
+    level3: string;
+    aggregatedTotalSent: string;
+    clickRate: string;
     status: string;
     numAudience: string;
     createdAt: string;
-    scheduleAt: string;
+    scheduledAt: string;
     details: string;
     subsegments: string;
     sex: string;
@@ -76,6 +127,33 @@ export interface ReportsTranslations {
     rejected: string;
     close: string;
     fixAndRestart: string;
+    bundleSection: string;
+    bundleLoading: string;
+    bundleObjective: string;
+    bundlePersona: string;
+    bundleTargetCustomerName: string;
+    bundleCategory: string;
+    bundleJob: string;
+    campaignSection: string;
+    segmentationSection: string;
+    segmentationMethod: string;
+    segmentationMethodLevels: string;
+    segmentationMethodExcelFile: string;
+    audienceGrades: string;
+    excelFileUuid: string;
+    platformSection: string;
+    platformSettingsName: string;
+    platformBasePrice: string;
+    contentSection: string;
+    attachedMedia: string;
+    mediaPreviewLoading: string;
+    mediaPreviewEmpty: string;
+    mediaPreviewFailed: string;
+    shortLinkDomain: string;
+    budgetSection: string;
+    campaignCost: string;
+    refund: string;
+    performanceSection: string;
     bundleTitle: string;
     phase: string;
     lineNumber: string;
@@ -89,6 +167,7 @@ export interface ReportsTranslations {
     level1: string;
     level2: string;
     level3: string;
+    level3v2: string;
     linePriceFactor: string;
     segmentPriceFactor: string;
     pricing: string;
@@ -128,37 +207,94 @@ export interface ReportsTranslations {
 export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
   en: {
     title: 'Reports',
-    filterPlaceholder: 'Filter by title...',
-    filterByBundle: 'Filter by bundle',
-    filterByPhase: 'Filter by phase',
+    campaignFilterPlaceholder: 'Enter campaign title',
+    filterByBundle: 'Bundle Title',
+    filterByCampaign: 'Campaign Title',
+    filterByPhase: 'Phase',
+    filterByPlatform: 'Platform',
+    filterByStartDate: 'Start Date',
+    filterByEndDate: 'End Date',
     bundleAll: 'All bundles',
     phaseAll: 'All phases',
     phaseTest: 'Test',
     phaseExecution: 'Execution',
     bundleLoading: 'Loading bundles...',
-    sortBy: 'Sort by',
-    sortNewest: 'Newest',
-    sortOldest: 'Oldest',
+    platformAll: 'All platforms',
+    orderBy: 'Order By',
+    startDatePlaceholder: 'Select start date',
+    endDatePlaceholder: 'Select end date',
     noMore: 'No more campaigns',
     loading: 'Loading...',
+    invalidDateRange: 'Start date must be earlier than end date.',
     platforms: {
       sms: 'SMS',
       rubika: 'Rubika',
       bale: 'Bale',
       splus: 'S+',
     },
+    orderOptions: {
+      newest: 'Newest',
+      oldest: 'Oldest',
+      phaseTestFirst: 'Phase: Test First',
+      phaseExecutionFirst: 'Phase: Execution First',
+      highestClickRate: 'Highest Click Rate',
+      lowestClickRate: 'Lowest Click Rate',
+    },
+    bulkHide: {
+      modeToggle: 'Hide campaigns',
+      modeHint: '',
+      selectionColumn: 'Select',
+      selectionCount: (count: number) =>
+        `${count} campaign${count === 1 ? '' : 's'} selected`,
+      button: 'Hide selected campaigns',
+      submitting: 'Hiding...',
+      confirm: (count: number) =>
+        `Hide ${count} selected campaign${count === 1 ? '' : 's'} from your reports list?`,
+      success: (count: number) =>
+        `${count} campaign${count === 1 ? '' : 's'} hidden successfully.`,
+      errors: {
+        emptySelection: 'Select at least one campaign to hide.',
+        fallback: 'Failed to hide selected campaigns.',
+        unauthorized: 'You are not authorized. Please log in again.',
+      },
+    },
+    bulkUnhide: {
+      modeToggle: 'Unhide campaigns',
+      modeHint: '',
+      selectionColumn: 'Select',
+      selectionCount: (count: number) =>
+        `${count} campaign${count === 1 ? '' : 's'} selected`,
+      button: 'Unhide selected campaigns',
+      submitting: 'Unhiding...',
+      confirm: (count: number) =>
+        `Restore ${count} hidden campaign${count === 1 ? '' : 's'} to your reports list?`,
+      success: (count: number) =>
+        `${count} campaign${count === 1 ? '' : 's'} restored successfully.`,
+      errors: {
+        emptySelection: 'Select at least one campaign to unhide.',
+        fallback: 'Failed to unhide selected campaigns.',
+        unauthorized: 'You are not authorized. Please log in again.',
+        notFound: 'One or more campaigns were not found.',
+      },
+    },
+    showHiddenCampaigns: {
+      toggle: 'Show hidden campaigns',
+      hint: 'Display campaigns that have been hidden from your reports list.',
+    },
     table: {
-      row: '#',
-      title: 'Title',
+      bundleTitle: 'Bundle Title',
+      campaignTitle: 'Campaign Title',
       text: 'Text',
       lineNumber: 'Line Number/Service',
       platform: 'Platform',
       segment: 'Segment',
-      sent: 'Sent',
+      level3: 'Level3',
+      aggregatedTotalSent: 'Aggregated Total Sent',
+      clickRate: 'Click Rate',
       status: 'Status',
       numAudience: 'Total',
       createdAt: 'Created At',
-      scheduleAt: 'Schedule At',
+      scheduledAt: 'Scheduled At',
       details: 'Details',
       subsegments: 'Subsegments',
       sex: 'Sex',
@@ -204,6 +340,33 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       rejected: 'Rejected',
       close: 'Close',
       fixAndRestart: 'Fix and restart the campaign?',
+      bundleSection: 'Bundle',
+      bundleLoading: 'Loading bundle details...',
+      bundleObjective: 'Objective',
+      bundlePersona: 'Persona',
+      bundleTargetCustomerName: 'Target Customer Name',
+      bundleCategory: 'Category',
+      bundleJob: 'Job',
+      campaignSection: 'Campaign',
+      segmentationSection: 'Segmentation Method',
+      segmentationMethod: 'Method',
+      segmentationMethodLevels: 'Levels',
+      segmentationMethodExcelFile: 'Excel File',
+      audienceGrades: 'Audience Grades',
+      excelFileUuid: 'Excel File UUID',
+      platformSection: 'Platform',
+      platformSettingsName: 'Platform Settings Name',
+      platformBasePrice: 'Platform Base Price',
+      contentSection: 'Content',
+      attachedMedia: 'Attached Media',
+      mediaPreviewLoading: 'Loading media preview...',
+      mediaPreviewEmpty: 'No attached media',
+      mediaPreviewFailed: 'Failed to load media preview',
+      shortLinkDomain: 'Short Link Domain',
+      budgetSection: 'Budget',
+      campaignCost: 'Campaign Cost',
+      refund: 'Refund',
+      performanceSection: 'Performance',
       bundleTitle: 'Bundle Title',
       phase: 'Phase',
       lineNumber: 'Line Number/Service',
@@ -217,6 +380,7 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       level1: 'Level 1',
       level2: 'Level 2',
       level3: 'Level 3',
+      level3v2: 'Level 3',
       linePriceFactor: 'Line Price Factor',
       segmentPriceFactor: 'Segment Price Factor',
       pricing: 'Pricing & Budget',
@@ -255,37 +419,90 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
   },
   fa: {
     title: 'گزارش و تحلیل',
-    filterPlaceholder: 'فیلتر بر اساس عنوان...',
-    filterByBundle: 'فیلتر بر اساس کمپین',
-    filterByPhase: 'فیلتر بر اساس فاز',
+    campaignFilterPlaceholder: 'عنوان ارسال را وارد کنید',
+    filterByBundle: 'عنوان کمپین',
+    filterByCampaign: 'عنوان ارسال',
+    filterByPhase: 'فاز',
+    filterByPlatform: 'کانال ارسال',
+    filterByStartDate: 'از تاریخ',
+    filterByEndDate: 'تا تاریخ',
     bundleAll: 'همه کمپین‌ها',
     phaseAll: 'همه فازها',
     phaseTest: 'تست',
     phaseExecution: 'اجرا',
     bundleLoading: 'در حال بارگذاری کمپین‌ها...',
-    sortBy: 'مرتب‌سازی بر اساس',
-    sortNewest: 'جدیدترین',
-    sortOldest: 'قدیمی‌ترین',
+    platformAll: 'همه کانال‌ها',
+    orderBy: 'مرتب‌سازی',
+    startDatePlaceholder: 'انتخاب تاریخ شروع',
+    endDatePlaceholder: 'انتخاب تاریخ پایان',
     noMore: 'کمپین دیگری وجود ندارد',
     loading: 'در حال بارگذاری...',
+    invalidDateRange: 'تاریخ شروع باید قبل از تاریخ پایان باشد.',
     platforms: {
       sms: 'پیامک',
       rubika: 'روبیکا',
       bale: 'بله',
       splus: 'سروش پلاس',
     },
+    orderOptions: {
+      newest: 'جدیدترین',
+      oldest: 'قدیمی‌ترین',
+      phaseTestFirst: 'فاز تست در ابتدا',
+      phaseExecutionFirst: 'فاز اجرا در ابتدا',
+      highestClickRate: 'بیشترین نرخ کلیک',
+      lowestClickRate: 'کمترین نرخ کلیک',
+    },
+    bulkHide: {
+      modeToggle: 'مخفی کردن ارسال‌ها',
+      modeHint: '',
+      selectionColumn: 'انتخاب',
+      selectionCount: (count: number) => `${count} ارسال انتخاب شده`,
+      button: 'مخفی کردن ارسال‌های انتخاب‌شده',
+      submitting: 'در حال مخفی‌سازی...',
+      confirm: (count: number) =>
+        `آیا از مخفی کردن ${count} ارسال انتخاب‌شده از فهرست گزارش‌ها مطمئن هستید؟`,
+      success: (count: number) => `${count} ارسال با موفقیت مخفی شد.`,
+      errors: {
+        emptySelection: 'حداقل یک ارسال را برای مخفی‌سازی انتخاب کنید.',
+        fallback: 'مخفی‌سازی ارسال‌های انتخاب‌شده ناموفق بود.',
+        unauthorized: 'احراز هویت ناموفق بود. لطفاً دوباره وارد شوید.',
+      },
+    },
+    bulkUnhide: {
+      modeToggle: 'نمایش مجدد ارسال‌ها',
+      modeHint: '',
+      selectionColumn: 'انتخاب',
+      selectionCount: (count: number) => `${count} ارسال انتخاب شده`,
+      button: 'نمایش مجدد ارسال‌های انتخاب‌شده',
+      submitting: 'در حال بازیابی...',
+      confirm: (count: number) =>
+        `آیا از نمایش مجدد ${count} ارسال مخفی‌شده در فهرست گزارش‌ها مطمئن هستید؟`,
+      success: (count: number) => `${count} ارسال با موفقیت بازیابی شد.`,
+      errors: {
+        emptySelection: 'حداقل یک ارسال را برای نمایش مجدد انتخاب کنید.',
+        fallback: 'بازیابی ارسال‌های انتخاب‌شده ناموفق بود.',
+        unauthorized: 'احراز هویت ناموفق بود. لطفاً دوباره وارد شوید.',
+        notFound: 'یک یا چند ارسال یافت نشد.',
+      },
+    },
+    showHiddenCampaigns: {
+      toggle: 'نمایش ارسال‌های مخفی',
+      hint: 'ارسال‌هایی را که از فهرست گزارش‌ها مخفی شده‌اند نمایش دهید.',
+    },
     table: {
-      row: '#',
-      title: 'عنوان ارسال',
+      bundleTitle: 'عنوان کمپین',
+      campaignTitle: 'عنوان ارسال',
       text: 'متن',
       lineNumber: 'سر شماره/سرویس',
       platform: 'کانال ارسال',
       segment: 'مخاطبان هدف',
-      sent: 'تعداد پیام های رسیده',
+      level3: 'مخاطبان هدف',
+      aggregatedTotalSent: 'تعداد پیام‌های رسیده',
+      clickRate: 'نرخ کلیک',
       status: 'وضعیت',
       numAudience: 'تعداد پیام های ارسالی',
       createdAt: 'ایجاد شده',
-      scheduleAt: 'زمان‌بندی ارسال',
+      scheduledAt: 'زمان‌بندی ارسال',
       details: 'جزئیات',
       subsegments: 'زیربخش‌ها',
       sex: 'جنسیت',
@@ -293,7 +510,7 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       adlink: 'لینک ضمیمه شده',
       updatedAt: 'به‌روزرسانی',
       actions: 'اقدامات',
-      bundle: 'کمپین مرتبط',
+      bundle: 'عنوان کمپین',
       phase: 'فاز ارسال',
     },
     statuses: {
@@ -311,27 +528,54 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
     clone: {
       button: 'کپی',
       confirm: 'با کپی، پیش‌نویس فعلی شما جایگزین می‌شود. ادامه می‌دهید؟',
-      success: 'کمپین کپی شد. در حال بارگذاری پیش‌نویس...',
-      error: 'کپی کمپین ناموفق بود.',
-      notAllowed: 'این کمپین قابل کپی نیست.',
-      modalTitle: 'کمپین کپی شد',
+      success: 'ارسال کپی شد. در حال بارگذاری پیش‌نویس...',
+      error: 'کپی ارسال ناموفق بود.',
+      notAllowed: 'این ارسال قابل کپی نیست.',
+      modalTitle: 'ارسال کپی شد',
       modalBody:
-        'کمپین شما کپی شد. با ورود به بخش مدیریت ارسال‌ها، پیش‌نویس جدید به صورت خودکار بارگذاری می‌شود.',
+        'ارسال شما کپی شد. با ورود به بخش مدیریت ارسال‌ها، پیش‌نویس جدید به صورت خودکار بارگذاری می‌شود.',
       close: 'بستن',
     },
     resume: {
       button: 'ادامه',
-      confirm: 'این کمپین جایگزین پیش‌نویس فعلی می‌شود. ادامه می‌دهید؟',
-      success: 'کمپین بارگذاری شد. در حال هدایت به ویرایش...',
-      error: 'ادامه کمپین ناموفق بود.',
-      notAllowed: 'امکان ادامه این کمپین وجود ندارد.',
+      confirm: 'این ارسال جایگزین پیش‌نویس فعلی می‌شود. ادامه می‌دهید؟',
+      success: 'ارسال بارگذاری شد. در حال هدایت به ویرایش...',
+      error: 'ادامه ارسال ناموفق بود.',
+      notAllowed: 'امکان ادامه این ارسال وجود ندارد.',
     },
     modal: {
       details: 'جزئیات',
       rejected: 'رد شده',
       close: 'بستن',
       fixAndRestart: 'اصلاح و شروع مجدد کمپین؟',
-      bundleTitle: 'عنوان کمپین مرتبط',
+      bundleSection: 'اطلاعات کمپین',
+      bundleLoading: 'در حال بارگذاری جزئیات کمپین...',
+      bundleObjective: 'هدف',
+      bundlePersona: 'پرسونا مخاطبان هدف',
+      bundleTargetCustomerName: 'نام مشتری',
+      bundleCategory: 'دسته‌بندی',
+      bundleJob: 'شغل',
+      campaignSection: 'اطلاعات ارسال',
+      segmentationSection: 'مخاطبان هدف',
+      segmentationMethod: 'روش',
+      segmentationMethodLevels: 'دسته‌بندی عادی',
+      segmentationMethodExcelFile: 'مخاطبان مشخص',
+      audienceGrades: 'کلاس امتیازی',
+      excelFileUuid: 'شناسه فایل اکسل',
+      platformSection: 'اطلاعات کانال ارسال',
+      platformSettingsName: 'نام سرویس',
+      platformBasePrice: 'قیمت پایه کانال',
+      contentSection: 'اطلاعات متن',
+      attachedMedia: 'فایل ضمیمه شده',
+      mediaPreviewLoading: 'در حال بارگذاری پیش‌نمایش فایل...',
+      mediaPreviewEmpty: 'فایلی ضمیمه نشده است',
+      mediaPreviewFailed: 'بارگذاری پیش‌نمایش فایل ناموفق بود',
+      shortLinkDomain: 'کوتاه‌کننده',
+      budgetSection: 'بودجه',
+      campaignCost: 'هزینه پیام‌های رسیده',
+      refund: 'هزینه عودت شده',
+      performanceSection: 'عملکرد',
+      bundleTitle: 'عنوان کمپین',
       phase: 'فاز ارسال',
       lineNumber: 'سر شماره/سرویس',
       platform: 'کانال ارسال',
@@ -344,6 +588,7 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       level1: 'سطح ۱',
       level2: 'سطح ۲',
       level3: 'سطح ۳',
+      level3v2: 'مخاطبان هدف',
       linePriceFactor: 'ضریب قیمت سرشماره',
       segmentPriceFactor: 'ضریب قیمت مخاطبان',
       pricing: 'قیمت و بودجه',
@@ -351,13 +596,12 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       comment: 'پیام ادمین',
       statistics: 'آمار',
       clickRate: 'نرخ کلیک (تعداد کلیک / تعداد پیام های رسیده)',
-      totalClicks: 'مجموع کلیک',
+      totalClicks: 'تعداد کلیک',
       totalSentSuccessfully: 'تعداد پیام‌های رسیده',
       totalSentRecords: 'تعداد پیام‌های ارسالی',
       totalFailedRecords: 'تعداد پیام‌های خطا خورده',
       estimatedDeliveredCost: 'هزینه نهایی',
-      estimatedDeliveredCostNote:
-        'این مقدار ۴۸ ساعت پس از ارسال کمپین معتبر است.',
+      estimatedDeliveredCostNote: 'این مقدار ۴۸ ساعت پس از ارسال معتبر است.',
       inactiveChannelNumbers: 'تعداد شماره‌های غیرفعال برای این کانال',
       numAudience: 'تعداد پیام های ارسالی',
       linkShortener: 'کوتاه کننده لینک',
@@ -365,19 +609,19 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       cancelCommentPlaceholder: 'توضیح اختیاری (حداکثر ۵۰۰ کاراکتر)',
       cancel: 'لغو',
       cancelling: 'در حال لغو...',
-      cancelled: 'کمپین لغو شد',
-      cancelSuccess: 'کمپین با موفقیت لغو شد',
-      cancelError: 'لغو کمپین ناموفق بود',
+      cancelled: 'ارسال لغو شد',
+      cancelSuccess: 'ارسال با موفقیت لغو شد',
+      cancelError: 'لغو ارسال ناموفق بود',
       cancelNotAllowed: 'فقط ارسال‌های در انتظار تایید قابل لغو هستند',
-      cancelConfirm: 'آیا از لغو این کمپین مطمئن هستید؟',
+      cancelConfirm: 'آیا از لغو این ارسال مطمئن هستید؟',
       exportReport: 'خروجی گزارش',
       exportingReport: 'در حال دریافت خروجی...',
-      exportError: 'دریافت خروجی گزارش کمپین ناموفق بود',
-      exportMissingCampaignUuid: 'شناسه کمپین الزامی است',
-      exportInvalidCampaignUuid: 'شناسه کمپین نامعتبر است',
+      exportError: 'دریافت خروجی گزارش ارسال ناموفق بود',
+      exportMissingCampaignUuid: 'شناسه ارسال الزامی است',
+      exportInvalidCampaignUuid: 'شناسه ارسال نامعتبر است',
       exportUnauthorized: 'احراز هویت ناموفق بود. لطفا دوباره وارد شوید.',
       exportForbidden: 'شما دسترسی لازم برای دریافت خروجی این گزارش را ندارید.',
-      exportNotFound: 'گزارش کمپین پیدا نشد.',
+      exportNotFound: 'گزارش ارسال پیدا نشد.',
     },
   },
 };
