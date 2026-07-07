@@ -307,7 +307,7 @@ const ReportsPage: React.FC = () => {
     setSelectedCampaignIds(prevSelectedIds =>
       prevSelectedIds.filter(campaignId => visibleCampaignIds.has(campaignId))
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, selectedCampaignIds.length]);
 
   const openDetails = (c: GetCampaignResponse) => {
@@ -409,9 +409,10 @@ const ReportsPage: React.FC = () => {
     }
   };
 
-  const displayedItems = bulkUnhideMode || showHiddenCampaigns
-    ? items
-    : items.filter(item => !item.hidden);
+  const displayedItems =
+    bulkUnhideMode || showHiddenCampaigns
+      ? items
+      : items.filter(item => !item.hidden);
 
   return (
     <div className='min-h-screen bg-gray-50'>

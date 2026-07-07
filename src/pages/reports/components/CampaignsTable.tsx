@@ -260,7 +260,10 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                     </td>
                   ) : null}
                   <td className={td}>
-                    <span className='block truncate' title={campaign.bundle_title || '-'}>
+                    <span
+                      className='block truncate'
+                      title={campaign.bundle_title || '-'}
+                    >
                       {campaign.bundle_title || '-'}
                     </span>
                   </td>
@@ -286,7 +289,9 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
                     </span>
                   </td>
                   <td className={td}>{getAggregatedTotalSent(campaign)}</td>
-                  <td className={td}>{formatPercentValue(campaign.click_rate)}</td>
+                  <td className={td}>
+                    {formatPercentValue(campaign.click_rate)}
+                  </td>
                   <td className={td}>{formatDateTime(campaign.scheduleat)}</td>
                   <td className={td}>
                     <span className='block font-medium text-gray-900'>

@@ -41,9 +41,7 @@ import CategoryJobFields from '../../CategoryJobFields';
 import Button from '../../ui/Button';
 import { useToast } from '../../../hooks/useToast';
 import { useMediaUpload } from '../../../hooks/useMediaUpload';
-import {
-  normalizeLinkPlaceholder,
-} from '../../../utils/campaignUtils';
+import { normalizeLinkPlaceholder } from '../../../utils/campaignUtils';
 import TargetAudienceExcelFileUploadCard, {
   isTargetAudienceExcelFile,
 } from './TargetAudienceExcelFileUploadCard';
