@@ -15,10 +15,24 @@ import {
   normalizeLinkPlaceholder,
 } from '../../../utils/campaignUtils';
 import { prepareCampaignCreationDraft } from '../../../utils/campaignCreationDraft';
+import {
+  formatPercentValue,
+  toNumericValue,
+} from './reportDetails/reportDetailsUtils';
 
-const getChannelDisplay = (c: GetCampaignResponse): string => {
-  if (!c.platform || c.platform === 'sms') return c.line_number || '-';
-  return c.platform_settings_name || '-';
+const getAggregatedTotalSent = (campaign: GetCampaignResponse): string => {
+  const aggregated = toNumericValue(campaign.statistics?.aggregatedTotalSent);
+  if (aggregated !== null) return String(aggregated);
+
+  return '-';
+};
+
+const getLevel3DisplayValue = (campaign: GetCampaignResponse): string => {
+  if (Array.isArray(campaign.level3s) && campaign.level3s.length > 0) {
+    return campaign.level3s.join(', ');
+  }
+
+  return typeof campaign.level3s === 'string' ? campaign.level3s : '-';
 };
 
 interface CampaignsTableProps {
@@ -27,6 +41,10 @@ interface CampaignsTableProps {
   formatDateTime: (iso?: string) => string;
   onDetails: (campaign: GetCampaignResponse) => void;
   truncateText: (text: string, max?: number) => string;
+  bulkHideMode: boolean;
+  bulkUnhideMode: boolean;
+  selectedCampaignIds: number[];
+  onToggleCampaignSelection: (campaignId: number, selected: boolean) => void;
 }
 
 const CampaignsTable: React.FC<CampaignsTableProps> = ({
@@ -35,7 +53,15 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
   formatDateTime,
   onDetails,
   truncateText,
+  bulkHideMode,
+  bulkUnhideMode,
+  selectedCampaignIds,
+  onToggleCampaignSelection,
 }) => {
+  const bulkSelectionMode = bulkHideMode || bulkUnhideMode;
+  const selectionColumnLabel = bulkUnhideMode
+    ? copy.bulkUnhide.selectionColumn
+    : copy.bulkHide.selectionColumn;
   const statusLabel = (status: string) => copy.statuses[status] || status;
   const { cancelCampaign, cancelling, cancelled } = useCancelCampaign(copy);
   const { accessToken } = useAuth();
@@ -112,8 +138,8 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
     };
   };
 
-  const handleClone = async (c: GetCampaignResponse) => {
-    if (!canClone(c.status)) {
+  const handleClone = async (campaign: GetCampaignResponse) => {
+    if (!canClone(campaign.status)) {
       showError(copy.clone.notAllowed);
       return;
     }
@@ -123,15 +149,15 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
       showError(copy.clone.error);
       return;
     }
-    setCloning(prev => ({ ...prev, [c.uuid]: true }));
+    setCloning(prev => ({ ...prev, [campaign.uuid]: true }));
     try {
       apiService.setAccessToken(accessToken);
-      const cloneRes = await apiService.cloneCampaign(c.uuid);
+      const cloneRes = await apiService.cloneCampaign(campaign.uuid);
       if (!cloneRes.success || !cloneRes.data?.uuid) {
         throw new Error(cloneRes.message || copy.clone.error);
       }
       const clonedDraft: CampaignData = {
-        ...normalizeCampaignToDraft(c),
+        ...normalizeCampaignToDraft(campaign),
         id:
           typeof cloneRes.data.id === 'number' && cloneRes.data.id > 0
             ? cloneRes.data.id
@@ -145,20 +171,20 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
       const message = e instanceof Error ? e.message : copy.clone.error;
       showError(message);
     } finally {
-      setCloning(prev => ({ ...prev, [c.uuid]: false }));
+      setCloning(prev => ({ ...prev, [campaign.uuid]: false }));
     }
   };
 
-  const handleResume = (c: GetCampaignResponse) => {
-    if (!canResume(c.status)) {
+  const handleResume = (campaign: GetCampaignResponse) => {
+    if (!canResume(campaign.status)) {
       showError(copy.resume.notAllowed);
       return;
     }
     const confirmed = window.confirm(copy.resume.confirm);
     if (!confirmed) return;
-    setResuming(prev => ({ ...prev, [c.uuid]: true }));
+    setResuming(prev => ({ ...prev, [campaign.uuid]: true }));
     try {
-      const draft = normalizeCampaignToDraft(c);
+      const draft = normalizeCampaignToDraft(campaign);
       prepareCampaignCreationDraft(draft);
       showSuccess(copy.resume.success);
       window.location.href = ROUTES.CAMPAIGN_CREATION.path;
@@ -166,120 +192,161 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
       const message = err instanceof Error ? err.message : copy.resume.error;
       showError(message);
     } finally {
-      setResuming(prev => ({ ...prev, [c.uuid]: false }));
+      setResuming(prev => ({ ...prev, [campaign.uuid]: false }));
     }
   };
 
   const th =
-    'px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider';
-  const td = 'px-4 py-2 text-sm text-gray-900 text-center';
+    'px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500';
+  const td = 'px-4 py-3 text-center text-sm text-gray-900 align-top';
+  const actionButtonCls =
+    'w-full rounded px-3 py-1 text-sm text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-50';
+  const selectedCampaignIdSet = new Set(selectedCampaignIds);
 
   return (
-    <div className='bg-white rounded-lg shadow-sm border border-gray-200'>
+    <div className='rounded-lg border border-gray-200 bg-white shadow-sm'>
       <div className='p-6'>
         <div className='overflow-x-auto'>
-          <table className='min-w-full divide-y divide-gray-200'>
+          <table className='min-w-full table-fixed divide-y divide-gray-200'>
+            <colgroup>
+              {bulkSelectionMode ? <col className='w-16' /> : null}
+              <col className='w-40' />
+              <col className='w-44' />
+              <col className='w-28' />
+              <col className='w-52' />
+              <col className='w-28' />
+              <col className='w-28' />
+              <col className='w-40' />
+              <col className='w-32' />
+              <col className='w-72' />
+            </colgroup>
             <thead className='bg-gray-50'>
               <tr>
-                <th className={th}>{copy.table.row}</th>
-                <th className={th}>{copy.table.title}</th>
+                {bulkSelectionMode ? (
+                  <th className={th}>{selectionColumnLabel}</th>
+                ) : null}
+                <th className={th}>{copy.table.bundleTitle}</th>
+                <th className={th}>{copy.table.campaignTitle}</th>
                 <th className={th}>{copy.table.platform}</th>
-                <th className={th}>{copy.table.lineNumber}</th>
-                <th className={th}>{copy.table.segment}</th>
-                <th className={th}>{copy.table.bundle}</th>
-                <th className={th}>{copy.table.phase}</th>
-                <th className={th}>{copy.table.numAudience}</th>
-                <th className={th}>{copy.table.sent}</th>
+                <th className={th}>{copy.table.level3}</th>
+                <th className={th}>{copy.table.aggregatedTotalSent}</th>
+                <th className={th}>{copy.table.clickRate}</th>
+                <th className={th}>{copy.table.scheduledAt}</th>
                 <th className={th}>{copy.table.status}</th>
-                <th className={th}>{copy.table.createdAt}</th>
-                <th className={th}>{copy.table.scheduleAt}</th>
                 <th className={th}>{copy.table.actions}</th>
-                <th className={th}>{copy.table.details}</th>
               </tr>
             </thead>
-            <tbody className='bg-white divide-y divide-gray-200'>
-              {items.map((c, idx) => (
-                <tr key={c.uuid}>
-                  <td className={td}>{idx + 1}</td>
-                  <td className='px-4 py-2 text-sm text-gray-700 text-center'>
-                    {truncateText(c.title || '')}
+            <tbody className='divide-y divide-gray-200 bg-white'>
+              {items.map(campaign => (
+                <tr key={campaign.uuid} className='hover:bg-gray-50'>
+                  {bulkSelectionMode ? (
+                    <td className={td}>
+                      {campaign.id ? (
+                        <input
+                          type='checkbox'
+                          checked={selectedCampaignIdSet.has(campaign.id)}
+                          onChange={event =>
+                            onToggleCampaignSelection(
+                              campaign.id as number,
+                              event.target.checked
+                            )
+                          }
+                          className='h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                          aria-label={`${selectionColumnLabel} ${campaign.title || campaign.uuid}`}
+                        />
+                      ) : (
+                        '-'
+                      )}
+                    </td>
+                  ) : null}
+                  <td className={td}>
+                    <span className='block truncate' title={campaign.bundle_title || '-'}>
+                      {campaign.bundle_title || '-'}
+                    </span>
                   </td>
                   <td className={td}>
-                    {copy.platforms[c.platform ?? 'sms'] ??
-                      c.platform ??
+                    <span
+                      className='block truncate font-medium text-gray-900'
+                      title={campaign.title || '-'}
+                    >
+                      {truncateText(campaign.title || '', 40)}
+                    </span>
+                  </td>
+                  <td className={td}>
+                    {copy.platforms[campaign.platform ?? 'sms'] ??
+                      campaign.platform ??
                       copy.platforms.sms}
                   </td>
-                  <td className={td}>{getChannelDisplay(c)}</td>
                   <td className={td}>
-                    {Array.isArray(c.level3s)
-                      ? c.level3s.join(', ')
-                      : c.level3s || '-'}
+                    <span
+                      className='block truncate'
+                      title={getLevel3DisplayValue(campaign)}
+                    >
+                      {getLevel3DisplayValue(campaign)}
+                    </span>
                   </td>
-                  <td className={td}>{c.bundle_title || '-'}</td>
+                  <td className={td}>{getAggregatedTotalSent(campaign)}</td>
+                  <td className={td}>{formatPercentValue(campaign.click_rate)}</td>
+                  <td className={td}>{formatDateTime(campaign.scheduleat)}</td>
                   <td className={td}>
-                    {c.phase === 'test'
-                      ? copy.phaseTest
-                      : c.phase === 'execution'
-                        ? copy.phaseExecution
-                        : c.phase || '-'}
+                    <span className='block font-medium text-gray-900'>
+                      {statusLabel(campaign.status)}
+                    </span>
                   </td>
-                  <td className='px-4 py-2 text-sm text-gray-500 text-center'>
-                    {c.num_audience || '-'}
-                  </td>
-                  <td className='px-4 py-2 text-sm text-gray-500 text-center'>
-                    {c.statistics?.aggregatedTotalSent ?? '-'}
-                  </td>
-                  <td className={td}>{statusLabel(c.status)}</td>
-                  <td className={td}>{formatDateTime(c.created_at)}</td>
-                  <td className={td}>{formatDateTime(c.scheduleat)}</td>
-                  <td className='px-4 py-2 text-center text-sm text-gray-900'>
-                    <div className='flex flex-col items-center gap-2'>
-                      {(c.status === 'waiting-for-approval' ||
-                        c.status === 'approved') &&
-                      c.id ? (
+                  <td className='px-4 py-3 text-sm text-center align-top'>
+                    <div className='flex flex-col gap-2'>
+                      <button
+                        type='button'
+                        onClick={() => onDetails(campaign)}
+                        className='w-full rounded border border-primary-200 bg-primary-50 px-3 py-1.5 font-medium text-primary-700 transition hover:border-primary-300 hover:bg-primary-100'
+                      >
+                        {copy.table.details}
+                      </button>
+                      {(campaign.status === 'waiting-for-approval' ||
+                        campaign.status === 'approved') &&
+                      campaign.id ? (
                         <button
-                          onClick={() => cancelCampaign(c)}
-                          disabled={cancelling[c.id] || cancelled[c.id]}
-                          className='px-3 py-1 text-sm rounded bg-amber-600 text-white shadow-sm hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition w-full'
+                          type='button'
+                          onClick={() => cancelCampaign(campaign)}
+                          disabled={
+                            cancelling[campaign.id] || cancelled[campaign.id]
+                          }
+                          className={`${actionButtonCls} bg-amber-600 hover:bg-amber-700`}
                         >
-                          {cancelled[c.id]
+                          {cancelled[campaign.id]
                             ? copy.modal.cancelled
-                            : cancelling[c.id]
+                            : cancelling[campaign.id]
                               ? copy.modal.cancelling
                               : copy.modal.cancel}
                         </button>
-                      ) : (
-                        <span className='text-gray-400 w-full text-center'>
-                          -
-                        </span>
-                      )}
-                      {canClone(c.status) && (
+                      ) : null}
+
+                      {canClone(campaign.status) ? (
                         <button
-                          onClick={() => handleClone(c)}
-                          disabled={cloning[c.uuid]}
-                          className='px-3 py-1 text-sm rounded bg-blue-600 text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition w-full'
+                          type='button'
+                          onClick={() => handleClone(campaign)}
+                          disabled={cloning[campaign.uuid]}
+                          className={`${actionButtonCls} bg-blue-600 hover:bg-blue-700`}
                         >
-                          {cloning[c.uuid] ? copy.loading : copy.clone.button}
+                          {cloning[campaign.uuid]
+                            ? copy.loading
+                            : copy.clone.button}
                         </button>
-                      )}
-                      {canResume(c.status) && (
+                      ) : null}
+
+                      {canResume(campaign.status) ? (
                         <button
-                          onClick={() => handleResume(c)}
-                          disabled={resuming[c.uuid]}
-                          className='px-3 py-1 text-sm rounded bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition w-full'
+                          type='button'
+                          onClick={() => handleResume(campaign)}
+                          disabled={resuming[campaign.uuid]}
+                          className={`${actionButtonCls} bg-emerald-600 hover:bg-emerald-700`}
                         >
-                          {resuming[c.uuid] ? copy.loading : copy.resume.button}
+                          {resuming[campaign.uuid]
+                            ? copy.loading
+                            : copy.resume.button}
                         </button>
-                      )}
+                      ) : null}
                     </div>
-                  </td>
-                  <td className='px-4 py-2 text-center'>
-                    <button
-                      onClick={() => onDetails(c)}
-                      className='px-3 py-1 text-sm bg-primary-600 text-white rounded hover:bg-primary-700 shadow-sm'
-                    >
-                      {copy.table.details}
-                    </button>
                   </td>
                 </tr>
               ))}
