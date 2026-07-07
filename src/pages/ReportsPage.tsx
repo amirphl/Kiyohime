@@ -294,8 +294,6 @@ const ReportsPage: React.FC = () => {
   }, [bulkHideMode, bulkUnhideMode, selectedCampaignIds.length]);
 
   useEffect(() => {
-    if (selectedCampaignIds.length === 0) return;
-
     const visibleCampaignIds = new Set(
       items
         .map(item => item.id)
@@ -304,11 +302,20 @@ const ReportsPage: React.FC = () => {
         )
     );
 
-    setSelectedCampaignIds(prevSelectedIds =>
-      prevSelectedIds.filter(campaignId => visibleCampaignIds.has(campaignId))
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, selectedCampaignIds.length]);
+    setSelectedCampaignIds(prevSelectedIds => {
+      if (prevSelectedIds.length === 0) {
+        return prevSelectedIds;
+      }
+
+      const nextSelectedIds = prevSelectedIds.filter(campaignId =>
+        visibleCampaignIds.has(campaignId)
+      );
+
+      return nextSelectedIds.length === prevSelectedIds.length
+        ? prevSelectedIds
+        : nextSelectedIds;
+    });
+  }, [items]);
 
   const openDetails = (c: GetCampaignResponse) => {
     setSelected(c);
