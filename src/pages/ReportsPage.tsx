@@ -1,14 +1,24 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { apiService } from '../services/api';
-import { GetCampaignResponse } from '../types/campaign';
+import {
+  CampaignPlatform,
+  GetCampaignResponse,
+  ListSMSCampaignsParams,
+} from '../types/campaign';
 import { useAuth } from '../hooks/useAuth';
 import { useCampaign } from '../hooks/useCampaign';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useLanguage } from '../hooks/useLanguage';
-import FiltersBar from './reports/components/FiltersBar';
+import FiltersBar, { ReportsOrderBy } from './reports/components/FiltersBar';
 import CampaignsTable from './reports/components/CampaignsTable';
 import ReportDetailsModal from './reports/components/ReportDetailsModal';
+import BulkHideActionBar from './reports/components/BulkHideActionBar';
+import BulkUnhideActionBar from './reports/components/BulkUnhideActionBar';
+import { useHideCampaigns } from './reports/hooks/useHideCampaigns';
+import { useUnhideCampaigns } from './reports/hooks/useUnhideCampaigns';
 import { getReportsCopy } from './reports/translations';
+
+type CampaignPhaseFilter = ListSMSCampaignsParams['phase'] | '';
 
 const ReportsPage: React.FC = () => {
   const { accessToken } = useAuth();
@@ -30,16 +40,23 @@ const ReportsPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
   const [hasMore, setHasMore] = useState(true);
-  const [orderBy, setOrderBy] = useState<'newest' | 'oldest'>('newest');
+  const [orderBy, setOrderBy] = useState<ReportsOrderBy>('newest');
 
-  // Title filter state with debounce
-  const [titleInput, setTitleInput] = useState('');
-  const [titleFilter, setTitleFilter] = useState('');
-  const titleDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const [campaignTitleInput, setCampaignTitleInput] = useState('');
+  const [campaignTitleFilter, setCampaignTitleFilter] = useState('');
+  const campaignTitleDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Bundle and phase filter state
   const [bundleIdFilter, setBundleIdFilter] = useState<number | null>(null);
-  const [phaseFilter, setPhaseFilter] = useState('');
+  const [phaseFilter, setPhaseFilter] = useState<CampaignPhaseFilter>('');
+  const [platformFilter, setPlatformFilter] = useState<CampaignPlatform | ''>(
+    ''
+  );
+  const [startDateFilter, setStartDateFilter] = useState('');
+  const [endDateFilter, setEndDateFilter] = useState('');
+  const [bulkHideMode, setBulkHideMode] = useState(false);
+  const [bulkUnhideMode, setBulkUnhideMode] = useState(false);
+  const [showHiddenCampaigns, setShowHiddenCampaigns] = useState(false);
+  const [selectedCampaignIds, setSelectedCampaignIds] = useState<number[]>([]);
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -49,12 +66,44 @@ const ReportsPage: React.FC = () => {
   const isFetchingRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
 
+  const { hideCampaigns, isSubmitting: isHidingCampaigns } = useHideCampaigns({
+    copy,
+    onHidden: hiddenCampaignIds => {
+      const hiddenCampaignIdSet = new Set(hiddenCampaignIds);
+      setItems(prevItems =>
+        prevItems.filter(
+          item => item.id == null || !hiddenCampaignIdSet.has(item.id)
+        )
+      );
+      setSelectedCampaignIds([]);
+      setBulkHideMode(false);
+    },
+  });
+
+  const { unhideCampaigns, isSubmitting: isUnhidingCampaigns } =
+    useUnhideCampaigns({
+      copy,
+      onUnhidden: unhiddenCampaignIds => {
+        const unhiddenCampaignIdSet = new Set(unhiddenCampaignIds);
+        setItems(prevItems =>
+          prevItems.filter(
+            item => item.id == null || !unhiddenCampaignIdSet.has(item.id)
+          )
+        );
+        setSelectedCampaignIds([]);
+        setBulkUnhideMode(false);
+      },
+    });
+
   // Track previous filter values to skip stale-page fetch when filters reset pagination
   const prevFiltersRef = useRef({
     orderBy,
-    titleFilter,
+    campaignTitleFilter,
     bundleIdFilter,
     phaseFilter,
+    platformFilter,
+    startDateFilter,
+    endDateFilter,
   });
 
   // Initialize filters from URL query parameters
@@ -63,7 +112,7 @@ const ReportsPage: React.FC = () => {
     const phaseParam = params.get('phase');
     const bundleIdParam = params.get('bundleId');
 
-    if (phaseParam && ['test', 'execution'].includes(phaseParam)) {
+    if (phaseParam === 'test' || phaseParam === 'execution') {
       setPhaseFilter(phaseParam);
     }
 
@@ -83,16 +132,32 @@ const ReportsPage: React.FC = () => {
     const prev = prevFiltersRef.current;
     const filtersChanged =
       prev.orderBy !== orderBy ||
-      prev.titleFilter !== titleFilter ||
+      prev.campaignTitleFilter !== campaignTitleFilter ||
       prev.bundleIdFilter !== bundleIdFilter ||
-      prev.phaseFilter !== phaseFilter;
+      prev.phaseFilter !== phaseFilter ||
+      prev.platformFilter !== platformFilter ||
+      prev.startDateFilter !== startDateFilter ||
+      prev.endDateFilter !== endDateFilter;
     prevFiltersRef.current = {
       orderBy,
-      titleFilter,
+      campaignTitleFilter,
       bundleIdFilter,
       phaseFilter,
+      platformFilter,
+      startDateFilter,
+      endDateFilter,
     };
     if (filtersChanged && page > 1) return;
+
+    if (
+      startDateFilter &&
+      endDateFilter &&
+      new Date(startDateFilter).getTime() > new Date(endDateFilter).getTime()
+    ) {
+      setError(copy.invalidDateRange);
+      setLoading(false);
+      return;
+    }
 
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -105,12 +170,19 @@ const ReportsPage: React.FC = () => {
         setError(null);
         apiService.setAccessToken(accessToken);
 
-        const params: any = { page, limit, orderby: orderBy };
-        if (titleFilter && titleFilter.trim().length > 0) {
-          params.title = titleFilter.trim();
+        const params: ListSMSCampaignsParams = {
+          page,
+          limit,
+          orderby: orderBy,
+        };
+        if (campaignTitleFilter.trim()) {
+          params.campaign_title = campaignTitleFilter.trim();
         }
         if (bundleIdFilter) params.bundle_id = bundleIdFilter;
         if (phaseFilter) params.phase = phaseFilter;
+        if (platformFilter) params.platform = platformFilter;
+        if (startDateFilter) params.start_date = startDateFilter;
+        if (endDateFilter) params.end_date = endDateFilter;
 
         const res = await apiService.listCampaigns(params, controller.signal);
         if (controller.signal.aborted) return;
@@ -148,25 +220,45 @@ const ReportsPage: React.FC = () => {
     return () => {
       controller.abort();
     };
-  }, [accessToken, page, orderBy, titleFilter, bundleIdFilter, phaseFilter]);
+  }, [
+    accessToken,
+    page,
+    orderBy,
+    campaignTitleFilter,
+    bundleIdFilter,
+    phaseFilter,
+    platformFilter,
+    startDateFilter,
+    endDateFilter,
+    copy.invalidDateRange,
+  ]);
 
-  // Reset pagination when filters change
   useEffect(() => {
     if (!accessToken) return;
     setItems([]);
     setHasMore(true);
     setPage(1);
-  }, [orderBy, titleFilter, bundleIdFilter, phaseFilter, accessToken]);
+  }, [
+    orderBy,
+    campaignTitleFilter,
+    bundleIdFilter,
+    phaseFilter,
+    platformFilter,
+    startDateFilter,
+    endDateFilter,
+    accessToken,
+  ]);
 
-  // Debounce title input
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCampaignTitleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const val = e.target.value;
-    setTitleInput(val);
-    if (titleDebounceRef.current) {
-      clearTimeout(titleDebounceRef.current);
+    setCampaignTitleInput(val);
+    if (campaignTitleDebounceRef.current) {
+      clearTimeout(campaignTitleDebounceRef.current);
     }
-    titleDebounceRef.current = setTimeout(() => {
-      setTitleFilter(val);
+    campaignTitleDebounceRef.current = setTimeout(() => {
+      setCampaignTitleFilter(val);
     }, 1000);
   };
 
@@ -186,9 +278,56 @@ const ReportsPage: React.FC = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, [loading, hasMore]);
 
+  useEffect(
+    () => () => {
+      if (campaignTitleDebounceRef.current) {
+        clearTimeout(campaignTitleDebounceRef.current);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!bulkHideMode && !bulkUnhideMode && selectedCampaignIds.length > 0) {
+      setSelectedCampaignIds([]);
+    }
+  }, [bulkHideMode, bulkUnhideMode, selectedCampaignIds.length]);
+
+  useEffect(() => {
+    if (selectedCampaignIds.length === 0) return;
+
+    const visibleCampaignIds = new Set(
+      items
+        .map(item => item.id)
+        .filter(
+          (campaignId): campaignId is number => typeof campaignId === 'number'
+        )
+    );
+
+    setSelectedCampaignIds(prevSelectedIds =>
+      prevSelectedIds.filter(campaignId => visibleCampaignIds.has(campaignId))
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, selectedCampaignIds.length]);
+
   const openDetails = (c: GetCampaignResponse) => {
     setSelected(c);
     setShowModal(true);
+  };
+
+  const handleToggleCampaignSelection = (
+    campaignId: number,
+    selectedValue: boolean
+  ) => {
+    setSelectedCampaignIds(prevSelectedIds => {
+      if (selectedValue) {
+        return prevSelectedIds.includes(campaignId)
+          ? prevSelectedIds
+          : [...prevSelectedIds, campaignId];
+      }
+
+      return prevSelectedIds.filter(id => id !== campaignId);
+    });
   };
 
   const truncateText = (text: string, max = 30) => {
@@ -270,18 +409,35 @@ const ReportsPage: React.FC = () => {
     }
   };
 
+  const displayedItems = bulkUnhideMode || showHiddenCampaigns
+    ? items
+    : items.filter(item => !item.hidden);
+
   return (
     <div className='min-h-screen bg-gray-50'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         <FiltersBar
-          titleInput={titleInput}
-          onTitleChange={handleTitleChange}
+          language={language === 'fa' ? 'fa' : 'en'}
+          campaignTitleInput={campaignTitleInput}
+          onCampaignTitleChange={handleCampaignTitleChange}
           orderBy={orderBy}
           onOrderChange={setOrderBy}
           bundleIdFilter={bundleIdFilter}
           onBundleIdChange={setBundleIdFilter}
           phaseFilter={phaseFilter}
           onPhaseChange={setPhaseFilter}
+          platformFilter={platformFilter}
+          onPlatformChange={setPlatformFilter}
+          startDate={startDateFilter}
+          onStartDateChange={setStartDateFilter}
+          endDate={endDateFilter}
+          onEndDateChange={setEndDateFilter}
+          bulkHideMode={bulkHideMode}
+          onBulkHideModeChange={setBulkHideMode}
+          bulkUnhideMode={bulkUnhideMode}
+          onBulkUnhideModeChange={setBulkUnhideMode}
+          showHiddenCampaigns={showHiddenCampaigns}
+          onShowHiddenCampaignsChange={setShowHiddenCampaigns}
           accessToken={accessToken}
           copy={copy}
         />
@@ -293,12 +449,34 @@ const ReportsPage: React.FC = () => {
         )}
 
         <CampaignsTable
-          items={items}
+          items={displayedItems}
           copy={copy}
           formatDateTime={formatReportDateTime}
           onDetails={openDetails}
           truncateText={truncateText}
+          bulkHideMode={bulkHideMode}
+          bulkUnhideMode={bulkUnhideMode}
+          selectedCampaignIds={selectedCampaignIds}
+          onToggleCampaignSelection={handleToggleCampaignSelection}
         />
+
+        {bulkHideMode ? (
+          <BulkHideActionBar
+            copy={copy}
+            selectedCount={selectedCampaignIds.length}
+            isSubmitting={isHidingCampaigns}
+            onSubmit={() => hideCampaigns(selectedCampaignIds)}
+          />
+        ) : null}
+
+        {bulkUnhideMode ? (
+          <BulkUnhideActionBar
+            copy={copy}
+            selectedCount={selectedCampaignIds.length}
+            isSubmitting={isUnhidingCampaigns}
+            onSubmit={() => unhideCampaigns(selectedCampaignIds)}
+          />
+        ) : null}
 
         {loading && (
           <div className='text-center text-gray-600 mt-4'>{copy.loading}</div>
