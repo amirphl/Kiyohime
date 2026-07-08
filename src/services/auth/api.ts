@@ -15,6 +15,8 @@ const AUTH_ERROR_CODES = {
   timeoutError: 'TIMEOUT_ERROR',
 } as const;
 
+const LOGIN_OTP_CONSOLE_FLAG_KEY = 'log_login_otp_to_console';
+
 const createAuthErrorResponse = <T>(
   code: string,
   message = code,
@@ -34,6 +36,24 @@ const getStoredAccessToken = (): string | null => {
   }
 
   return window.localStorage.getItem('access_token');
+};
+
+const shouldLogLoginOtpToConsole = (): boolean => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  const runtimeFlag = (
+    window as typeof window & {
+      __logLoginOtpToConsole?: unknown;
+    }
+  ).__logLoginOtpToConsole;
+
+  if (typeof runtimeFlag === 'boolean') {
+    return runtimeFlag;
+  }
+
+  return window.localStorage.getItem(LOGIN_OTP_CONSOLE_FLAG_KEY) === 'true';
 };
 
 const createTimeoutSignal = (
@@ -250,11 +270,17 @@ export const requestLoginOtp = async (
 
   formattedIdentifier = formatPhoneNumber(formattedIdentifier);
 
+  const payload: Record<string, string | boolean> = {
+    identifier: formattedIdentifier,
+  };
+
+  if (shouldLogLoginOtpToConsole()) {
+    payload.log_otp_to_console = true;
+  }
+
   return authRequest(AUTH_ENDPOINTS.loginOtp, {
     method: 'POST',
-    body: JSON.stringify({
-      identifier: formattedIdentifier,
-    }),
+    body: JSON.stringify(payload),
   });
 };
 
