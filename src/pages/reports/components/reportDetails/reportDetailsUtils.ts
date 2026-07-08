@@ -97,7 +97,7 @@ export const getPlatformChannelLabel = (
 };
 
 export const getRefundValue = (campaign: GetCampaignResponse): number | null =>
-  toNumericValue(campaign.statistics?.refund);
+  toNumericValue(campaign.statistics?.undeliveredRefundAmount);
 
 export const getCampaignCostValue = (
   campaign: GetCampaignResponse
