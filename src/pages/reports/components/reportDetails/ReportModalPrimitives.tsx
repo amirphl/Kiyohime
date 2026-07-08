@@ -5,6 +5,7 @@ interface ReportModalShellProps {
   subtitle?: string;
   badge?: React.ReactNode;
   actions?: React.ReactNode;
+  footer?: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -13,6 +14,7 @@ export const ReportModalShell: React.FC<ReportModalShellProps> = ({
   subtitle,
   badge,
   actions,
+  footer,
   children,
 }) => {
   return (
@@ -40,6 +42,12 @@ export const ReportModalShell: React.FC<ReportModalShellProps> = ({
         <div className='min-h-0 flex-1 overflow-y-auto bg-slate-100/80 px-4 py-4 sm:px-8 sm:py-6'>
           <div className='space-y-4'>{children}</div>
         </div>
+
+        {footer ? (
+          <div className='border-t border-slate-200 bg-white px-4 py-4 sm:px-8'>
+            {footer}
+          </div>
+        ) : null}
       </div>
     </div>
   );
