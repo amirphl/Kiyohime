@@ -201,6 +201,13 @@ export interface ReportsTranslations {
     exportUnauthorized: string;
     exportForbidden: string;
     exportNotFound: string;
+    exportClickReport: string;
+    exportingClickReport: string;
+    clickReportError: string;
+    clickReportNotFound: string;
+    clickReportTimeout: string;
+    clickReportNetworkError: string;
+    clickReportInvalidResponse: string;
   };
 }
 
@@ -415,6 +422,16 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       exportUnauthorized: 'You are not authorized. Please log in again.',
       exportForbidden: 'You do not have access to export this campaign report.',
       exportNotFound: 'Campaign report was not found.',
+      exportClickReport: 'Download click report',
+      exportingClickReport: 'Downloading click report...',
+      clickReportError: 'Failed to download campaign click report.',
+      clickReportNotFound: 'Campaign click report is not available.',
+      clickReportTimeout:
+        'The click report request timed out. Please try again.',
+      clickReportNetworkError:
+        'Network error while downloading the click report. Please check your connection and try again.',
+      clickReportInvalidResponse:
+        'The server returned an invalid click report response.',
     },
   },
   fa: {
@@ -622,6 +639,15 @@ export const reportsTranslations: Record<'en' | 'fa', ReportsTranslations> = {
       exportUnauthorized: 'احراز هویت ناموفق بود. لطفا دوباره وارد شوید.',
       exportForbidden: 'شما دسترسی لازم برای دریافت خروجی این گزارش را ندارید.',
       exportNotFound: 'گزارش ارسال پیدا نشد.',
+      exportClickReport: 'دانلود گزارش کلیک',
+      exportingClickReport: 'در حال دانلود گزارش کلیک...',
+      clickReportError: 'دانلود گزارش کلیک ارسال ناموفق بود.',
+      clickReportNotFound: 'گزارش کلیک این ارسال در دسترس نیست.',
+      clickReportTimeout:
+        'مهلت دریافت گزارش کلیک به پایان رسید. لطفاً دوباره تلاش کنید.',
+      clickReportNetworkError:
+        'هنگام دانلود گزارش کلیک خطای شبکه رخ داد. اتصال خود را بررسی کرده و دوباره تلاش کنید.',
+      clickReportInvalidResponse: 'پاسخ سرور برای گزارش کلیک نامعتبر بود.',
     },
   },
 };
