@@ -35,6 +35,9 @@ const getLevel3DisplayValue = (campaign: GetCampaignResponse): string => {
   return typeof campaign.level3s === 'string' ? campaign.level3s : '-';
 };
 
+const TITLE_MAX_LENGTH = 40;
+const LEVEL3_MAX_LENGTH = 36;
+
 interface CampaignsTableProps {
   items: GetCampaignResponse[];
   copy: ReportsCopy;
@@ -237,124 +240,127 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
               </tr>
             </thead>
             <tbody className='divide-y divide-gray-200 bg-white'>
-              {items.map(campaign => (
-                <tr key={campaign.uuid} className='hover:bg-gray-50'>
-                  {bulkSelectionMode ? (
+              {items.map(campaign => {
+                const level3Value = getLevel3DisplayValue(campaign);
+
+                return (
+                  <tr key={campaign.uuid} className='hover:bg-gray-50'>
+                    {bulkSelectionMode ? (
+                      <td className={td}>
+                        {campaign.id ? (
+                          <input
+                            type='checkbox'
+                            checked={selectedCampaignIdSet.has(campaign.id)}
+                            onChange={event =>
+                              onToggleCampaignSelection(
+                                campaign.id as number,
+                                event.target.checked
+                              )
+                            }
+                            className='h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                            aria-label={`${selectionColumnLabel} ${campaign.title || campaign.uuid}`}
+                          />
+                        ) : (
+                          '-'
+                        )}
+                      </td>
+                    ) : null}
                     <td className={td}>
-                      {campaign.id ? (
-                        <input
-                          type='checkbox'
-                          checked={selectedCampaignIdSet.has(campaign.id)}
-                          onChange={event =>
-                            onToggleCampaignSelection(
-                              campaign.id as number,
-                              event.target.checked
-                            )
-                          }
-                          className='h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500'
-                          aria-label={`${selectionColumnLabel} ${campaign.title || campaign.uuid}`}
-                        />
-                      ) : (
-                        '-'
-                      )}
-                    </td>
-                  ) : null}
-                  <td className={td}>
-                    <span
-                      className='block truncate'
-                      title={campaign.bundle_title || '-'}
-                    >
-                      {campaign.bundle_title || '-'}
-                    </span>
-                  </td>
-                  <td className={td}>
-                    <span
-                      className='block truncate font-medium text-gray-900'
-                      title={campaign.title || '-'}
-                    >
-                      {truncateText(campaign.title || '', 40)}
-                    </span>
-                  </td>
-                  <td className={td}>
-                    {copy.platforms[campaign.platform ?? 'sms'] ??
-                      campaign.platform ??
-                      copy.platforms.sms}
-                  </td>
-                  <td className={td}>
-                    <span
-                      className='block truncate'
-                      title={getLevel3DisplayValue(campaign)}
-                    >
-                      {getLevel3DisplayValue(campaign)}
-                    </span>
-                  </td>
-                  <td className={td}>{getAggregatedTotalSent(campaign)}</td>
-                  <td className={td}>
-                    {formatPercentValue(campaign.click_rate)}
-                  </td>
-                  <td className={td}>{formatDateTime(campaign.scheduleat)}</td>
-                  <td className={td}>
-                    <span className='block font-medium text-gray-900'>
-                      {statusLabel(campaign.status)}
-                    </span>
-                  </td>
-                  <td className='px-4 py-3 text-sm text-center align-top'>
-                    <div className='flex flex-col gap-2'>
-                      <button
-                        type='button'
-                        onClick={() => onDetails(campaign)}
-                        className='w-full rounded border border-primary-200 bg-primary-50 px-3 py-1.5 font-medium text-primary-700 transition hover:border-primary-300 hover:bg-primary-100'
+                      <span
+                        className='block truncate'
+                        title={campaign.bundle_title || '-'}
                       >
-                        {copy.table.details}
-                      </button>
-                      {(campaign.status === 'waiting-for-approval' ||
-                        campaign.status === 'approved') &&
-                      campaign.id ? (
+                        {campaign.bundle_title || '-'}
+                      </span>
+                    </td>
+                    <td className={td}>
+                      <span
+                        className='block truncate font-medium text-gray-900'
+                        title={campaign.title || '-'}
+                      >
+                        {truncateText(campaign.title || '', TITLE_MAX_LENGTH)}
+                      </span>
+                    </td>
+                    <td className={td}>
+                      {copy.platforms[campaign.platform ?? 'sms'] ??
+                        campaign.platform ??
+                        copy.platforms.sms}
+                    </td>
+                    <td className={td}>
+                      <span className='block truncate' title={level3Value}>
+                        {truncateText(level3Value, LEVEL3_MAX_LENGTH)}
+                      </span>
+                    </td>
+                    <td className={td}>{getAggregatedTotalSent(campaign)}</td>
+                    <td className={td}>
+                      {formatPercentValue(campaign.click_rate)}
+                    </td>
+                    <td className={td}>
+                      {formatDateTime(campaign.scheduleat)}
+                    </td>
+                    <td className={td}>
+                      <span className='block font-medium text-gray-900'>
+                        {statusLabel(campaign.status)}
+                      </span>
+                    </td>
+                    <td className='px-4 py-3 text-sm text-center align-top'>
+                      <div className='flex flex-col gap-2'>
                         <button
                           type='button'
-                          onClick={() => cancelCampaign(campaign)}
-                          disabled={
-                            cancelling[campaign.id] || cancelled[campaign.id]
-                          }
-                          className={`${actionButtonCls} bg-amber-600 hover:bg-amber-700`}
+                          onClick={() => onDetails(campaign)}
+                          className='w-full rounded border border-primary-200 bg-primary-50 px-3 py-1.5 font-medium text-primary-700 transition hover:border-primary-300 hover:bg-primary-100'
                         >
-                          {cancelled[campaign.id]
-                            ? copy.modal.cancelled
-                            : cancelling[campaign.id]
-                              ? copy.modal.cancelling
-                              : copy.modal.cancel}
+                          {copy.table.details}
                         </button>
-                      ) : null}
+                        {(campaign.status === 'waiting-for-approval' ||
+                          campaign.status === 'approved') &&
+                        campaign.id ? (
+                          <button
+                            type='button'
+                            onClick={() => cancelCampaign(campaign)}
+                            disabled={
+                              cancelling[campaign.id] || cancelled[campaign.id]
+                            }
+                            className={`${actionButtonCls} bg-amber-600 hover:bg-amber-700`}
+                          >
+                            {cancelled[campaign.id]
+                              ? copy.modal.cancelled
+                              : cancelling[campaign.id]
+                                ? copy.modal.cancelling
+                                : copy.modal.cancel}
+                          </button>
+                        ) : null}
 
-                      {canClone(campaign.status) ? (
-                        <button
-                          type='button'
-                          onClick={() => handleClone(campaign)}
-                          disabled={cloning[campaign.uuid]}
-                          className={`${actionButtonCls} bg-blue-600 hover:bg-blue-700`}
-                        >
-                          {cloning[campaign.uuid]
-                            ? copy.loading
-                            : copy.clone.button}
-                        </button>
-                      ) : null}
+                        {canClone(campaign.status) ? (
+                          <button
+                            type='button'
+                            onClick={() => handleClone(campaign)}
+                            disabled={cloning[campaign.uuid]}
+                            className={`${actionButtonCls} bg-blue-600 hover:bg-blue-700`}
+                          >
+                            {cloning[campaign.uuid]
+                              ? copy.loading
+                              : copy.clone.button}
+                          </button>
+                        ) : null}
 
-                      {canResume(campaign.status) ? (
-                        <button
-                          type='button'
-                          onClick={() => handleResume(campaign)}
-                          disabled={resuming[campaign.uuid]}
-                          className={`${actionButtonCls} bg-emerald-600 hover:bg-emerald-700`}
-                        >
-                          {resuming[campaign.uuid]
-                            ? copy.loading
-                            : copy.resume.button}
-                        </button>
-                      ) : null}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        {canResume(campaign.status) ? (
+                          <button
+                            type='button'
+                            onClick={() => handleResume(campaign)}
+                            disabled={resuming[campaign.uuid]}
+                            className={`${actionButtonCls} bg-emerald-600 hover:bg-emerald-700`}
+                          >
+                            {resuming[campaign.uuid]
+                              ? copy.loading
+                              : copy.resume.button}
+                          </button>
+                        ) : null}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
