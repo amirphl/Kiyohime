@@ -7,6 +7,7 @@ import { apiService } from '../../../services/api';
 import { useAuth } from '../../../hooks/useAuth';
 import { useToast } from '../../../hooks/useToast';
 import { downloadBlob } from '../../wallet/utils/download';
+import { useCampaignClickReportExport } from '../hooks/useCampaignClickReportExport';
 import {
   LINK_PLACEHOLDER,
   getShortLinkDomainOrDefault,
@@ -68,6 +69,8 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
   const [bundle, setBundle] = useState<BundleListItem | null>(null);
   const [bundleLoading, setBundleLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const { exportClickReport, isExporting: isExportingClickReport } =
+    useCampaignClickReportExport({ copy });
 
   useEffect(() => {
     if (!campaign.bundle_id || !accessToken) {
@@ -217,6 +220,22 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
             <X className='h-4 w-4' />
           </button>
         </div>
+      }
+      footer={
+        hasAdlink ? (
+          <div className='flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end'>
+            <button
+              type='button'
+              onClick={() => exportClickReport(campaign.uuid)}
+              disabled={isExportingClickReport}
+              className='inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60'
+            >
+              {isExportingClickReport
+                ? copy.modal.exportingClickReport
+                : copy.modal.exportClickReport}
+            </button>
+          </div>
+        ) : undefined
       }
     >
       <ReportSection title={copy.modal.comment}>
