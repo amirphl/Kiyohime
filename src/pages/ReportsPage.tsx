@@ -423,7 +423,7 @@ const ReportsPage: React.FC = () => {
 
   return (
     <div className='min-h-screen bg-gray-50'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+      <div className='mx-auto flex w-full max-w-[1920px] flex-col px-2 py-8 sm:px-3 lg:px-4'>
         <FiltersBar
           language={language === 'fa' ? 'fa' : 'en'}
           campaignTitleInput={campaignTitleInput}
