@@ -441,7 +441,10 @@ class ApiService {
     return requestPromise;
   }
 
-  private async requestBinary(endpoint: string): Promise<{
+  private async requestBinary(
+    endpoint: string,
+    options: ApiRequestOptions = {}
+  ): Promise<{
     success: boolean;
     message: string;
     blob?: Blob;
@@ -463,9 +466,18 @@ class ApiService {
 
     try {
       const response = await fetch(url, {
-        method: 'GET',
-        headers,
-        signal: this.createTimeoutSignal(30000),
+        ...options,
+        method: options.method ?? 'GET',
+        headers: {
+          ...(options.headers
+            ? Object.fromEntries(new Headers(options.headers))
+            : undefined),
+          ...headers,
+        },
+        signal: this.createTimeoutSignal(
+          options.timeoutMs ?? 30000,
+          options.signal
+        ),
       });
 
       if (response.status === 401) {
@@ -1014,6 +1026,18 @@ class ApiService {
   }> {
     const endpoint = `/campaigns/${encodeURIComponent(uuid)}/export`;
     return this.requestBinary(endpoint);
+  }
+
+  async exportCampaignClickReport(uuid: string): Promise<{
+    success: boolean;
+    message: string;
+    blob?: Blob;
+    filename?: string;
+  }> {
+    const endpoint = `/campaigns/${encodeURIComponent(uuid)}/click-report`;
+    return this.requestBinary(endpoint, {
+      timeoutMs: 60000,
+    });
   }
 
   async calculateCampaignCapacity(
